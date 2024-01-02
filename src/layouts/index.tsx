@@ -1,8 +1,8 @@
 import React, {useEffect, useState, Fragment} from 'react'
-import { Link, IRouteComponentProps, useLocation, Outlet } from 'umi';
+import { Link, useLocation, Outlet } from 'umi';
 import './index.less';
 
-export default function Layout(props: IRouteComponentProps) {
+export default function Layout(props: any) {
   let { pathname } = useLocation();
   //大部分页面main-inner有padding，但是有些页面没有，例如首页
   const [hasPadding, setHasPadding] = useState(true);

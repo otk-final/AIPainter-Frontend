@@ -1,5 +1,4 @@
-import React, {useEffect, useState, Fragment} from 'react'
-import { Link, IRouteComponentProps, useLocation } from 'umi';
+import React, {useEffect} from 'react'
 import './index.less'
 
 const data = [
@@ -78,9 +77,6 @@ const HomePage = () => {
               )
             })}
         </div>
-      
-
-      
     </div>
   );
 }
