@@ -1,0 +1,87 @@
+
+
+.flexR {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.flexC {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.flexCenter {
+  justify-content: center;
+}
+/*一排省略*/
+.one-line {
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: -o-ellipsis-lastline;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+/*两排省略*/
+.two-line {
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: -o-ellipsis-lastline;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+/*三排省略*/
+.three-line {
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: -o-ellipsis-lastline;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+/**页面title展示css*/
+.page-title-common {
+  padding-bottom: 16px;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 24px;
+  border-bottom: 1px solid #f0f1f3;
+}
+/**左侧菜单图标样式*/
+.ant-pro-sider-logo img {
+  width: 22px;
+  height: 22px;
+}
+.ant-pro-menu-item {
+  display: flex;
+  align-items: center;
+}
+.ant-pro-sider-menu-icon {
+  width: 18px;
+  height: 18px;
+}
+.ant-menu-sub .ant-pro-menu-item {
+  margin-left: 10px;
+}
+/**input*/
+
+.ant-input {
+  border-color: none !important;
+  box-shadow: none !important;
+}
+
+/*列表Table*/
+.ant-table-thead > tr > th {
+  color: rgba(0, 16, 47, 0.85);
+  font-weight: 600;
+  background: #f5f6f7;
+  border-bottom: 1px solid #d9dbe0;
+}
+.ant-table-tbody > tr > td {
+  border-bottom: 1px solid #d9dbe0;
+}
