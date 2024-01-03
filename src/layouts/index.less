@@ -1,5 +1,5 @@
 body {
-  background-color: #000;
+  background-color: #1E1F22;
   padding: 0;
   margin: 0;
   color: #eee;
@@ -8,55 +8,75 @@ body {
 .navs {
   box-sizing: border-box;
   width: 100vw;
-  padding: 10px 30px;
-  background-color: #000;
+  height: 90px;
+  background-color: #1E1F22;
   justify-content: space-between;
+
+  & .point {
+    background-color: #C03132;
+    width: 12px;
+    height: 12px;
+    border-radius: 6px;
+    margin-right: 12px;
+    margin-left: 48px;
+  }
+
+  & .left {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.6);
+    & .status-text {
+      color: #C03132;
+      margin-right: 4px;
+    }
+
+  }
 
   & .right {
     justify-content: flex-end;
   }
 
   & .endtime-wrap {
-    font-size: 14px;
-    color: #666;
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.6);
     & .endtime {
-      color: #AA95F1;
+      color:  @primary-color;
       margin-left: 4px;
     }
   }
 
   & .member {
-    font-size: 12px;
-    color: #E8C9AD;
+    font-size: 18px;
+    color: #F8D59F;
     padding: 0 14px;
-    height: 30px;
+    height: 42px;
     border: 1px solid #666;
-    margin: 0 20px;
-    line-height: 30px;
-    border-radius: 6px;
+    margin: 0 24px;
+    line-height: 42px;
+    border-radius: 8px;
   }
 
   & .help {
-    width: 20px;
-    height: 20px;
+    width: 28px;
+    height: 28px;
     font-size: 16px;
     color: #000;
     font-weight: bold;
     background-color: #eee;
     text-align: center;
-    line-height: 20px;
-    margin-right: 20px;
-    border-radius: 10px;
+    line-height: 28px;
+    margin-right: 40px;
+    border-radius: 20px;
   }
 
   & .user-img {
-    width: 30px;
-    height: 30px;
-    border-radius: 15px;
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
     background-color: #AA95F1;
+    margin-right: 48px;
   }
 
-  & .login {
+  & .login-btn {
     width: 100px;
     height: 30px;
     border-radius: 15px;
@@ -66,5 +86,35 @@ body {
     text-align: center;
     line-height: 30px;
     cursor: pointer;
+    margin-right: 48px;
+  }
+}
+
+
+
+.ant-input.ant-input-lg{
+  background-color: #414246;
+  border: none;
+  height: 50px;
+  color: #eee;
+}
+
+
+.ant-modal {
+  & .ant-modal-header {
+    background-color: #2B2D31;
+  }
+  & .ant-modal-content{
+    background-color: #2B2D31;
+    padding: 40px;
+  }
+
+  & .ant-modal-title {
+    text-align: center;
+    color: #eee;
+  }
+
+  & .ant-modal-close {
+    color: #666;
   }
 }

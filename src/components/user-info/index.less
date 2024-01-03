@@ -1,0 +1,86 @@
+.home-user-info {
+    & .user-info-title {
+        justify-content: space-between;
+        border-top: 1px solid #3b3b40;
+        padding: 40px 0;
+        font-size: 24px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-top: 10px;
+    }
+
+    & .section-item {
+        margin-bottom: 30px;
+        line-height: 1;
+        justify-content: space-between;
+        font-size: 20px;
+    }
+
+    & .section-item-left {
+        flex: 1;
+        margin-right: 20px;
+    }
+
+    & .section-item-right {
+        flex: 1;
+    }
+
+    & .left-text {
+        color: rgba(255, 255, 255, 0.6);
+        justify-content: space-between;
+    }
+
+    & .edit {
+        text-decoration: underline;
+        color: @primary-color;
+        cursor: pointer;
+    }
+
+    & .charge-btn {
+        align-self: flex-end;
+    }
+
+    & .user-info-bottom {
+        justify-content: space-between;
+        padding: 0 80px;
+        & .num {
+            font-size: 32px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        & .text {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+    }
+
+    & .user-info-qrCode-wrap {
+        justify-content: space-between;
+        padding: 50px 220px 0;
+    }
+
+    & .qrcode-img {
+        width: 120px;
+        height: 120px;
+        background-color: #111;
+        margin-bottom: 10px;
+    }
+
+    & .qrcode-text {
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    & .ant-btn.ant-btn-primary {
+        background-color: @primary-color;
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.8);
+        width: 120px;
+        height: 42px;
+        border-radius: 6px;
+        &:hover{
+            background-color:  @primary-color;
+        }
+    }
+}

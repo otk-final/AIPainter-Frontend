@@ -1,5 +1,6 @@
 import React, {useEffect, useState, Fragment} from 'react'
-import { Link, IRouteComponentProps, useLocation } from 'umi';
+import { Link,  useLocation } from 'umi';
+import './index.less'
 
 const SettingPage = () => {
     useEffect(()=>{

@@ -2,38 +2,39 @@ import React, {useEffect, useState, Fragment} from 'react'
 import { Link, useLocation, Outlet } from 'umi';
 import { useLogin} from '@/uses'
 import './index.less';
+import { Button, Popover } from 'antd';
+import LoginModule from '@/components/login';
+import UserInfoModule from '@/components/user-info';
 
 export default function Layout(props: any) {
   let { pathname } = useLocation();
   const {login, logout, loginState} = useLogin();
-  //大部分页面main-inner有padding，但是有些页面没有，例如首页
-  const [hasPadding, setHasPadding] = useState(true);
+  const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleOk = () => {
-    setIsModalOpen(false);
-    // const res = {isLogin: true}
-    // login(res)
-  };
-
-  useEffect(() => {
-    if (pathname == '/') {
-      setHasPadding(false);
-    }
-  }, []);
   
   const handleLogin = ()=> {
     setIsModalOpen(true);
   }
 
-  const handleLogout = ()=>{
-    logout()
+  const renderPopoverContent = ()=>{
+    return (
+      <div className="flexC">
+        <Button type="text" onClick={()=> setIsUserInfoOpen(true)}>个人信息</Button>
+        {/* 缺少二次确认 */}
+        <Button type="text" onClick={logout}>退出登陆</Button>
+      </div>
+    )
   }
 
   return (
     <Fragment>
         <div className="navs flexR">
-          <div>sss</div>
+          <div className='left flexR'>
+            <span className="point"/>
+            <div className='status-text'>未启动</div>
+            <div>Stable-Diffusion-WebUI</div>
+          </div>
           <div className="right flexR">
             {loginState.isLogin ? 
             <Fragment>
@@ -45,29 +46,17 @@ export default function Layout(props: any) {
              : null}
             <div className="help">?</div>
 
-            {loginState.isLogin ? <img src='' className="user-img" onClick={handleLogout}/> : <div className='login' onClick={handleLogin}>登陆/注册</div>}
+            {loginState.isLogin ?  
+             <Popover placement="bottomLeft"  content={renderPopoverContent} arrow={false}>
+              <img src='' className="user-img"/>
+              </Popover>
+             : <div className='login-btn' onClick={handleLogin}>登陆/注册</div>}
             
           </div>
-          {/* <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/docs">Docs</Link>
-            </li>
-            <li>
-              <a href="https://github.com/umijs/umi">Github</a>
-            </li>
-          </ul> */}
         </div>
-        <div
-            className={`main-inner ${!hasPadding ? 'no-padding' : ''}`}
-          >
-            {props.children}
-          </div>
-          <Outlet/> 
+        <LoginModule isOpen={isModalOpen} onClose={()=> setIsModalOpen(false)}/>
+        <UserInfoModule isOpen={isUserInfoOpen} onClose={()=> setIsUserInfoOpen(false)}/>
+        <Outlet/> 
     </Fragment>
-
-    
   );
 }

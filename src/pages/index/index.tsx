@@ -1,20 +1,24 @@
-import React, {useEffect} from 'react'
+import React, {useEffect, useState} from 'react'
 import { Carousel } from 'antd';
 import './index.less'
 import assets from '@/assets'
+import CreateProjectModule from '@/components/create-project';
 
 const data = [
   {
+    key: "create",
     title: "创作视频",
     describe: "三步完成批量绘图&音视频生成",
     btnText: "开始创作"
   },
   {
+    key: "set",
     title: "通用设置",
     describe: "快速设置SD环境、绘画参数等配置",
     btnText: "去设置"
   },
   {
+    key: "paint-module",
     title: "绘画模版",
     describe: "基于小说推文特性的SDWebUI模板",
     btnText: "去设置"
@@ -55,11 +59,13 @@ const carouselData = [
 ]
 
 const HomePage = () => {
-  useEffect(()=>{
-    console.log("shouye")
-  },[]) 
+  const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
 
-  const onChange = ()=>{
+  const handleBtn = (type: string) => {
+    console.log("sss")
+    if(type === "create") {
+      setIsCreateProjectOpen(true);
+    }
 
   }
 
@@ -97,7 +103,7 @@ const HomePage = () => {
 
   return (
     <div className="home-wrap">
-      <Carousel afterChange={onChange} className="carousel-wrap" autoplay>
+      <Carousel className="carousel-wrap" autoplay>
         {carouselData.map((i, index)=>{
           return (
             <div key={index}>
@@ -114,9 +120,9 @@ const HomePage = () => {
                 <div className="home-item-wrap flexR" key={index}>
                   <div className="left flexC">
                     <div className="title">{i.title}</div>
-                    <div className="describe">{i.describe}</div>
+                    <div className="describe one-line">{i.describe}</div>
                   </div>
-                  <div className="right btn">{i.btnText}</div>
+                  <div className="right btn" onClick={()=> handleBtn(i.key)}>{i.btnText}</div>
                 </div>
               )
             })}
@@ -126,7 +132,7 @@ const HomePage = () => {
 
         {!myCreationData.length ? renderMyCreation() :renderMyCreationEmpty()}
 
-        
+        <CreateProjectModule isOpen={isCreateProjectOpen} onClose={()=> setIsCreateProjectOpen(false)}/>
     </div>
   );
 }

@@ -10,6 +10,8 @@
 # production
 /dist
 
+# misc
+.DS_Store
 
 /.env.local
 /.umirc.local.ts
