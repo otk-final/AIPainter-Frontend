@@ -1,5 +1,7 @@
 import React, {useEffect} from 'react'
+import { Carousel } from 'antd';
 import './index.less'
+import assets from '@/assets'
 
 const data = [
   {
@@ -37,22 +39,84 @@ const myCreationData = [
   }
 ]
 
+const carouselData = [
+  {
+    title: "1",
+    url: assets.banner
+  },
+  {
+    title: "2",
+    url: assets.banner
+  },
+  {
+    title: "3",
+    url: assets.banner
+  }
+]
+
 const HomePage = () => {
   useEffect(()=>{
     console.log("shouye")
   },[]) 
 
+  const onChange = ()=>{
+
+  }
+
+  const renderMyCreation = ()=>{
+    return (
+      <div className="section-create-wrap flexR">
+        { myCreationData.map((i, index)=>{
+            return (
+              <div className="home-item-wrap flexR" key={index}>
+                <div className="left flexC">
+                  <div className="title">{i.title}</div>
+                  <div className="describe">开始时间: {i.startTime}</div>
+                  <div className="describe">当前环节: {i.status}</div>
+                </div>
+                <div className="right">
+                  <div className="btn">继续创作</div>
+                  <div className="btn">删除</div>
+                </div>
+              </div>
+            )
+          }) }
+      </div>
+     
+    )
+  }
+
+  const renderMyCreationEmpty = ()=>{
+    return (
+      <div className="empty-wrap flexC">
+        <img src="" className="empty-img"/>
+        <div className="text">暂无创作</div>
+      </div>
+    )
+  }
+
   return (
     <div className="home-wrap">
+      <Carousel afterChange={onChange} className="carousel-wrap" autoplay>
+        {carouselData.map((i, index)=>{
+          return (
+            <div key={index}>
+              <img src={i.url}  />
+            </div>
+          )
+        })}
+      </Carousel>
+
+
         <div className="home-section flexR">
-            {data.map((item, index)=>{
+            {data.map((i, index)=>{
               return (
                 <div className="home-item-wrap flexR" key={index}>
                   <div className="left flexC">
-                    <div className="title">{item.title}</div>
-                    <div className="describe">{item.describe}</div>
+                    <div className="title">{i.title}</div>
+                    <div className="describe">{i.describe}</div>
                   </div>
-                  <div className="right btn">{item.btnText}</div>
+                  <div className="right btn">{i.btnText}</div>
                 </div>
               )
             })}
@@ -60,23 +124,9 @@ const HomePage = () => {
 
         <div className="section-title-wrap">我的创作<span>（生成素材特为您保留30天）</span></div>
 
-        <div className="section-create-wrap flexR">
-          {myCreationData.map((item, index)=>{
-              return (
-                <div className="home-item-wrap flexR" key={index}>
-                  <div className="left flexC">
-                    <div className="title">{item.title}</div>
-                    <div className="describe">开始时间: {item.startTime}</div>
-                    <div className="describe">当前环节: {item.status}</div>
-                  </div>
-                  <div className="right">
-                    <div className="btn">继续创作</div>
-                    <div className="btn">删除</div>
-                  </div>
-                </div>
-              )
-            })}
-        </div>
+        {!myCreationData.length ? renderMyCreation() :renderMyCreationEmpty()}
+
+        
     </div>
   );
 }
