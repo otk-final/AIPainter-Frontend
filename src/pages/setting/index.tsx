@@ -5,11 +5,12 @@ import { setTabItems, PaintFormValueProps} from './data'
 import PaintSetting from './paint-setting';
 import BasicSetting from './basic-setting';
 import { LeftOutlined } from '@ant-design/icons';
+import {history} from "umi"
 
 type setTabType = "paint" | "translate" | "basic"
 
 const SettingPage = () => {
-  const [cur, setCur] = useState<setTabType>("basic");
+  const [cur, setCur] = useState<setTabType>("paint");
 
   const onChange = (key: string) => {
       setCur(key as setTabType);
@@ -23,8 +24,8 @@ const SettingPage = () => {
       <div className="setting-wrap">
         <div className='page-header flexR'>
           <div className="flexR">
-            <div className="nav-back"><LeftOutlined twoToneColor="#fff"/></div>
-            <Tabs defaultActiveKey="basic" items={setTabItems} onChange={onChange} />
+            <div className="nav-back" onClick={()=> history.back()}><LeftOutlined twoToneColor="#fff"/></div>
+            <Tabs defaultActiveKey="paint" items={setTabItems} onChange={onChange} />
           </div>
           <Button type="primary" className="setting-btn" onClick={handleSave}>保存设置</Button>
         </div>

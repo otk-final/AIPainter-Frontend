@@ -1,4 +1,5 @@
 import { useLogin } from "@/uses";
+import { SyncOutlined } from "@ant-design/icons";
 import { Button, Input, message, Modal, Radio } from "antd"
 import { Fragment, useEffect, useState } from "react";
 import "./index.less"
@@ -23,7 +24,7 @@ const CreateProjectModule:React.FC<CreateProjectModuleProps> = ({isOpen, onClose
                 <div className="title flexR">Stable-Diffusion-WebUI环境<span>已启动</span></div>
                 <div className=" flexR">
                     <Input placeholder="http://127.0.0.1:7860/"  size="large" />
-                    <div className="btn-refresh"></div>
+                    <div className="btn-refresh"><SyncOutlined/></div>
                 </div>
                 <div className="sub-text flexR">请保证SDWebUI启动，并开启AP服务<span>开启方法</span></div>
                 <Button type="primary" block className="create-btn">创建项目</Button>
