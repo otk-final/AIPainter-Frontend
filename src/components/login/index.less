@@ -1,11 +1,11 @@
 .home-login-modal{
     & .prefix-wrap {
         font-size: 14px;
-        color: #eee;
+        color: @l-font-color;
         & .line {
             width: 1px;
             height: 20px;
-            background-color: #eee;
+            background-color: @l-font-color;
             margin: 0 20px;
         }
     }
@@ -18,13 +18,13 @@
 
     & .btn-getCode {
         width: 180px;
-        height: 50px;
+        height: 72px;
         font-size: 14px;
-        color: #eee;
+        color: @l-font-color;
         text-align: center;
-        line-height: 50px;
+        line-height: 72px;
         margin-left: 20px;
-        background-color: #414246;
+        background-color: @bg-input;
         border-radius: 6px;
         cursor: pointer;
     }
@@ -36,12 +36,12 @@
             border-color: @primary-color;
         }
         & .ant-radio-inner {
-            background-color: #2B2D31;
+            background-color: @bg-modal;
         }
 
         & .label {
             font-size: 12px;
-            color: #eee;
+            color: @xs-font-color;
             & span {
                 color:  @primary-color;
             }
@@ -51,8 +51,9 @@
 
     & .submit-btn.ant-btn{
         margin-top: 30px;
-        height: 50px;
+        height: 72px;
         background-color:  @primary-color;
+        font-size: 20px;
         &:hover {
             background-color:  @primary-color;
         }
@@ -60,13 +61,13 @@
 
     & .ant-input-affix-wrapper.ant-input-affix-wrapper-lg {
         padding: 0 11px;
-        background-color: #414246;
+        background-color: @bg-input;
         border: none;
     }
 
 }
 
 .ant-message .ant-message-notice-wrapper .ant-message-notice-content {
-    background-color: #414246;
-    color: #ddd;
+    background-color: @bg-input;
+    color: @l-font-color;
 }

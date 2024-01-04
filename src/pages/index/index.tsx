@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import { Carousel } from 'antd';
+import { Carousel, Image, ImageProps } from 'antd';
 import './index.less'
 import assets from '@/assets'
 import CreateProjectModule from '@/components/create-project';
@@ -107,7 +107,7 @@ const HomePage = () => {
         {carouselData.map((i, index)=>{
           return (
             <div key={index}>
-              <img src={i.url}  />
+              <Image  src={i.url} width="100%"  height={384} preview={false}/>
             </div>
           )
         })}

@@ -19,14 +19,14 @@ const CreateProjectModule:React.FC<CreateProjectModuleProps> = ({isOpen, onClose
             width={700}
             className="home-login-modal create-project">
                 <div className="title">小说别名（必填）</div>
-                <Input placeholder="请输入小说别名" />
+                <Input placeholder="请输入小说别名"  size="large"  />
                 <div className="title flexR">Stable-Diffusion-WebUI环境<span>已启动</span></div>
-                <div>
-                    <Input placeholder="请输入小说别名" />
-                    <div className="btn"></div>
+                <div className=" flexR">
+                    <Input placeholder="http://127.0.0.1:7860/"  size="large" />
+                    <div className="btn-refresh"></div>
                 </div>
-                <div className="sub-text flexR">请保证SDWebUI启动，并开启AP服务<span>丑启方法</span></div>
-                <Button type="primary" block>创建项目</Button>
+                <div className="sub-text flexR">请保证SDWebUI启动，并开启AP服务<span>开启方法</span></div>
+                <Button type="primary" block className="create-btn">创建项目</Button>
         </Modal>
     )
 }

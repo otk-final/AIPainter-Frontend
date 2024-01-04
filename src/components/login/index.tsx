@@ -1,6 +1,6 @@
 import { useLogin } from "@/uses";
 import { Button, Input, message, Modal, Radio } from "antd"
-import { Fragment, useEffect, useState } from "react";
+import { useState } from "react";
 import "./index.less"
 
 interface LoginModuleProps {
@@ -57,11 +57,12 @@ const LoginModule:React.FC<LoginModuleProps> = ({isOpen, onClose})=> {
             open={isOpen} 
             onCancel={onClose} 
             footer={null}
-            className="home-login-modal">
+            className="home-login-modal"
+            width={600}>
             <Input size="large"  maxLength={11} placeholder="请输入手机号" prefix={renderPrefix()} 
             onChange={(v)=> setPhone(v.target.value)}/>
             <div className="verify-wrap flexR">
-                <Input size="large" placeholder="请输入手机验证码"  onChange={(v)=> setVerify(v.target.value)}/>
+                <Input size="large" placeholder="请输入手机验证码" maxLength={4} onChange={(v)=> setVerify(v.target.value)}/>
                 <div className="btn-getCode" onClick={handleGetVerifyCode}>荻取验证码</div>
             </div>
             <Input size="large" placeholder="请输入邀请码(可为空）"  />

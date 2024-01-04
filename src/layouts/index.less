@@ -1,19 +1,19 @@
 body {
-  background-color: #1E1F22;
+  background-color: @bg-primary;
   padding: 0;
   margin: 0;
-  color: #eee;
+  color: @m-font-color;
 }
 
 .navs {
   box-sizing: border-box;
   width: 100vw;
   height: 90px;
-  background-color: #1E1F22;
+  background-color: @bg-primary;
   justify-content: space-between;
 
   & .point {
-    background-color: #C03132;
+    background-color: @error-color;
     width: 12px;
     height: 12px;
     border-radius: 6px;
@@ -23,9 +23,9 @@ body {
 
   & .left {
     font-size: 20px;
-    color: rgba(255, 255, 255, 0.6);
+    color: @s-font-color;
     & .status-text {
-      color: #C03132;
+      color: @error-color;
       margin-right: 4px;
     }
 
@@ -37,7 +37,7 @@ body {
 
   & .endtime-wrap {
     font-size: 20px;
-    color: rgba(255, 255, 255, 0.6);
+    color: @s-font-color;
     & .endtime {
       color:  @primary-color;
       margin-left: 4px;
@@ -49,7 +49,7 @@ body {
     color: #F8D59F;
     padding: 0 14px;
     height: 42px;
-    border: 1px solid #666;
+    border: 1px solid @line-color;
     margin: 0 24px;
     line-height: 42px;
     border-radius: 8px;
@@ -61,7 +61,7 @@ body {
     font-size: 16px;
     color: #000;
     font-weight: bold;
-    background-color: #eee;
+    background-color: #c4c4c4;
     text-align: center;
     line-height: 28px;
     margin-right: 40px;
@@ -80,9 +80,9 @@ body {
     width: 100px;
     height: 30px;
     border-radius: 15px;
-    background-color: #333;
+    background-color: @bg-btn;
     font-size: 14px;
-    color: #eee;
+    color: @l-font-color;
     text-align: center;
     line-height: 30px;
     cursor: pointer;
@@ -93,25 +93,29 @@ body {
 
 
 .ant-input.ant-input-lg{
-  background-color: #414246;
+  background-color: @bg-input;
   border: none;
-  height: 50px;
-  color: #eee;
+  height: 72px;
+  color: @l-font-color;
+  &::placeholder {
+    color: @xs-font-color;
+  }
 }
 
 
 .ant-modal {
   & .ant-modal-header {
-    background-color: #2B2D31;
+    background-color: @bg-modal;
+    margin-bottom: 30px;
   }
   & .ant-modal-content{
-    background-color: #2B2D31;
+    background-color: @bg-modal;
     padding: 40px;
   }
 
   & .ant-modal-title {
     text-align: center;
-    color: #eee;
+    color: @l-font-color;
   }
 
   & .ant-modal-close {

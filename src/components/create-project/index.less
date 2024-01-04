@@ -1,10 +1,45 @@
 .create-project {
     & .title {
-        font-size: 18px;
-        color: rgba(255, 255, 255, 0.8);
+        font-size: 22px;
+        color: @m-font-color;
         margin-bottom: 12px;
         margin-top: 20px;
         justify-content: space-between;
-        
+
+        & span {
+            color: "#239D0F";
+        }
+    }
+
+    & .sub-text {
+        justify-content: space-between;
+        margin-top: 14px;
+        color: @xs-font-color;
+        font-size: 18px;
+
+        & span {
+            color: @primary-color;
+        }
+    }
+
+    & .btn-refresh {
+        width: 72px;
+        height: 72px;
+        flex: 0 0 72px;
+        margin-left: 14px;
+        box-sizing: border-box;
+        border: 1px solid #48494c;
+        background-color: @bg-input;
+        border-radius: 8px;
+    }
+
+    & .create-btn.ant-btn{
+        margin-top: 30px;
+        height: 72px;
+        background-color:  @primary-color;
+        font-size: 20px;
+        &:hover {
+            background-color:  @primary-color;
+        }
     }
 }
