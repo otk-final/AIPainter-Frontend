@@ -18,8 +18,9 @@ export default defineConfig({
     '@bg-card': "#29292D",
     '@bg-modal': "#2B2D31",
     '@bg-btn': "#424242",
-    "@bg-input": "#414246",
-    "@line-color": "#2D2D2E"
+    "@bg-input": "#1B1B1C",
+    "@line-color": "#2D2D2E",
+    "@border-line-color": "#484848"
   }
 });
 

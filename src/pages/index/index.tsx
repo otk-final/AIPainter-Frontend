@@ -3,6 +3,7 @@ import { Carousel, Image, ImageProps } from 'antd';
 import './index.less'
 import assets from '@/assets'
 import CreateProjectModule from '@/components/create-project';
+import {history} from "umi"
 
 const data = [
   {
@@ -65,8 +66,9 @@ const HomePage = () => {
     console.log("sss")
     if(type === "create") {
       setIsCreateProjectOpen(true);
+    }else if(type === "set") {
+      history.push("/setting")
     }
-
   }
 
   const renderMyCreation = ()=>{

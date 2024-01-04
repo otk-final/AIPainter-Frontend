@@ -91,7 +91,7 @@ body {
 }
 
 
-
+// 全局input 样式覆盖
 .ant-input.ant-input-lg{
   background-color: @bg-input;
   border: none;
@@ -103,6 +103,7 @@ body {
 }
 
 
+// 全局弹出框 样式覆盖
 .ant-modal {
   & .ant-modal-header {
     background-color: @bg-modal;
@@ -122,3 +123,33 @@ body {
     color: #666;
   }
 }
+
+// 全局tabs 样式覆盖
+.ant-tabs  {
+  .ant-tabs-nav {
+    &::before {
+      display: none;
+    }
+  }
+  & .ant-tabs-tab {
+    color: @l-font-color;
+    font-size: 20px;
+    &:hover  {
+      color: @l-font-color;
+    }
+    &.ant-tabs-tab-active .ant-tabs-tab-btn {
+      color: @l-font-color;
+    }
+
+    &.ant-tabs-tab-btn:active {
+      color: @l-font-color;
+    }
+  }
+
+  & .ant-tabs-ink-bar {
+    background-color: @primary-color;
+  }
+}
+
+
+
