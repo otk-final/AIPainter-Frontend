@@ -63,7 +63,6 @@ const HomePage = () => {
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
 
   const handleBtn = (type: string) => {
-    console.log("sss")
     if(type === "create") {
       setIsCreateProjectOpen(true);
     }else if(type === "set") {

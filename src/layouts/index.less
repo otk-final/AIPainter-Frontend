@@ -97,6 +97,7 @@ body {
   justify-content: space-between;
   box-sizing: border-box;
   margin-bottom: 24px;
+  padding-right: 30px;
   
 
   & .nav-back {
@@ -117,6 +118,7 @@ body {
   border: none;
   height: 72px;
   color: @l-font-color;
+  border: 1px solid @border-line-color;
   &::placeholder {
     color: @xs-font-color;
   }
@@ -171,5 +173,39 @@ body {
   }
 }
 
+// 全局按钮 btn 150宽 主题色
+.btn-primary-150 {
+  height: 54px;
+  background-color: @primary-color;
+  min-width: 150px;
+  font-size: 18px;
+  margin-left: 24px;
+  &.ant-btn.ant-btn-primary:hover {
+      background-color: @primary-color;
+  }
 
+  &.change-position-btn {
+      background-color: #666;
+      &.ant-btn.ant-btn-primary:hover {
+          background-color: #666;
+      }
+  }
+}
+
+// 全局下来框 样式覆盖
+.ant-select-dropdown {
+  background-color: @bg-input;
+
+  & .ant-select-item.ant-select-item-option {
+      height: 72px;
+      line-height: 72px;
+      color: @m-font-color;
+      font-size: 24;
+      background-color: @bg-input;
+
+      &.ant-select-item-option-active {
+          background-color:  @bg-modal;
+      }
+  }
+}
 

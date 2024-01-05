@@ -128,7 +128,7 @@ const PaintSetting:React.FC<PaintSettingProps> = ({onCallBack})=>{
                 </div>
                 <div className='setting-form flexR half-width'>
                     <Input size="large" placeholder="http://127.0.0.1:7860/"  className='input-s '/>
-                    <Button type="primary" className="setting-btn">检测环境</Button>
+                    <Button type="primary" className="btn-primary-150">检测环境</Button>
                 </div>
                 </div>
                 <div className='setting-section no-padding-h'>

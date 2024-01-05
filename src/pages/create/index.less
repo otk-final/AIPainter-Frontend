@@ -1,0 +1,46 @@
+.create-wrap {
+    
+}
+
+.storyboard-wrap {
+    & .empty {
+        & .empty-img {
+            width: 260px;
+            height: 260px;
+            background-color: #666;
+        }
+
+        & .empty-text {
+            font-size: 20px;
+            color: @s-font-color;
+            text-align: center;
+            margin-top: 26px;
+        }
+
+        & .import-btn {
+            width: 366px;
+            height: 66px;
+            background-color: @bg-btn;
+            font-size: 22px;
+            color: @l-font-color;
+            margin-top: 64px;
+            border: 1px solid #37373A;
+            cursor: pointer;
+            border-radius: 8px;
+            text-align: center;
+            line-height: 66px;
+            &:hover {
+                border: 1px solid @xs-font-color;
+            }
+        }
+
+        & .sub-text {
+            font-size: 18px;
+            color: @xs-font-color;
+            margin-top: 60px;
+            & span {
+                color: @primary-color;
+            }
+        }
+    }
+}

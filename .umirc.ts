@@ -5,6 +5,7 @@ export default defineConfig({
   routes: [
     { path: "/", component: "@/pages/index/index" },
     { path: "/setting", component: "@/pages/setting/index" },
+    { path: "/create", component: "@/pages/create/index" },
   ],
   npmClient: 'yarn',
   theme:{

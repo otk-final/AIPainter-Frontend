@@ -25,9 +25,9 @@ const BasicSetting:React.FC<BasicSettingProps> = ({onCallBack})=>{
                 <div className="flexR">
                     <Input size="large" disabled placeholder="http://127.0.0.1:7860/"  className='input-s '/>
                     <Upload action="" directory>
-                        <Button type="primary" className="setting-btn change-position-btn" onChange={handleChangePosition}>更改存储位蛋</Button>
+                        <Button type="primary" className="btn-primary-150 change-position-btn" onChange={handleChangePosition}>更改存储位蛋</Button>
                     </Upload>
-                    <Button type="primary" className="setting-btn" onChange={handleRegain}>恢复为默认位罝</Button>
+                    <Button type="primary" className="btn-primary-150" onChange={handleRegain}>恢复为默认位罝</Button>
                 </div>
             </div>
 
