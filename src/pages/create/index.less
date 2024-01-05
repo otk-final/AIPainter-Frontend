@@ -1,8 +1,5 @@
-.create-wrap {
-    
-}
-
 .storyboard-wrap {
+    padding: 0 30px;
     & .empty {
         & .empty-img {
             width: 260px;
@@ -43,4 +40,120 @@
             }
         }
     }
+
+    & .script-header {
+        justify-content: space-between;
+        & .btn-default-150.l-p {
+            margin-left: 0;
+        }
+
+        & .right {
+            align-items: flex-end;
+        }
+        & .text {
+            margin-left: 6px;
+            font-size: 18px;
+            color: @l-font-color;
+            line-height: 1;
+            margin-top: 5px;
+        }
+    }
+}
+
+.script-table-wrap {
+    margin-top: 30px;
+
+
+
+    & .th {
+        background-color: #29292D;
+        height: 90px;
+        border-radius: 8px;
+        line-height: 90px;
+        
+    }
+
+    & .th-td {
+        font-size: 22px;
+        color: @m-font-color;
+        text-align: center;
+        padding: 0 16px;
+       
+    }
+
+    & .tr {
+        display:-webkit-flex;
+        align-items: stretch;
+        background-color: #121212;
+        &:nth-child(even) {
+            background-color: #1B1B1D;
+        }
+    }
+
+    & .td {
+        justify-content: flex-start;
+        height:inherit;
+        border-right: 1px dashed #484848;
+        padding: 12px 16px;
+        box-sizing: border-box;
+        font-size: 18px;
+        color: @m-font-color;
+
+        & .index {
+            height: 36px;
+            background-color: @bg-btn;
+            padding: 0 16px;
+            line-height: 36px;
+            font-size: 18px;
+            color: @m-font-color;
+            margin-bottom: 14px;
+
+        }
+
+        & .btn-default-108 {
+            width: 108px;
+            height: 36px;
+            border: 1px solid #37373A;
+            font-size: 18px;
+            margin: 7px;
+            padding: 0;
+            &:hover {
+                border-color: @m-font-color;
+            }
+        }
+
+        & .role-wrap {
+            justify-content: space-between;
+            align-self: flex-start;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        & .switch-auto.ant-switch {
+            background-color: #666;
+            width: 66px;
+            height: 34px;
+            border: none;
+           & .ant-switch-handle, & .ant-switch-handle::before {
+                width: 28px;
+                height: 28px;
+                border-radius: 28px;
+                // &::before {
+                //     width: 28px;
+                //     height: 28px;
+                //     border-radius: 32px;
+                // }
+           }
+         
+           &.ant-switch-checked {
+                background-color: @primary-color;
+                & .ant-switch-handle {
+                    inset-inline-start: calc(100% - 28px)
+                }
+    
+           }
+    
+        }
+    }
+
 }
