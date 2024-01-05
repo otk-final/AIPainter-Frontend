@@ -37,7 +37,7 @@ const CreateProjectModule:React.FC<CreateProjectModuleProps> = ({isOpen, onClose
                     <div className="btn-refresh"><SyncOutlined /></div>
                 </div>
                 <div className="sub-text flexR">请保证SDWebUI启动，并开启AP服务<span>开启方法</span></div>
-                <Button type="primary" block className="create-btn" onClick={handleCreate}>创建项目</Button>
+                <Button type="primary" block className="btn-primary-auto" onClick={handleCreate}>创建项目</Button>
         </Modal>
     )
 }

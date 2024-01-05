@@ -50,7 +50,7 @@ const FileImportModule:React.FC<FileImportModuleProps> = ({isOpen, onClose})=> {
                   ]}
                 />
                 <div className="sub-text">上传文件仅支持小于<span>1MB</span> ，且文件后级为<span>.docx</span>或<span>.txt</span>文件。单次上传的分镜数请勿超过 <span>200</span>个。每个分镜的原文句子请勿超过100字。</div>
-                <Button type="primary" block  className="script-inport-btn" loading={loading} onClick={handleImport}>导入文件</Button>
+                <Button type="primary" block  className="btn-primary-auto" loading={loading} onClick={handleImport}>导入文件</Button>
             </div>
         )
     }
@@ -58,9 +58,9 @@ const FileImportModule:React.FC<FileImportModuleProps> = ({isOpen, onClose})=> {
     const renderExcelImport = ()=>{
         return (
             <div className="script-import">
-                <div className="btn-download">下载文件模版（EXCEL）</div>
+                <Button type="default" block  className="btn-default-auto" onClick={()=>{}}>下载文件模版（EXCEL）</Button>
                 <div className="sub-text">上传文件仅支持小于<span>1MB</span> ，且文件后级为<span>.xlxs</span>文件。单次上传的分镜数请勿超过 <span>200</span>个。每个分镜的原文句子请勿超过100字。</div>
-                <Button type="primary" block  className="script-inport-btn"loading={loading} onClick={handleImport}>导入文件</Button>
+                <Button type="primary" block  className="btn-primary-auto"loading={loading} onClick={handleImport}>导入文件</Button>
             </div>
         )
     }

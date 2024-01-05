@@ -25,12 +25,12 @@ const UserInfoModule:React.FC<UserInfoModuleProps> = ({isOpen, onClose})=> {
                 </div>
                 <div className="section-item flexR">
                     <div className="section-item-left left-text flexR">账号类型：付费账号 </div>
-                    <div className="section-item-right left-text flexR">到期时间：2024-01-26<Button type="primary">充值会员</Button></div>
+                    <div className="section-item-right left-text flexR">到期时间：2024-01-26<Button className="btn-primary-auto info-btn" type="primary">充值会员</Button></div>
                 </div>
                 <div className="left-text section-item">手机号码：136****5556</div>
                 <div className="user-info-title flexR">
                     我的能量
-                    <Button className="charge-btn" type="primary">充值能量</Button>
+                    <Button className="btn-primary-auto info-btn"  type="primary">充值能量</Button>
                 </div>
                 <div className="user-info-bottom flexR">
                     <div  className="flexC">

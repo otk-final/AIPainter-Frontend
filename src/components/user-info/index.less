@@ -34,10 +34,6 @@
         cursor: pointer;
     }
 
-    & .charge-btn {
-        align-self: flex-end;
-    }
-
     & .user-info-bottom {
         justify-content: space-between;
         padding: 0 80px;
@@ -51,6 +47,9 @@
         & .text {
             font-size: 18px;
             color: @m-font-color;
+            & span {
+                color: @xs-font-color;
+            }
         }
     }
 
@@ -71,15 +70,10 @@
         color: @m-font-color;
     }
 
-    & .ant-btn.ant-btn-primary {
-        background-color: @primary-color;
+
+    & .btn-primary-auto.info-btn {
         font-size: 18px;
-        color: @m-font-color;
         width: 120px;
         height: 42px;
-        border-radius: 6px;
-        &:hover{
-            background-color:  @primary-color;
-        }
     }
 }

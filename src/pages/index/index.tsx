@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import { Carousel, Image, ImageProps } from 'antd';
+import { Button, Carousel, Image, ImageProps } from 'antd';
 import './index.less'
 import assets from '@/assets'
 import CreateProjectModule from '@/components/create-project';
@@ -81,9 +81,9 @@ const HomePage = () => {
                   <div className="describe">开始时间: {i.startTime}</div>
                   <div className="describe">当前环节: {i.status}</div>
                 </div>
-                <div className="right">
-                  <div className="btn">继续创作</div>
-                  <div className="btn">删除</div>
+                <div className="right flexC">
+                  <Button type="default" className="btn-default-auto btn-default-128">继续创作</Button>
+                  <Button type="default" className="btn-default-auto btn-default-128">删除</Button>
                 </div>
               </div>
             )
@@ -123,7 +123,7 @@ const HomePage = () => {
                     <div className="title">{i.title}</div>
                     <div className="describe one-line">{i.describe}</div>
                   </div>
-                  <div className="right btn" onClick={()=> handleBtn(i.key)}>{i.btnText}</div>
+                  <Button type="default" className="btn-default-auto btn-default-128"onClick={()=> handleBtn(i.key)}>{i.btnText}</Button>
                 </div>
               )
             })}
@@ -131,7 +131,7 @@ const HomePage = () => {
 
         <div className="section-title-wrap">我的创作<span>（生成素材特为您保留30天）</span></div>
 
-        {!myCreationData.length ? renderMyCreation() :renderMyCreationEmpty()}
+        {myCreationData.length ? renderMyCreation() :renderMyCreationEmpty()}
 
         <CreateProjectModule isOpen={isCreateProjectOpen} onClose={()=> setIsCreateProjectOpen(false)}/>
     </div>

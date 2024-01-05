@@ -173,24 +173,53 @@ body {
   }
 }
 
-// 全局按钮 btn 150宽 主题色
-.btn-primary-150 {
-  height: 54px;
-  background-color: @primary-color;
-  min-width: 150px;
-  font-size: 18px;
-  margin-left: 24px;
-  &.ant-btn.ant-btn-primary:hover {
-      background-color: @primary-color;
+
+// button 自定义样式 覆盖 primary颜色值
+.btn-primary-auto.ant-btn.ant-btn-primary {
+  height: 72px;
+  background-color:  @primary-color;
+  font-size: 20px;
+  &:hover, &:active {
+      background-color:  @primary-color;
   }
 
-  &.change-position-btn {
-      background-color: #666;
-      &.ant-btn.ant-btn-primary:hover {
-          background-color: #666;
-      }
+  // 覆盖 primary颜色值 150宽
+  &.btn-primary-150 {
+    height: 54px;
+    min-width: 150px;
+    font-size: 18px;
+    margin-left: 24px;
   }
 }
+
+.btn-default-auto.ant-btn.ant-btn-default {
+  height: 72px;
+  font-size: 20px;
+  background-color: @bg-btn;
+  color: @l-font-color;
+  border: none;
+  &:hover, &:active {
+    background-color: @bg-btn;
+    color: @l-font-color;
+  }
+
+  // 覆盖 primary颜色值 150宽
+  &.btn-default-150 {
+    height: 54px;
+    min-width: 150px;
+    font-size: 18px;
+    margin-left: 24px;
+  }
+
+  &.btn-default-128 {
+    height: 48px;
+    min-width: 128px;
+    font-size: 18px;
+    margin: 5px;
+  }
+}
+
+
 
 // 全局下来框 样式覆盖
 .ant-select-dropdown {

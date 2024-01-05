@@ -27,7 +27,7 @@ const SettingPage = () => {
             <div className="nav-back" onClick={()=> history.back()}><LeftOutlined twoToneColor="#fff"/></div>
             <Tabs defaultActiveKey="paint" items={setTabItems} onChange={onChange} />
           </div>
-          <Button type="primary" className="btn-primary-150" onClick={handleSave}>保存设置</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-150" onClick={handleSave}>保存设置</Button>
         </div>
         {cur === 'paint' ?<PaintSetting onCallBack={(v: PaintFormValueProps)=>{}}/> : null}
         {cur === "basic" ?<BasicSetting onCallBack={(v: PaintFormValueProps)=>{}}/> : null}

@@ -68,7 +68,7 @@ const LoginModule:React.FC<LoginModuleProps> = ({isOpen, onClose})=> {
             <Input size="large" placeholder="请输入邀请码(可为空）"  />
 
             <Radio className="agreement-wrap flexR" onChange={(v)=> setChecked(v.target.checked)}><div className="label">我已阅读并同意 <span>《用户协议》</span></div></Radio>
-            <Button className="submit-btn" type="primary" block onClick={handleSumbit}> 确定 </Button>
+            <Button type="primary" className="btn-primary-auto" block onClick={handleSumbit}> 确定 </Button>
         </Modal>
     )
 }

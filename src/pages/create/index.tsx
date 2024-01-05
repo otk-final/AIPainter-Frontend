@@ -29,9 +29,9 @@ const CreatePage:React.FC = () => {
             <Tabs defaultActiveKey="paint" items={createTabs} onChange={onChange} />
           </div>
           <div className='flexR'>
-            <Button type="primary" className="btn-primary-150" onClick={handleCharge}>充值能量</Button>
-            <Button type="primary" className="btn-primary-150" onClick={handleSetRole}>设置角色</Button>
-            <Button type="primary" className="btn-primary-150" onClick={handleNext}>下一步</Button>
+            <Button type="primary" className="btn-primary-auto btn-primary-150" onClick={handleCharge}>充值能量</Button>
+            <Button type="primary" className="btn-primary-auto btn-primary-150" onClick={handleSetRole}>设置角色</Button>
+            <Button type="primary" className="btn-primary-auto btn-primary-150" onClick={handleNext}>下一步</Button>
           </div>
           
         </div>
