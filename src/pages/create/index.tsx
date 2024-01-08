@@ -6,8 +6,9 @@ import { createTabs } from './data'
 import { LeftOutlined } from '@ant-design/icons';
 import {history} from "umi"
 import Storyboard from './storyboard';
+import Drawbatch from './drawbatch';
 
-type CreateTabType = "storyboard" | "batchdraw" | "videogeneration"
+type CreateTabType = "storyboard" | "drawbatch" | "videogeneration"
 
 const CreatePage:React.FC = () => {
   const [cur, setCur] = useState<CreateTabType>("storyboard");
@@ -21,6 +22,8 @@ const CreatePage:React.FC = () => {
   const handleSetRole = ()=>{}
   const handleNext = ()=>{}
 
+  // const Component = 
+
     return (
       <div className="create-wrap">
         <div className='page-header flexR'>
@@ -33,9 +36,10 @@ const CreatePage:React.FC = () => {
             <Button type="primary" className="btn-primary-auto btn-primary-150" onClick={handleSetRole}>设置角色</Button>
             <Button type="primary" className="btn-primary-auto btn-primary-150" onClick={handleNext}>下一步</Button>
           </div>
-          
         </div>
+
         {cur === "storyboard" ? <Storyboard/>: null}
+        {cur === 'drawbatch' ? <Drawbatch/> : null}
       </div>
     );
   };

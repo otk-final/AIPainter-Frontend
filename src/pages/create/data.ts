@@ -6,7 +6,7 @@ export const createTabs: TabsProps["items"] = [
       label: "故事分镜",
     },
     {
-      key: "batchdraw",
+      key: "drawbatch",
       label: "批量绘图",
     },
     {
