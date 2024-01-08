@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react'
-import { Button, Carousel, Image, ImageProps } from 'antd';
+import { Button, Carousel, Image, ImageProps, message } from 'antd';
 import './index.less'
 import assets from '@/assets'
 import CreateProjectModule from '@/components/create-project';
 import {history} from "umi"
+import { getLoginInfo, useLogin } from '@/uses';
 
 const data = [
   {
@@ -61,8 +62,13 @@ const carouselData = [
 
 const HomePage = () => {
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
+  const loginInfo = getLoginInfo();
+  const {login, logout, loginState} = useLogin();
 
   const handleBtn = (type: string) => {
+    if(!loginState.isLogin){
+      return  message.warning("请先登陆～")
+    }
     if(type === "create") {
       setIsCreateProjectOpen(true);
     }else if(type === "set") {

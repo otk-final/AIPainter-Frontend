@@ -54,6 +54,7 @@ export default function Layout(props: any) {
             
           </div>
         </div>
+        <div className='navs-placeholder'></div>
         <LoginModule isOpen={isModalOpen} onClose={()=> setIsModalOpen(false)}/>
         <UserInfoModule isOpen={isUserInfoOpen} onClose={()=> setIsUserInfoOpen(false)}/>
         <Outlet/> 

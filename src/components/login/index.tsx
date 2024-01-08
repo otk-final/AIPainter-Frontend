@@ -1,5 +1,5 @@
 import { useLogin } from "@/uses";
-import { Button, Input, message, Modal, Radio } from "antd"
+import { Button, Input, InputNumber, message, Modal, Radio } from "antd"
 import { useState } from "react";
 import "./index.less"
 
@@ -40,7 +40,6 @@ const LoginModule:React.FC<LoginModuleProps> = ({isOpen, onClose})=> {
         }
 
         if(phone && verify && checked) {
-            console.log('7777')
             let res = {isLogin: true}
             login(res);
             onClose();
@@ -59,10 +58,10 @@ const LoginModule:React.FC<LoginModuleProps> = ({isOpen, onClose})=> {
             footer={null}
             className="home-login-modal"
             width={600}>
-            <Input size="large"  maxLength={11} placeholder="请输入手机号" prefix={renderPrefix()} 
-            onChange={(v)=> setPhone(v.target.value)}/>
+            <InputNumber  className="inputnumber-auto" size="large" controls={false} maxLength={11} placeholder="请输入手机号" prefix={renderPrefix()} 
+            onChange={(v)=> setPhone(`${v}`)}/>
             <div className="verify-wrap flexR">
-                <Input size="large" placeholder="请输入手机验证码" maxLength={4} onChange={(v)=> setVerify(v.target.value)}/>
+                <InputNumber  className="inputnumber-auto" size="large" controls={false} placeholder="请输入手机验证码" maxLength={4} onChange={(v)=> setVerify(`${v}`)}/>
                 <div className="btn-getCode" onClick={handleGetVerifyCode}>荻取验证码</div>
             </div>
             <Input size="large" placeholder="请输入邀请码(可为空）"  />

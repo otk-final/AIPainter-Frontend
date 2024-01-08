@@ -5,12 +5,22 @@ body {
   color: @m-font-color;
 }
 
+.navs-placeholder {
+  height: 90px;
+  width: 100%;
+}
+
 .navs {
   box-sizing: border-box;
-  width: 100vw;
+  width: 100%;
   height: 90px;
   background-color: @bg-primary;
   justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9;
 
   & .point {
     background-color: @error-color;
@@ -96,9 +106,15 @@ body {
   height: 78px;
   justify-content: space-between;
   box-sizing: border-box;
+  background-color: @bg-primary;
   margin-bottom: 24px;
   padding-right: 30px;
-  
+  padding-left: 28px;
+  position: fixed;
+  top: 90px;
+  left: 0;
+  right: 0;
+  z-index: 9;
 
   & .nav-back {
       width: 54px;
@@ -112,10 +128,15 @@ body {
   }
 }
 
+
+.page-header-placeholder {
+  width: 100%;
+  height: 78px;
+}
+
 // 全局input 样式覆盖
 .ant-input.ant-input-lg{
   background-color: @bg-input;
-  border: none;
   height: 72px;
   color: @l-font-color;
   border: 1px solid @border-line-color;
@@ -123,7 +144,6 @@ body {
     color: @xs-font-color;
   }
 }
-
 
 // 全局弹出框 样式覆盖
 .ant-modal {
@@ -227,9 +247,10 @@ body {
 
   & .ant-select-item.ant-select-item-option {
       height: 72px;
-      line-height: 72px;
+      line-height: 62px;
       color: @m-font-color;
-      font-size: 24;
+      font-size: 18px;
+      box-sizing: border-box;
       background-color: @bg-input;
 
       &.ant-select-item-option-active {
@@ -238,3 +259,31 @@ body {
   }
 }
 
+
+// antd select 样式覆盖
+.select-auto.ant-select {
+  width: 100%;
+  height: 58px;
+  line-height: 58px;
+
+  &.w67{
+      width: calc(100% - 67px);
+  }
+
+  & .ant-select-selector {
+      background-color: @bg-input;
+      border: 1px solid @border-line-color;
+      
+      & .ant-select-selection-search-input {
+          height: 58px;
+      }
+
+      & .ant-select-selection-item {
+          line-height: 58px;
+          color: @m-font-color;
+      }
+  }
+  &.ant-select .ant-select-arrow {
+      color: @m-font-color;
+  }
+}

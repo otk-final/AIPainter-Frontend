@@ -55,6 +55,29 @@
         border: none;
     }
 
+
+    & .inputnumber-auto {
+        width: 100%;
+        background-color: @bg-input;
+        height: 72px;
+        line-height: 72px;
+        color: @l-font-color;
+        border: 1px solid @border-line-color;
+
+        &  .ant-input-number  {
+            background-color: @bg-input;
+            height: 70px;
+            line-height: 70px;
+            box-sizing: border-box;
+        }
+        & .ant-input-number-input {
+            color: @m-font-color;
+            &::placeholder {
+              color: @xs-font-color;
+            }
+        }
+      }
+
 }
 
 .ant-message .ant-message-notice-wrapper .ant-message-notice-content {

@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { getCache, setCache } from '@/utils';
+import {history} from 'umi'
 var defalutLoginInfo = { isLogin: false };
 export var LOGIN_INFO = 'LOGIN_INFO';
 
@@ -37,6 +38,7 @@ export const LoginProvider = (props: any) => {
     const logout = useCallback(()=>{
         setLoginState(defalutLoginInfo);
         setCache(LOGIN_INFO, defalutLoginInfo);
+        history.replace('/')
     },[])
 
     return React.createElement(

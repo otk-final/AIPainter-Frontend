@@ -29,6 +29,7 @@ const SettingPage = () => {
           </div>
           <Button type="primary" className="btn-primary-auto btn-primary-150" onClick={handleSave}>保存设置</Button>
         </div>
+        <div className='page-header-placeholder'></div>
         {cur === 'paint' ?<PaintSetting onCallBack={(v: PaintFormValueProps)=>{}}/> : null}
         {cur === "basic" ?<BasicSetting onCallBack={(v: PaintFormValueProps)=>{}}/> : null}
       </div>

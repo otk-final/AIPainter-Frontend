@@ -6,7 +6,12 @@ import { QuestionCircleOutlined } from '@ant-design/icons';
 import { mockStoryboardColumnsData, storyboardColumns } from './data';
 import StoryboardTableTR from './components/storyboard-table-tr'
 
-const Storyboard:React.FC = () => {
+interface StoryboardProps {
+    onCBScript: ()=> void,
+}
+
+const Storyboard:React.FC<StoryboardProps> = ({onCBScript}) => {
+
     const [isFileOpen, setIsFileOpen] = useState(false);
     const [hasScript, setHasScript] = useState(false);
 
@@ -23,6 +28,13 @@ const Storyboard:React.FC = () => {
         )
     }
     console.log('setColumnsData', columnsData)
+
+    const handleStart = (res: boolean)=>{
+        if(res) {
+            setIsFileOpen(false)
+            setHasScript(true);
+        }
+    }
 
     const onDelete = (v, index: number)=>{
         console.log("onDelete", index)
@@ -74,7 +86,7 @@ const Storyboard:React.FC = () => {
     return (
       <div className="storyboard-wrap">
         {hasScript ? renderScriptList() : renderEmpty()}
-        <FileImportModule isOpen={isFileOpen} onClose={()=> setIsFileOpen(false)}/>
+        <FileImportModule isOpen={isFileOpen} onClose={()=>setHasScript(true)} onCB={handleStart}/>
       </div>
     );
   };

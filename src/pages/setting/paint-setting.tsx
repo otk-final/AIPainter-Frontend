@@ -29,7 +29,7 @@ const PaintSetting:React.FC<PaintSettingProps> = ({onCallBack})=>{
               <div className='setting-label'>{data.label}</div>
               <div className='item-form flexR'>
                 <Select
-                  className={`select-auto ${data.key !== 'urlKey' ? "w100": ""}`}
+                  className={`select-auto ${data.key !== 'urlKey' ? "": "w67"}`}
                   defaultValue="lucy"
                   onChange={(v)=>handleValue(data, v)}
                   options={[

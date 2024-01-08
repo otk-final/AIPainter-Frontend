@@ -17,18 +17,19 @@ const importTabItems: TabsProps['items'] = [
 
 interface FileImportModuleProps {
     isOpen: boolean,
-    onClose: ()=>void
+    onClose: ()=>void,
+    onCB: (res: boolean) => void
 }
 
 
 type ImportType = "textImport" | "excelImport"
-const FileImportModule:React.FC<FileImportModuleProps> = ({isOpen, onClose})=> {
+const FileImportModule:React.FC<FileImportModuleProps> = ({isOpen, onClose, onCB})=> {
     const {login} = useLogin();
     const [cur, setCur] = useState<ImportType>("textImport");
     const [loading, setLoading] = useState(false)
 
     const handleImport = ()=>{
-        setLoading(true)
+        onCB(true)
     }
 
     const onChange = (key: string) => {

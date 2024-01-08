@@ -1,5 +1,5 @@
 .setting-wrap {
-    width: 100vw;
+    width: 100%;
     padding: 0 28px;
     box-sizing: border-box;
 
@@ -104,31 +104,6 @@
         line-height: 58px;
         cursor: pointer;
         font-size: 20px;
-    }
-
-    & .select-auto {
-        width: calc(100% - 67px);
-        height: 58px;
-        line-height: 58px;
-        &.w100{
-            width: 100%;
-        }
-        & .ant-select-selector {
-            background-color: @bg-input;
-            border: 1px solid @border-line-color;
-            
-            & .ant-select-selection-search-input {
-                height: 58px;
-            }
-
-            & .ant-select-selection-item {
-                line-height: 58px;
-                color: @m-font-color;
-            }
-        }
-        &.ant-select .ant-select-arrow {
-            color: @m-font-color;
-        }
     }
 
     & .slider-auto.ant-slider {
