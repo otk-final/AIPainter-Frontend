@@ -8,7 +8,7 @@ import StoryboardTableTR from './components/storyboard-table-tr'
 
 const Storyboard:React.FC = () => {
     const [isFileOpen, setIsFileOpen] = useState(false);
-    const [hasScript, setHasScript] = useState(true);
+    const [hasScript, setHasScript] = useState(false);
 
     const [columnsData, setColumnsData] = useState(mockStoryboardColumnsData)
 

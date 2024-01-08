@@ -6,7 +6,9 @@
     "build": "umi build",
     "postinstall": "umi setup",
     "setup": "umi setup",
-    "start": "npm run dev"
+    "start": "npm run dev",
+    "tauri-dev": "tauri dev",
+    "tauri-build": "tauri build"
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
@@ -16,7 +18,8 @@
     "eslint-plugin-jsx-a11y": "^6.8.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "umi": "^4.0.90"
+    "umi": "^4.0.90",
+    "@tauri-apps/api": "^1.5.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.33",
@@ -24,6 +27,7 @@
     "@umijs/lint": "^4.0.90",
     "eslint": "^8.56.0",
     "stylelint": "^16.1.0",
-    "typescript": "^5.0.3"
+    "typescript": "^5.0.3",
+    "@tauri-apps/cli": "^1.5.8"
   }
 }
