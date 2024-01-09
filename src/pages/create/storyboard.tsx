@@ -1,5 +1,5 @@
-import { Button, Input, Select, Slider, Tabs, InputNumber, Switch, Row, Col } from 'antd';
-import React, {useEffect, useState, Fragment} from 'react'
+import { Button } from 'antd';
+import React, {useEffect, useState} from 'react'
 import './index.less'
 import FileImportModule from '@/components/file-import';
 import { QuestionCircleOutlined } from '@ant-design/icons';
@@ -27,7 +27,6 @@ const Storyboard:React.FC<StoryboardProps> = ({onCBScript}) => {
             </div>
         )
     }
-    console.log('setColumnsData', columnsData)
 
     const handleStart = (res: boolean)=>{
         if(res) {

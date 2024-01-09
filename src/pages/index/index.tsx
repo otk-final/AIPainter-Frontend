@@ -83,13 +83,13 @@ const HomePage = () => {
             return (
               <div className="home-item-wrap flexR" key={index}>
                 <div className="left flexC">
-                  <div className="title">{i.title}</div>
+                  <div className="title one-line">{i.title}</div>
                   <div className="describe">开始时间: {i.startTime}</div>
                   <div className="describe">当前环节: {i.status}</div>
                 </div>
                 <div className="right flexC">
-                  <Button type="default" className="btn-default-auto btn-default-128">继续创作</Button>
-                  <Button type="default" className="btn-default-auto btn-default-128">删除</Button>
+                  <Button type="default" className="btn-default-auto btn-default-100">继续创作</Button>
+                  <Button type="default" className="btn-default-auto btn-default-100">删除</Button>
                 </div>
               </div>
             )
@@ -129,7 +129,7 @@ const HomePage = () => {
                     <div className="title">{i.title}</div>
                     <div className="describe one-line">{i.describe}</div>
                   </div>
-                  <Button type="default" className="btn-default-auto btn-default-128"onClick={()=> handleBtn(i.key)}>{i.btnText}</Button>
+                  <Button type="default" className="btn-default-auto btn-default-100"onClick={()=> handleBtn(i.key)}>{i.btnText}</Button>
                 </div>
               )
             })}

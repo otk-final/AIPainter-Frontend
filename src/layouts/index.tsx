@@ -5,12 +5,14 @@ import './index.less';
 import { Button, Popover } from 'antd';
 import LoginModule from '@/components/login';
 import UserInfoModule from '@/components/user-info';
+import MemberRechargeModule from '@/components/member-recharge';
 
 export default function Layout(props: any) {
   let { pathname } = useLocation();
   const {login, logout, loginState} = useLogin();
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMemberRechargeOpen, setIsMemberRechargeOpen] = useState(false);
 
   
   const handleLogin = ()=> {
@@ -41,7 +43,7 @@ export default function Layout(props: any) {
               <div className="endtime-wrap flexR">
               {`账号到期时间:  `}<span className="endtime">2024-01-26</span>
               </div>
-              <div className="member" onClick={()=> console.log("续费超级会员")}>续费超级会员</div>
+              <div className="member" onClick={()=> setIsMemberRechargeOpen(true)}>续费超级会员</div>
             </Fragment>
              : null}
             <div className="help">?</div>
@@ -57,6 +59,7 @@ export default function Layout(props: any) {
         <div className='navs-placeholder'></div>
         <LoginModule isOpen={isModalOpen} onClose={()=> setIsModalOpen(false)}/>
         <UserInfoModule isOpen={isUserInfoOpen} onClose={()=> setIsUserInfoOpen(false)}/>
+        <MemberRechargeModule isOpen={isMemberRechargeOpen} onClose={()=> setIsMemberRechargeOpen(false)}/>
         <Outlet/> 
     </Fragment>
   );

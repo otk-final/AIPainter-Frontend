@@ -1,0 +1,115 @@
+.energy-recharge {
+    & .title {
+        font-size: 16px;
+        color: @m-font-color;
+        margin-bottom: 10px;
+    }
+    & .energy-wrap {
+        justify-content: space-between;
+        color: @m-font-color;
+
+        & .energy-item-style {
+            height: 72px;
+            text-align: center;
+            font-size: 20px;
+            line-height: 72px;
+            border: 1px solid @border-line-color;
+            border-radius: 8px;
+            background-color: @bg-input;
+            box-sizing: border-box;
+        }
+        & .addon {
+            width: 72px;
+            margin-right: 8px;
+            color: @m-font-color;
+            padding: 0;
+        }
+
+        & .energy-count {
+            width: 356px;
+            box-sizing: border-box;
+            margin-right: 10px;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+
+        & .energy-img {
+            width: 28px;
+            height: 28px;
+        }
+
+        & .price-wrap {
+            width: 192px;
+        }
+    }
+
+    & .section {
+        border: 1px solid #F8D59F;
+        border-radius: 8px;
+        margin: 30px 0;
+
+        & .section-header {
+            height: 52px;
+            line-height: 52px;
+            padding-left: 30px;
+            font-size: 16px;
+            color: #333;
+            border-radius: 8px 8px 0 0;
+            background-color: #F8D59F;
+        }
+
+        & .section-content {
+            font-size: 16px;
+            padding: 28px;
+            justify-content: space-between;
+
+            & .energy-img {
+                width: 28px;
+                height: 28px;
+                margin-right: 10px;
+            }
+
+            & .text {
+                color: #F8D59F;
+            }
+
+            & .sale-wrap {
+                
+                & .text {
+                    color: @m-font-color;
+                    margin-top: 10px;
+                }
+
+                & .price {
+                    font-size: 32px;
+                    color: #F8D59F;
+                    margin: 0 8px;
+
+                }
+
+                & .del-price {
+                    font-size: 18px;
+                    color: @xs-font-color;
+                    margin-top: 10px;
+                }
+
+                & .hot {
+                    width: 96px;
+                    height: 42px;
+                    line-height: 42px;
+                    color: @m-font-color;
+                    background-color: #c03132;
+                    border-radius: 8px;
+                    margin-left: 30px;
+                    text-align: center;
+                }
+            }
+        }
+
+    }
+    & .assist-text {
+        font-size: 14px;
+        color: @s-font-color;
+        margin-bottom: 14px;
+    }
+}
