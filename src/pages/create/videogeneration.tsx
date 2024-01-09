@@ -52,7 +52,7 @@ const Videogeneration = ()=>{
     return (
 
         <div className="videogeneration-wrap">
-            <div className="flexR" style={{justifyContent: "flex-end", marginBottom: '30px'}}>
+            <div className="flexR" style={{justifyContent: "flex-end", marginBottom: '20px'}}>
                 <Button type="default" className="btn-default-auto btn-default-150" >打开视频文件夹</Button>
             </div>
             <div className="section">
@@ -88,8 +88,8 @@ const Videogeneration = ()=>{
                     <div className="form-item">
                         <div className="label">字体颜色</div>
                         <div className="fontcf-wrap flexR">
-                            {["小", "中", "大", "特大","小", "中", "大", "特大", "大", "特大" ].map((i)=>{
-                                return <img src="" className="fontcf"/>
+                            {["fff", "000", "fd3", "f38578","eb3a41", "bedbf3", "5acae1", "0034f5", "4b4b4f", "76e966" ].map((i)=>{
+                                return <div className="fontcf" style={{background: `#${i}`}}></div>
                             })}
                         </div>
                     </div>

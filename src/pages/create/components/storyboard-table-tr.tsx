@@ -17,9 +17,9 @@ const StoryboardTableTR:React.FC<StoryboardTableTRProps> = ({data, onDelete}) =>
         return (
             <Fragment>
                 <div className='index'>{data.index + 1}</div>
-                <Button type='default' className='btn-default-auto btn-default-108'>推理关键词</Button>
-                <Button type='default' className='btn-default-auto btn-default-108' onClick={handleDelete}>删除</Button>
-                <Button type='default' className='btn-default-auto btn-default-108'>插入分镜</Button>
+                <Button type='default' className='btn-default-auto btn-default-98'>推理关键词</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleDelete}>删除</Button>
+                <Button type='default' className='btn-default-auto btn-default-98'>插入分镜</Button>
             </Fragment>
         )
     }

@@ -27,7 +27,7 @@ const BasicSetting:React.FC<BasicSettingProps> = ({onCallBack})=>{
                     <Upload action="" directory>
                         <Button type="default" className="btn-default-auto btn-default-150" onChange={handleChangePosition}>更改存储位蛋</Button>
                     </Upload>
-                    <Button type="primary" className="btn-primary-auto btn-primary-150" onChange={handleRegain}>恢复为默认位罝</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" style={{width: '180px'}} onChange={handleRegain}>恢复为默认位罝</Button>
                 </div>
             </div>
 

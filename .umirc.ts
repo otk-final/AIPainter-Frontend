@@ -21,7 +21,8 @@ export default defineConfig({
     '@bg-btn': "#424242",
     "@bg-input": "#1B1B1C",
     "@line-color": "#2D2D2E",
-    "@border-line-color": "#484848"
+    "@border-line-color": "#484848",
+    "@font-primary-color": "#aa95ff"
   }
 });
 

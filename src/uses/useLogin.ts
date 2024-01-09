@@ -5,7 +5,11 @@ var defalutLoginInfo = { isLogin: false };
 export var LOGIN_INFO = 'LOGIN_INFO';
 
 interface LoginInfo {
-    isLogin: boolean
+    isLogin: boolean,
+    nickName?: string,
+    inviteCode?: string,
+    endTime?: string,
+    phone?: string
 }
 
 // info 用户信息
@@ -29,6 +33,15 @@ export const useLogin = ()=>{
 
 export const LoginProvider = (props: any) => {
     const [loginState, setLoginState] = useState(defalutLoginInfo);
+
+
+    useEffect(()=>{
+        let state: LoginInfo = getCache(LOGIN_INFO) as LoginInfo  || defalutLoginInfo;
+        console.log('login info', state)
+        if(state.isLogin) {
+            setLoginState(state);
+        }
+    }, [])
 
     const login = useCallback((res: LoginInfo)=>{
         setLoginState(res);

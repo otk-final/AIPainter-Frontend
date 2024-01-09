@@ -1,20 +1,27 @@
 import React, {useEffect, useState, Fragment} from 'react'
-import { Link, useLocation, Outlet } from 'umi';
+import { useLocation, Outlet } from 'umi';
 import { useLogin} from '@/uses'
 import './index.less';
 import { Button, Popover } from 'antd';
-import LoginModule from '@/components/login';
-import UserInfoModule from '@/components/user-info';
+import {LoginModule, UserInfoModule, MemberRechargeModule,EnergyRechargeModule } from '@/components'
 
 export default function Layout(props: any) {
   let { pathname } = useLocation();
-  const {login, logout, loginState} = useLogin();
+  const {logout, loginState} = useLogin();
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMemberRechargeOpen, setIsMemberRechargeOpen] = useState(false);
+  const [isEnergyRechargeOpen, setIsEnergyRechargeOpen] = useState(false)
 
+
+  const openRecharge = (type: "energy" | 'member')=>{
+    setIsUserInfoOpen(false);
+    if(type === 'energy') {
+      setIsEnergyRechargeOpen(true);
+    }else {
+      setIsMemberRechargeOpen(true)
+    }
   
-  const handleLogin = ()=> {
-    setIsModalOpen(true);
   }
 
   const renderPopoverContent = ()=>{
@@ -41,7 +48,7 @@ export default function Layout(props: any) {
               <div className="endtime-wrap flexR">
               {`账号到期时间:  `}<span className="endtime">2024-01-26</span>
               </div>
-              <div className="member" onClick={()=> console.log("续费超级会员")}>续费超级会员</div>
+              <div className="member" onClick={()=> setIsMemberRechargeOpen(true)}>续费超级会员</div>
             </Fragment>
              : null}
             <div className="help">?</div>
@@ -50,13 +57,15 @@ export default function Layout(props: any) {
              <Popover placement="bottomLeft"  content={renderPopoverContent} arrow={false}>
               <img src='' className="user-img"/>
               </Popover>
-             : <div className='login-btn' onClick={handleLogin}>登陆/注册</div>}
+             : <div className='login-btn' onClick={()=> setIsModalOpen(true)}>登陆/注册</div>}
             
           </div>
         </div>
         <div className='navs-placeholder'></div>
         <LoginModule isOpen={isModalOpen} onClose={()=> setIsModalOpen(false)}/>
-        <UserInfoModule isOpen={isUserInfoOpen} onClose={()=> setIsUserInfoOpen(false)}/>
+        <UserInfoModule isOpen={isUserInfoOpen} onClose={()=> setIsUserInfoOpen(false)} openRecharge={openRecharge}/>
+        <MemberRechargeModule isOpen={isMemberRechargeOpen} onClose={()=> setIsMemberRechargeOpen(false)}/>
+        <EnergyRechargeModule isOpen={isEnergyRechargeOpen} onClose={()=> setIsEnergyRechargeOpen(false)}/>
         <Outlet/> 
     </Fragment>
   );

@@ -1,20 +1,40 @@
 .script-import {
     & .title {
-        font-size: 24px;
+        font-size: 18px;
         color: @m-font-color;
         margin-bottom: 16px;
     }
 
     & .sub-text {
         margin: 32px 0;
-        font-size: 20px;
+        font-size: 14px;
         color: @xs-font-color;
 
         & span {
-            color: @primary-color;
+            color: @font-primary-color;
         }
     }
+    
+    
+
 }
 
+.select-auto.ant-select.select-h56 {
+    height: 56px;
+    line-height: 56px;
+
+    
+    & .ant-select-selector {
+        
+        & .ant-select-selection-search-input {
+            height: 56px;
+        }
+    
+        & .ant-select-selection-item {
+            line-height: 56px;
+        }
+    }
+
+    }
 
 

@@ -1,15 +1,13 @@
-import { Button, Switch, Image } from "antd"
+import { Button, Image } from "antd"
 import TextArea from "antd/es/input/TextArea";
-import { Fragment, useState } from "react";
-import { drawbatchColumns, storyboardColumns } from "../data";
+import { Fragment } from "react";
+import { drawbatchColumns } from "../data";
 
 interface DrawbathTableTRProps {
     data: any,
 }
 
 const DrawbathTableTR:React.FC<DrawbathTableTRProps> = ({data}) => {
-    const [dele, setDele] = useState(false);
-
 
     const renderNumber = ()=>{
         return (
@@ -19,20 +17,6 @@ const DrawbathTableTR:React.FC<DrawbathTableTRProps> = ({data}) => {
         )
     }
 
-    const renderRole = () =>{
-        return (
-            <Fragment>
-                {[1, 2, 3, 4].map((i)=>{
-                    return (
-                        <div className="role-wrap flexR" key={i}>
-                            <div>角色{i}: <span className="">胡八一</span></div>
-                            <Switch className="switch-auto" onChange={()=>{}}/>
-                        </div>
-                    )
-                })}
-            </Fragment>
-        )
-    }
 
     const renderDescribeWord = ()=>{
         return (
@@ -57,8 +41,8 @@ const DrawbathTableTR:React.FC<DrawbathTableTRProps> = ({data}) => {
     const renderOperate = ()=>{
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-108'>重绘本镜</Button>
-                <Button type='default' className='btn-default-auto btn-default-108'>调整参数</Button>
+                <Button type='default' className='btn-default-auto btn-default-98'>重绘本镜</Button>
+                <Button type='default' className='btn-default-auto btn-default-98'>调整参数</Button>
             </Fragment>
         )
     }
