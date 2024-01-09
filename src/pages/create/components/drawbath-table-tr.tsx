@@ -1,6 +1,6 @@
-import { Button, Switch, Image } from "antd"
+import { Button, Image } from "antd"
 import TextArea from "antd/es/input/TextArea";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import { drawbatchColumns } from "../data";
 
 interface DrawbathTableTRProps {
@@ -41,8 +41,8 @@ const DrawbathTableTR:React.FC<DrawbathTableTRProps> = ({data}) => {
     const renderOperate = ()=>{
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-108'>重绘本镜</Button>
-                <Button type='default' className='btn-default-auto btn-default-108'>调整参数</Button>
+                <Button type='default' className='btn-default-auto btn-default-98'>重绘本镜</Button>
+                <Button type='default' className='btn-default-auto btn-default-98'>调整参数</Button>
             </Fragment>
         )
     }

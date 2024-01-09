@@ -1,4 +1,3 @@
-import { useLogin } from "@/uses";
 import { Button, Modal, Select, Tabs, TabsProps } from "antd"
 import { useState } from "react";
 import "./index.less"
@@ -24,7 +23,6 @@ interface FileImportModuleProps {
 
 type ImportType = "textImport" | "excelImport"
 const FileImportModule:React.FC<FileImportModuleProps> = ({isOpen, onClose, onCB})=> {
-    const {login} = useLogin();
     const [cur, setCur] = useState<ImportType>("textImport");
     const [loading, setLoading] = useState(false)
 
@@ -41,7 +39,7 @@ const FileImportModule:React.FC<FileImportModuleProps> = ({isOpen, onClose, onCB
             <div className="script-import">
                 <div className="title">分镜标识符</div>
                 <Select
-                  className={`select-auto`}
+                  className={`select-auto select-h56`}
                   defaultValue="3"
                   onChange={(v)=>{}}
                   options={[

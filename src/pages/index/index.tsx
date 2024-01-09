@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react'
-import { Button, Carousel, Image, ImageProps, message } from 'antd';
+import React, {useState} from 'react'
+import { Button, Carousel, Image, message } from 'antd';
 import './index.less'
 import assets from '@/assets'
-import CreateProjectModule from '@/components/create-project';
+import {CreateProjectModule} from '@/components';
 import {history} from "umi"
 import { getLoginInfo, useLogin } from '@/uses';
 
@@ -102,7 +102,7 @@ const HomePage = () => {
   const renderMyCreationEmpty = ()=>{
     return (
       <div className="empty-wrap flexC">
-        <img src="" className="empty-img"/>
+        <img src={assets.empty} className="empty-img"/>
         <div className="text">暂无创作</div>
       </div>
     )
@@ -114,7 +114,7 @@ const HomePage = () => {
         {carouselData.map((i, index)=>{
           return (
             <div key={index}>
-              <Image  src={i.url} width="100%"  height={384} preview={false}/>
+              <Image  src={i.url} width="100%"  height={300} preview={false}/>
             </div>
           )
         })}

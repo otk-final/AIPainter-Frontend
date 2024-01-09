@@ -1,3 +1,13 @@
+
+
+html, body {
+  height: 100%;
+}
+
+#root {
+  height: 100%;
+}
+
 body {
   background-color: @bg-primary;
   padding: 0;
@@ -7,6 +17,7 @@ body {
 }
 
 .navs-placeholder {
+  flex: 0 0 90px;
   height: 90px;
   width: 100%;
 }
@@ -50,7 +61,7 @@ body {
     font-size: 16px;
     color: @s-font-color;
     & .endtime {
-      color:  @primary-color;
+      color:  @font-primary-color;
       margin-left: 4px;
     }
   }
@@ -78,6 +89,7 @@ body {
     line-height: 28px;
     margin-right: 40px;
     border-radius: 20px;
+    cursor: pointer;
   }
 
   & .user-img {
@@ -102,14 +114,13 @@ body {
   }
 }
 
-
 .page-header {
   width: 100%;
   height: 78px;
   justify-content: space-between;
   box-sizing: border-box;
   background-color: @bg-primary;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   padding-right: 30px;
   padding-left: 28px;
   position: fixed;
@@ -119,29 +130,44 @@ body {
   z-index: 9;
 
   & .nav-back {
-      width: 54px;
-      height: 54px;
+      width: 40px;
+      height: 40px;
       border-radius: 8px;
       border: 1px solid @border-line-color;
       margin-right: 48px;
       font-size: 20px;
       text-align: center;
-      line-height: 54px;
+      line-height: 40px;
+      box-sizing: border-box;
+  }
+
+  & .ant-tabs.ant-tabs-top {
+    align-self: flex-end;
+
+  }
+
+  & .ant-tabs >.ant-tabs-nav {
+    margin-bottom: 0;
+  }
+  & .ant-tabs-top >.ant-tabs-nav {
+    margin-bottom: 0;
   }
 }
 
 
 .page-header-placeholder {
   width: 100%;
-  height: 78px;
+  height: 98px;
+  flex: 0 0 98px;
 }
 
 // 全局input 样式覆盖
 .ant-input.ant-input-lg{
   background-color: @bg-input;
-  height: 72px;
+  height: 56px;
   color: @l-font-color;
   border: 1px solid @border-line-color;
+  font-size: 14px;
   &::placeholder {
     color: @xs-font-color;
   }
@@ -151,7 +177,7 @@ body {
 .ant-modal {
   & .ant-modal-header {
     background-color: @bg-modal;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
   }
   & .ant-modal-content{
     background-color: @bg-modal;
@@ -159,6 +185,7 @@ body {
   }
 
   & .ant-modal-title {
+    font-size: 20px;
     text-align: center;
     color: @l-font-color;
   }
@@ -177,7 +204,11 @@ body {
   }
   & .ant-tabs-tab {
     color: @l-font-color;
+    line-height: 1;
     font-size: 16px;
+    padding-top: 0;
+    padding-bottom: 14px;
+    
     &:hover  {
       color: @l-font-color;
     }
@@ -196,9 +227,11 @@ body {
 }
 
 
+
+
 // button 自定义样式 覆盖 primary颜色值
 .btn-primary-auto.ant-btn.ant-btn-primary {
-  height: 72px;
+  height: 56px;
   background-color:  @primary-color;
   font-size: 16px;
   &:hover, &:active {
@@ -206,16 +239,16 @@ body {
   }
 
   // 覆盖 primary颜色值 150宽
-  &.btn-primary-150 {
-    height: 54px;
-    min-width: 150px;
+  &.btn-primary-108 {
+    height: 40px;
+    min-width: 108px;
     font-size: 14px;
-    margin-left: 24px;
+    margin-left: 20px;
   }
 }
 
 .btn-default-auto.ant-btn.ant-btn-default {
-  height: 72px;
+  height: 56px;
   font-size: 16px;
   background-color: @bg-btn;
   color: @l-font-color;
@@ -227,7 +260,7 @@ body {
 
   // 覆盖 primary颜色值 150宽
   &.btn-default-150 {
-    height: 54px;
+    height: 40px;
     min-width: 150px;
     font-size: 14px;
     margin-left: 24px;
@@ -248,8 +281,8 @@ body {
   background-color: @bg-input;
 
   & .ant-select-item.ant-select-item-option {
-      height: 72px;
-      line-height: 62px;
+      height: 56px;
+      line-height: 46px;
       color: @m-font-color;
       font-size: 14px;
       box-sizing: border-box;
@@ -265,11 +298,11 @@ body {
 // antd select 样式覆盖
 .select-auto.ant-select {
   width: 100%;
-  height: 58px;
-  line-height: 58px;
+  height: 40px;
+  line-height: 40px;
 
   &.w67{
-      width: calc(100% - 67px);
+      width: calc(100% - 50px);
   }
 
   & .ant-select-selector {
@@ -277,11 +310,11 @@ body {
       border: 1px solid @border-line-color;
       
       & .ant-select-selection-search-input {
-          height: 58px;
+          height: 40px;
       }
 
       & .ant-select-selection-item {
-          line-height: 58px;
+          line-height: 40px;
           color: @m-font-color;
       }
   }

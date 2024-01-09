@@ -1,7 +1,6 @@
-import { useLogin } from "@/uses";
 import { SyncOutlined } from "@ant-design/icons";
-import { Button, Input, message, Modal, Radio } from "antd"
-import { Fragment, useEffect, useState } from "react";
+import { Button, Input, message, Modal } from "antd"
+import { useState } from "react";
 import {history} from 'umi'
 import "./index.less"
 
@@ -11,7 +10,6 @@ interface CreateProjectModuleProps {
 }
 
 const CreateProjectModule:React.FC<CreateProjectModuleProps> = ({isOpen, onClose})=> {
-    const {login} = useLogin();
     const [name, setName] = useState("")
 
     const handleCreate = ()=>{

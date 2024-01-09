@@ -2,13 +2,12 @@ import { Button,  Select, Tabs, InputNumber } from 'antd';
 import React, {useState} from 'react'
 import './index.less'
 import { createTabs } from './data'
-
 import { LeftOutlined } from '@ant-design/icons';
 import {history} from "umi"
 import Storyboard from './storyboard';
 import Drawbatch from './drawbatch';
 import Videogeneration from './videogeneration'
-import EnergyRechargeModule from '@/components/energy-recharge';
+import {EnergyRechargeModule} from '@/components'
 
 type CreateTabType = "storyboard" | "drawbatch" | "videogeneration"
 
@@ -29,17 +28,17 @@ const CreatePage:React.FC = () => {
     if(cur === 'storyboard') {
       return (
         <div className='flexR'>
-          <Button type="primary" className="btn-primary-auto btn-primary-150" onClick={()=>setIsEnergyRechargeOpen(true)}>充值能量</Button>
-          <Button type="primary" className="btn-primary-auto btn-primary-150" onClick={handleSetRole}>设置角色</Button>
-          <Button type="primary" className="btn-primary-auto btn-primary-150" onClick={handleNext}>下一步</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={()=>setIsEnergyRechargeOpen(true)}>充值能量</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleSetRole}>设置角色</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleNext}>下一步</Button>
         </div>
       )
     }else if(cur === 'drawbatch') {
       return (
         <div className='flexR'>
-          <div className='flexR'>绘图起点 <InputNumber controls={false} style={{ width: "60px"}} className="inputnumber-auto" placeholder='1' defaultValue={1}/> 镜</div> 
-          <Button type="primary" className="btn-primary-auto btn-primary-150" >开始绘制</Button>
-          <Button type="primary" className="btn-primary-auto btn-primary-150" onClick={handleNext}>下一步</Button>
+          <div className='flexR'>绘图起点 <InputNumber controls={false} style={{ width: "54px", marginLeft: '10px', marginRight: '10px'}} className="inputnumber-auto" placeholder='1' defaultValue={1}/> 镜</div> 
+          <Button type="primary" className="btn-primary-auto btn-primary-108" >开始绘制</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleNext}>下一步</Button>
         </div>
       )
     }else {
@@ -57,11 +56,8 @@ const CreatePage:React.FC = () => {
                 { value: '3', label: 'sssss' },
               ]}
             />
-          <Button type="primary" className="btn-primary-auto btn-primary-150" >合成视频</Button>
-
-
+          <Button type="primary" className="btn-primary-auto btn-primary-108" >合成视频</Button>
         </div>
-
       )
     }
   }

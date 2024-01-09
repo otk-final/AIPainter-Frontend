@@ -1,6 +1,5 @@
-import { useLogin } from "@/uses";
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button,  message, Modal } from "antd"
+import { Button, Modal } from "antd"
 import { useState } from "react";
 import "./index.less"
 
@@ -10,7 +9,6 @@ interface EnergyRechargeModuleProps {
 }
 
 const EnergyRechargeModule:React.FC<EnergyRechargeModuleProps> = ({isOpen, onClose})=> {
-    const {login} = useLogin();
     const [energy, setEnergy] = useState(1000);
 
     const handlePay = ()=>{
@@ -18,7 +16,7 @@ const EnergyRechargeModule:React.FC<EnergyRechargeModuleProps> = ({isOpen, onClo
    
 
     return (
-        <Modal title="会员充值" 
+        <Modal title="能量充值" 
             open={isOpen} 
             onCancel={onClose} 
             footer={null}

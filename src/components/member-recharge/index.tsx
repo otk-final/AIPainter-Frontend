@@ -1,4 +1,3 @@
-import { useLogin } from "@/uses";
 import { Button, Modal,  } from "antd"
 import { useState } from "react";
 import "./index.less"
@@ -9,7 +8,6 @@ interface MemberRechargeModuleProps {
 }
 
 const MemberRechargeModule:React.FC<MemberRechargeModuleProps> = ({isOpen, onClose})=> {
-    const {login} = useLogin();
     const [price, setPrice] = useState(6800);
 
     const handlePay = ()=>{
@@ -49,9 +47,9 @@ const MemberRechargeModule:React.FC<MemberRechargeModuleProps> = ({isOpen, onClo
                         <div>VIP 到期时间：2024-01-26</div>
                     </div>
                     <div className="user-content-wrap flexR">
-                        {contentDatas.map(i=>{
+                        {contentDatas.map((i, index)=>{
                             return (
-                                <div className="content-wrap flexC">
+                                <div className="content-wrap flexC" key={index}>
                                     <img src={i.url} className="icon-img"/>
                                     <div className="title">{i.title}</div>
                                     <div className="text">{i.text}</div>

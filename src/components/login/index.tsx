@@ -40,7 +40,13 @@ const LoginModule:React.FC<LoginModuleProps> = ({isOpen, onClose})=> {
         }
 
         if(phone && verify && checked) {
-            let res = {isLogin: true}
+            let res = {
+                isLogin: true, 
+                nickName: "用户5556",
+                inviteCode: "wuioOO",
+                endTime: '2024-01-26',
+                phone: '12345678890' 
+            }
             login(res);
             onClose();
         }
