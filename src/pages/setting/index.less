@@ -19,7 +19,7 @@
     }
 
     & .setting-title {
-        font-size: 24px;
+        font-size: 20px;
         color: @m-font-color;
         margin-bottom: 24px;
     }
@@ -34,22 +34,22 @@
     }
 
     & .setting-label {
-        font-size: 22px;
+        font-size: 18px;
         color: @m-font-color;
 
         &.color-primary {
-            color: @primary-color;
+            color: @font-primary-color;
             margin: 0 4px;
         }
 
         &.color-open {
             color: #239D0F;
-            margin-right: 178px;
+            margin-right: 132px;
         }
     }
 
     & .input-s {
-        height: 58px;
+        height: 40px;
         border: 1px solid @border-line-color;
     }
 
@@ -70,16 +70,17 @@
         margin-bottom: 50px;
 
         &.item-no-top {
-            height: 58px;
+            height: 40px;
             flex-direction: row;
             background-color: @bg-input;
             border: 1px solid @border-line-color;
             border-radius: 8px;
             width: calc(25% - 40px);
             margin: 0 20px;
-            line-height: 58px;
-            font-size: 16px;
+            line-height: 40px;
+            font-size: 14px;
             color: @m-font-color;
+            padding: 0 10px;
             align-items: center;
         }
     }
@@ -94,16 +95,16 @@
     }
 
     & .btn-s {
-        width: 58px;
-        height: 58px;
+        width: 40px;
+        height: 40px;
         border: 1px solid @border-line-color;
         text-align: center;
         background-color: @bg-input;
         border-radius: 8px;
         margin-left: 10px;
-        line-height: 58px;
+        line-height: 40px;
         cursor: pointer;
-        font-size: 20px;
+        font-size: 16px;
     }
 
     & .slider-auto.ant-slider {
@@ -142,9 +143,9 @@
     }
 
     & .main-inputnumber-auto.ant-input-number {
-        width: calc(100% - 67px);
-        height: 58px;
-        line-height: 58px;
+        width: calc(100% - 40px);
+        height: 40px;
+        line-height: 40px;
         background-color: @bg-input;
         border: 1px solid @border-line-color;
         
@@ -156,17 +157,17 @@
 
     & .switch-auto.ant-switch {
         background-color: #666;
-        width: 70px;
-        height: 36px;
+        width: 48px;
+        height: 28px;
         border: none;
        .ant-switch-handle {
-            width: 32px;
-            height: 32px;
-            border-radius: 32px;
+            width: 24px;
+            height: 24px;
+            border-radius: 24px;
             &::before {
-                width: 32px;
-                height: 32px;
-                border-radius: 32px;
+                width: 24px;
+                height: 24px;
+                border-radius: 24px;
             }
        }
      
@@ -174,7 +175,7 @@
             background-color: @primary-color;
 
             & .ant-switch-handle {
-                inset-inline-start: calc(100% - 34px)
+                inset-inline-start: calc(100% - 26px)
             }
 
        }
@@ -194,7 +195,7 @@
             background-color: @bg-input;
             border: 1px solid @border-line-color;
             color: @m-font-color;
-            font-size: 18px;
+            font-size: 14px;
             min-height: 180px;
             &::placeholder {
                 color: @xs-font-color;
@@ -203,30 +204,30 @@
     }
 
     & .basic-subText {
-        font-size: 22px;
+        font-size: 14px;
         color: @m-font-color;
         margin-bottom: 20px;
         & span {
-            color: @primary-color;
+            color: @font-primary-color;
         }
     }
 
 
     & .basic-item {
-        width: 22%;
-        height: 180px;
+        width: 25%;
+        height: 100px;
         background-color: @bg-card;
         color: @l-font-color;
-        font-size: 20px;
-        line-height: 180px;
+        font-size: 14px;
         border-radius: 8px;
         margin-right: 40px;
         justify-content: center;
+        padding: 0 10px;
         cursor: pointer;
 
         & .file-icon {
-            font-size: 30px;
-            margin-right: 20px;
+            font-size: 26px;
+            margin-right: 10px;
         }
     }
 

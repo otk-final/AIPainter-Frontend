@@ -1,16 +1,23 @@
-import React, {useEffect, useState} from 'react'
-import { Button, Carousel, Image, ImageProps, message } from 'antd';
+import React, {useState} from 'react'
+import { Button, Carousel, Image, message } from 'antd';
 import './index.less'
 import assets from '@/assets'
-import CreateProjectModule from '@/components/create-project';
+import {CreateProjectModule} from '@/components';
 import {history} from "umi"
 import { getLoginInfo, useLogin } from '@/uses';
+import ImitateProjectModule from '@/components/imitate-project';
 
 const data = [
   {
     key: "create",
     title: "创作视频",
     describe: "三步完成批量绘图&音视频生成",
+    btnText: "开始创作"
+  },
+  {
+    key: "imitate",
+    title: "一键追爆款",
+    describe: "导入爆款视频&快速生成AI同款视频",
     btnText: "开始创作"
   },
   {
@@ -62,6 +69,7 @@ const carouselData = [
 
 const HomePage = () => {
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
+  const [isImitateProjectOpen, setIsImitateProjectOpen] = useState(false);
   const loginInfo = getLoginInfo();
   const {login, logout, loginState} = useLogin();
 
@@ -73,6 +81,8 @@ const HomePage = () => {
       setIsCreateProjectOpen(true);
     }else if(type === "set") {
       history.push("/setting")
+    } else if (type === "imitate"){
+      setIsImitateProjectOpen(true);
     }
   }
 
@@ -83,13 +93,13 @@ const HomePage = () => {
             return (
               <div className="home-item-wrap flexR" key={index}>
                 <div className="left flexC">
-                  <div className="title">{i.title}</div>
+                  <div className="title one-line">{i.title}</div>
                   <div className="describe">开始时间: {i.startTime}</div>
                   <div className="describe">当前环节: {i.status}</div>
                 </div>
                 <div className="right flexC">
-                  <Button type="default" className="btn-default-auto btn-default-128">继续创作</Button>
-                  <Button type="default" className="btn-default-auto btn-default-128">删除</Button>
+                  <Button type="default" className="btn-default-auto btn-default-100">继续创作</Button>
+                  <Button type="default" className="btn-default-auto btn-default-100">删除</Button>
                 </div>
               </div>
             )
@@ -102,7 +112,7 @@ const HomePage = () => {
   const renderMyCreationEmpty = ()=>{
     return (
       <div className="empty-wrap flexC">
-        <img src="" className="empty-img"/>
+        <img src={assets.empty} className="empty-img"/>
         <div className="text">暂无创作</div>
       </div>
     )
@@ -114,7 +124,7 @@ const HomePage = () => {
         {carouselData.map((i, index)=>{
           return (
             <div key={index}>
-              <Image  src={i.url} width="100%"  height={384} preview={false}/>
+              <Image  src={i.url} width="100%"  height={300} preview={false}/>
             </div>
           )
         })}
@@ -129,7 +139,7 @@ const HomePage = () => {
                     <div className="title">{i.title}</div>
                     <div className="describe one-line">{i.describe}</div>
                   </div>
-                  <Button type="default" className="btn-default-auto btn-default-128"onClick={()=> handleBtn(i.key)}>{i.btnText}</Button>
+                  <Button type="default" className="btn-default-auto btn-default-100"onClick={()=> handleBtn(i.key)}>{i.btnText}</Button>
                 </div>
               )
             })}
@@ -140,6 +150,8 @@ const HomePage = () => {
         {myCreationData.length ? renderMyCreation() :renderMyCreationEmpty()}
 
         <CreateProjectModule isOpen={isCreateProjectOpen} onClose={()=> setIsCreateProjectOpen(false)}/>
+      <ImitateProjectModule isOpen={isImitateProjectOpen} onClose={() => setIsImitateProjectOpen(false)} />
+      
     </div>
   );
 }

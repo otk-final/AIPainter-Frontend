@@ -6,6 +6,7 @@ export default defineConfig({
     { path: "/", component: "@/pages/index/index" },
     { path: "/setting", component: "@/pages/setting/index" },
     { path: "/create", component: "@/pages/create/index" },
+    { path: "/imitate", component: "@/pages/imitate/index" },
   ],
   npmClient: 'yarn',
   theme:{
@@ -21,7 +22,8 @@ export default defineConfig({
     '@bg-btn': "#424242",
     "@bg-input": "#1B1B1C",
     "@line-color": "#2D2D2E",
-    "@border-line-color": "#484848"
+    "@border-line-color": "#484848",
+    "@font-primary-color": "#aa95ff"
   }
 });
 

@@ -1,36 +1,42 @@
 import { useLogin } from "@/uses";
-import { Button, Input, message, Modal, Radio } from "antd"
-import { Fragment, useEffect, useState } from "react";
+import { Button,  Modal, } from "antd"
 import "./index.less"
+import { writeText, readText } from '@tauri-apps/api/clipboard';
+
 
 interface UserInfoModuleProps {
     isOpen: boolean,
-    onClose: ()=>void
+    onClose: ()=>void,
+    openRecharge: (type: "member"| "energy")=>void
 }
 
-const UserInfoModule:React.FC<UserInfoModuleProps> = ({isOpen, onClose})=> {
-    const {login} = useLogin();
+const UserInfoModule:React.FC<UserInfoModuleProps> = ({isOpen, onClose, openRecharge})=> {
+    const { loginState} = useLogin();
+
+    const handleCopy = async ()=>{
+        await writeText(loginState?.inviteCode || "");
+    }
    
     return (
         <Modal title="我的" 
             open={isOpen} 
             onCancel={onClose} 
             footer={null}
-            width={1005}
+            width={900}
             className="home-login-modal home-user-info">
                 <div className="user-info-title">个人信息</div>
                 <div className="section-item flexR">
-                    <div className="section-item-left left-text flexR">用户名称：用户5556 <div className="edit">修改</div></div>
-                    <div className="section-item-right left-text  flexR">邀请码：wuioOO <div className="edit cppy">复制邀请码</div></div>
+                    <div className="section-item-left left-text flexR">用户名称：{loginState?.nickName} <div className="edit">修改</div></div>
+                    <div className="section-item-right left-text  flexR" onClick={handleCopy}>邀请码：{loginState.inviteCode} <div className="edit cppy">复制邀请码</div></div>
                 </div>
                 <div className="section-item flexR">
                     <div className="section-item-left left-text flexR">账号类型：付费账号 </div>
-                    <div className="section-item-right left-text flexR">到期时间：2024-01-26<Button className="btn-primary-auto info-btn" type="primary">充值会员</Button></div>
+                    <div className="section-item-right left-text flexR">到期时间：{loginState?.endTime}<Button className="btn-primary-auto info-btn" onClick={()=>openRecharge('member')}type="primary">充值会员</Button></div>
                 </div>
-                <div className="left-text section-item">手机号码：136****5556</div>
+                <div className="left-text section-item">手机号码：{loginState?.phone?.slice(0,3)}****{loginState?.phone?.slice(7)}</div>
                 <div className="user-info-title flexR">
                     我的能量
-                    <Button className="btn-primary-auto info-btn"  type="primary">充值能量</Button>
+                    <Button className="btn-primary-auto info-btn"  onClick={()=>openRecharge('energy')} type="primary">充值能量</Button>
                 </div>
                 <div className="user-info-bottom flexR">
                     <div  className="flexC">

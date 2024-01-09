@@ -4,20 +4,20 @@ import { useState } from "react";
 import {history} from 'umi'
 import "./index.less"
 
-interface CreateProjectModuleProps {
+interface ImitateProjectModuleProps {
     isOpen: boolean,
     onClose: ()=>void
 }
 
-const CreateProjectModule:React.FC<CreateProjectModuleProps> = ({isOpen, onClose})=> {
+const ImitateProjectModule: React.FC<ImitateProjectModuleProps> = ({isOpen, onClose})=> {
     const [name, setName] = useState("")
 
     const handleCreate = ()=>{
         if(!name) {
-            return message.error("请输入小说别名");
+            return message.error("请输入项目名");
         }
         // 缺少校验
-        history.push("/create")
+        history.push("/imitate")
     }
    
     return (
@@ -27,7 +27,7 @@ const CreateProjectModule:React.FC<CreateProjectModuleProps> = ({isOpen, onClose
             footer={null}
             width={700}
             className="home-login-modal create-project">
-                <div className="title">小说别名（必填）</div>
+                <div className="title">项目名（必填）</div>
                 <Input placeholder="请输入小说别名"  size="large"  onChange={(v)=> setName(v.target.value)}/>
                 <div className="title flexR">Stable-Diffusion-WebUI环境<span>已启动</span></div>
                 <div className=" flexR">
@@ -40,4 +40,4 @@ const CreateProjectModule:React.FC<CreateProjectModuleProps> = ({isOpen, onClose
     )
 }
 
-export default CreateProjectModule
+export default ImitateProjectModule
