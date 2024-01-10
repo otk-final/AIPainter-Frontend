@@ -75,7 +75,7 @@ export default function Layout(props: any) {
               <div className="member" onClick={() => setIsMemberRechargeOpen(true)}>续费超级会员</div>
             </Fragment>
             : null}
-          <div className="help" onClick={withUpdateHandler}>update</div>
+          <div className="help" onClick={withUpdateHandler}>?</div>
 
           {loginState.isLogin ?
             <Popover placement="bottomLeft" content={renderPopoverContent} arrow={false}>
