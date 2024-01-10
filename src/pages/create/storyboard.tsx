@@ -9,14 +9,19 @@ import assets from '@/assets';
 
 interface StoryboardProps {
     onCBScript: ()=> void,
+    onCBHasScript: (status: boolean)=>void
 }
 
-const Storyboard:React.FC<StoryboardProps> = ({onCBScript}) => {
+const Storyboard:React.FC<StoryboardProps> = ({onCBScript, onCBHasScript}) => {
 
     const [isFileOpen, setIsFileOpen] = useState(false);
     const [hasScript, setHasScript] = useState(false);
 
-    const [columnsData, setColumnsData] = useState(mockStoryboardColumnsData)
+    const [columnsData, setColumnsData] = useState(mockStoryboardColumnsData);
+
+    useEffect(()=>{
+        onCBHasScript(hasScript)
+    },[hasScript])
 
     const renderEmpty = ()=>{
         return (

@@ -8,10 +8,12 @@ export const createTabs: TabsProps["items"] = [
     {
       key: "drawbatch",
       label: "批量绘图",
+      disabled: true
     },
     {
       key: "videogeneration",
       label: "视频生成",
+      disabled: true
     },
 ];
   
@@ -61,12 +63,12 @@ export const drawbatchColumns = [
   {
     title: "本镜配图",
     key: "currentImage",
-    space: 3,
+    space: 4,
   },
   {
     title: "可选图片",
     key: "optionImage",
-    space: 3,
+    space: 4,
   },
   {
     title: "操作",
