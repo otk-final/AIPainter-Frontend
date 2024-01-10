@@ -87,14 +87,13 @@
         font-size: 16px;
         color: @m-font-color;
         margin-bottom: 10px;
+        
     }
 
     & .left {
         flex: 0 0 59%;
     }
-
    
-
     & .role-tags-wrap {
         width: 100%;
         margin-bottom: 10px;
@@ -106,6 +105,9 @@
             & span {
                 font-size: 14px;
                 color: @s-font-color;
+            }
+            & .icon {
+                margin-right: 10px;
             }
         }
 
@@ -125,6 +127,34 @@
             margin-bottom: 10px;
             &.cur {
                 border: 1px solid @primary-color;
+            }
+        }
+
+        & .role-tag-img-wrap {
+            width: 202px;
+            height: 250px;
+            background-color: @bg-btn;
+            border-radius: 6px;
+            padding: 2px;
+            font-size: 14px;
+            color: @l-font-color;
+            margin-right: 14px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+            border: 1px solid @bg-btn;
+
+            &.cur {
+                border: 1px solid @primary-color;
+            }
+
+            & .tag-img {
+                width: 196px;
+                height: 196px;
+            }
+
+            & .tag-img-text {
+                margin-left: 10px;
+                margin-top: 10px;
             }
         }
     }

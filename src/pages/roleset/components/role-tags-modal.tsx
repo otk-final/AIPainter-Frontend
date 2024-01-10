@@ -1,7 +1,8 @@
 import { CloseOutlined } from "@ant-design/icons";
 import { Button, Input, Modal, Tabs, TabsProps } from "antd"
 import { useMemo, useState } from "react";
-import TagsItem from "./role-tags-item";
+import RoleTagsImgItem from "./role-tags-img-item";
+import RoleTagsTextItem from "./role-tags-text-item";
 
 interface TagsModuleProps {
     isOpen: boolean,
@@ -47,6 +48,13 @@ const RoleTagsModule:React.FC<TagsModuleProps> = ({isOpen, onClose})=> {
     const [type, setType] = useState('text')
 
     const handleSumbit = ()=>{
+    }
+
+    const handleChoose = (v)=>{
+        if(type !== v) {
+            setType(v);
+            setHasTags([]);
+        }
     }
 
     const handleClickTag = (i)=>{
@@ -143,9 +151,24 @@ const RoleTagsModule:React.FC<TagsModuleProps> = ({isOpen, onClose})=> {
         )
     }
 
+    const renderText = ()=>{
+        return (
+            <div className="flexR" style={{alignItems: "stretch"}}>
+                <div className="left">
+                    {mockdata.map(i=><RoleTagsTextItem onCB={handleClickTag} hasTags={hasTags} data={i} key={i.key}/>)}
+                </div>
+                {renderContent()}
+            </div>
+        )
+    }
 
-    const renderLeftTags = ()=>{
-        return mockdata.map(i=><TagsItem onCB={handleClickTag} hasTags={hasTags} data={i} key={i.key}/>)
+    const renderImg = ()=>{
+        return (
+            <div>
+                {mockdata.map(i=>
+                <RoleTagsImgItem onCB={handleClickTag} hasTags={hasTags} data={i} key={i.key}/>)}
+            </div>
+        )
     }
 
     return (
@@ -153,28 +176,21 @@ const RoleTagsModule:React.FC<TagsModuleProps> = ({isOpen, onClose})=> {
             open={isOpen} 
             onCancel={onClose} 
             footer={null}
-            width={1040}
+            width={1160}
             className="home-login-modal role-tags-modal"
             >
                 <div className={`role-tags-wrap flexC`}>
                     <div className="choose-wrap flexR" style={{marginBottom: '20px'}}>
-                        <div className={`choose-item ${type ==='text' ? "cur" : ''}`} onClick={()=> setType('text')}>文字</div>
-                        <div className={`choose-item ${type ==='img' ? "cur" : ''}`} onClick={()=> setType('img')}>图片</div>
+                        <div className={`choose-item ${type ==='text' ? "cur" : ''}`} onClick={()=> handleChoose('text')}>文字</div>
+                        <div className={`choose-item ${type ==='img' ? "cur" : ''}`} onClick={()=> handleChoose('img')}>图片</div>
                     </div>
                     <div className="flexRB">
                         <Tabs defaultActiveKey="common" items={tabs} onChange={onChange} />
                         {cur === 'custom' ? <Button type="primary" className="bottom-item btn-primary-auto "  style={{height: "40px"}} onClick={handleSumbit}>保存</Button>: null }
                     </div>
-                    <div className="flexR" style={{alignItems: "stretch"}}>
-                        {
-                            cur === 'custom'? null : (
-                                <div className="left">
-                                    {renderLeftTags()}
-                                </div>
-                            )
-                        }
-                        {cur === 'custom' ? renderCustom() : renderContent()}
-                    </div>
+                    {
+                        cur === 'custom' ? renderCustom() : type=== 'text'? renderText(): renderImg()
+                    }
                 </div>
         </Modal>
     )

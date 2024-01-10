@@ -1,11 +1,11 @@
-interface RoleTagsItemProps {
+interface RoleTagsTextItemProps {
     data?: any
     hasTags: any[]
     onCB: (item: any)=> void
 
 }
 
-const RoleTagsItem:React.FC<RoleTagsItemProps> = ({data, hasTags, onCB})=>{
+const RoleTagsTextItem:React.FC<RoleTagsTextItemProps> = ({data, hasTags, onCB})=>{
 
     const renderClickItem = (i)=>{
         const checked = hasTags.some(j=> j.key=== i.key);
@@ -24,4 +24,4 @@ const RoleTagsItem:React.FC<RoleTagsItemProps> = ({data, hasTags, onCB})=>{
 
 
 
-export default RoleTagsItem
+export default RoleTagsTextItem
