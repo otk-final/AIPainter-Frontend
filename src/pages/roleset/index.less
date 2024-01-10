@@ -73,8 +73,135 @@
                 margin-bottom: 20px;
             }
         }
+    }
+}
 
+.role-tags-modal {
+   
+    & .role-tags-wrap {
+        align-items: stretch;
+        justify-content: space-between;
+    }
+
+    & .title-tags {
+        font-size: 16px;
+        color: @m-font-color;
+        margin-bottom: 10px;
+    }
+
+    & .left {
+        flex: 0 0 59%;
     }
 
    
+
+    & .role-tags-wrap {
+        width: 100%;
+        margin-bottom: 10px;
+       
+        & .role-tags-title {
+            font-size: 16px;
+            color: @l-font-color;
+            margin-bottom: 14px;
+            & span {
+                font-size: 14px;
+                color: @s-font-color;
+            }
+        }
+
+        & .role-tags-box {
+            flex-wrap: wrap;
+        }
+        & .role-tag-wrap {
+            border-radius: 4px;
+            padding: 0 6px;
+            height: 32px;
+            font-size: 14px;
+            color: @m-font-color;
+            background-color: @bg-btn;
+            line-height: 32px;
+            border: 1px solid @bg-btn;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            &.cur {
+                border: 1px solid @primary-color;
+            }
+        }
+    }
+
+    & .right {
+        height: inherit;
+        flex: 0 0 36%;
+        border: 1px solid @bg-btn;
+        padding: 20px;
+        justify-content: space-between;
+        align-items: flex-start;
+        
+
+        & .bottom {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        & .clean {
+            width: 72px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            border: 1px solid #666;
+            font-size: 14px;
+            color: @m-font-color;
+        }
+    }
+
+
+    & .has-tags {
+        justify-content: space-between;
+
+        & .content {
+            flex: 1;
+            flex-wrap: wrap;
+        }
+
+        &.custom-tas-tags {
+            height: 400px;
+        }
+    }
+
+    & .has-tag-wrap {
+        border-radius: 4px;
+        padding: 0 6px;
+        height: 32px;
+        font-size: 14px;
+        color: @m-font-color;
+        background-color: @bg-btn;
+        line-height: 32px;
+        border: 1px solid @primary-color;
+        margin-right: 10px;
+        margin-bottom: 14px;
+
+        & .icon {
+            margin-right: 10px;
+        }
+    }
+
+    & .choose-wrap {
+        & .choose-item {
+            width: 54px;
+            height: 32px;
+            border: 1px solid #666;
+            text-align: center;
+            line-height: 32px;
+            font-size: 14px;
+            color: @s-font-color;
+            background-color: @bg-btn;
+            cursor: pointer;
+         
+            &.cur {
+                border: 1px solid @primary-color;
+                color: @m-font-color;
+                background-color: @primary-color;
+            }
+        }
+    }
 }

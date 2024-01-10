@@ -15,7 +15,7 @@ interface StoryboardProps {
 const Storyboard:React.FC<StoryboardProps> = ({onCBScript, onCBHasScript}) => {
 
     const [isFileOpen, setIsFileOpen] = useState(false);
-    const [hasScript, setHasScript] = useState(false);
+    const [hasScript, setHasScript] = useState(true);
 
     const [columnsData, setColumnsData] = useState(mockStoryboardColumnsData);
 

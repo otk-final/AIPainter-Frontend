@@ -1,13 +1,16 @@
 import { Button, Input } from 'antd';
-import './index.less'
 import { DeleteOutlined, FormOutlined, PlusOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+import RoleTagsModule from './role-tags-modal';
 
 interface RoleItemProps {
     data: any,
     index: number
 }
 
-const RoleItem:React.FC<RoleItemProps> = ({data, index})=>{
+const RoleAddItem:React.FC<RoleItemProps> = ({data, index})=>{
+    const [isTagsOpen, setIsTagsOpen] = useState(false);
+
     return (
         <div className='role-item'>
             <div className='top flexR'>
@@ -32,7 +35,7 @@ const RoleItem:React.FC<RoleItemProps> = ({data, index})=>{
                     <div className='content-title'>角色描述</div>
                     <FormOutlined />
                 </div>
-                <div className='flexC role-tags-wrap'>
+                <div className='flexC role-tags-wrap' onClick={()=> setIsTagsOpen(true)}>
                     <PlusOutlined className="add-icon"/>
                     <div>请选择角色行的描述标签</div>
                 </div>
@@ -40,8 +43,11 @@ const RoleItem:React.FC<RoleItemProps> = ({data, index})=>{
             </div>
             <div className='content-title' style={{marginTop: '20px', marginBottom: '10px'}}>角色风格</div>
             <Button type='default' block className='btn-default-auto' > 添加LoRA（风格）</Button>
+            <RoleTagsModule isOpen={isTagsOpen} onClose={()=> {
+                setIsTagsOpen(false)
+                }} />
         </div>
     )
 }
 
-export default RoleItem
+export default RoleAddItem

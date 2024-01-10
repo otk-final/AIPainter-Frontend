@@ -3,7 +3,7 @@ import './index.less'
 import {history} from "umi"
 import { LeftOutlined } from '@ant-design/icons';
 import { useState } from 'react';
-import RoleItem from './role-item';
+import RoleAddItem from './components/role-add-item';
 
 
 const RoleSetPage = () => {
@@ -45,7 +45,7 @@ const RoleSetPage = () => {
       <div className='sub-text'>建议角色设置不要超过2个,如剧本中无固定角色可跳过该步骤。SD在同画面的出现多个角色时，识别能力较差。同画面多人指定角色形象的功能在开发中。</div>
       <div className='roles-wrap flexR'>
         {roles.map((i, index)=>{
-          return <RoleItem data={i} index={index} key={index}/>
+          return <RoleAddItem data={i} index={index} key={index}/>
         })}
       </div>
     </div>
