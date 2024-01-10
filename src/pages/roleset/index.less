@@ -1,0 +1,80 @@
+.roleset-wrap {
+    color: aliceblue;
+
+    & .sub-text {
+        font-size: 14px;
+        color: @s-font-color;
+        margin-bottom: 20px;
+        padding-left: 30px;
+    }
+
+    & .roles-wrap {
+        margin: 0 30px;
+        flex-wrap: wrap;
+    }
+
+    & .role-item {
+        width: calc(50% - 10px);
+        flex: 0 0 calc(50% - 10px);
+        border: 1px solid @border-line-color;
+        border-radius: 8px;
+        padding: 20px;
+        box-sizing: border-box;
+        margin-bottom: 30px;
+
+        &:nth-child(odd) {
+            margin-right: 20px;
+        }
+
+        & .top {
+            justify-content: space-between;
+            font-size: 16px;
+            color: @m-font-color;
+        }
+
+        & .content-title {
+            font-size: 14px;
+            color: @m-font-color;
+        }
+
+        & .content {
+            margin-top: 10px;
+            justify-content: space-between;
+            align-items: stretch;
+
+            & .input:first-of-type {
+                margin-bottom: 10px;
+            }
+        }
+
+        & .content-i {
+            width: calc(50% - 10px);
+            flex: 0 0 calc(50% - 10px);
+            align-items: flex-start;
+            justify-content: flex-start;
+            height: inherit;
+        }
+
+        & .RB {
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        & .role-tags-wrap {
+            width: 100%;
+            flex: 1;
+            border: 1px solid @border-line-color;
+            border-radius: 8px;
+            font-size: 14px;
+            color: @m-font-color;
+            & .add-icon {
+                font-size: 50px;
+                margin-bottom: 20px;
+            }
+        }
+
+    }
+
+   
+}
