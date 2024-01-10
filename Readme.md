@@ -7,3 +7,6 @@
 # 未处理
 + 未登录，跳转到首页未登录状态， 不允许进入其他路由地址
 + 登陆状态  getLoginInfo 获取的缓存状态， 需同步到useLogin
+
+
+https://blog.csdn.net/weixin_31866177/article/details/107556021
