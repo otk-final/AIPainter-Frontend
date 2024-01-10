@@ -6,6 +6,7 @@ export default defineConfig({
     { path: "/", component: "@/pages/index/index" },
     { path: "/setting", component: "@/pages/setting/index" },
     { path: "/create", component: "@/pages/create/index" },
+    { path: "/imitate", component: "@/pages/imitate/index" },
   ],
   npmClient: 'yarn',
   theme:{

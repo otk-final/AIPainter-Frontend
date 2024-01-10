@@ -5,12 +5,19 @@ import assets from '@/assets'
 import {CreateProjectModule} from '@/components';
 import {history} from "umi"
 import { getLoginInfo, useLogin } from '@/uses';
+import ImitateProjectModule from '@/components/imitate-project';
 
 const data = [
   {
     key: "create",
     title: "创作视频",
     describe: "三步完成批量绘图&音视频生成",
+    btnText: "开始创作"
+  },
+  {
+    key: "imitate",
+    title: "一键追爆款",
+    describe: "导入爆款视频&快速生成AI同款视频",
     btnText: "开始创作"
   },
   {
@@ -62,6 +69,7 @@ const carouselData = [
 
 const HomePage = () => {
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
+  const [isImitateProjectOpen, setIsImitateProjectOpen] = useState(false);
   const loginInfo = getLoginInfo();
   const {login, logout, loginState} = useLogin();
 
@@ -73,6 +81,8 @@ const HomePage = () => {
       setIsCreateProjectOpen(true);
     }else if(type === "set") {
       history.push("/setting")
+    } else if (type === "imitate"){
+      setIsImitateProjectOpen(true);
     }
   }
 
@@ -140,6 +150,8 @@ const HomePage = () => {
         {myCreationData.length ? renderMyCreation() :renderMyCreationEmpty()}
 
         <CreateProjectModule isOpen={isCreateProjectOpen} onClose={()=> setIsCreateProjectOpen(false)}/>
+      <ImitateProjectModule isOpen={isImitateProjectOpen} onClose={() => setIsImitateProjectOpen(false)} />
+      
     </div>
   );
 }
