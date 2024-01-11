@@ -1,29 +1,26 @@
-import { TabsProps } from "antd";
-
-
-export const drawbatchColumns = [
+export const generateImagesColumns = [
   {
-    title: "镜号",
+    title: "编号",
     key: "number",
-    space: 2,
+    space: 1,
   },{
-    title: "原文描述",
-    key: "describe",
+    title: "原始图片",
+    key: "originalImage",
+    space: 4,
+  },
+  {
+    title: "关键词",
+    key: "keyword",
     space: 3,
   },
   {
-    title: "画面描述词(可输入)",
-    key: "describeWord",
+    title: "新图",
+    key: "newImage",
     space: 4,
   },
   {
-    title: "本镜配图",
-    key: "currentImage",
-    space: 4,
-  },
-  {
-    title: "可选图片",
-    key: "optionImage",
+    title: "历史图片",
+    key: "historyImages",
     space: 4,
   },
   {
@@ -34,48 +31,47 @@ export const drawbatchColumns = [
 ]
 
 
-export const mockDrawbatchColumnsData = [
+export const generateImagesColumnsData = [
   {
     number: 1,
-    describe: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    describeWord: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    currentImage: "",
-    optionImage: ""
+    originalImage: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
+    keyword: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
+    newImage: "",
+    historyImages: ["", ""]
   },
   {
     number: 2,
-    describe: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    describeWord: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    currentImage: "",
-    optionImage: ""
+    originalImage: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
+    keyword: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
+    newImage: "",
+    historyImages: ["", ""]
   },
   {
     number: 3,
-    describe: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    describeWord: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    currentImage: "",
-    optionImage: ""
+    originalImage: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
+    keyword: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
+    newImage: "",
+    historyImages: ["", ""]
   },
   {
     number: 4,
-    describe: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    describeWord: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    currentImage: "",
-    optionImage: ""
+    originalImage: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
+    keyword: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
+    newImage: "",
+    historyImages: ["", ""]
   },
   {
     number: 5,
-    describe: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    describeWord: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    currentImage: "",
-    optionImage: ""
+    originalImage: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
+    keyword: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
+    newImage: "",
+    historyImages: ["", ""]
   },
   {
     number: 6,
-    describe: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    describeWord: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    currentImage: "",
-    optionImage: ""
+    originalImage: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
+    keyword: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
+    newImage: "",
+    historyImages: ["", ""]
   },
-  
 ]

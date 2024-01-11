@@ -9,15 +9,12 @@ interface ExtractFramesProps {
     handleChangeTab: (key: ImitateTabType) => void,
 }
 
-const ExtractFramesTab: React.FC<ExtractFramesProps> = ({ handleChangeTab }) => {
+const ExtractFrames: React.FC<ExtractFramesProps> = ({ handleChangeTab }) => {
     const [videoFileURL, setVideoFileURL] = useState<string>("")
     const [videoFilePath, setVideoFilePath] = useState<string>("")
     const imitateValue = useContext(ImitateContext)
     const [handleLoading, setHandleLoading] = useState<boolean>(false)
 
-  
-
-   
     const handleExtractFrames = async () => {
         setHandleLoading(true)
         //创建文件夹
@@ -52,35 +49,41 @@ const ExtractFramesTab: React.FC<ExtractFramesProps> = ({ handleChangeTab }) => 
             return
         }
         
+        let url = tauri.convertFileSrc(selected as string);
         //setContext
-        imitateValue.script = {
-            path: selected as string,
-            url: tauri.convertFileSrc(selected as string)
-        }
+        // imitateValue.script = {
+        //     path: selected as string,
+        //     url: tauri.convertFileSrc(selected as string)
+        // }
 
-        setVideoFilePath(imitateValue.script.path)
-        setVideoFileURL(imitateValue.script.url)
+        setVideoFilePath(selected as string)
+        setVideoFileURL(url)
     }
 
     const renderVoice = () => {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
-                <ReactPlayer url={videoFileURL} controls width={'100%'}></ReactPlayer>
+            <div className='video-wrap'>
+                <ReactPlayer url={videoFileURL}  
+                    width="200px"
+                    height="200px"
+                    style={{backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '6px'}} 
+                />
+                <div className='time'>{"03:24"}</div>
             </div>
         )
     }
-    
+
     return (
         <div style={{paddingLeft: "30px", paddingRight: '30px'}}>
             <div className='flexR'>
                 <div>请导入视频：</div>
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported}>导入</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExtractFrames}>开始抽帧</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{width: '100px'}} onClick={handleExtractFrames}>开始抽帧</Button>
             </div>
 
-            {renderVoice()}
+            {videoFileURL ? renderVoice() : null}
         </div>
     );
 };
 
-export default ExtractFramesTab
+export default ExtractFrames
