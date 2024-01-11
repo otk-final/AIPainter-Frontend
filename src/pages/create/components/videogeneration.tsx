@@ -1,7 +1,7 @@
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
 import { Button, InputNumber, Select } from "antd"
 import { useState } from "react"
-import { videogFrom } from "./data"
+import { videogFrom } from "../data"
 
 const Videogeneration = ()=>{
     const [formData, setFormData] = useState({

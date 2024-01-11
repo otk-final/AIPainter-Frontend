@@ -1,10 +1,9 @@
 import { Button } from 'antd';
 import React, {useEffect, useState} from 'react'
-import './index.less'
 import {FileImportModule} from '@/components'
 import { QuestionCircleOutlined } from '@ant-design/icons';
-import { mockStoryboardColumnsData, storyboardColumns } from './data';
-import StoryboardTableTR from './components/storyboard-table-tr'
+import { mockStoryboardColumnsData, storyboardColumns } from '../data';
+import StoryboardTableTR from './storyboard-table-tr'
 import assets from '@/assets';
 
 interface StoryboardProps {

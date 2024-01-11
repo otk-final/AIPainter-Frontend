@@ -4,9 +4,9 @@ import './index.less'
 import { createTabs } from './data'
 import { LeftOutlined } from '@ant-design/icons';
 import {history} from "umi"
-import Storyboard from './storyboard';
-import Drawbatch from './drawbatch';
-import Videogeneration from './videogeneration'
+import Storyboard from './components/storyboard';
+import Drawbatch from './components/drawbatch';
+import Videogeneration from './components/videogeneration'
 import {EnergyRechargeModule} from '@/components'
 
 type CreateTabType = "storyboard" | "drawbatch" | "videogeneration"

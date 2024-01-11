@@ -1,9 +1,8 @@
 import { QuestionCircleOutlined } from "@ant-design/icons"
 import { Select } from "antd"
 import { useState } from "react"
-import DrawbathTableTR from "./components/drawbath-table-tr"
-import { drawbatchColumns, mockDrawbatchColumnsData } from "./data"
-
+import DrawbathTableTR from "./drawbath-table-tr"
+import { drawbatchColumns, mockDrawbatchColumnsData } from "../data"
 
 const Drawbatch = ()=>{
     const [columnsData, setColumnsData] = useState(mockDrawbatchColumnsData)
@@ -27,7 +26,6 @@ const Drawbatch = ()=>{
     }
     
     return (
-
         <div className="drawbatch-wrap">
             <div className="drawbatch-header flexR">
                 <div className="lable">绘图模版 <QuestionCircleOutlined /></div>
