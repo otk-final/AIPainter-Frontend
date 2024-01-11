@@ -30,13 +30,20 @@
             "name": "bin/ffmpeg",
             "args": true,
             "sidecar": true
+          },
+          {
+            "name": "bin/ffprobe",
+            "args": true,
+            "sidecar": true
           }
         ]
       },
       "fs": {
         "all": true,
         "scope": [
-          "**"
+          "*",
+          "$DESKTOP/*",
+          "$HOME/*"
         ]
       },
       "path": {
@@ -62,7 +69,8 @@
         "icons/icon.ico"
       ],
       "externalBin": [
-        "bin/ffmpeg"
+        "bin/ffmpeg",
+        "bin/ffprobe"
       ]
     },
     "security": {
