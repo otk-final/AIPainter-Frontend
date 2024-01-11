@@ -4,6 +4,7 @@ import { Button, Image } from 'antd';
 import { dialog, fs, path, shell, tauri } from '@tauri-apps/api';
 import { BaseDirectory } from '@tauri-apps/api/fs';
 import ReactPlayer from 'react-player';
+import { usePersistProjects } from '@/stores/project';
 
 
 
@@ -106,13 +107,15 @@ const ImitatePage: React.FC = () => {
     }
 
 
+    const {name} = usePersistProjects()
+
     return (
         <div >
             <Button onClick={handleImage}>选择图片</Button>
             <Button onClick={handleVoice}>选择视频</Button>
             {imageFile && <Image src={imageFile} />}
-            <br/>
-            {voiceFile && <ReactPlayer controls={true} url={voiceFile.url}/>}
+            <br />
+            {voiceFile && <ReactPlayer controls={true} url={voiceFile.url} />}
         </div>
     );
 };

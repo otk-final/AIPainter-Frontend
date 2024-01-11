@@ -1,11 +1,12 @@
-import React, {useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Carousel, Image, message } from 'antd';
 import './index.less'
 import assets from '@/assets'
-import {CreateProjectModule} from '@/components';
-import {history} from "umi"
+import { CreateProjectModule } from '@/components';
+import { history } from "umi"
 import { getLoginInfo, useLogin } from '@/uses';
 import ImitateProjectModule from '@/components/imitate-project';
+import { Project, usePersistWorkspaces } from '@/stores/project';
 
 const data = [
   {
@@ -50,7 +51,7 @@ const myCreationData = [
     startTime: "2023-12-27",
     status: "批量绘图"
   },
- 
+
 ]
 
 const carouselData = [
@@ -72,48 +73,59 @@ const HomePage = () => {
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
   const [isImitateProjectOpen, setIsImitateProjectOpen] = useState(false);
   const loginInfo = getLoginInfo();
-  const {login, logout, loginState} = useLogin();
+  const { login, logout, loginState } = useLogin();
 
   const handleBtn = (type: string) => {
-    if(!loginState.isLogin){
-      return  message.warning("请先登陆～")
+    if (!loginState.isLogin) {
+      return message.warning("请先登陆～")
     }
-    if(type === "create") {
+    if (type === "create") {
       setIsCreateProjectOpen(true);
-    }else if(type === "set") {
+    } else if (type === "set") {
       history.push("/setting")
-    } else if (type === "imitate"){
+    } else if (type === "imitate") {
       setIsImitateProjectOpen(true);
     }
   }
 
-  const renderMyCreation = ()=>{
+
+  //加载项目
+  const { projects, load, remove, open } = usePersistWorkspaces(state => state)
+  useEffect(() => {
+    load()
+  }, [])
+
+  const handleGoon = (project: Project) => {
+    open(project).finally(() => { history.push(project.type === "std" ? "/create" : "/imitate") })
+  }
+
+  const renderMyCreation = () => {
     return (
       <div className="section-create-wrap flexR">
-        { myCreationData.map((i, index)=>{
-            return (
-              <div className="home-item-wrap flexR" key={index}>
-                <div className="left flexC">
-                  <div className="title one-line">{i.title}</div>
-                  <div className="describe">开始时间: {i.startTime}</div>
-                  <div className="describe">当前环节: {i.status}</div>
-                </div>
-                <div className="right flexC">
-                  <Button type="default" className="btn-default-auto btn-default-100">继续创作</Button>
-                  <Button type="default" className="btn-default-auto btn-default-100">删除</Button>
-                </div>
+        {projects.map((i, index) => {
+          return (
+            <div className="home-item-wrap flexR" key={index}>
+              <div className="left flexC">
+                <div className="title one-line">{i?.name}</div>
+                <div className="describe">开始时间: {i?.createTime}</div>
+                <div className="describe">当前环节: {i?.step}</div>
               </div>
-            )
-          }) }
+              <div className="right flexC">
+                <Button type="default" className="btn-default-auto btn-default-100" onClick={() => { handleGoon(i) }}>继续创作</Button>
+                <Button type="default" className="btn-default-auto btn-default-100" onClick={() => { remove(i!.id) }}>删除</Button>
+              </div>
+            </div>
+          )
+        })}
       </div>
-     
+
     )
   }
 
-  const renderMyCreationEmpty = ()=>{
+  const renderMyCreationEmpty = () => {
     return (
       <div className="empty-wrap flexC">
-        <img src={assets.empty} className="empty-img"/>
+        <img src={assets.empty} className="empty-img" />
         <div className="text">暂无创作</div>
       </div>
     )
@@ -122,41 +134,41 @@ const HomePage = () => {
   return (
     <div className="home-wrap">
       <Carousel className="carousel-wrap" autoplay>
-        {carouselData.map((i, index)=>{
+        {carouselData.map((i, index) => {
           return (
             <div key={index}>
-              <Image  src={i.url} width="100%"  height={300} preview={false}/>
+              <Image src={i.url} width="100%" height={300} preview={false} />
             </div>
           )
         })}
       </Carousel>
 
 
-        <div className="home-section flexR">
-            {data.map((i, index)=>{
-              return (
-                <div className="home-item-wrap flexR" key={index} >
-                  <div className="left flexC">
-                    <div className="title flexR">{i.title}
-                      {i.key === 'paint-module' ?  <img src={assets.vip} className="vip-img"/> : null}
-                    </div>
-                    <div className="describe one-line">{i.describe}</div>
-                  </div>
-                  <Button type="default" className="btn-default-auto btn-default-100" 
-                  style={{margin: 0}}
-                  onClick={()=> handleBtn(i.key)}>{i.btnText}</Button>
+      <div className="home-section flexR">
+        {data.map((i, index) => {
+          return (
+            <div className="home-item-wrap flexR" key={index} >
+              <div className="left flexC">
+                <div className="title flexR">{i.title}
+                  {i.key === 'paint-module' ? <img src={assets.vip} className="vip-img" /> : null}
                 </div>
-              )
-            })}
-        </div>
+                <div className="describe one-line">{i.describe}</div>
+              </div>
+              <Button type="default" className="btn-default-auto btn-default-100"
+                style={{ margin: 0 }}
+                onClick={() => handleBtn(i.key)}>{i.btnText}</Button>
+            </div>
+          )
+        })}
+      </div>
 
-        <div className="section-title-wrap">我的创作<span>（生成素材特为您保留30天）</span></div>
+      <div className="section-title-wrap">我的创作<span>（生成素材特为您保留30天）</span></div>
 
-        {myCreationData.length ? renderMyCreation() :renderMyCreationEmpty()}
+      {projects.length ? renderMyCreation() : renderMyCreationEmpty()}
 
-        <CreateProjectModule isOpen={isCreateProjectOpen} onClose={()=> setIsCreateProjectOpen(false)}/>
-        <ImitateProjectModule isOpen={isImitateProjectOpen} onClose={() => setIsImitateProjectOpen(false)} />
-      
+      <CreateProjectModule isOpen={isCreateProjectOpen} onClose={() => setIsCreateProjectOpen(false)} />
+      <ImitateProjectModule isOpen={isImitateProjectOpen} onClose={() => setIsImitateProjectOpen(false)} />
+
     </div>
   );
 }

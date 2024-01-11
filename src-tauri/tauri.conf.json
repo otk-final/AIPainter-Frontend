@@ -41,9 +41,7 @@
       "fs": {
         "all": true,
         "scope": [
-          "*",
-          "$DESKTOP/*",
-          "$HOME/*"
+          "**"
         ]
       },
       "path": {
@@ -74,7 +72,7 @@
       ]
     },
     "security": {
-      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost"
+      "csp": null
     },
     "windows": [
       {

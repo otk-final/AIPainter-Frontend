@@ -42,7 +42,7 @@ const ExtractFrames: React.FC<ExtractFramesProps> = ({ handleChangeTab }) => {
         console.info('stderr', output.stderr)
         handleChangeTab("batchDraw")
     }
-  
+
     const handleImported = async () => {
         let selected = await dialog.open({
             title: '选择视频文件'
@@ -50,7 +50,7 @@ const ExtractFrames: React.FC<ExtractFramesProps> = ({ handleChangeTab }) => {
         if (!selected) {
             return
         }
-        
+
         let url = tauri.convertFileSrc(selected as string);
         //setContext
         // imitateValue.script = {
@@ -64,11 +64,11 @@ const ExtractFrames: React.FC<ExtractFramesProps> = ({ handleChangeTab }) => {
 
     const renderVoice = () => {
         return (
-            <div className='video-wrap' onClick={()=> setIsVideoPlayerOpen(true)}>
-                <ReactPlayer url={videoFileURL}  
+            <div className='video-wrap' onClick={() => setIsVideoPlayerOpen(true)}>
+                <ReactPlayer url={videoFileURL}
                     width="200px"
                     height="200px"
-                    style={{backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '6px'}} 
+                    style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '6px' }}
                 />
                 <div className='time'>{"03:24"}</div>
             </div>
@@ -76,15 +76,15 @@ const ExtractFrames: React.FC<ExtractFramesProps> = ({ handleChangeTab }) => {
     }
 
     return (
-        <div style={{paddingLeft: "30px", paddingRight: '30px', height:"calc(100% - 78px)", overflow: 'scroll'}}>
+        <div style={{ paddingLeft: "30px", paddingRight: '30px', height: "calc(100% - 78px)", overflow: 'scroll' }}>
             <div className='flexR'>
                 <div>请导入视频：</div>
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported}>导入</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{width: '100px'}} onClick={handleExtractFrames}>开始抽帧</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} onClick={handleExtractFrames}>开始抽帧</Button>
             </div>
 
             {videoFileURL ? renderVoice() : null}
-            <VideoPlayerModule videoFileURL={videoFileURL}  isOpen={isVideoPlayerOpen} onClose={() => setIsVideoPlayerOpen(false)}/>
+            {isVideoPlayerOpen && <VideoPlayerModule videoFileURL={videoFileURL} isOpen={isVideoPlayerOpen} onClose={() => setIsVideoPlayerOpen(false)} />}
         </div>
     );
 };
