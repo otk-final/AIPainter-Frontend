@@ -74,7 +74,7 @@ const ExtractFrames: React.FC<ExtractFramesProps> = ({ handleChangeTab }) => {
     }
 
     return (
-        <div style={{paddingLeft: "30px", paddingRight: '30px'}}>
+        <div style={{paddingLeft: "30px", paddingRight: '30px', height:"calc(100% - 78px)", overflow: 'scroll'}}>
             <div className='flexR'>
                 <div>请导入视频：</div>
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported}>导入</Button>

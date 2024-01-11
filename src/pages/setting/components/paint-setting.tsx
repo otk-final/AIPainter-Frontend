@@ -115,7 +115,7 @@ const PaintSetting:React.FC<PaintSettingProps> = ({onCallBack})=>{
     }
 
     return (
-        <div>
+        <div style={{height:"calc(100% - 78px)", overflow: 'scroll', paddingLeft: '30px', paddingRight: '30px'}}>
             <div className='setting-section'>
                 <div className='setting-title'>sD WebUI 环境配置</div>
                 <div className='setting-form-label flexR half-width'>

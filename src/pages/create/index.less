@@ -1,6 +1,7 @@
 .create-wrap {
     background-color: #121212;
-    min-height: calc(100% - 90px);
+    height: calc(100% - 90px);
+    overflow: hidden;
     & .inputnumber-auto {
         box-sizing: border-box;
         background-color: @bg-input;
@@ -38,6 +39,8 @@
 
 .storyboard-wrap {
     padding: 0 30px;
+    height: calc(100% - 78px);
+    overflow: scroll;
    
     & .empty {
         & .empty-img {
@@ -196,6 +199,8 @@
 }
 
 .drawbatch-wrap {
+    height: calc(100% - 78px);
+    overflow: scroll;
     & .drawbatch-header {
 
         & .lable {
@@ -226,7 +231,9 @@
 
 
 .videogeneration-wrap {
-    padding: 0 28px;
+    padding: 0 30px;
+    height: calc(100% - 78px);
+    overflow: scroll;
     & .section {
         width: 100%;
         padding: 30px 0;

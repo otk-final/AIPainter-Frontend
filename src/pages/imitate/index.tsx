@@ -10,7 +10,7 @@ export type ImitateTabType = "exportFrames" | "generateImages"
 const imitateTabs: TabsProps["items"] = [
   {
     key: "exportFrames",
-    label: "智能抽帧",
+    label: "视频抽帧",
   },
   {
     key: "generateImages",

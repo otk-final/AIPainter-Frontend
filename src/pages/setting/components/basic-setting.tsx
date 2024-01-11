@@ -17,7 +17,7 @@ const BasicSetting:React.FC<BasicSettingProps> = ({onCallBack})=>{
     }
 
     return (
-        <div>
+        <div style={{height:" calc(100% - 78px)", overflow: 'scroll', paddingLeft: '30px', paddingRight: '30px'}}>
             <div className='setting-section'>
                 <div className='setting-title'>素材缓存</div>
                 <div className='basic-subText'>顶目素材文件夹存储位雪 <span>更改项目素材文件夹的存储位台， 将影响己创建的小说项目的图片、视频等素材的使用，请详慎操作，建议选择空文件夹</span> </div>
