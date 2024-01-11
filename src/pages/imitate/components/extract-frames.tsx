@@ -4,6 +4,7 @@ import ReactPlayer from 'react-player';
 import { dialog, fs, os, path, shell, tauri } from '@tauri-apps/api';
 import { BaseDirectory } from '@tauri-apps/api/fs';
 import { ImitateContext, ImitateTabType } from '../index';
+import VideoPlayerModule from './video-player';
 
 interface ExtractFramesProps {
     handleChangeTab: (key: ImitateTabType) => void,
@@ -14,6 +15,7 @@ const ExtractFrames: React.FC<ExtractFramesProps> = ({ handleChangeTab }) => {
     const [videoFilePath, setVideoFilePath] = useState<string>("")
     const imitateValue = useContext(ImitateContext)
     const [handleLoading, setHandleLoading] = useState<boolean>(false)
+    const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
 
     const handleExtractFrames = async () => {
         setHandleLoading(true)
@@ -62,7 +64,7 @@ const ExtractFrames: React.FC<ExtractFramesProps> = ({ handleChangeTab }) => {
 
     const renderVoice = () => {
         return (
-            <div className='video-wrap'>
+            <div className='video-wrap' onClick={()=> setIsVideoPlayerOpen(true)}>
                 <ReactPlayer url={videoFileURL}  
                     width="200px"
                     height="200px"
@@ -82,6 +84,7 @@ const ExtractFrames: React.FC<ExtractFramesProps> = ({ handleChangeTab }) => {
             </div>
 
             {videoFileURL ? renderVoice() : null}
+            <VideoPlayerModule videoFileURL={videoFileURL}  isOpen={isVideoPlayerOpen} onClose={() => setIsVideoPlayerOpen(false)}/>
         </div>
     );
 };
