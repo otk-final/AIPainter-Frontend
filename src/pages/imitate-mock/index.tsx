@@ -107,7 +107,7 @@ const ImitatePage: React.FC = () => {
 
 
     return (
-        <div className="create-wrap">
+        <div >
             <Button onClick={handleImage}>选择图片</Button>
             <Button onClick={handleVoice}>选择视频</Button>
             {imageFile && <Image src={imageFile} />}

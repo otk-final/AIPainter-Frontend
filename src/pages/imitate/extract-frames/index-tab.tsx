@@ -15,13 +15,7 @@ const ExtractFramesTab: React.FC<ExtractFramesProps> = ({ handleChangeTab }) => 
     const imitateValue = useContext(ImitateContext)
     const [handleLoading, setHandleLoading] = useState<boolean>(false)
 
-    const renderVoice = () => {
-        return (
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
-                <ReactPlayer url={videoFileURL} controls width={'100%'}></ReactPlayer>
-            </div>
-        )
-    }
+  
 
    
     const handleExtractFrames = async () => {
@@ -68,8 +62,16 @@ const ExtractFramesTab: React.FC<ExtractFramesProps> = ({ handleChangeTab }) => 
         setVideoFileURL(imitateValue.script.url)
     }
 
+    const renderVoice = () => {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
+                <ReactPlayer url={videoFileURL} controls width={'100%'}></ReactPlayer>
+            </div>
+        )
+    }
+    
     return (
-        <div className="">
+        <div style={{paddingLeft: "30px", paddingRight: '30px'}}>
             <div className='flexR'>
                 <div>请导入视频：</div>
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported}>导入</Button>

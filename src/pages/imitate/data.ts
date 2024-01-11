@@ -1,35 +1,6 @@
 import { TabsProps } from "antd";
 
 
-  
-export const extractFramesColumns = [
-  {
-      title: "镜号",
-      key: "number",
-      space: 2,
-  },
-  {
-      title: "原文描述",
-      key: "describe",
-      space: 4,
-  },
-  {
-      title: "画面关键词(智能推理)",
-      key: "keyword",
-      space: 4,
-  },
-  {
-      title: "画面角色",
-      key: "role",
-      space: 3,
-  },
-  {
-      title: "画面中的角色描述",
-      key: "roleDescribe",
-      space: 4,
-  }
-]
-
 export const drawbatchColumns = [
   {
     title: "镜号",
