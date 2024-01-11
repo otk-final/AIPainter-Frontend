@@ -1,9 +1,9 @@
-import { Button, Input, Select, Slider, Tabs, InputNumber, Switch } from 'antd';
-import React, {useEffect, useState, Fragment} from 'react'
+import { Button, Tabs } from 'antd';
+import React, {useState } from 'react'
 import './index.less'
 import { setTabItems, PaintFormValueProps} from './data'
-import PaintSetting from './paint-setting';
-import BasicSetting from './basic-setting';
+import PaintSetting from './components/paint-setting';
+import BasicSetting from './components/basic-setting';
 import { LeftOutlined } from '@ant-design/icons';
 import {history} from "umi"
 

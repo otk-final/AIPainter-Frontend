@@ -1,7 +1,6 @@
 import { FolderOpenFilled } from '@ant-design/icons';
 import { Button, Input, Upload } from 'antd';
-import React, {useEffect, useState, Fragment} from 'react'
-import './index.less'
+import React from 'react'
 
 interface BasicSettingProps {
     onCallBack: (v: any)=>void

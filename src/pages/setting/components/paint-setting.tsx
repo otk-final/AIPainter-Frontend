@@ -1,7 +1,6 @@
-import { Button, Input, Select, Slider, Tabs, InputNumber, Switch } from 'antd';
-import React, {useEffect, useState, Fragment} from 'react'
-import './index.less'
-import {FormDataProps, formData, PaintFormValueProps, defaultFormValue} from './data'
+import { Button, Input, Select, Slider, InputNumber, Switch } from 'antd';
+import React, { useState} from 'react'
+import {FormDataProps, formData, PaintFormValueProps, defaultFormValue} from '../data'
 import TextArea from 'antd/es/input/TextArea';
 import { SlackOutlined, SyncOutlined } from '@ant-design/icons';
 
