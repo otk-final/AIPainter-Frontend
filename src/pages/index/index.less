@@ -1,6 +1,6 @@
 .home-wrap {
     font-size: 26px;
-    padding: 0 48px;
+    padding: 0 30px;
     height: calc(100% - 90px);
     overflow: scroll;
 
@@ -9,19 +9,22 @@
     }
 
     & .home-section {
+        flex-wrap: wrap;
+        width: 100%;
     }
 
     & .home-item-wrap {
-        width: 30%;
+        width: 362px;
+        flex: 0 0 362px;
         height: 128px;
         background-color: @bg-card;
         border-radius: 8px;
-        margin-right: 24px;
+        margin-right: 20px;
         padding: 0 16px;
         box-sizing: border-box;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 48px;
+        margin-bottom: 20px;
 
         & .left {
             justify-content: flex-start;
@@ -31,15 +34,20 @@
         & .title {
             font-size: 20px;
             color: @m-font-color;
-            font-weight: bold;
             margin-bottom: 20px;
+
+            & .vip-img {
+                width: 16px;
+                height: 16px;
+                margin-left: 10px;
+            }
         }
 
         & .describe {
             font-size: 14px;
             color: @s-font-color;
             flex: 1;
-            margin-right: 20px;
+            margin-right: 10px;
             margin-bottom: 4px;
         }
     }

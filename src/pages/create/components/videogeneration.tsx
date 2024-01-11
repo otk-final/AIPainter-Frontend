@@ -1,7 +1,7 @@
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
 import { Button, InputNumber, Select } from "antd"
 import { useState } from "react"
-import { videogFrom } from "../data"
+import { fontFamilyDatas, videogFrom } from "../data"
 
 const Videogeneration = ()=>{
     const [formData, setFormData] = useState({
@@ -96,8 +96,8 @@ const Videogeneration = ()=>{
                     <div className="form-item">
                         <div className="label">字体</div>
                         <div className="fontcf-wrap flexR">
-                            {["小", "中", "大", "特大","小", "中", "大", "特大", "大", "特大"].map((i)=>{
-                                return <img src="" className="fontcf"/>
+                            {fontFamilyDatas.map((i)=>{
+                                return <img src={i.url} className="fontcf" key={i.key} />
                             })}
                         </div>
                     </div>

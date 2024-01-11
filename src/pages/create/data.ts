@@ -1,3 +1,4 @@
+import assets from "@/assets";
 import { TabsProps } from "antd";
 
 export const createTabs: TabsProps["items"] = [
@@ -192,4 +193,47 @@ export const mockDrawbatchColumnsData = [
     optionImage: ""
   },
   
+]
+
+export const fontFamilyDatas = [
+  {
+    key: 'fontfamily1',
+    url: assets.fontfamily1
+  },
+  {
+    key: 'fontfamily2',
+    url: assets.fontfamily2
+  },
+  {
+    key: 'fontfamily3',
+    url: assets.fontfamily3
+  },
+  {
+    key: 'fontfamily4',
+    url: assets.fontfamily4
+  },
+  {
+    key: 'fontfamily5',
+    url: assets.fontfamily5
+  },
+  {
+    key: 'fontfamily6',
+    url: assets.fontfamily6
+  },
+  {
+    key: 'fontfamily7',
+    url: assets.fontfamily7
+  },
+  {
+    key: 'fontfamily8',
+    url: assets.fontfamily8
+  },
+  {
+    key: 'fontfamily9',
+    url: assets.fontfamily9
+  },
+  {
+    key: 'fontfamily10',
+    url: assets.fontfamily10
+  }
 ]

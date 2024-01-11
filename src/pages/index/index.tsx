@@ -49,7 +49,8 @@ const myCreationData = [
     title: "如同一天对方地方",
     startTime: "2023-12-27",
     status: "批量绘图"
-  }
+  },
+ 
 ]
 
 const carouselData = [
@@ -134,12 +135,16 @@ const HomePage = () => {
         <div className="home-section flexR">
             {data.map((i, index)=>{
               return (
-                <div className="home-item-wrap flexR" key={index}>
+                <div className="home-item-wrap flexR" key={index} >
                   <div className="left flexC">
-                    <div className="title">{i.title}</div>
+                    <div className="title flexR">{i.title}
+                      {i.key === 'paint-module' ?  <img src={assets.vip} className="vip-img"/> : null}
+                    </div>
                     <div className="describe one-line">{i.describe}</div>
                   </div>
-                  <Button type="default" className="btn-default-auto btn-default-100"onClick={()=> handleBtn(i.key)}>{i.btnText}</Button>
+                  <Button type="default" className="btn-default-auto btn-default-100" 
+                  style={{margin: 0}}
+                  onClick={()=> handleBtn(i.key)}>{i.btnText}</Button>
                 </div>
               )
             })}
@@ -150,7 +155,7 @@ const HomePage = () => {
         {myCreationData.length ? renderMyCreation() :renderMyCreationEmpty()}
 
         <CreateProjectModule isOpen={isCreateProjectOpen} onClose={()=> setIsCreateProjectOpen(false)}/>
-      <ImitateProjectModule isOpen={isImitateProjectOpen} onClose={() => setIsImitateProjectOpen(false)} />
+        <ImitateProjectModule isOpen={isImitateProjectOpen} onClose={() => setIsImitateProjectOpen(false)} />
       
     </div>
   );

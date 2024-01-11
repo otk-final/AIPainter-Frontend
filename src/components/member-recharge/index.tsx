@@ -1,3 +1,4 @@
+import assets from "@/assets";
 import { Button, Modal,  } from "antd"
 import { useState } from "react";
 import "./index.less"
@@ -41,7 +42,7 @@ const MemberRechargeModule:React.FC<MemberRechargeModuleProps> = ({isOpen, onClo
                 <div className="section">
                     <div className="name-wrap flexR">
                         <div className="flexR">
-                            <img src="" className="user-img"/>
+                            <img src={assets.userImg} className="user-img"/>
                             <div>用户34444</div>
                         </div>
                         <div>VIP 到期时间：2024-01-26</div>

@@ -6,6 +6,7 @@ import { Button, Popover } from 'antd';
 import { LoginModule, UserInfoModule, MemberRechargeModule, EnergyRechargeModule } from '@/components'
 import { checkUpdate, installUpdate } from '@tauri-apps/api/updater';
 import { relaunch } from '@tauri-apps/api/process';
+import assets from '@/assets';
 
 export default function Layout(props: any) {
   let { pathname } = useLocation();
@@ -79,7 +80,7 @@ export default function Layout(props: any) {
 
           {loginState.isLogin ?
             <Popover placement="bottomLeft" content={renderPopoverContent} arrow={false}>
-              <img src='' className="user-img" />
+              <img src={assets.userImg} className="user-img" />
             </Popover>
             : <div className='login-btn' onClick={() => setIsModalOpen(true)}>登陆/注册</div>}
 
