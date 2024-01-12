@@ -86,7 +86,7 @@ const Storyboard:React.FC<StoryboardProps> = ({onCBScript, onCBHasScript}) => {
     }
 
     return (
-      <div className="storyboard-wrap">
+      <div className="storyboard-wrap scrollbar">
         {hasScript ? renderScriptList() : renderEmpty()}
         <FileImportModule isOpen={isFileOpen} onClose={()=> {
             setHasScript(true);

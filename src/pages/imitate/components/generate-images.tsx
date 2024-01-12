@@ -9,7 +9,7 @@ const GenerateImages = () => {
 
 
   return (
-    <div className="generate-image-wrap">
+    <div className="generate-image-wrap scrollbar">
         <div className='th flexR'>
           {generateImagesColumns.map((i) => {
             return <div className='th-td' style={{ flex: `${i.space}` }} key={i.key}>{i.title}</div>

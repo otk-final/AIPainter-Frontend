@@ -51,7 +51,7 @@ const Videogeneration = ()=>{
     
     return (
 
-        <div className="videogeneration-wrap">
+        <div className="videogeneration-wrap scrollbar">
             <div className="flexR" style={{justifyContent: "flex-end", marginBottom: '20px'}}>
                 <Button type="default" className="btn-default-auto btn-default-150" >打开视频文件夹</Button>
             </div>
@@ -79,7 +79,7 @@ const Videogeneration = ()=>{
                         <div className="label">字体大小</div>
                         <div className="flexR">
                             {["小", "中", "大", "特大"].map((i, index)=>{
-                                return <div className="fontsize" style={{fontSize: `${16 + (index * 3)}px`}}>{i}</div>
+                                return <div className="fontsize"  key={index} style={{fontSize: `${16 + (index * 3)}px`}}>{i}</div>
                             })}
                         </div>
                     </div>
@@ -89,7 +89,7 @@ const Videogeneration = ()=>{
                         <div className="label">字体颜色</div>
                         <div className="fontcf-wrap flexR">
                             {["fff", "000", "fd3", "f38578","eb3a41", "bedbf3", "5acae1", "0034f5", "4b4b4f", "76e966" ].map((i)=>{
-                                return <div className="fontcf" style={{background: `#${i}`}}></div>
+                                return <div className="fontcf" key={i} style={{background: `#${i}`}}></div>
                             })}
                         </div>
                     </div>

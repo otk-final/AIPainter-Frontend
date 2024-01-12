@@ -132,7 +132,7 @@ const HomePage = () => {
   }
 
   return (
-    <div className="home-wrap">
+    <div className="home-wrap scrollbar">
       <Carousel className="carousel-wrap" autoplay>
         {carouselData.map((i, index) => {
           return (
