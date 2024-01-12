@@ -43,7 +43,7 @@ const RoleAddItem:React.FC<RoleItemProps> = ({data, index})=>{
             </div>
             <div className='content-title' style={{marginTop: '20px', marginBottom: '10px'}}>角色风格</div>
             <Button type='default' block className='btn-default-auto' > 添加LoRA（风格）</Button>
-            <RoleTagsModule isOpen={isTagsOpen} onClose={()=> {
+            <RoleTagsModule isOpen={true} onClose={()=> {
                 setIsTagsOpen(false)
                 }} />
         </div>

@@ -1,19 +1,22 @@
 import assets from "@/assets";
 import { CloseOutlined } from "@ant-design/icons";
 import { Button, Input, Modal, Tabs, TabsProps } from "antd"
-import { useMemo, useState } from "react";
-import RoleTagsImgItem from "./role-tags-img-item";
-import RoleTagsTextItem from "./role-tags-text-item";
+import { useEffect, useMemo, useState } from "react";
+import { RoleTags, RoleCustomTags, TagDisplayType } from "./role-tags-item";
 
 interface TagsModuleProps {
     isOpen: boolean,
-    onClose: ()=>void
+    onClose: () => void
 }
 
-const tabs:TabsProps["items"] = [
+const tabs: TabsProps["items"] = [
     {
         key: "common",
         label: "常用",
+    },
+    {
+        key: "people",
+        label: "人物",
     },
     {
         key: "clothes",
@@ -24,7 +27,7 @@ const tabs:TabsProps["items"] = [
         label: "头发",
     },
     {
-        key: "fivesenses",
+        key: "face",
         label: "五官",
     },
     {
@@ -41,110 +44,57 @@ const tabs:TabsProps["items"] = [
     },
 ];
 
-const RoleTagsModule:React.FC<TagsModuleProps> = ({isOpen, onClose})=> {
+const RoleTagsModule: React.FC<TagsModuleProps> = ({ isOpen, onClose }) => {
     const [cur, setCur] = useState("common");
     const [language, setLanguage] = useState("chinese");
-    const [hasTags, setHasTags] = useState([]);
-    const [input, setInput] = useState("");
-    const [type, setType] = useState('text')
+    const [checkedTags, setCheckedTags] = useState<any[]>([]);
+    const [displayType, setDisplayType] = useState<TagDisplayType>('text')
 
-    const handleSumbit = ()=>{
+    const handleSumbit = () => {
+
     }
 
-    const handleChoose = (v)=>{
-        if(type !== v) {
-            setType(v);
-            setHasTags([]);
+
+    useEffect(() => {
+        tabs.map(tab => {
+            tab.children = renderOptionalTags(tab.key, displayType)
+        })
+    }, [displayType])
+
+
+
+    const handleCheckTag = (check: boolean, tag: any) => {
+        debugger
+        if (check) {
+            checkedTags.push(tag)
+            setCheckedTags([...checkedTags])
+        } else {
+            const newCheckedTags = checkedTags.filter((item: any) => item.key !== tag.key)
+            setCheckedTags(newCheckedTags)
         }
     }
 
-    const handleClickTag = (i)=>{
-        setHasTags(res=>{
-            let key = i.key.split('-')[0];
-           const index =  res.findIndex((j)=> {
-                return j.key.split('-')[0] === key
-            })
-            let newRes = [...res];
-            if(index > -1) {
-                newRes.splice(index, 1);
-            }
-            return [...newRes, i]
-        })
-    }
-
-    const handleDel = (i)=>{
-        setHasTags(res=>{
-           const index =  res.findIndex((j)=> {
-                return j.key === i.key
-            })
-            let newRes = [...res];
-            newRes.splice(index, 1);
-            return [...newRes]
-        })
-    }
-
-    const onChange = (v)=>{
-        setCur(v)
-    }
-
-    const handleCustomAdd = ()=>{
-        setHasTags(res=> {
-            let len = res.filter(j => j.key.split('-')[0] === "custom");
-            return [...res, {
-                key: len.length ?  `custom-${Number(len[len.length -1].key.split('-')[1])+1}`: 'custom-0',
-                label: input
-            }]
-        })
-        setInput("")
-    }
-    const hasTagsCustom = useMemo(()=>{
-        return hasTags.filter(j => j.key.split('-')[0] === "custom")
-    }, [hasTags])
-
-    const renderCustom = ()=>{
-        return (
-            <div style={{width: '100%'}}>
-                <div className="title-tags">自定义提示词</div>
-                <div className="has-tags custom-tas-tags">
-                    <div className="content flexR">
-                        {hasTagsCustom.map((i, index)=>{
-                            return (
-                                <div className="has-tag-wrap flexR" key={i?.key || index}>
-                                    <CloseOutlined className="icon" onClick={()=>handleDel(i)}/>
-                                    {i.label}</div>
-                            )
-                        })}
-                    </div>
-                </div>
-                <div className="flexR">
-                    <Input size="large" value={input} onChange={(v)=>setInput(v.target.value)} style={{height: "40px"}}/>
-                    <Button type="primary" className="bottom-item btn-primary-auto"  style={{height: "40px", marginLeft: '20px'}} onClick={handleCustomAdd}>添加</Button>
-                </div>
-            </div>
-        )
-    }
-
-    const renderContent = ()=>{
+    const renderContent = () => {
         return (
             <div className="right flexC">
                 <div className="has-tags">
                     <div className="content flexR">
-                        {hasTags.map((i, index)=>{
+                        {checkedTags.map((i: any, index) => {
                             return (
                                 <div className="has-tag-wrap flexR" key={i?.key || index}>
-                                    <CloseOutlined className="icon" onClick={()=>handleDel(i)}/>
+                                    <CloseOutlined className="icon" onClick={() => handleCheckTag(false, i)} />
                                     {i.label}</div>
                             )
                         })}
                     </div>
                 </div>
-                <div style={{width: '100%'}}>
+                <div style={{ width: '100%' }}>
                     <div className="bottom flexRB">
                         <div className="choose-wrap flexR">
-                            <div className={`choose-item ${language ==='chinese' ? "cur" : ''}`} onClick={()=> setLanguage('chinese')}>中</div>
-                            <div className={`choose-item ${language ==='english' ? "cur" : ''}`} onClick={()=> setLanguage('english')}>En</div>
+                            <div className={`choose-item ${language === 'cn' ? "cur" : ''}`} onClick={() => setLanguage('cn')}>中</div>
+                            <div className={`choose-item ${language === 'en' ? "cur" : ''}`} onClick={() => setLanguage('en')}>En</div>
                         </div>
-                        <div className="clean" onClick={()=> setHasTags([])}>清空</div>
+                        <div className="clean" onClick={() => setCheckedTags([])}>清空</div>
                     </div>
                     <Button type="primary" block className="bottom-item btn-primary-auto" onClick={handleSumbit}>保存</Button>
                 </div>
@@ -152,57 +102,153 @@ const RoleTagsModule:React.FC<TagsModuleProps> = ({isOpen, onClose})=> {
         )
     }
 
-    const renderText = ()=>{
-        return (
-            <div className="flexR" style={{alignItems: "stretch"}}>
-                <div className="left">
-                    {mockdata.map(i=><RoleTagsTextItem onCB={handleClickTag} hasTags={hasTags} data={i} key={i.key}/>)}
-                </div>
-                {renderContent()}
-            </div>
-        )
-    }
 
-    const renderImg = ()=>{
+
+    const renderOptionalTags = (tabKey: string, displayType: TagDisplayType) => {
+        const groups = mockdata.filter(item => item.group === tabKey)
+
+        //自定义
+        if (tabKey === "custom") {
+            return <div className="flexR" style={{ alignItems: "stretch" }}>
+                <div className="left">
+                    <RoleCustomTags displayType={displayType} handleCheckTag={handleCheckTag} hasTags={checkedTags} tags={groups[0]} key={tabKey} />
+                </div>
+            </div>
+        }
+
+        //系统可选
         return (
-            <div>
-                {mockdata.map(i=>
-                <RoleTagsImgItem onCB={handleClickTag} hasTags={hasTags} data={i} key={i.key}/>)}
+            <div className="flexR" style={{ alignItems: "stretch" }}>
+                <div className="left">
+                    {groups.map((tags: any) => {
+                        return <RoleTags displayType={displayType} handleCheckTag={handleCheckTag} hasTags={checkedTags} tags={tags} key={tags.key} />
+                    })}
+                </div>
             </div>
         )
     }
 
     return (
-        <Modal title="提示词生成器" 
-            open={isOpen} 
-            onCancel={onClose} 
+        <Modal title="提示词生成器"
+            open={isOpen}
+            onCancel={onClose}
             footer={null}
             width={1160}
             className="home-login-modal role-tags-modal"
-            >
-                <div className={`role-tags-wrap flexC`}>
-                    <div className="choose-wrap flexR" style={{marginBottom: '20px'}}>
-                        <div className={`choose-item ${type ==='text' ? "cur" : ''}`} onClick={()=> handleChoose('text')}>文字</div>
-                        <div className={`choose-item flexR ${type ==='img' ? "cur" : ''}`} onClick={()=> handleChoose('img')}>
-                            图片
-                            <img src={assets.vip} className="vip-img" /> </div>
-                    </div>
-                    <div className="flexRB">
-                        <Tabs defaultActiveKey="common" items={tabs} onChange={onChange} />
-                        {cur === 'custom' ? <Button type="primary" className="bottom-item btn-primary-auto "  style={{height: "40px"}} onClick={handleSumbit}>保存</Button>: null }
-                    </div>
-                    {
-                        cur === 'custom' ? renderCustom() : type=== 'text'? renderText(): renderImg()
-                    }
+        >
+            <div className={`role-tags-wrap flexC`}>
+                <div className="choose-wrap flexR" style={{ marginBottom: '20px' }}>
+                    <div className={`choose-item ${displayType === 'text' ? "cur" : ''}`} onClick={() => setDisplayType('text')}>文字</div>
+                    <div className={`choose-item flexR ${displayType === 'image' ? "cur" : ''}`} onClick={() => setDisplayType('image')}>
+                        图片
+                        <img src={assets.vip} className="vip-img" /> </div>
                 </div>
+                <div className="flexR" style={{ alignItems: "stretch" }}>
+                    <div className="left">
+                        <Tabs defaultActiveKey="people" items={tabs} onChange={setCur} activeKey={cur} />
+                    </div>
+                    {renderContent()}
+                </div>
+
+            </div>
         </Modal>
     )
 }
+
+
 
 export default RoleTagsModule
 
 const mockdata = [
     {
+        group: "clothes",
+        key: 'clothes-common',
+        text: '常用全套',
+        subText: '（单选项，如无特别要求，可不选）',
+        options: []
+    },
+    {
+        group: "clothes",
+        key: 'coat',
+        text: '上身',
+        subText: '（单选项，如无特别要求，可不选）',
+        options: []
+    },
+    {
+        group: "clothes",
+        key: 'pants',
+        text: '下身',
+        subText: '（单选项，如无特别要求，可不选）',
+        options: []
+    },
+    {
+        group: "clothes",
+        key: 'shoes',
+        text: '鞋子',
+        subText: '（单选项，如无特别要求，可不选）',
+        options: []
+    },
+    {
+        group: "clothes",
+        key: 'hats',
+        text: '帽子',
+        subText: '（单选项，如无特别要求，可不选）',
+        options: []
+    },
+    {
+        group: "face",
+        key: 'eye',
+        text: '眼睛',
+        subText: '（单选项，如无特别要求，可不选）',
+        options: []
+    },
+    {
+        group: "face",
+        key: 'ear',
+        text: '耳朵',
+        subText: '（单选项，如无特别要求，可不选）',
+        options: []
+    },
+    {
+        group: "face",
+        key: 'nose',
+        text: '鼻子',
+        subText: '（单选项，如无特别要求，可不选）',
+        options: []
+    },
+    {
+        group: "face",
+        key: 'mouth',
+        text: '嘴巴',
+        subText: '（单选项，如无特别要求，可不选）',
+        options: []
+    },
+    {
+        group: "face",
+        key: 'skin',
+        text: '肤色',
+        subText: '（单选项，如无特别要求，可不选）',
+        options: [
+            {
+                key: 'complexion-1',
+                label: '苍白肤色'
+            },
+            {
+                key: 'complexion-2',
+                label: '白嫩肤色'
+            },
+            {
+                key: 'complexion-3',
+                label: '古铜肤色'
+            },
+            {
+                key: 'complexion-4',
+                label: '南非肤色'
+            },
+        ]
+    },
+    {
+        group: 'people',
         key: 'role',
         text: '角色',
         subText: '（单选项，角色固定时，建议选择，默认权重1.1）',
@@ -254,6 +300,7 @@ const mockdata = [
         ]
     },
     {
+        group: 'people',
         key: 'body',
         text: '体型',
         subText: '（单选项，如无特别要求，可不选）',
@@ -277,31 +324,9 @@ const mockdata = [
         ]
     },
     {
-        key: 'complexion',
-        text: '肤色',
-        subText: '（单选项，如无特别要求，可不选）',
-        options: [
-            {
-                key: 'complexion-1',
-                label: '苍白肤色'
-            },
-            {
-                key: 'complexion-2',
-                label: '白嫩肤色'
-            },
-            {
-                key: 'complexion-3',
-                label: '古铜肤色'
-            },
-            {
-                key: 'complexion-4',
-                label: '南非肤色'
-            },
-        ]
-    },
-    {
-        key: 'haircolor',
-        text: '常用发色',
+        group: 'hair',
+        key: 'color',
+        text: '发色',
         subText: '（单选项，如无特别要求，可不选）',
         options: [
             {
@@ -351,7 +376,8 @@ const mockdata = [
         ]
     },
     {
-        key: 'hairstyle',
+        group: 'hair',
+        key: 'style',
         text: '常用发型',
         subText: '（单选项，如无特别要求，可不选）',
         options: [
@@ -381,4 +407,16 @@ const mockdata = [
             },
         ]
     },
+    {
+        group: 'custom',
+        key: 'custom',
+        text: '用户自定义标签',
+        subText: '用户自定义标签',
+        options: [
+
+        ]
+    }
 ]
+
+
+
