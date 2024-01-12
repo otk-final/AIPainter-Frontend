@@ -89,12 +89,16 @@ export const videogFrom = [
     type: 'inputNumber',
     label: '音量调节',
     defaultValue: '50%',
+    max: 100,
+    min: 0
   },
   {
     key: 'pace',
     type: 'inputNumber',
     label: '语速调节',
     defaultValue: '20%',
+    max: 100,
+    min: 0
   },
   {
     key: 'vfx',
@@ -106,6 +110,8 @@ export const videogFrom = [
     type: 'inputNumber',
     label: '帧数设置',
     defaultValue: '30',
+    max: 100,
+    min: 1
   },
 ]
 
@@ -195,45 +201,107 @@ export const mockDrawbatchColumnsData = [
   
 ]
 
+export const fontSizeDatas = [
+  {
+    key: 1,
+    label: "小"
+  },
+  {
+    key: 2,
+    label: "中"
+  },
+  {
+    key: 3,
+    label: "大"
+  },
+  {
+    key: 4,
+    label: "特大"
+  },
+]
+
+export const fontColorDatas = [
+  {
+    key: 1,
+    color: "fff"
+  },
+  {
+    key: 2,
+    color: "000"
+  },
+  {
+    key: 3,
+    color: "fd3"
+  },
+  {
+    key: 4,
+    color: "f38578"
+  },
+  {
+    key: 5,
+    color: "eb3a41"
+  },
+  {
+    key: 6,
+    color: "bedbf3"
+  },
+  {
+    key: 7,
+    color: "5acae1"
+  },
+  {
+    key: 8,
+    color: "0034f5"
+  },
+  {
+    key: 9,
+    color: "4b4b4f"
+  },
+  {
+    key: 10,
+    color: "76e966"
+  }
+]
+
 export const fontFamilyDatas = [
   {
-    key: 'fontfamily1',
+    key: 1,
     url: assets.fontfamily1
   },
   {
-    key: 'fontfamily2',
+    key: 2,
     url: assets.fontfamily2
   },
   {
-    key: 'fontfamily3',
+    key: 3,
     url: assets.fontfamily3
   },
   {
-    key: 'fontfamily4',
+    key: 4,
     url: assets.fontfamily4
   },
   {
-    key: 'fontfamily5',
+    key: 5,
     url: assets.fontfamily5
   },
   {
-    key: 'fontfamily6',
+    key: 6,
     url: assets.fontfamily6
   },
   {
-    key: 'fontfamily7',
+    key: 7,
     url: assets.fontfamily7
   },
   {
-    key: 'fontfamily8',
+    key: 8,
     url: assets.fontfamily8
   },
   {
-    key: 'fontfamily9',
+    key: 9,
     url: assets.fontfamily9
   },
   {
-    key: 'fontfamily10',
+    key: 10,
     url: assets.fontfamily10
   }
 ]
