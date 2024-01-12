@@ -45,8 +45,8 @@ const GenerateImagesTR:React.FC<GenerateImagesTRProps> = ({data}) => {
     const renderHistoryImages = ()=>{
         return (
             <div className="flexR" style={{flexWrap: "wrap", justifyContent: "flex-start", width: '100%'}}>
-                {['', ''].map(()=>{
-                    return <Image src="" className="generate-image size-s"/>
+                {['', ''].map((i, index)=>{
+                    return <Image src="" className="generate-image size-s" key={index}/>
                 })}
             </div>
         )
