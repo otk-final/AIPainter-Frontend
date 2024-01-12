@@ -20,12 +20,7 @@ export interface Actor {
     name: string
     alias: string
     style: string
-    features: [{ ActorPromptKey: ActorPromptValue }?]
-}
-
-export interface ActorPromptKey {
-    group: string
-    name: string
+    features: ActorPromptValue[]
 }
 
 export interface ActorPromptValue {
@@ -65,7 +60,7 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
     pid: undefined,
     script: undefined,
     chapters: [],
-    actors: defaultOptionalActors,
+    actors: [],
     load: async (pid: string) => {
         //读取原始脚本
         let worksetting = await path.join(pid, "script.json")
