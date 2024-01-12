@@ -26,7 +26,7 @@ const Drawbatch = ()=>{
     }
     
     return (
-        <div className="drawbatch-wrap">
+        <div className="drawbatch-wrap scrollbar">
             <div className="drawbatch-header flexR">
                 <div className="lable">绘图模版 <QuestionCircleOutlined /></div>
                 <Select

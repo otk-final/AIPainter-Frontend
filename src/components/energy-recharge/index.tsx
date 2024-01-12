@@ -1,5 +1,6 @@
+import assets from "@/assets";
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Modal } from "antd"
+import { Button, message, Modal } from "antd"
 import { useState } from "react";
 import "./index.less"
 
@@ -9,9 +10,21 @@ interface EnergyRechargeModuleProps {
 }
 
 const EnergyRechargeModule:React.FC<EnergyRechargeModuleProps> = ({isOpen, onClose})=> {
-    const [energy, setEnergy] = useState(1000);
+    const [energy, setEnergy] = useState(10000);
 
     const handlePay = ()=>{
+    }
+
+    const handleChange = (type: 'add' | "minus") => {
+        if(type === 'add') {
+            setEnergy((res) => res + 1000)
+        }else {
+            if(energy <= 1000) {
+                return message.warning("最低充值1000能量")
+            }else {
+                setEnergy((res) => res - 1000)
+            }
+        }
     }
    
 
@@ -25,13 +38,13 @@ const EnergyRechargeModule:React.FC<EnergyRechargeModuleProps> = ({isOpen, onClo
                 <div className="title">充值金额</div>
                 <div className="flexR energy-wrap">
                     <div className="flexR">
-                        <Button type="text" className="energy-item-style addon"><PlusOutlined /></Button>
+                        <Button type="text" onClick={()=> handleChange("add")} className="energy-item-style addon"><PlusOutlined /></Button>
                         <div className="flexR energy-item-style energy-count">
-                            <img src="" alt="" className="energy-img" />
+                            <img src={assets.energy}  className="energy-img" />
                             <div>{energy}</div>
                             <div>能量</div>
                         </div>
-                        <Button type="text" className="energy-item-style addon"><MinusOutlined /></Button>
+                        <Button type="text" onClick={()=> handleChange("minus")} className="energy-item-style addon"><MinusOutlined /></Button>
                     </div>
                     <div className="energy-item-style price-wrap">28.80元</div>
                 </div>
@@ -39,7 +52,7 @@ const EnergyRechargeModule:React.FC<EnergyRechargeModuleProps> = ({isOpen, onClo
                     <div className="section-header">限时特惠</div>
                     <div className="section-content flexR">
                         <div className="flexR">
-                            <img src="" alt="" className="energy-img" />
+                            <img src={assets.energy} className="energy-img" />
                             <div className="text">{energy}能量</div>
                         </div>
                         <div className="sale-wrap flexR">

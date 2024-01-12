@@ -22,7 +22,7 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
     const renderEmpty = () => {
         return (
             <div className='empty flexC'>
-                <img src={assets.empty} className='empty-img' />
+                <img src={assets.emptyC} className='empty-img'/>
                 <div className='empty-text'>故事分镜列表为空， 请导入脚本文件</div>
                 <div className='import-btn' onClick={() => setFileImportOpen(true)}>导入脚本文件</div>
                 <div className='sub-text'>请上传故事分镜脚本文件，并完成基于镜头画面的描述词编辑。<span>新手可参考：剧本教学文档</span></div>
@@ -63,7 +63,7 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
     }
 
     return (
-        <div className="storyboard-wrap">
+        <div className="storyboard-wrap scrollbar">
             {script ? renderScriptList() : renderEmpty()}
             <FileImportModule isOpen={fileImportOpen} onClose={() => setFileImportOpen(false)} />
         </div>

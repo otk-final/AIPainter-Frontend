@@ -126,14 +126,14 @@ const HomePage = () => {
   const renderMyCreationEmpty = () => {
     return (
       <div className="empty-wrap flexC">
-        <img src={assets.empty} className="empty-img" />
+        <img src={assets.emptyH} className="empty-img" />
         <div className="text">暂无创作</div>
       </div>
     )
   }
 
   return (
-    <div className="home-wrap">
+    <div className="home-wrap scrollbar">
       <Carousel className="carousel-wrap" autoplay>
         {carouselData.map((i, index) => {
           return (
