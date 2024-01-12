@@ -15,7 +15,7 @@ export interface Project {
 
 export interface Workspaces {
     current?: Project
-    projects: [Project?]
+    projects: Project[]
     load: () => void
     remove: (id: string) => Promise<void>
     create: (type: string, name: string) => Promise<void>
