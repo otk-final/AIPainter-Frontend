@@ -2,7 +2,7 @@ import { Button, Input, message } from 'antd';
 import './index.less'
 import { history } from "umi"
 import { DeleteOutlined, FormOutlined, LeftOutlined, PlusOutlined } from '@ant-design/icons';
-import { useEffect, useState } from 'react';
+import { Ref, createRef, forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import TagModal from './components/tags-modal';
 import { Actor, usePersistScriptStorage } from '@/stores/story';
 
@@ -10,22 +10,36 @@ import { Actor, usePersistScriptStorage } from '@/stores/story';
 
 
 interface RoleItemProps {
-  data: Actor,
-  index: number
+  actor: Actor,
+  index: number,
+  onChange: (index: number, actor: Actor) => void
 }
 
-const RoleItem: React.FC<RoleItemProps> = ({ data, index }) => {
+export const RoleItem: React.FC<RoleItemProps> = ({ actor, index, onChange }) => {
 
   const [isTagsOpen, setIsTagsOpen] = useState(false);
-  const [actor, setActor] = useState<Actor>({ ...data })
+  const [stateActor, setActor] = useState<Actor>({ ...actor })
 
-
-  const handleConfirm = (checkedTags: any[]) => {
-    setActor({ ...actor, features: checkedTags })
+  const handleChangeFeatures = (checkedTags: any[]) => {
+    let newActor = { ...stateActor, features: checkedTags }
+    setActor(newActor)
     setIsTagsOpen(false)
-  }
 
-  console.info('RoleItem Render')
+    onChange(index, newActor)
+  }
+  const handleChangeName = (e: any) => {
+    let newActor = { ...stateActor, name: e.target.value }
+
+    // setActor({ ...stateActor, name: e.target.value })
+    setActor(newActor)
+    onChange(index, newActor)
+  }
+  const handleChangeAlias = (e: any) => {
+    let newActor = { ...stateActor, alias: e.target.value }
+    // setActor({ ...stateActor, alias: e.target.value })
+    setActor(newActor)
+    onChange(index, newActor)
+  }
 
   return (
     <div className='role-item'>
@@ -39,12 +53,12 @@ const RoleItem: React.FC<RoleItemProps> = ({ data, index }) => {
             <div className='content-title'>角色姓名</div>
             <div className='num'>/50</div>
           </div>
-          <Input size="large" className='input' value={actor.name} onChange={(e) => { setActor({ ...actor, name: e.target.value }) }} />
+          <Input size="large" className='input' value={stateActor.name} onChange={handleChangeName} />
           <div className='RB flexR'>
             <div className='content-title'>角色别名</div>
             <div className='num'>/50</div>
           </div>
-          <Input size="large" className='input' value={actor.alias} onChange={(e) => { setActor({ ...actor, alias: e.target.value }) }} />
+          <Input size="large" className='input' value={stateActor.alias} onChange={handleChangeAlias} />
         </div>
         <div className='content-i flexC'>
           <div className='RB flexR'>
@@ -59,10 +73,11 @@ const RoleItem: React.FC<RoleItemProps> = ({ data, index }) => {
       </div>
       <div className='content-title' style={{ marginTop: '20px', marginBottom: '10px' }}>角色风格</div>
       <Button type='default' block className='btn-default-auto' > 添加LoRA（风格）</Button>
-      <TagModal isOpen={isTagsOpen} initTags={actor.features} onClose={() => { setIsTagsOpen(false) }} onConfirm={handleConfirm} />
+      {isTagsOpen && <TagModal isOpen={isTagsOpen} initTags={stateActor.features} onClose={() => { setIsTagsOpen(false) }} onConfirm={handleChangeFeatures} />}
     </div>
   )
 }
+
 
 const RoleSetPage = () => {
 
@@ -83,12 +98,14 @@ const RoleSetPage = () => {
     setTempActors([...tempActors])
   }
 
-
   //保存
-  const handleConfirm = async () => {
-
+  const handleItemChange = async (index: number, actor: Actor) => {
+    tempActors[index] = actor
   }
 
+  const handleConfirm = async () => {
+    debugger
+  }
 
   return (
     <div className="roleset-wrap">
@@ -105,7 +122,7 @@ const RoleSetPage = () => {
       <div className='sub-text'>建议角色设置不要超过2个,如剧本中无固定角色可跳过该步骤。SD在同画面的出现多个角色时，识别能力较差。同画面多人指定角色形象的功能在开发中。</div>
       <div className='roles-wrap flexR'>
         {tempActors.map((actor, index) => {
-          return <RoleItem data={actor} index={index} key={index} />
+          return <RoleItem actor={actor} index={index} key={index} onChange={handleItemChange} />
         })}
       </div>
     </div>
