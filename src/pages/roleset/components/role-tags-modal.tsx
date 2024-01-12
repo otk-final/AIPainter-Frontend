@@ -1,3 +1,4 @@
+import assets from "@/assets";
 import { CloseOutlined } from "@ant-design/icons";
 import { Button, Input, Modal, Tabs, TabsProps } from "antd"
 import { useMemo, useState } from "react";
@@ -182,7 +183,9 @@ const RoleTagsModule:React.FC<TagsModuleProps> = ({isOpen, onClose})=> {
                 <div className={`role-tags-wrap flexC`}>
                     <div className="choose-wrap flexR" style={{marginBottom: '20px'}}>
                         <div className={`choose-item ${type ==='text' ? "cur" : ''}`} onClick={()=> handleChoose('text')}>文字</div>
-                        <div className={`choose-item ${type ==='img' ? "cur" : ''}`} onClick={()=> handleChoose('img')}>图片</div>
+                        <div className={`choose-item flexR ${type ==='img' ? "cur" : ''}`} onClick={()=> handleChoose('img')}>
+                            图片
+                            <img src={assets.vip} className="vip-img" /> </div>
                     </div>
                     <div className="flexRB">
                         <Tabs defaultActiveKey="common" items={tabs} onChange={onChange} />

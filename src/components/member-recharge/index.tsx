@@ -16,17 +16,17 @@ const MemberRechargeModule:React.FC<MemberRechargeModuleProps> = ({isOpen, onClo
     }
    const contentDatas = [
     {
-        url: '',
+        url: assets.recharge1,
         title: '会员功能丨模型分层使用',
         text: '通过“区城指定"功能、可指定LORA模型仅修改角色的局部特定（脸部，画面风格），而不影响其他画面区域'
     },
     {
-        url: '',
+        url: assets.recharge2,
         title: '会员功能丨图像化提示词选择',
         text: '可通过提示词的“国例”，更方便查询和使用所需的提示词内容'
     },
     {
-        url: '',
+        url:  assets.recharge3,
         title: '会员功能|绘画模版',
         text: '可基于小说风格（都市、仙快、末日）自定义多个插画模版、 方便你使用'
     },
