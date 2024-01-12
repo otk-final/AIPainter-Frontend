@@ -24,6 +24,7 @@ export interface Actor {
 }
 
 export interface ActorPromptValue {
+    key: string
     cn: string
     en: string
     weight: string
@@ -40,19 +41,6 @@ export interface ScriptStorage {
     import: (script: Script) => Promise<void>
     remove: (idx: number) => Promise<void>
 }
-
-
-const defaultOptionalActors: Actor[] = [{
-    name: "xx",
-    alias: "bb",
-    style: "古风",
-    features: []
-}, {
-    name: "xx",
-    alias: "bb",
-    style: "古风",
-    features: []
-}]
 
 
 const workspaceFileDirectory = BaseDirectory.AppLocalData
@@ -73,18 +61,24 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
         set({ ...JSON.parse(scriptJson) })
     },
     import: async (script: Script) => {
-        // debugger
+
         // await new Promise((resolve) => setTimeout(resolve, 3000))
-        //解析
+        //解析 分镜
         let importText = await fs.readTextFile(script.path)
         console.info(importText)
 
+        //角色信息
+
+
+        //镜头信息
+
         set({
             script: script,
-            chapters: [{ original: "xx", prompts: "谢谢", actors: ["张三"], state: 1, description: "带我去" },
-            { original: "xx", prompts: "谢谢", actors: ["张三"], state: 1, description: "带我去" }]
+            chapters: [
+                { original: "xx", prompts: "谢谢", actors: ["张三"], state: 1, description: "带我去" },
+                { original: "xx", prompts: "谢谢", actors: ["张三"], state: 1, description: "带我去" }
+            ]
         })
-
     },
     remove: async (idx: number) => {
 

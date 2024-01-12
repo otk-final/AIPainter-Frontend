@@ -96,7 +96,7 @@ export const CustomTags: React.FC<RoleTagsProps> = ({ tags, hasTags, handleCheck
         <div className="title-tags">自定义提示词</div>
         <div className="has-tags custom-tas-tags">
             <div className="role-tags-box flexR">
-                {customTags.map((tag: any, idx: number) => <TagItem key={idx} renderType={'text'} langType={'cn'} tag={tag} isChecked={isChecked(tag)}  handleRemoveTag={handleDelete}></TagItem>)}
+                {customTags.map((tag: any, idx: number) => <TagItem key={idx} renderType={'text'} langType={'cn'} tag={tag} isChecked={isChecked(tag)} handleRemoveTag={handleDelete}></TagItem>)}
             </div>
         </div>
 
@@ -135,16 +135,18 @@ export const OptionalTags: React.FC<RoleTagsProps> = ({ renderType, tags, hasTag
 }
 
 
-export const CheckedTags: React.FC<RoleTagsProps> = ({ tags, handleCheckTag }) => {
+interface CheckedTagsProps {
+    tags?: any
+    handleCheckTag: (checked: boolean, item: any) => void
+    handleConfirm: () => void
+}
+
+
+export const CheckedTags: React.FC<CheckedTagsProps> = ({ tags, handleCheckTag, handleConfirm }) => {
     const [lang, setLang] = useState<TagLangType>("cn")
-
-    const handleConfirm = () => {
-
-    }
     const handleReset = () => {
 
     }
-
     const handleRemoveTag = (tag: any) => {
         handleCheckTag(false, tag)
     }

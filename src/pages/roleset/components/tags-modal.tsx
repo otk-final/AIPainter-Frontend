@@ -1,11 +1,13 @@
 import assets from "@/assets";
 import { Modal, Tabs, TabsProps } from "antd"
-import { useEffect, useMemo, useState } from "react";
-import { TagDisplayType, CustomTags, OptionalTags, CheckedTags } from "./tags-item";
+import { useMemo, useState } from "react";
+import { CustomTags, OptionalTags, CheckedTags, TagRenderType } from "./tags-item";
 
 interface TagModalProps {
     isOpen: boolean,
+    initTags: any[],
     onClose: () => void
+    onConfirm: (checkedTags: any[]) => void
 }
 
 
@@ -194,10 +196,10 @@ const tabs: TabsProps["items"] = [
 
 
 
-const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose }) => {
+const TagModal: React.FC<TagModalProps> = ({ isOpen, initTags, onClose, onConfirm }) => {
     const [cur, setCur] = useState("hair");
-    const [checkedTags, setCheckedTags] = useState<any[]>([]);
-    const [renderType, setRenderType] = useState<TagDisplayType>('text')
+    const [checkedTags, setCheckedTags] = useState<any[]>(initTags);
+    const [renderType, setRenderType] = useState<TagRenderType>('text')
 
 
     const handleCheckTag = (check: boolean, tag: any) => {
@@ -206,9 +208,9 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose }) => {
 
             let identify = tag.key.split("@")
             let identityPrefix = identify[0]
-            
+
             //互斥
-            if (!identityPrefix.startsWith("custom")){
+            if (!identityPrefix.startsWith("custom")) {
                 tags = tags.filter((item: any) => !item.key.startsWith(identityPrefix))
             }
             tags.push({ ...tag })
@@ -222,11 +224,8 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose }) => {
 
 
 
-
-
     const renderOptionalTags = (tabKey: string) => {
 
-        console.info('renderOptional', tabKey)
         const groups = mockdata.filter(item => item.key.startsWith(tabKey))
 
         //自定义
@@ -258,8 +257,6 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose }) => {
     }, [renderType, checkedTags])
 
 
-
-
     return (
         <Modal title="提示词生成器"
             open={isOpen}
@@ -279,7 +276,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose }) => {
                     <div className="left">
                         <Tabs items={tabs} onChange={setCur} activeKey={cur} />
                     </div>
-                    <CheckedTags renderType={'text'} tags={checkedTags} hasTags={[]} handleCheckTag={handleCheckTag} />
+                    <CheckedTags tags={checkedTags} handleCheckTag={handleCheckTag} handleConfirm={() => onConfirm(checkedTags)} />
                 </div>
             </div>
         </Modal>
