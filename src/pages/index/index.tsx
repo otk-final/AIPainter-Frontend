@@ -35,25 +35,6 @@ const data = [
   }
 ]
 
-const myCreationData = [
-  {
-    title: "阿达舒服的",
-    startTime: "2023-12-27",
-    status: "批量绘图"
-  },
-  {
-    title: "阿斯顿说",
-    startTime: "2023-12-27",
-    status: "故事分镜"
-  },
-  {
-    title: "如同一天对方地方",
-    startTime: "2023-12-27",
-    status: "批量绘图"
-  },
-
-]
-
 const carouselData = [
   {
     title: "1",

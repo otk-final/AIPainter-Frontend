@@ -1,7 +1,8 @@
 import { useLogin } from "@/uses";
-import { Button,  Modal, } from "antd"
+import { Button,  Input,  Modal, } from "antd"
 import "./index.less"
-import { writeText, readText } from '@tauri-apps/api/clipboard';
+import { writeText } from '@tauri-apps/api/clipboard';
+import { useState } from "react";
 
 
 interface UserInfoModuleProps {
@@ -11,10 +12,21 @@ interface UserInfoModuleProps {
 }
 
 const UserInfoModule:React.FC<UserInfoModuleProps> = ({isOpen, onClose, openRecharge})=> {
-    const { loginState} = useLogin();
+    const { loginState, updateLoginState} = useLogin();
+    const [edit, setEdit] = useState(false);
+    const [inputV, setInputV] = useState("")
 
     const handleCopy = async ()=>{
         await writeText(loginState?.inviteCode || "");
+    }
+
+    const handleEdit = () =>{
+        if(!edit) {
+            setEdit(true);
+        }else {
+            updateLoginState({...loginState, nickName: inputV})
+            setEdit(false);
+        }
     }
    
     return (
@@ -26,7 +38,18 @@ const UserInfoModule:React.FC<UserInfoModuleProps> = ({isOpen, onClose, openRech
             className="home-login-modal home-user-info">
                 <div className="user-info-title">个人信息</div>
                 <div className="section-item flexR">
-                    <div className="section-item-left left-text flexR">用户名称：{loginState?.nickName} <div className="edit">修改</div></div>
+                    <div className="section-item-left left-text flexR">
+                        <div className="flexR">
+                            <div> 用户名称： </div>
+                            {edit ? <Input size="large" 
+                                style={{width: '160px', height: '26px'}}
+                                maxLength={20} 
+                                value={inputV} 
+                                onChange={(v)=> setInputV(v.target.value)}/> 
+                            : loginState?.nickName }
+                        </div>
+                        <div className="edit" onClick={handleEdit}>{edit ? "保存" : "修改"}</div>
+                    </div>
                     <div className="section-item-right left-text  flexR" onClick={handleCopy}>邀请码：{loginState.inviteCode} <div className="edit cppy">复制邀请码</div></div>
                 </div>
                 <div className="section-item flexR">

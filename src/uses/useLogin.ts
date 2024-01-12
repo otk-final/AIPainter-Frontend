@@ -15,12 +15,14 @@ interface LoginInfo {
 // info 用户信息
 interface LoginAttribute {
     loginState: LoginInfo;
+    updateLoginState: (v: LoginInfo) => void,
     login: (info: any) => void;
     logout: () => void;
   }
 
 let context:LoginAttribute = {
     loginState: defalutLoginInfo,
+    updateLoginState: () => {},
     login: ()=>{},
     logout: ()=>{}
 }
@@ -37,7 +39,6 @@ export const LoginProvider = (props: any) => {
 
     useEffect(()=>{
         let state: LoginInfo = getCache(LOGIN_INFO) as LoginInfo  || defalutLoginInfo;
-        console.log('login info', state)
         if(state.isLogin) {
             setLoginState(state);
         }
@@ -54,13 +55,20 @@ export const LoginProvider = (props: any) => {
         history.replace('/')
     },[])
 
+    const updateLoginState = useCallback((v: LoginInfo)=>{
+        setLoginState(res=>{
+            return {...v}
+        })
+    },[])
+
     return React.createElement(
         LoginContext.Provider,
         {
             value: {
                 loginState,
                 login,
-                logout
+                logout,
+                updateLoginState
             }
         },
         props.children
