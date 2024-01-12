@@ -46,7 +46,6 @@
         & .empty-img {
             width: 260px;
             height: 260px;
-            background-color: #666;
         }
 
         & .empty-text {
@@ -279,16 +278,16 @@
         box-sizing: border-box;
         width: 100px;
         height: 100px;
-        margin-right: 30px;
+        margin-right: 20px;
         background-color: #48484f;
         text-align: center;
         line-height: 100px;
         color: @m-font-color;
         border-radius: 4px;
         cursor: pointer;
-      
-        &:hover {
-            border: 1px solid @primary-color;
+
+        &.cur {
+            box-shadow: 0 0 0 2px  @primary-color;
         }
     }
     & .fontcf-wrap {
@@ -299,8 +298,12 @@
         height: 100px;
         flex: 0 0 100px;
         width: 100px;
-        margin-right: 30px;
+        margin-right: 20px;
         margin-bottom: 30px;
         border-radius: 4px;
+
+        &.cur {
+            box-shadow: 0 0 0 2px  @primary-color;
+        }
     }
 }
