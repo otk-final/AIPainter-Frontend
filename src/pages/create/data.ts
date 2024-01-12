@@ -26,22 +26,22 @@ export const storyboardColumns = [
   },
   {
       title: "原文描述",
-      key: "describe",
+      key: "original",
       space: 4,
   },
   {
       title: "画面关键词(智能推理)",
-      key: "keyword",
+      key: "prompts",
       space: 4,
   },
   {
       title: "画面角色",
-      key: "role",
+      key: "actors",
       space: 3,
   },
   {
       title: "画面中的角色描述",
-      key: "roleDescribe",
+      key: "description",
       space: 4,
   }
 ]

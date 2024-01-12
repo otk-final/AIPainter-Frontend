@@ -88,7 +88,8 @@ const HomePage = () => {
     }
   }
 
-
+  const p0 = usePersistWorkspaces(state => state.projects[0])
+  console.info(p0)
   //加载项目
   const { projects, load, remove, open } = usePersistWorkspaces(state => state)
   useEffect(() => {
@@ -102,17 +103,17 @@ const HomePage = () => {
   const renderMyCreation = () => {
     return (
       <div className="section-create-wrap flexR">
-        {projects.map((i, index) => {
+        {projects.map((item, index) => {
           return (
             <div className="home-item-wrap flexR" key={index}>
               <div className="left flexC">
-                <div className="title one-line">{i?.name}</div>
-                <div className="describe">开始时间: {i?.createTime}</div>
-                <div className="describe">当前环节: {i?.step}</div>
+                <div className="title one-line">{item?.name}</div>
+                <div className="describe">开始时间: {item?.createTime}</div>
+                <div className="describe">当前环节: {item?.step}</div>
               </div>
               <div className="right flexC">
-                <Button type="default" className="btn-default-auto btn-default-100" onClick={() => { handleGoon(i) }}>继续创作</Button>
-                <Button type="default" className="btn-default-auto btn-default-100" onClick={() => { remove(i!.id) }}>删除</Button>
+                <Button type="default" className="btn-default-auto btn-default-100" onClick={() => { handleGoon(item!) }}>继续创作</Button>
+                <Button type="default" className="btn-default-auto btn-default-100" onClick={() => { remove(item!.id) }}>删除</Button>
               </div>
             </div>
           )
