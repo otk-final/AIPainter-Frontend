@@ -1,11 +1,11 @@
 import { Button } from 'antd';
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { FileImportModule } from '@/components'
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { storyboardColumns } from '../data';
 import StoryboardTableTR from './storyboard-table-tr'
 import assets from '@/assets';
-import { usePersistActorsStorage, usePersistChaptersStorage } from '@/stores/story';
+import { usePersistChaptersStorage } from '@/stores/story';
 
 interface StoryboardProps {
     pid: string
@@ -13,7 +13,7 @@ interface StoryboardProps {
 
 const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
     const [fileImportOpen, setFileImportOpen] = useState(false);
-    const { chapters} = usePersistChaptersStorage(state => state)
+    const { chapters } = usePersistChaptersStorage(state => state)
 
     const renderEmpty = () => {
         return (
@@ -49,8 +49,8 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
                         })}
                     </div>
                     {
-                        chapters.map((item, index) => {
-                            return <StoryboardTableTR key={index} idx={index} data={item!} />
+                        chapters!.map((item, index) => {
+                            return <StoryboardTableTR key={index} idx={index} data={item} />
                         })
                     }
                 </div>

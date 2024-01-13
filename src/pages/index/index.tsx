@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { Button, Carousel, Image, message } from 'antd';
 import './index.less'
 import assets from '@/assets'
-import { CreateProjectModule } from '@/components';
 import { history } from "umi"
 import { getLoginInfo, useLogin } from '@/uses';
-import ImitateProjectModule from '@/components/imitate-project';
 import { Project, usePersistWorkspaces } from '@/stores/project';
+import { ImitateProjectModal, StoryProjectModal } from '@/components/create-project';
 
 const data = [
   {
@@ -76,7 +75,7 @@ const HomePage = () => {
   }, [])
 
   const handleGoon = (project: Project) => {
-    open(project).finally(() => { history.push(project.type === "std" ? "/create/" + project.id : "/imitate/" + project.id) })
+    open(project).finally(() => { history.push(project.type === "story" ? "/story/" + project.id : "/imitate/" + project.id) })
   }
 
   const renderMyCreation = () => {
@@ -146,8 +145,8 @@ const HomePage = () => {
 
       {projects.length ? renderMyCreation() : renderMyCreationEmpty()}
 
-      <CreateProjectModule isOpen={isCreateProjectOpen} onClose={() => setIsCreateProjectOpen(false)} />
-      <ImitateProjectModule isOpen={isImitateProjectOpen} onClose={() => setIsImitateProjectOpen(false)} />
+      <StoryProjectModal isOpen={isCreateProjectOpen} onClose={() => setIsCreateProjectOpen(false)} />
+      <ImitateProjectModal isOpen={isImitateProjectOpen} onClose={() => setIsImitateProjectOpen(false)} />
 
     </div>
   );

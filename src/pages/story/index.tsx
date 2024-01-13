@@ -9,12 +9,12 @@ import Drawbatch from './components/drawbatch';
 import Videogeneration from './components/videogeneration'
 import { usePersistActorsStorage, usePersistChaptersStorage, usePersistScriptStorage } from '@/stores/story';
 
-type CreateTabType = "storyboard" | "drawbatch" | "videogeneration"
+type ActionTabType = "storyboard" | "drawbatch" | "videogeneration"
 
 
 
-const CreatePage: React.FC<{ pid: string }> = ({ pid }) => {
-  const [cur, setCur] = useState<CreateTabType>("storyboard");
+const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
+  const [cur, setCur] = useState<ActionTabType>("storyboard");
   const [tabs, setTabs] = useState(createTabs)
   const { script, load } = usePersistScriptStorage(state => state)
   const { loadActors } = usePersistActorsStorage(state => state)
@@ -91,7 +91,7 @@ const CreatePage: React.FC<{ pid: string }> = ({ pid }) => {
       <div className='page-header flexR'>
         <div className="flexR">
           <div className="nav-back" onClick={() => history.back()}><LeftOutlined twoToneColor="#fff" /></div>
-          <Tabs defaultActiveKey="paint" items={tabs} onChange={(key) => setCur(key as CreateTabType)} />
+          <Tabs defaultActiveKey="paint" items={tabs} onChange={(key) => setCur(key as ActionTabType)} />
         </div>
         {customButtons()}
       </div>
@@ -104,9 +104,9 @@ const CreatePage: React.FC<{ pid: string }> = ({ pid }) => {
 };
 
 
-const StdProjectPage: React.FC = () => {
+const StoryProjectPage: React.FC = () => {
   const params = useParams()
-  return <CreatePage pid={params.pid as string} />
+  return <StoryProject pid={params.pid as string} />
 }
 
-export default StdProjectPage
+export default StoryProjectPage
