@@ -1,11 +1,11 @@
 import { Button } from 'antd';
 import React, { useState } from 'react'
-import { FileImportModule } from '@/components'
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { storyboardColumns } from '../data';
 import StoryboardTableTR from './storyboard-table-tr'
 import assets from '@/assets';
 import { usePersistChaptersStorage } from '@/stores/story';
+import FileImportModal from '../story-import';
 
 interface StoryboardProps {
     pid: string
@@ -61,7 +61,7 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
     return (
         <div className="storyboard-wrap scrollbar">
             {chapters ? renderChapterList() : renderEmpty()}
-            <FileImportModule isOpen={fileImportOpen} onClose={() => setFileImportOpen(false)} />
+            <FileImportModal isOpen={fileImportOpen} onClose={() => setFileImportOpen(false)} />
         </div>
     );
 };

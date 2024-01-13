@@ -91,7 +91,7 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
       <div className='page-header flexR'>
         <div className="flexR">
           <div className="nav-back" onClick={() => history.back()}><LeftOutlined twoToneColor="#fff" /></div>
-          <Tabs defaultActiveKey="paint" items={tabs} onChange={(key) => setCur(key as ActionTabType)} />
+          <Tabs defaultActiveKey="paint" activeKey={cur} items={tabs} onChange={(key) => setCur(key as ActionTabType)} />
         </div>
         {customButtons()}
       </div>

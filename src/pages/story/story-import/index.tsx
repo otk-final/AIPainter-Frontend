@@ -2,7 +2,7 @@ import { Button, Modal, Select, Tabs, TabsProps } from "antd"
 import { useState } from "react";
 import "./index.less"
 import { dialog, path } from "@tauri-apps/api";
-import { usePersistActorsStorage, usePersistScriptStorage } from "@/stores/story";
+import { usePersistScriptStorage } from "@/stores/story";
 
 
 const importTabItems: TabsProps['items'] = [
@@ -16,14 +16,14 @@ const importTabItems: TabsProps['items'] = [
     },
 ];
 
-interface FileImportModuleProps {
+interface FileImportProps {
     isOpen: boolean,
     onClose: () => void,
 }
 
 
 type ImportType = "textImport" | "excelImport"
-const FileImportModule: React.FC<FileImportModuleProps> = ({ isOpen, onClose }) => {
+const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
     const [cur, setCur] = useState<ImportType>("textImport");
     const [loading, setLoading] = useState(false)
     const [boardType, setBoardType] = useState("ai")
@@ -40,7 +40,6 @@ const FileImportModule: React.FC<FileImportModuleProps> = ({ isOpen, onClose }) 
         if (!selected) {
             return
         }
-
         setLoading(true)
         return doImport({
             boardType: boardType,
@@ -95,4 +94,4 @@ const FileImportModule: React.FC<FileImportModuleProps> = ({ isOpen, onClose }) 
     )
 }
 
-export default FileImportModule
+export default FileImportModal
