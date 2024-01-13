@@ -8,11 +8,13 @@ interface StoryboardTableTRProps {
     chapter: Chapter,
 }
 
+const emptyChapter: Chapter = { original: "", prompts: "", actors: [], description: "", state: 1 }
 const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) => {
 
-    const { removeChapter, updateChapter } = usePersistChaptersStorage(state => state)
+    const { removeChapter, updateChapter, addChapter } = usePersistChaptersStorage(state => state)
     const { actors } = usePersistActorsStorage(state => state)
     const [stateChapter, setChapter] = useState<Chapter>(chapter)
+
     useEffect(() => {
         updateChapter(idx, stateChapter)
     }, [stateChapter])
@@ -23,7 +25,7 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) =
                 <div className='index'>{idx + 1}</div>
                 <Button type='default' className='btn-default-auto btn-default-98'>推理关键词</Button>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={() => removeChapter(idx)}>删除</Button>
-                <Button type='default' className='btn-default-auto btn-default-98'>插入分镜</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={() => addChapter(idx, { ...emptyChapter })}>插入分镜</Button>
             </Fragment>
         )
     }
@@ -60,14 +62,14 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) =
 
     return (
         <div className='tr flexR'>
-            {storyboardColumns.map((i, index) => {
+            {stateChapter && storyboardColumns.map((i, index) => {
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
-                        {i.key === 'original' ? chapter!.original : null}
-                        {i.key === 'prompts' ? chapter!.prompts : null}
+                        {i.key === 'original' ? stateChapter.original : null}
+                        {i.key === 'prompts' ? stateChapter.prompts : null}
                         {i.key === 'actors' ? renderActors() : null}
-                        {i.key === 'description' ? chapter!.description : null}
+                        {i.key === 'description' ? stateChapter.description : null}
                     </div>
                 )
             })}

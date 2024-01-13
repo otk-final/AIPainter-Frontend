@@ -2,7 +2,7 @@ import { Button, Modal, Select, Tabs, TabsProps } from "antd"
 import { useState } from "react";
 import "./index.less"
 import { dialog, path } from "@tauri-apps/api";
-import { usePersistScriptStorage } from "@/stores/story";
+import { Chapter, usePersistChaptersStorage, usePersistScriptStorage } from "@/stores/story";
 
 
 const importTabItems: TabsProps['items'] = [
@@ -29,7 +29,9 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
     const [boardType, setBoardType] = useState("ai")
 
 
-    const doImport = usePersistScriptStorage(state => state.import)
+    const { pid, startBoarding } = usePersistScriptStorage(state => state)
+    const { initializeChapters } = usePersistChaptersStorage(state => state)
+
     const handleImport = async (type: string) => {
         //选择文件
         let selected = await dialog.open({
@@ -41,10 +43,16 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
             return
         }
         setLoading(true)
-        return doImport({
+
+
+        //分镜
+        return startBoarding({
             boardType: boardType,
             path: selected as string,
             format: type,
+        }).then((chapters: Chapter[]) => {
+            //导入镜头
+            initializeChapters(pid!, chapters)
         }).finally(() => {
             setLoading(false)
             onClose()

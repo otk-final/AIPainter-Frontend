@@ -50,7 +50,7 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
                     </div>
                     {
                         chapters!.map((item, index) => {
-                            return <StoryboardTableTR key={index} idx={index} data={item} />
+                            return <StoryboardTableTR key={index} idx={index} chapter={item} />
                         })
                     }
                 </div>

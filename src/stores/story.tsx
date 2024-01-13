@@ -38,7 +38,7 @@ export interface ScriptStorage {
     pid: string | undefined
     script: Script | undefined
     load: (pid: string) => Promise<void>
-    import: (script: Script) => Promise<Chapter[]>
+    startBoarding: (script: Script) => Promise<Chapter[]>
 }
 
 
@@ -75,7 +75,7 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
         let scriptJson = await fs.readTextFile(scriptFile, { dir: workspaceFileDirectory })
         set({ ...JSON.parse(scriptJson) })
     },
-    import: async (script: Script) => {
+    startBoarding: async (script: Script) => {
         //开始分镜
 
         //读取文件
@@ -117,12 +117,13 @@ export const usePersistChaptersStorage = create<ChaptersStorage>((set, get) => (
         set({ ...JSON.parse(chaptersJson) })
     },
     initializeChapters: async (pid: string, chapters: Chapter[]) => {
+        debugger
         let chaptersFile = await path.join(pid, "chapters.json")
 
         //初始化文件
-        let initJson = { pid: pid, chapters: chapters }
-        set(initJson)
-        return await fs.writeTextFile(chaptersFile, JSON.stringify(initJson), { dir: workspaceFileDirectory, append: false })
+        let store = { pid: pid, chapters: chapters }
+        set(store)
+        return await fs.writeTextFile(chaptersFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
     },
     addChapter: async (idx: number, chapter: Chapter) => {
         let stateChapters = [...get().chapters!]
