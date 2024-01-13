@@ -7,6 +7,7 @@ import assets from '@/assets';
 import { usePersistChaptersStorage } from '@/stores/story';
 import FileImportModal from '../story-import';
 
+
 interface StoryboardProps {
     pid: string
 }
@@ -50,7 +51,7 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
                     </div>
                     {
                         chapters!.map((item, index) => {
-                            return <StoryboardTableTR key={index} idx={index} chapter={item} />
+                            return <StoryboardTableTR key={item.id + index} idx={index} chapter={item} />
                         })
                     }
                 </div>
