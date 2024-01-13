@@ -17,19 +17,20 @@ interface RoleItemProps {
 
 export const RoleItem: React.FC<RoleItemProps> = ({ actor, index }) => {
 
+  console.info("init actor", index, actor)
   const [isOpen, setOpen] = useState(false);
   const [stateActor, setActor] = useState<Actor>(actor)
-  const [stateIndex, setIndex] = useState<number>(index)
   const { updateActor, removeActor } = usePersistActorsStorage(state => state)
 
   const isMountRef = useRef(true)
   useEffect(() => {
+    console.info("useEffect", index, stateActor)
     if (isMountRef.current) {
       isMountRef.current = false
       return
     }
-    updateActor(stateIndex, stateActor)
-  }, [stateActor, stateIndex])
+    updateActor(index, stateActor)
+  }, [stateActor])
 
 
   const handleDel = async () => {
@@ -37,13 +38,13 @@ export const RoleItem: React.FC<RoleItemProps> = ({ actor, index }) => {
     if (!ok) {
       return
     }
-    await removeActor(stateIndex)
+    await removeActor(index)
   }
 
   return (
     <div className='role-item'>
       <div className='top flexR'>
-        <div className='text'>角色{stateIndex + 1}</div>
+        <div className='text'>角色{index + 1}</div>
         <DeleteOutlined onClick={handleDel} />
       </div>
       <div className='content flexR'>
@@ -108,7 +109,7 @@ const RoleSetPage = () => {
       <div className='sub-text'>建议角色设置不要超过2个,如剧本中无固定角色可跳过该步骤。SD在同画面的出现多个角色时，识别能力较差。同画面多人指定角色形象的功能在开发中。</div>
       <div className='roles-wrap flexR'>
         {actors.map((actor, index) => {
-          return <RoleItem actor={actor} index={index} key={index} />
+          return <RoleItem actor={actor} index={index} key={actor.id + index} />
         })}
       </div>
     </div>

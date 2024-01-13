@@ -1,4 +1,4 @@
-import { Button, Select, Tabs, InputNumber } from 'antd';
+import { Button, Select, Tabs, InputNumber, message } from 'antd';
 import React, { useEffect, useState } from 'react'
 import './index.less'
 import { createTabs } from './data'
@@ -7,7 +7,7 @@ import { history, useParams } from "umi"
 import Storyboard from './components/storyboard';
 import Drawbatch from './components/drawbatch';
 import Videogeneration from './components/videogeneration'
-import { usePersistActorsStorage } from '@/stores/story';
+import { usePersistActorsStorage, usePersistChaptersStorage, usePersistScriptStorage } from '@/stores/story';
 
 type CreateTabType = "storyboard" | "drawbatch" | "videogeneration"
 
@@ -16,11 +16,21 @@ type CreateTabType = "storyboard" | "drawbatch" | "videogeneration"
 const CreatePage: React.FC<{ pid: string }> = ({ pid }) => {
   const [cur, setCur] = useState<CreateTabType>("storyboard");
   const [tabs, setTabs] = useState(createTabs)
-  const { script, load } = usePersistActorsStorage(state => state)
+  const { script, load } = usePersistScriptStorage(state => state)
+  const { loadActors } = usePersistActorsStorage(state => state)
+  const { loadChapters } = usePersistChaptersStorage(state => state)
 
   //加载配置项
   useEffect(() => {
-    load(pid)
+
+    //加载当前工作需要的所有页面数据
+    const initializeContext = async () => {
+      await load(pid)
+      await loadActors(pid)
+      await loadChapters(pid)
+    }
+
+    initializeContext().catch(err => message.error(err))
   }, [pid])
 
 
@@ -36,17 +46,13 @@ const CreatePage: React.FC<{ pid: string }> = ({ pid }) => {
   }, [script])
 
 
-  const handleSetRole = () => {
-    history.push('/roleset/' + pid)
-  }
-
 
   const customButtons = () => {
     if (cur === 'storyboard') {
       return (
         <div className='flexR'>
           {/* <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setIsEnergyRechargeOpen(true)}>充值能量</Button> */}
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleSetRole} >设置角色</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => { history.push('/roleset/' + pid) }} >设置角色</Button>
           <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setCur("drawbatch")} disabled={!script}>下一步</Button>
         </div>
       )
@@ -66,7 +72,7 @@ const CreatePage: React.FC<{ pid: string }> = ({ pid }) => {
             className={`select-auto`}
             style={{ width: '200px', marginLeft: "20px" }}
             defaultValue="1"
-            onChange={(v) => { }}
+            // onChange={(v) => { }}
             options={[
               { value: '1', label: '视频生成' },
               { value: '2', label: '视频生成sss' },
@@ -90,7 +96,7 @@ const CreatePage: React.FC<{ pid: string }> = ({ pid }) => {
         {customButtons()}
       </div>
       <div className='page-header-placeholder'></div>
-      {cur === "storyboard" ? <Storyboard pid='' /> : null}
+      {cur === "storyboard" ? <Storyboard pid={pid} /> : null}
       {cur === 'drawbatch' ? <Drawbatch /> : null}
       {cur === "videogeneration" ? <Videogeneration /> : null}
     </div>

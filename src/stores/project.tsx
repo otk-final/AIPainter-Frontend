@@ -18,7 +18,7 @@ export interface Workspaces {
     projects: Project[]
     load: () => void
     remove: (id: string) => Promise<void>
-    create: (type: string, name: string) => Promise<void>
+    create: (type: string, name: string) => Promise<string>
     open: (target: Project) => Promise<void>
 }
 
@@ -96,6 +96,9 @@ export const usePersistWorkspaces = create<Workspaces>((set, get) => ({
         })
         //change state
         set({ current: newProject, projects: existAll })
+
+        return workId
+
     },
     open: async (target: Project) => {
         set({ current: target })

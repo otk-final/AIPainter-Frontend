@@ -20,7 +20,7 @@ const CreateProjectModule: React.FC<CreateProjectModuleProps> = ({ isOpen, onClo
         if (!name) {
             return message.error("请输入小说别名");
         }
-        create("std", name).finally(() => { history.push("/create") })
+        create("std", name).then((id) => { history.push("/create/" + id) })
     }
 
     return (

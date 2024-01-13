@@ -5,16 +5,15 @@ import { QuestionCircleOutlined } from '@ant-design/icons';
 import { storyboardColumns } from '../data';
 import StoryboardTableTR from './storyboard-table-tr'
 import assets from '@/assets';
-import { usePersistActorsStorage } from '@/stores/story';
+import { usePersistActorsStorage, usePersistChaptersStorage } from '@/stores/story';
 
 interface StoryboardProps {
     pid: string
 }
 
-const Storyboard: React.FC<StoryboardProps> = ({ }) => {
+const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
     const [fileImportOpen, setFileImportOpen] = useState(false);
-    const { script, chapters } = usePersistActorsStorage(state => state)
-
+    const { chapters} = usePersistChaptersStorage(state => state)
 
     const renderEmpty = () => {
         return (
@@ -27,7 +26,7 @@ const Storyboard: React.FC<StoryboardProps> = ({ }) => {
         )
     }
 
-    const renderScriptList = () => {
+    const renderChapterList = () => {
         return (
             <div>
                 <div className='script-header flexR'>
@@ -61,7 +60,7 @@ const Storyboard: React.FC<StoryboardProps> = ({ }) => {
 
     return (
         <div className="storyboard-wrap scrollbar">
-            {script ? renderScriptList() : renderEmpty()}
+            {chapters ? renderChapterList() : renderEmpty()}
             <FileImportModule isOpen={fileImportOpen} onClose={() => setFileImportOpen(false)} />
         </div>
     );
