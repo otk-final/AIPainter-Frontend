@@ -69,8 +69,6 @@ const HomePage = () => {
     }
   }
 
-  const p0 = usePersistWorkspaces(state => state.projects[0])
-  console.info(p0)
   //加载项目
   const { projects, load, remove, open } = usePersistWorkspaces(state => state)
   useEffect(() => {
@@ -78,7 +76,7 @@ const HomePage = () => {
   }, [])
 
   const handleGoon = (project: Project) => {
-    open(project).finally(() => { history.push(project.type === "std" ? "/create" : "/imitate") })
+    open(project).finally(() => { history.push(project.type === "std" ? "/create/" + project.id : "/imitate/" + project.id) })
   }
 
   const renderMyCreation = () => {

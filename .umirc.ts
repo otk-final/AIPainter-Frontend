@@ -5,9 +5,9 @@ export default defineConfig({
   routes: [
     { path: "/", component: "@/pages/index/index" },
     { path: "/setting", component: "@/pages/setting/index" },
-    { path: "/create", component: "@/pages/create/index" },
-    { path: "/imitate", component: "@/pages/imitate/index" },
-    { path: 'roleset', component: '@/pages/roleset/index'}
+    { path: "/create/:pid", component: "@/pages/create/index" },
+    { path: "/imitate/:pid", component: "@/pages/imitate/index" },
+    { path: 'roleset/:pid', component: '@/pages/roleset/index'}
   ],
   npmClient: 'yarn',
   theme:{

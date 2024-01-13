@@ -1,7 +1,7 @@
 import { Button, Switch } from "antd"
 import { Fragment } from "react";
 import { storyboardColumns } from "../data";
-import { Chapter, usePersistScriptStorage } from "@/stores/story";
+import { Chapter, usePersistActorsStorage } from "@/stores/story";
 
 interface StoryboardTableTRProps {
     idx: number,
@@ -10,9 +10,9 @@ interface StoryboardTableTRProps {
 
 const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, data }) => {
 
-    const chapter = usePersistScriptStorage(state => state.chapters[idx])
-    const handleRemove = usePersistScriptStorage(state => state.remove)
-    const actors = usePersistScriptStorage(state => state.actors)
+    const chapter = usePersistActorsStorage(state => state.chapters[idx])
+    const handleRemove = usePersistActorsStorage(state => state.remove)
+    const actors = usePersistActorsStorage(state => state.actors)
 
     const renderNumber = () => {
         return (

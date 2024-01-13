@@ -3,25 +3,29 @@ import React, { useEffect, useState } from 'react'
 import './index.less'
 import { createTabs } from './data'
 import { LeftOutlined } from '@ant-design/icons';
-import { history } from "umi"
+import { history, useParams } from "umi"
 import Storyboard from './components/storyboard';
 import Drawbatch from './components/drawbatch';
 import Videogeneration from './components/videogeneration'
-import { EnergyRechargeModule } from '@/components'
-import { usePersistScriptStorage } from '@/stores/story';
+import { usePersistActorsStorage } from '@/stores/story';
 
 type CreateTabType = "storyboard" | "drawbatch" | "videogeneration"
 
-const CreatePage: React.FC = () => {
+
+
+const CreatePage: React.FC<{ pid: string }> = ({ pid }) => {
   const [cur, setCur] = useState<CreateTabType>("storyboard");
-  const [isEnergyRechargeOpen, setIsEnergyRechargeOpen] = useState(false);
   const [tabs, setTabs] = useState(createTabs)
+  const { script, load } = usePersistActorsStorage(state => state)
 
-
-  const { script } = usePersistScriptStorage(state => state)
-
+  //加载配置项
   useEffect(() => {
+    load(pid)
+  }, [pid])
 
+
+  //根据脚本判断可操作步骤
+  useEffect(() => {
     //can change tabs
     if (script) {
       let newRes = tabs?.map((i) => {
@@ -29,20 +33,19 @@ const CreatePage: React.FC = () => {
       })
       setTabs(newRes)
     }
-
   }, [script])
 
 
   const handleSetRole = () => {
-    history.push('/roleset')
+    history.push('/roleset/' + pid)
   }
-  
+
 
   const customButtons = () => {
     if (cur === 'storyboard') {
       return (
         <div className='flexR'>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setIsEnergyRechargeOpen(true)}>充值能量</Button>
+          {/* <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setIsEnergyRechargeOpen(true)}>充值能量</Button> */}
           <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleSetRole} >设置角色</Button>
           <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setCur("drawbatch")} disabled={!script}>下一步</Button>
         </div>
@@ -94,4 +97,10 @@ const CreatePage: React.FC = () => {
   );
 };
 
-export default CreatePage
+
+const StdProjectPage: React.FC = () => {
+  const params = useParams()
+  return <CreatePage pid={params.pid as string} />
+}
+
+export default StdProjectPage

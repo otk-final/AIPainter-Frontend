@@ -2,27 +2,24 @@ import { Button } from 'antd';
 import React, { useEffect, useState } from 'react'
 import { FileImportModule } from '@/components'
 import { QuestionCircleOutlined } from '@ant-design/icons';
-import { mockStoryboardColumnsData, storyboardColumns } from '../data';
+import { storyboardColumns } from '../data';
 import StoryboardTableTR from './storyboard-table-tr'
 import assets from '@/assets';
-import { usePersistScriptStorage } from '@/stores/story';
+import { usePersistActorsStorage } from '@/stores/story';
 
 interface StoryboardProps {
     pid: string
 }
 
-const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
+const Storyboard: React.FC<StoryboardProps> = ({ }) => {
     const [fileImportOpen, setFileImportOpen] = useState(false);
-    const { script, chapters, load } = usePersistScriptStorage(state => state)
+    const { script, chapters } = usePersistActorsStorage(state => state)
 
-    useEffect(() => {
-        load(pid)
-    }, [pid])
 
     const renderEmpty = () => {
         return (
             <div className='empty flexC'>
-                <img src={assets.emptyC} className='empty-img'/>
+                <img src={assets.emptyC} className='empty-img' />
                 <div className='empty-text'>故事分镜列表为空， 请导入脚本文件</div>
                 <div className='import-btn' onClick={() => setFileImportOpen(true)}>导入脚本文件</div>
                 <div className='sub-text'>请上传故事分镜脚本文件，并完成基于镜头画面的描述词编辑。<span>新手可参考：剧本教学文档</span></div>
