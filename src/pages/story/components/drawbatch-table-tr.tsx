@@ -3,8 +3,7 @@ import TextArea from "antd/es/input/TextArea";
 import { Fragment, useEffect, useState } from "react";
 import { drawbatchColumns } from "../data";
 import { Chapter, usePersistChaptersStorage } from "@/stores/story";
-import { fs } from "@tauri-apps/api";
-import { convertFileSrc } from "@tauri-apps/api/tauri";
+import { dialog, fs, tauri } from "@tauri-apps/api";
 
 interface ChapterTableTRProps {
     idx: number,
@@ -47,18 +46,42 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, chapter }) => {
         if (!stateChapter.drawImage) {
             return <div>待生成</div>
         }
-        let imageUrl = convertFileSrc(stateChapter.drawImage)
+        let imageUrl = tauri.convertFileSrc(stateChapter.drawImage)
         return (
             <div>
-                <img src={imageUrl} className="drawbath-image" />
+                <Image src={imageUrl} preview={false} />
             </div>
         )
     }
 
 
     //重绘制
-    const handleRedraw = () => {
-        setChapter({ ...stateChapter, drawImage: "/Users/hxy/Desktop/图片/2671692240023_.pic.jpg" })
+    const handleRedraw = async () => {
+
+        let path = "/Users/hxy/Desktop/图片/5af16a7e7a434_610.jpg"
+        let imageHistroy = stateChapter.drawImageHistory ? [...stateChapter.drawImageHistory!] : []
+        imageHistroy.push(path)
+
+        setChapter({ ...stateChapter, drawImage: path, drawImageHistory: imageHistroy })
+
+    }
+
+
+    const renderImageHistory = () => {
+        if (!stateChapter.drawImageHistory) {
+            return <div>待生成</div>
+        }
+        let paths = stateChapter.drawImageHistory.map(item => {
+            return tauri.convertFileSrc(item)
+        })
+
+        return (
+            <div className="flexR" style={{ flexWrap: "wrap", justifyContent: "flex-start", width: '100%' }}>
+                {paths.map((p, idx) => {
+                    return <Image src={p} className="drawbath-image size-s" preview={false} key={idx} />
+                })}
+            </div>
+        )
     }
 
 
@@ -80,7 +103,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, chapter }) => {
                         {i.key === 'original' ? stateChapter.original : null}
                         {i.key === 'drawPrompt' ? renderEditPrompts() : null}
                         {i.key === 'drawImage' ? renderImage() : null}
-                        {i.key === 'drawImageHistory' ? renderImage() : null}
+                        {i.key === 'drawImageHistory' ? renderImageHistory() : null}
                         {i.key === 'operate' ? renderOperate() : null}
                     </div>
                 )

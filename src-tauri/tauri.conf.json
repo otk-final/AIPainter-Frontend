@@ -52,10 +52,13 @@
       },
       "protocol": {
         "all": true,
-        "asset": true
+        "asset": true,
+        "assetScope": [
+          "**"
+        ]
       },
       "clipboard": {
-        "all": true, 
+        "all": true,
         "writeText": true,
         "readText": true
       }
@@ -77,7 +80,7 @@
       ]
     },
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost"
     },
     "windows": [
       {
