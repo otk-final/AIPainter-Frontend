@@ -2,6 +2,7 @@
     background-color: #121212;
     height: calc(100% - 90px);
     overflow: hidden;
+
     & .inputnumber-auto {
         box-sizing: border-box;
         background-color: @bg-input;
@@ -16,16 +17,17 @@
             border: none;
 
         }
+
         & .ant-input-number-input {
             color: @m-font-color;
             height: 40px;
             box-sizing: border-box;
-            
+
         }
 
-        &.has-addon .ant-input-number-input{
+        &.has-addon .ant-input-number-input {
             height: 38px;
-        } 
+        }
 
         & .ant-input-number-group .ant-input-number-group-addon {
             border: none;
@@ -41,7 +43,7 @@
     padding: 0 30px;
     height: calc(100% - 78px);
     overflow: scroll;
-   
+
     & .empty {
         & .empty-img {
             width: 260px;
@@ -66,7 +68,8 @@
             cursor: pointer;
             border-radius: 8px;
             text-align: center;
-            line-height:  56px;
+            line-height: 56px;
+
             &:hover {
                 border: 1px solid @xs-font-color;
             }
@@ -76,6 +79,7 @@
             font-size: 14px;
             color: @xs-font-color;
             margin-top: 60px;
+
             & span {
                 color: @font-primary-color;
             }
@@ -84,6 +88,7 @@
 
     & .script-header {
         justify-content: space-between;
+
         & .btn-default-150.l-p {
             margin-left: 0;
         }
@@ -92,6 +97,7 @@
             font-size: 14px;
             align-items: flex-end;
         }
+
         & .text {
             margin-left: 6px;
             font-size: 14px;
@@ -103,7 +109,8 @@
 }
 
 .script-table-wrap {
-    margin-top: 30px;
+    padding-top: 30px;
+    padding-bottom: 50px;
 
     & .th {
         background-color: #29292D;
@@ -117,13 +124,14 @@
         color: @m-font-color;
         text-align: center;
         padding: 0 16px;
-       
+
     }
 
     & .tr {
-        display:-webkit-flex;
+        display: -webkit-flex;
         align-items: stretch;
         background-color: #121212;
+
         &:nth-child(even) {
             background-color: #1B1B1D;
         }
@@ -131,7 +139,7 @@
 
     & .td {
         justify-content: flex-start;
-        height:inherit;
+        height: inherit;
         border-right: 1px dashed #484848;
         padding: 12px 16px;
         box-sizing: border-box;
@@ -160,6 +168,7 @@
             font-size: 14px;
             margin: 7px;
             padding: 0;
+
             &:hover {
                 border-color: @m-font-color;
             }
@@ -177,20 +186,23 @@
             width: 48px;
             height: 28px;
             border: none;
-           & .ant-switch-handle, & .ant-switch-handle::before {
+
+            & .ant-switch-handle,
+            & .ant-switch-handle::before {
                 width: 24px;
                 height: 24px;
                 border-radius: 28px;
-           }
-         
-           &.ant-switch-checked {
+            }
+
+            &.ant-switch-checked {
                 background-color: @primary-color;
+
                 & .ant-switch-handle {
                     inset-inline-start: calc(100% - 24px)
                 }
-    
-           }
-    
+
+            }
+
         }
     }
 
@@ -200,6 +212,7 @@
     padding: 0 30px;
     height: calc(100% - 78px);
     overflow: scroll;
+
     & .drawbatch-header {
 
         & .lable {
@@ -215,6 +228,8 @@
         border: 1px solid transparent;
         color: @m-font-color;
         font-size: 14px;
+        height: 100%;
+
         &::placeholder {
             color: @xs-font-color;
         }
@@ -223,7 +238,7 @@
     & .drawbath-image {
         width: 200px;
         height: 200px;
-        
+
     }
 
 }
@@ -233,6 +248,7 @@
     padding: 0 30px;
     height: calc(100% - 78px);
     overflow: scroll;
+
     & .section {
         width: 100%;
         padding: 30px 0;
@@ -264,9 +280,10 @@
             margin-bottom: 10px;
         }
 
-        & .addon-btn{
+        & .addon-btn {
             height: 38px;
             color: @l-font-color;
+
             &:hover {
                 color: @l-font-color;
             }
@@ -287,9 +304,10 @@
         cursor: pointer;
 
         &.cur {
-            box-shadow: 0 0 0 2px  @primary-color;
+            box-shadow: 0 0 0 2px @primary-color;
         }
     }
+
     & .fontcf-wrap {
         flex-wrap: wrap;
     }
@@ -303,7 +321,7 @@
         border-radius: 4px;
 
         &.cur {
-            box-shadow: 0 0 0 2px  @primary-color;
+            box-shadow: 0 0 0 2px @primary-color;
         }
     }
 }

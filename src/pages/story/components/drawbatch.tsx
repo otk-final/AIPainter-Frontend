@@ -1,6 +1,6 @@
 import { QuestionCircleOutlined } from "@ant-design/icons"
 import { Select } from "antd"
-import DrawbathTableTR from "./drawbatch-table-tr"
+import DrawTableTR from "./drawbatch-table-tr"
 import { drawbatchColumns } from "../data"
 import { usePersistChaptersStorage, usePersistScriptStorage } from "@/stores/story"
 
@@ -18,7 +18,7 @@ const Drawbatch = () => {
                 </div>
                 {
                     chapters?.map((chapter, index) => {
-                        return (<DrawbathTableTR key={chapter.id} idx={index} chapter={chapter} />
+                        return (<DrawTableTR key={chapter.id} idx={index} chapter={chapter} />
                         )
                     })
                 }

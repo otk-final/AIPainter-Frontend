@@ -53,7 +53,7 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
         <div className='flexR'>
           {/* <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setIsEnergyRechargeOpen(true)}>充值能量</Button> */}
           <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => { history.push('/roleset/' + pid) }} >设置角色</Button>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setCur("drawbatch")} disabled={!script}>下一步</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setCur("drawbatch")} disabled={!chapters || chapters?.length === 0}>下一步</Button>
         </div>
       )
     } else if (cur === 'drawbatch') {
@@ -85,12 +85,15 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
     }
   }
 
+  const saveAllHandle = () => {
+
+  }
 
   return (
     <div className="create-wrap">
       <div className='page-header flexR'>
         <div className="flexR">
-          <div className="nav-back" onClick={() => history.back()}><LeftOutlined twoToneColor="#fff" /></div>
+          <div className="nav-back" onClick={() => history.back()}><LeftOutlined twoToneColor="#fff" onClick={saveAllHandle} /></div>
           <Tabs defaultActiveKey="paint" activeKey={cur} items={tabs} onChange={(key) => setCur(key as ActionTabType)} />
         </div>
         {customButtons()}
