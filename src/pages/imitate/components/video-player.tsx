@@ -1,28 +1,26 @@
 import { Modal } from "antd"
 import ReactPlayer from "react-player";
 
-interface VideoPlayerModuleProps {
-    videoFileURL: string,
+interface VideoPlayerProps {
+    videoPlayURL: string,
     isOpen: boolean,
-    onClose: ()=>void
+    onClose: () => void
 }
 
-const VideoPlayerModule:React.FC<VideoPlayerModuleProps> = ({videoFileURL, isOpen, onClose})=> {
-
+const VideoPlayerModal: React.FC<VideoPlayerProps> = ({ videoPlayURL, isOpen, onClose }) => {
     return (
-        <Modal title="视频播放" 
-            open={isOpen} 
-            onCancel={onClose} 
+        <Modal title="视频播放"
+            open={isOpen}
+            onCancel={onClose}
             footer={null}
             width={'50%'}
             className="home-login-modal energy-recharge">
-                <ReactPlayer url={videoFileURL}  
-                    controls
-                    width="100%"
-                />
-
+            <ReactPlayer url={videoPlayURL}
+                controls
+                width="100%"
+            />
         </Modal>
     )
 }
 
-export default VideoPlayerModule
+export default VideoPlayerModal

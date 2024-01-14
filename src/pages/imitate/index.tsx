@@ -1,12 +1,13 @@
-import { Button, Tabs,  TabsProps } from 'antd';
+import { Button, Tabs, TabsProps } from 'antd';
 import React, { useEffect, useState } from 'react'
 import './index.less'
 import { LeftOutlined } from '@ant-design/icons';
-import { history } from "umi"
-import ExtractFrames from './components/extract-frames';
-import GenerateImages from './components/generate-images';
+import { history, useParams } from "umi"
+import { usePersistImtateStorage } from '@/stores/frame';
+import VideoImportTab from './components/video-import';
+import ImageGenerateTab from './components/image-generate';
 
-export type ImitateTabType = "exportFrames" | "generateImages" 
+export type ImitateTabType = "exportFrames" | "generateImages"
 const imitateTabs: TabsProps["items"] = [
   {
     key: "exportFrames",
@@ -19,55 +20,48 @@ const imitateTabs: TabsProps["items"] = [
   },
 ];
 
-const ImitatePage: React.FC = () => {
+const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   const [currentTab, setCurrentTab] = useState<ImitateTabType>("exportFrames");
-  const [hasVideo, setHasVideo] = useState(false);
   const [tabs, setTabs] = useState(imitateTabs)
-  let [imitateValue, _] = useState<ImitateValue>({ tab: "exportFrames" })
-
+  const { videoPath, load } = usePersistImtateStorage(state => state)
 
   useEffect(() => {
-    if (hasVideo) {
+
+    if (videoPath) {
       let newRes = tabs?.map((i) => {
         return { ...i, disabled: false }
       })
       setTabs(newRes)
     }
 
-  }, [hasVideo])
+    //加载数据
+    load(pid)
+  }, [pid, videoPath])
 
   return (
     <div className="imitate-wrap">
-      <ImitateContext.Provider value={imitateValue}>
-        <div className='page-header flexR'>
-          <div className="flexR">
-            <div className="nav-back" onClick={() => history.back()}><LeftOutlined twoToneColor="#fff" /></div>
-            <Tabs defaultActiveKey={currentTab} items={tabs} onChange={(key) => setCurrentTab(key as ImitateTabType)} />
-          </div>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" > {currentTab === "exportFrames" ? "下一步" :"导出剪映草稿"}</Button>
+      <div className='page-header flexR'>
+        <div className="flexR">
+          <div className="nav-back" onClick={() => history.back()}><LeftOutlined twoToneColor="#fff" /></div>
+          <Tabs defaultActiveKey={currentTab} items={tabs} onChange={(key) => setCurrentTab(key as ImitateTabType)} />
         </div>
-        <div className='page-header-placeholder'></div>
+        <Button type="primary" className="btn-primary-auto btn-primary-108" > {currentTab === "exportFrames" ? "下一步" : "导出剪映草稿"}</Button>
+      </div>
+      <div className='page-header-placeholder'></div>
 
-        {currentTab === "exportFrames" ? <ExtractFrames handleChangeTab={setCurrentTab} /> : null}
-        {currentTab === 'generateImages' ? <GenerateImages /> : null}
-      </ImitateContext.Provider>
+      {currentTab === "exportFrames" ? < VideoImportTab handleChangeTab={setCurrentTab} /> : null}
+      {currentTab === 'generateImages' ? <ImageGenerateTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
     </div>
   );
 };
 
-
-
-
-interface ImitateValue {
-  script?: {
-    path: string
-    url: string
-  }
-  tab: ImitateTabType
+const ImitateProjectPage: React.FC = () => {
+  const params = useParams()
+  return <ImitateProject pid={params.pid as string} />
 }
 
-export const ImitateContext = React.createContext<ImitateValue>({ tab: "exportFrames" })
 
-export default ImitatePage
+
+export default ImitateProjectPage
 
 
