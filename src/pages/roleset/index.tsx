@@ -89,7 +89,7 @@ const RoleSetPage = () => {
   //当前项目配置
   let { actors, addActor, saveActors } = usePersistActorsStorage(state => state)
   const saveActorsHandle = () => {
-    saveActors().then(() => { message.success("保存成功") })
+    saveActors().then(() => { message.success("保存成功") }).finally(() => { history.back() })
   }
 
 

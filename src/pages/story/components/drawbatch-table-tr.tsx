@@ -1,36 +1,49 @@
 import { Button, Image } from "antd"
 import TextArea from "antd/es/input/TextArea";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { drawbatchColumns } from "../data";
+import { Chapter, usePersistChaptersStorage } from "@/stores/story";
 
-interface DrawbathTableTRProps {
-    data: any,
+interface ChapterTableTRProps {
+    idx: number,
+    chapter: Chapter,
 }
 
-const DrawbathTableTR: React.FC<DrawbathTableTRProps> = ({ data }) => {
+
+const DrawbathTableTR: React.FC<ChapterTableTRProps> = ({ idx, chapter }) => {
+
+
+    const { updateChapter } = usePersistChaptersStorage(state => state)
+    const [stateChapter, setChapter] = useState<Chapter>(chapter)
+
+    useEffect(() => {
+
+        //当前绘画页面，ai关键词默认取英文
+        stateChapter.drawPrompt = stateChapter.actorsPrompt?.en
+        updateChapter(idx, stateChapter)
+    }, [stateChapter])
 
     const renderNumber = () => {
         return (
             <Fragment>
-                <div className='index'>{data.index + 1}</div>
+                <div className='index'>{idx + 1}</div>
             </Fragment>
         )
     }
 
 
-    const renderDescribeWord = () => {
+    const renderEditPrompts = () => {
         return (
             <TextArea rows={6} placeholder={"请输入画面描述词"}
                 maxLength={1000} className="text-area-auto"
-                onChange={(v) => { }} />
-
+                onChange={(e) => { setChapter({ ...stateChapter, drawPrompt: e.target.value }) }} />
         )
     }
 
     const renderImage = () => {
-        if (!data.url) {
-            return <div>待生成</div>
-        }
+        // if (!data.url) {
+        //     return <div>待生成</div>
+        // }
         return (
             <div>
                 <Image src="" className="drawbath-image" />
@@ -47,17 +60,17 @@ const DrawbathTableTR: React.FC<DrawbathTableTRProps> = ({ data }) => {
         )
     }
 
-
     return (
         <div className='tr flexR'>
             {drawbatchColumns.map((i, index) => {
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
-                        {i.key === 'describeWord' ? renderDescribeWord() : null}
-                        {i.key === 'currentImage' || i.key === "optionImage" ? renderImage() : null}
+                        {i.key === 'original' ? stateChapter.original : null}
+                        {i.key === 'drawPrompt' ? renderEditPrompts() : null}
+                        {i.key === 'drawImage' ? renderImage() : null}
+                        {i.key === 'drawImageHistory' ? renderImage() : null}
                         {i.key === 'operate' ? renderOperate() : null}
-                        {i.key === 'describe' ? data[i.key] : null}
                     </div>
                 )
             })}

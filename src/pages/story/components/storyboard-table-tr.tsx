@@ -9,16 +9,13 @@ interface StoryboardTableTRProps {
     chapter: Chapter,
 }
 
-const emptyChapter: Chapter = { id: "", original: "", prompts: "", actors: [], description: "", state: 1 }
+const emptyChapter: Chapter = { id: "", original: "", keywords: "", actors: [], state: 1 }
 const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) => {
 
     const { chapters, removeChapter, updateChapter, addChapter } = usePersistChaptersStorage(state => state)
     const { actors } = usePersistActorsStorage(state => state)
     const [stateChapter, setChapter] = useState<Chapter>(chapter)
 
-    useEffect(() => {
-        updateChapter(idx, stateChapter)
-    }, [stateChapter])
 
     const renderNumber = () => {
         return (
@@ -35,6 +32,18 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) =
         return stateChapter.actors.indexOf(alias) !== -1
     }
 
+
+    const renderChinesePrompts = (checkActors: string[]) => {
+        return actors.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
+            return item.features.map(f => f.cn).join(",")
+        }).join(";")
+    }
+    const renderEnglishPrompts = (checkActors: string[]) => {
+        return actors.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
+            return item.features.map(f => f.en).join(",")
+        }).join(";")
+    }
+
     const handleActorChange = (checked: boolean, actor: Actor) => {
         let actors = [...stateChapter.actors]
         if (checked) {
@@ -42,8 +51,18 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) =
         } else {
             actors = actors.filter(alias => alias !== actor.alias)
         }
-        setChapter({ ...stateChapter, actors: actors })
+        setChapter({ ...stateChapter, actors: actors})
     }
+
+    useEffect(() => {
+        //实时渲染角色关键词
+        stateChapter.actorsPrompt = {
+            cn: renderChinesePrompts(stateChapter.actors),
+            en: renderEnglishPrompts(stateChapter.actors),
+        }
+        updateChapter(idx, stateChapter)
+    }, [stateChapter])
+
 
 
     const renderActors = () => {
@@ -61,6 +80,7 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) =
         )
     }
 
+
     return (
         <div className='tr flexR'>
             {stateChapter && storyboardColumns.map((i, index) => {
@@ -68,9 +88,9 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) =
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
                         {i.key === 'original' ? stateChapter.original : null}
-                        {i.key === 'prompts' ? stateChapter.prompts : null}
+                        {i.key === 'keywords' ? stateChapter.keywords : null}
                         {i.key === 'actors' ? renderActors() : null}
-                        {i.key === 'description' ? stateChapter.description : null}
+                        {i.key === 'prompts' ? stateChapter.actorsPrompt?.cn : null}
                     </div>
                 )
             })}

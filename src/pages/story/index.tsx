@@ -18,7 +18,7 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
   const [tabs, setTabs] = useState(createTabs)
   const { script, load } = usePersistScriptStorage(state => state)
   const { loadActors } = usePersistActorsStorage(state => state)
-  const { loadChapters } = usePersistChaptersStorage(state => state)
+  const { chapters, loadChapters } = usePersistChaptersStorage(state => state)
 
   //加载配置项
   useEffect(() => {
@@ -37,13 +37,13 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
   //根据脚本判断可操作步骤
   useEffect(() => {
     //can change tabs
-    if (script) {
+    if (chapters && chapters.length > 0) {
       let newRes = tabs?.map((i) => {
         return { ...i, disabled: false }
       })
       setTabs(newRes)
     }
-  }, [script])
+  }, [chapters])
 
 
 

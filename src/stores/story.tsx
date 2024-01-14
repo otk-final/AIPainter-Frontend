@@ -9,12 +9,22 @@ export interface Script {
     format: string,
 }
 
+
 export interface Chapter {
     id: string
     original: string
-    prompts: string
+    keywords: string
     actors: string[]
-    description: string
+    actorsPrompt?: {
+        cn: string
+        en: string
+    }
+    // 绘画参数
+    drawPrompt?: string
+    drawImage?: string
+    drawImageHistory?: string[]
+    drawConfig?: any
+
     state: number
 }
 
@@ -34,10 +44,16 @@ export interface ActorPromptValue {
 }
 
 
+export interface DrawGlobalConfig {
+    template: string
+    model: string
+}
 
 export interface ScriptStorage {
     pid: string | undefined
     script: Script | undefined
+    drawConfig?: DrawGlobalConfig,
+    updateDrawConfig: (config: DrawGlobalConfig) => Promise<void>
     load: (pid: string) => Promise<void>
     startBoarding: (script: Script) => Promise<Chapter[]>
 }
@@ -52,21 +68,23 @@ const mockChapters: Chapter[] = [
     {
         id: "1",
         original: "原来这几年，七玄门和野狼帮的冲突更加厉害，双方为了几块说不清归属的富裕城镇打了大大小小的十几仗，都损失了不少的人手。因为野狼帮的帮众都是用训练马贼的一套训练出来的，一个个厮杀起来全不要命，见到血后就更加疯狂，而七玄门的弟子虽然武艺较高但没有那股狠劲，在拼杀中缩手缩脚，这样一来双方死伤更多的往往是后者。一连几场下来，七玄门的几位大人物再也坐不住了，把本门的大部分内门弟子全都派了出去，去参加双方接下来的一连串拼斗，一方面这几块地盘绝不能失，另一方面让弟子们也都见见江湖的残酷性，去磨练一番，长长实际的战斗经验。",
-        prompts: "", actors: ["七玄门", "野狼帮"], description: "去参加双方接下来的一连串拼斗，一方面这几块地盘绝不能失，另一方面让弟子们也都见见江湖的残酷性", state: 1
+        keywords: "", actors: ["七玄门", "野狼帮"], state: 1
     },
     {
         id: "2",
         original: "韩立估计着墨大夫回山的时间，觉得他在附近的地方是不可能找到什么好的药材，他恐怕要去比较远的地方去寻找，很可能是要去那些人迹罕至的深山老林之处，只有那样的偏僻地方才有希望采得到一些稀有药材，但这样路上一来一回，再加上当中搜寻药材所花费的时间，最少也要花上近一年的光阴才能赶回山里。",
-        prompts: "", actors: ["韩立", "墨大夫"], description: "搜寻药材所花费的时间", state: 1
+        keywords: "", actors: ["韩立", "墨大夫"], state: 1
     }
 ]
-
-
 
 //剧本
 export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
     pid: undefined,
     script: undefined,
+    drawConfig: {
+        model: "",
+        template: ""
+    },
     load: async (pid: string) => {
         //读取原始脚本
         let scriptFile = await path.join(pid, "script.json")
@@ -77,6 +95,9 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
         }
         let scriptJson = await fs.readTextFile(scriptFile, { dir: workspaceFileDirectory })
         set({ ...JSON.parse(scriptJson) })
+    },
+    updateDrawConfig: async (config: DrawGlobalConfig) => {
+        set({ drawConfig: config })
     },
     startBoarding: async (script: Script) => {
         //开始分镜
@@ -120,7 +141,6 @@ export const usePersistChaptersStorage = create<ChaptersStorage>((set, get) => (
         set({ ...JSON.parse(chaptersJson) })
     },
     initializeChapters: async (pid: string, chapters: Chapter[]) => {
-        debugger
         let chaptersFile = await path.join(pid, "chapters.json")
 
         //初始化文件

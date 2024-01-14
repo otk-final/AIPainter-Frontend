@@ -2,47 +2,47 @@ import assets from "@/assets";
 import { TabsProps } from "antd";
 
 export const createTabs: TabsProps["items"] = [
-    {
-      key: "storyboard",
-      label: "故事分镜",
-    },
-    {
-      key: "drawbatch",
-      label: "批量绘图",
-      disabled: true
-    },
-    {
-      key: "videogeneration",
-      label: "视频生成",
-      disabled: true
-    },
+  {
+    key: "storyboard",
+    label: "故事分镜",
+  },
+  {
+    key: "drawbatch",
+    label: "批量绘图",
+    disabled: true
+  },
+  {
+    key: "videogeneration",
+    label: "视频生成",
+    disabled: true
+  },
 ];
-  
+
 export const storyboardColumns = [
   {
-      title: "镜号",
-      key: "number",
-      space: 2,
+    title: "镜号",
+    key: "number",
+    space: 2,
   },
   {
-      title: "原文描述",
-      key: "original",
-      space: 4,
+    title: "原文描述",
+    key: "original",
+    space: 4,
   },
   {
-      title: "画面关键词(智能推理)",
-      key: "prompts",
-      space: 4,
+    title: "画面关键词(智能推理)",
+    key: "keywords",
+    space: 4,
   },
   {
-      title: "画面角色",
-      key: "actors",
-      space: 3,
+    title: "画面角色",
+    key: "actors",
+    space: 3,
   },
   {
-      title: "画面中的角色描述",
-      key: "description",
-      space: 4,
+    title: "画面中的角色描述(中文)",
+    key: "prompts",
+    space: 4,
   }
 ]
 
@@ -51,24 +51,24 @@ export const drawbatchColumns = [
     title: "镜号",
     key: "number",
     space: 2,
-  },{
+  }, {
     title: "原文描述",
-    key: "describe",
+    key: "original",
     space: 3,
   },
   {
     title: "画面描述词(可输入)",
-    key: "describeWord",
+    key: "drawPrompt",
     space: 4,
   },
   {
     title: "本镜配图",
-    key: "currentImage",
+    key: "drawImage",
     space: 4,
   },
   {
     title: "可选图片",
-    key: "optionImage",
+    key: "drawImageHistory",
     space: 4,
   },
   {
@@ -198,7 +198,7 @@ export const mockDrawbatchColumnsData = [
     currentImage: "",
     optionImage: ""
   },
-  
+
 ]
 
 export const fontSizeDatas = [
