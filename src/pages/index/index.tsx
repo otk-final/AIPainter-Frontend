@@ -7,7 +7,15 @@ import { getLoginInfo, useLogin } from '@/uses';
 import { Project, usePersistWorkspaces } from '@/stores/project';
 import { ImitateProjectModal, StoryProjectModal } from '@/components/create-project';
 
-const data = [
+interface homeDataProps {
+  key: string,
+  title: string,
+  describe: string,
+  btnText: string,
+  pageUrl?: string
+}
+
+const data: homeDataProps[] = [
   {
     key: "create",
     title: "创作视频",
@@ -24,13 +32,21 @@ const data = [
     key: "set",
     title: "通用设置",
     describe: "快速设置SD环境、绘画参数等配置",
-    btnText: "去设置"
+    btnText: "去设置",
+    pageUrl: '/setting'
   },
   {
     key: "paint-module",
     title: "绘画模版",
     describe: "基于小说推文特性的SDWebUI模板",
     btnText: "去设置"
+  },
+  {
+    key: "tittok-download",
+    title: "抖音下载",
+    describe: "快速下载抖音爆款",
+    btnText: "去下载",
+    pageUrl: '/tiktok'
   }
 ]
 
@@ -55,17 +71,19 @@ const HomePage = () => {
   const loginInfo = getLoginInfo();
   const { login, logout, loginState } = useLogin();
 
-  const handleBtn = (type: string) => {
+  const handleBtn = (i: homeDataProps) => {
     if (!loginState.isLogin) {
       return message.warning("请先登陆～")
     }
-    if (type === "create") {
+
+    if(i?.pageUrl) {
+      history.push(i.pageUrl)
+    } else if (i.key === "create") {
       setIsCreateProjectOpen(true);
-    } else if (type === "set") {
-      history.push("/setting")
-    } else if (type === "imitate") {
+    } else if (i.key === "imitate") {
       setIsImitateProjectOpen(true);
     }
+
   }
 
   //加载项目
@@ -135,7 +153,7 @@ const HomePage = () => {
               </div>
               <Button type="default" className="btn-default-auto btn-default-100"
                 style={{ margin: 0 }}
-                onClick={() => handleBtn(i.key)}>{i.btnText}</Button>
+                onClick={() => handleBtn(i)}>{i.btnText}</Button>
             </div>
           )
         })}

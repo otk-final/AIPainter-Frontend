@@ -1,0 +1,43 @@
+.tiktok-wrap {
+    background-color: #121212;
+    height: calc(100% - 90px);
+    overflow: hidden;
+    & .tiktok-input {
+        width: 400px;
+        margin-left: 10px;
+    }
+
+    & .video-wrap {
+        padding: 0 30px;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: flex-start;
+        
+    }
+
+    & .video-item {
+        width: 200px;
+        height: 200px;
+        position: relative;
+        margin-top: 30px;
+        background-color: #999;
+        border-radius: 4px;
+        margin-right: 20px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        & .del {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 12px;
+            font-size: 16px;
+            color: @l-font-color;
+            z-index: 9;
+            line-height: 24px;
+            justify-content: center;
+        }
+    }
+}
