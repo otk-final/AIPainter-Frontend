@@ -1,18 +1,20 @@
-import { Button, Modal, Select, Tabs, TabsProps } from "antd"
+import { Button, Divider, Input, Modal, Select, Tabs, TabsProps } from "antd"
 import { useState } from "react";
 import "./index.less"
 import { dialog, path } from "@tauri-apps/api";
-import { Chapter, usePersistChaptersStorage, usePersistScriptStorage } from "@/stores/story";
+import { Chapter, ImportType, Script, usePersistChaptersStorage, usePersistScriptStorage } from "@/stores/story";
+import { usePersistUserAssistantsApi } from "@/stores/api";
+import TextArea from "antd/es/input/TextArea";
 
 
 const importTabItems: TabsProps['items'] = [
     {
-        key: 'textImport',
-        label: '文本导入',
+        key: 'file',
+        label: '文件导入',
     },
     {
-        key: 'excelImport',
-        label: 'Excel导入',
+        key: 'input',
+        label: '自定义脚本',
     },
 ];
 
@@ -22,69 +24,52 @@ interface FileImportProps {
 }
 
 
-type ImportType = "textImport" | "excelImport"
 const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
-    const [cur, setCur] = useState<ImportType>("textImport");
+
+    const [cur, setCur] = useState<ImportType>("file");
     const [loading, setLoading] = useState(false)
-    const [boardType, setBoardType] = useState("ai")
+    const [boardType, setBoardType] = useState<string>("ai")
 
-
-    const { pid, startBoarding } = usePersistScriptStorage(state => state)
+    const { pid, script, startBoarding } = usePersistScriptStorage(state => state)
     const { initializeChapters } = usePersistChaptersStorage(state => state)
+    const uasApi = usePersistUserAssistantsApi(state => state)
 
-    const handleImport = async (type: string) => {
+
+    const [stateScript, setScript] = useState<Script>({ ...script! })
+
+    const handleChooseFile = async () => {
         //选择文件
         let selected = await dialog.open({
             title: "导入脚本文件",
             defaultPath: await path.desktopDir(),
-            filters: [{ name: "文本文件", extensions: ["txt"] }, { name: "excel", extensions: ["xlsx"] }]
+            filters: [{ name: "文本文件", extensions: ["txt"] }, { name: "PDF文件", extensions: ["pdf"] }]
         })
         if (!selected) {
             return
         }
-        setLoading(true)
-
-
-        //分镜
-        return startBoarding({
-            boardType: boardType,
-            path: selected as string,
-            format: type,
-        }).then((chapters: Chapter[]) => {
-            //导入镜头
-            initializeChapters(pid!, chapters)
-        }).finally(() => {
-            setLoading(false)
-            onClose()
-        })
+        setScript({ ...stateScript, path: selected as string })
     }
 
-    const renderTextImport = () => {
+    //分镜
+    const handleBoading = async () => {
+        setLoading(true)
+        startBoarding(uasApi, boardType, { ...stateScript, type: cur }).finally(() => { setLoading(false); onClose() })
+    }
+
+    const renderFileImport = () => {
         return (
             <div className="script-import">
-                <div className="title">分镜标识符</div>
-                <Select
-                    className={`select-auto select-h56`}
-                    value={boardType}
-                    onChange={setBoardType}
-                    options={[
-                        { value: 'line', label: '通过“换行”区分' },
-                        { value: 'split', label: '“特殊符号”区分（#@#）' },
-                        { value: 'ai', label: '通过"智能解析"分镜（适用于新手）' },
-                    ]}
-                />
+                <Input placeholder="点击选择文件" size="large" value={stateScript.path} onClick={handleChooseFile} readOnly />
                 <div className="sub-text">上传文件仅支持小于<span>1MB</span> ，且文件后级为<span>.docx</span>或<span>.txt</span>文件。单次上传的分镜数请勿超过 <span>200</span>个。每个分镜的原文句子请勿超过100字。</div>
-                <Button type="primary" block className="btn-primary-auto" loading={loading} onClick={() => handleImport("text")}>导入文件</Button>
             </div>
         )
     }
 
-    const renderExcelImport = () => {
+    const renderInputImport = () => {
         return (
             <div className="script-import">
-                <Button type="default" block className="btn-default-auto" onClick={() => { }}>下载文件模版（EXCEL）</Button>
-                <div className="sub-text">上传文件仅支持小于<span>1MB</span> ，且文件后级为<span>.xlxs</span>文件。单次上传的分镜数请勿超过 <span>200</span>个。每个分镜的原文句子请勿超过100字。</div>
-                <Button type="primary" block className="btn-primary-auto" loading={loading} onClick={() => handleImport("excel")} >导入文件</Button>
+                <TextArea rows={6} value={stateScript.input} bordered className="text-area-auto" onChange={(e) => setScript({ ...stateScript, input: e.target.value })}></TextArea>
+                <div className="sub-text">文字不多余3000字</div>
             </div>
         )
     }
@@ -96,8 +81,23 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
             footer={null}
             className="home-login-modal"
             width={600}>
-            <Tabs defaultActiveKey="textImport" items={importTabItems} onChange={(key) => setCur(key as ImportType)} />
-            {cur === 'textImport' ? renderTextImport() : renderExcelImport()}
+
+            <div className="script-import">
+                <div className="title">分镜标识符</div>
+                <Select
+                    className={`select-auto select-h56`}
+                    value={boardType}
+                    onChange={setBoardType}
+                    options={[
+                        { value: 'ai', label: '通过"智能解析"分镜（适用于新手）' },
+                        { value: 'line', label: '通过“换行”区分' },
+                    ]}
+                />
+                <Divider />
+                <Tabs defaultActiveKey="file" items={importTabItems} onChange={(key) => setCur(key as ImportType)} />
+                {cur === 'file' ? renderFileImport() : renderInputImport()}
+                <Button type="primary" block className="btn-primary-auto" loading={loading} onClick={handleBoading}>开始分镜</Button>
+            </div>
         </Modal>
     )
 }

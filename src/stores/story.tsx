@@ -2,11 +2,17 @@ import { fs, path } from "@tauri-apps/api"
 import { BaseDirectory } from "@tauri-apps/api/fs"
 import { create } from "zustand"
 import { v4 as uuid } from "uuid"
+import { OpenAIClient, UserAssistantsApi } from "./api"
+import OpenAI from "openai"
+
+
+export type ImportType = "input" | "file"
 
 export interface Script {
-    boardType: string,
-    path: string
-    format: string,
+    fileId: string
+    path: string,
+    input: string
+    type: ImportType
 }
 
 
@@ -52,13 +58,10 @@ export interface DrawGlobalConfig {
 export interface ScriptStorage {
     pid: string | undefined
     script: Script | undefined
-    drawConfig?: DrawGlobalConfig,
-    updateDrawConfig: (config: DrawGlobalConfig) => Promise<void>
+    style: string,
     load: (pid: string) => Promise<void>
-    startBoarding: (script: Script) => Promise<Chapter[]>
+    startBoarding: (uasApi: UserAssistantsApi, boardType: string, script: Script) => Promise<void>
 }
-
-
 
 
 const workspaceFileDirectory = BaseDirectory.AppLocalData
@@ -81,10 +84,7 @@ const mockChapters: Chapter[] = [
 export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
     pid: undefined,
     script: undefined,
-    drawConfig: {
-        model: "",
-        template: ""
-    },
+    style: "std",
     load: async (pid: string) => {
         //读取原始脚本
         let scriptFile = await path.join(pid, "script.json")
@@ -96,22 +96,53 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
         let scriptJson = await fs.readTextFile(scriptFile, { dir: workspaceFileDirectory })
         set({ ...JSON.parse(scriptJson) })
     },
-    updateDrawConfig: async (config: DrawGlobalConfig) => {
-        set({ drawConfig: config })
+    setStyle: async (key: string) => {
+        set({ style: key })
     },
-    startBoarding: async (script: Script) => {
-        //开始分镜
+    startBoarding: async (uasApi: UserAssistantsApi, boardType: string, script: Script) => {
 
-        //读取文件
+        let client: OpenAIClient = {
+            api: new OpenAI({ baseURL: "https://wx.yryz3.com/aipainter-openai/v1", apiKey: "xxx", dangerouslyAllowBrowser: true, timeout: 60000 }),
+            mode: "gpt-4-1106-preview"
+        }
 
-        let scriptText = await fs.readTextFile(script.path)
-        console.info(scriptText)
-        //生成镜头文件
-        set({ script: script })
+        debugger
+        if (boardType === "ai") {
+            //ai  上传剧本
+            let fileId = ""
+            if (script.type === "file") {
+                let fileName = await path.basename(script.path)
+                fileId = await uasApi.fileUpload(client, fileName, script.path)
 
-        return [...mockChapters]
+            } else {
+                fileId = await uasApi.scriptUpload(client, script.input)
+                script.path = ""
+            }
+            set({ script: script })
+
+            //开始分镜
+            let chapters = await uasApi.scriptBoarding(client, fileId)
+            console.info("chapters", chapters)
+
+        } else if (boardType === "line") {
+            //换行 本地解析
+
+            let scriptText = ""
+            if (script.type === "file") {
+                scriptText = await fs.readTextFile(script.input)
+            } else {
+                scriptText = script.input
+            }
+
+            let lines = scriptText.split("\r\n")
+            console.info(lines)
+        }
     }
 }))
+
+
+
+
 
 
 export interface ChaptersStorage {
@@ -167,6 +198,16 @@ export const usePersistChaptersStorage = create<ChaptersStorage>((set, get) => (
         let store = get()
         let chaptersFile = await path.join(store.pid as string, "chapters.json")
         return await fs.writeTextFile(chaptersFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
+    },
+    smartAnalyzing: async (uasApi: UserAssistantsApi, index: number, script: Script) => {
+
+        let client: OpenAIClient = {
+            api: new OpenAI({ baseURL: "https://wx.yryz3.com/aipainter-openai/v1", apiKey: "xxx", dangerouslyAllowBrowser: true, timeout: 60000 }),
+            mode: "gpt-4-1106-preview"
+        }
+        let chapterText = get().chapters![index].original
+        let newChapters = uasApi.chapterBoarding(client, script.fileId, chapterText)
+        console.info(newChapters)
     }
 }))
 
@@ -222,3 +263,10 @@ export const usePersistActorsStorage = create<ActorsStorage>((set, get) => ({
         return await fs.writeTextFile(actorsFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
     },
 }))
+
+
+
+
+
+
+
