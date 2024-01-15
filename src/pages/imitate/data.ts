@@ -5,22 +5,22 @@ export const generateImagesColumns = [
     space: 1,
   },{
     title: "原始图片",
-    key: "originalImage",
+    key: "path",
     space: 4,
   },
   {
     title: "关键词",
-    key: "keyword",
+    key: "drawPrompt",
     space: 3,
   },
   {
     title: "新图",
-    key: "newImage",
+    key: "drawImage",
     space: 4,
   },
   {
     title: "历史图片",
-    key: "historyImages",
+    key: "drawImageHistory",
     space: 4,
   },
   {

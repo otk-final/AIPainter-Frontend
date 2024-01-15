@@ -25,8 +25,8 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid, handleChangeTab }
         })}
       </div>
       {
-        frames.map((i, index) => {
-          return (<GenerateImagesTR key={index} frame={{ ...i, index }} />)
+        frames && frames.map((item, index) => {
+          return (<GenerateImagesTR key={index} frame={item} index={index} />)
         })
       }
     </div>
