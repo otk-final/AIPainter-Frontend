@@ -21,8 +21,6 @@ const LoginModule:React.FC<LoginModuleProps> = ({isOpen, onClose})=> {
             return;
         } else {
             console.log("sss");
-            // setTimeout()
-            
         }
     }
 
@@ -42,10 +40,10 @@ const LoginModule:React.FC<LoginModuleProps> = ({isOpen, onClose})=> {
         if(phone && verify && checked) {
             let res = {
                 isLogin: true, 
-                nickName: "用户5556",
+                nickName: "用户001",
                 inviteCode: "wuioOO",
                 endTime: '2024-01-26',
-                phone: '12345678890' 
+                phone: phone
             }
             login(res);
             onClose();

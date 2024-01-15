@@ -37,10 +37,7 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
                     </div>
                     <div className='right flexR '>
                         <QuestionCircleOutlined />
-                        <div>
-                            <div className='text'>剩余能量：7241</div>
-                            <div className='text flexR'>已完成分镜: 1/79</div>
-                        </div>
+                        <div className='text flexR'>已完成分镜: 1/79</div>
                     </div>
                 </div>
                 <div className='script-table-wrap'>

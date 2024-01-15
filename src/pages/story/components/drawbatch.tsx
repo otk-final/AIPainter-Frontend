@@ -29,28 +29,16 @@ const Drawbatch = () => {
     return (
         <div className="drawbatch-wrap scrollbar">
             <div className="drawbatch-header flexR">
-                <div className="lable">绘图模版 <QuestionCircleOutlined /></div>
+                <div className="lable">风格选择 <QuestionCircleOutlined /></div>
                 <Select
                     className={`select-auto`}
                     style={{ width: '300px' }}
                     value={drawConfig?.template}
                     onChange={(v) => { updateDrawConfig({ ...drawConfig!, template: v }) }}
                     options={[
-                        { value: '1', label: '通用模版' },
-                        { value: '2', label: '“特殊符号”区分（#@#）' },
-                        { value: '3', label: '通过"智能解析"分镜（适用于新手）' },
-                    ]}
-                />
-                <div className="lable">当前 Stable Diffusion 模型</div>
-                <Select
-                    className={`select-auto`}
-                    style={{ width: '400px' }}
-                    value={drawConfig?.model}
-                    onChange={(v) => { updateDrawConfig({ ...drawConfig!, model: v }) }}
-                    options={[
-                        { value: '1', label: '通用模版' },
-                        { value: '2', label: '“特殊符号”区分（#@#）' },
-                        { value: '3', label: '通过"智能解析"分镜（适用于新手）' },
+                        { value: '1', label: '卡通' },
+                        { value: '2', label: '国风' },
+                        { value: '3', label: '写实' },
                     ]}
                 />
             </div>

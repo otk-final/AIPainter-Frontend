@@ -1,5 +1,5 @@
-import { FolderOpenFilled } from '@ant-design/icons';
-import { Button, Input, Upload } from 'antd';
+import { dialog, path } from '@tauri-apps/api';
+import { Button, Input } from 'antd';
 import React from 'react'
 
 interface BasicSettingProps {
@@ -8,41 +8,26 @@ interface BasicSettingProps {
 
 const BasicSetting:React.FC<BasicSettingProps> = ({onCallBack})=>{
 
-    const handleChangePosition =(v)=>{
-        console.log('s', v)
-    }
-
-    const handleRegain = ()=>{
-
+    const handleChangePosition = async () => {
+         //选择文件
+         let selected = await dialog.open({
+            title: "选择剪映草稿存放目录",
+            defaultPath: await path.desktopDir(),
+            // filters: [{ name: "文本文件", extensions: ["txt"] }, { name: "excel", extensions: ["xlsx"] }]
+        })
+        if (!selected) {
+            return
+        }
     }
 
     return (
         <div style={{height:" calc(100% - 78px)", overflow: 'scroll', paddingLeft: '30px', paddingRight: '30px'}}>
             <div className='setting-section'>
-                <div className='setting-title'>素材缓存</div>
-                <div className='basic-subText'>顶目素材文件夹存储位雪 <span>更改项目素材文件夹的存储位台， 将影响己创建的小说项目的图片、视频等素材的使用，请详慎操作，建议选择空文件夹</span> </div>
+                <div className='setting-title'>剪映草稿存放目录</div>
+                <div className='basic-subText'>剪映草稿存放目录文件夹存储位置 <span>更改项目素材文件夹的存储位置， 将影响己创建的小说项目的图片、视频等素材的使用，请详慎操作</span> </div>
                 <div className="flexR">
                     <Input size="large" disabled placeholder="http://127.0.0.1:7860/"  className='input-s '/>
-                    <Upload action="" directory>
-                        <Button type="default" className="btn-default-auto btn-default-150" onChange={handleChangePosition}>更改存储位蛋</Button>
-                    </Upload>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" style={{width: '180px'}} onChange={handleRegain}>恢复为默认位罝</Button>
-                </div>
-            </div>
-
-            <div className='setting-title'>素材缓存</div>
-            <div className='flexR'>
-                <div className='basic-item flexR'>
-                    <FolderOpenFilled  twoToneColor="rgba(255, 255, 255, 0.9)" className='file-icon'/>
-                    <div>打开 Stable Diffusion 模型文件夹</div>
-                </div>
-                <div className='basic-item flexR'>
-                    <FolderOpenFilled twoToneColor="rgba(255, 255, 255, 0.9)" className='file-icon'/>
-                    <div>打开 LORA 模型文件夹</div>
-                </div>
-                <div className='basic-item flexR'>
-                    <FolderOpenFilled twoToneColor="rgba(255, 255, 255, 0.9)" className='file-icon'/>
-                    <div>打开 Embeddings 模型文件夹</div>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleChangePosition}>更改存储位蛋</Button>
                 </div>
             </div>
         </div>

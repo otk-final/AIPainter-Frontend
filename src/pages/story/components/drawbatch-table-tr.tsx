@@ -89,7 +89,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, chapter }) => {
         return (
             <Fragment>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRedraw}>重绘本镜</Button>
-                <Button type='default' className='btn-default-auto btn-default-98'>调整参数</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' >高清放大</Button>
             </Fragment>
         )
     }

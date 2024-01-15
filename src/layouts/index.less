@@ -62,22 +62,7 @@ body {
   right: 0;
   z-index: 99;
 
-  & .point {
-    background-color: @error-color;
-    width: 12px;
-    height: 12px;
-    border-radius: 6px;
-    margin-right: 12px;
-    margin-left: 48px;
-  }
-
   & .left {
-    font-size: 16px;
-    color: @s-font-color;
-    & .status-text {
-      color: @error-color;
-      margin-right: 4px;
-    }
 
   }
 
@@ -356,5 +341,49 @@ body {
   }
   &.ant-select .ant-select-arrow {
       color: @m-font-color;
+  }
+}
+
+
+.ant-modal-confirm-body-wrapper {
+  & .ant-modal-confirm-body.ant-modal-confirm-body-has-title {
+    color: @l-font-color;
+
+    & .anticon-exclamation-circle {
+      display: none;
+    }
+
+    & .ant-modal-confirm-title {
+      text-align: center;
+      color: @l-font-color;
+      justify-content: center;
+    }
+  }
+
+  & .ant-modal-confirm-btns {
+    & .ant-btn-default {
+      width: 80px;
+      background-color: @bg-btn;
+      color: @l-font-color;
+      border-color: @bg-btn;
+      &:hover, &:active {
+        background-color: @bg-btn;
+        border-color: @bg-btn;
+        color: @l-font-color;
+      }
+    }
+
+    & .ant-btn-primary {
+      width: 80px;
+      background-color: @primary-color;
+      border-color: @primary-color;
+      color: @l-font-color;
+      &:hover,  &:active {
+        background-color: @primary-color;
+        border-color: @primary-color;
+        color: @l-font-color;
+      }
+    }
+  
   }
 }

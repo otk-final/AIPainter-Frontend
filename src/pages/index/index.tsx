@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Carousel, Image, message } from 'antd';
+import { Button, Carousel, Image, message, Modal } from 'antd';
 import './index.less'
 import assets from '@/assets'
 import { history } from "umi"
@@ -34,12 +34,6 @@ const data: homeDataProps[] = [
     describe: "快速设置SD环境、绘画参数等配置",
     btnText: "去设置",
     pageUrl: '/setting'
-  },
-  {
-    key: "paint-module",
-    title: "绘画模版",
-    describe: "基于小说推文特性的SDWebUI模板",
-    btnText: "去设置"
   },
   {
     key: "tittok-download",
@@ -96,6 +90,23 @@ const HomePage = () => {
     open(project).finally(() => { history.push(project.type === "story" ? "/story/" + project.id : "/imitate/" + project.id) })
   }
 
+  const handleDel = (item) => {
+    Modal.confirm({
+      title: '确认删除',
+      okText: '确认',
+      cancelText: '取消',
+      footer: (_, { OkBtn, CancelBtn })=> (
+        <div className='flexR' style={{justifyContent: 'center'}}>
+           <CancelBtn />
+           <OkBtn />
+        </div>
+      ),
+      onOk: ()=> {
+        remove(item!.id)
+      }
+      });
+  }
+
   const renderMyCreation = () => {
     return (
       <div className="section-create-wrap flexR">
@@ -104,12 +115,13 @@ const HomePage = () => {
             <div className="home-item-wrap flexR" key={index}>
               <div className="left flexC">
                 <div className="title one-line">{item?.name}</div>
+                <div className="describe" style={{marginTop: '-10px'}}>类型: {item?.type}</div>
                 <div className="describe">开始时间: {item?.createTime}</div>
                 <div className="describe">当前环节: {item?.step}</div>
               </div>
               <div className="right flexC">
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={() => { handleGoon(item!) }}>继续创作</Button>
-                <Button type="default" className="btn-default-auto btn-default-100" onClick={() => { remove(item!.id) }}>删除</Button>
+                <Button type="default" className="btn-default-auto btn-default-100" style={{marginTop: '10px'}} onClick={()=> handleDel(item)}>删除</Button>
               </div>
             </div>
           )

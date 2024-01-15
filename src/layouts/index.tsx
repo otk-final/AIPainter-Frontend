@@ -14,7 +14,13 @@ export default function Layout(props: any) {
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMemberRechargeOpen, setIsMemberRechargeOpen] = useState(false);
-  const [isEnergyRechargeOpen, setIsEnergyRechargeOpen] = useState(false)
+  const [isEnergyRechargeOpen, setIsEnergyRechargeOpen] = useState(false);
+
+  useEffect(()=>{
+    if(!loginState.isLogin) {
+      setIsModalOpen(true)
+    }
+  },[])
 
 
   const openRecharge = (type: "energy" | 'member') => {
@@ -63,9 +69,7 @@ export default function Layout(props: any) {
     <Fragment>
       <div className="navs flexR">
         <div className='left flexR'>
-          <span className="point" />
-          <div className='status-text'>未启动</div>
-          <div>Stable-Diffusion-WebUI</div>
+         
         </div>
         <div className="right flexR">
           {loginState.isLogin ?
