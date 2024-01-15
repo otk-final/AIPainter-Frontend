@@ -29,6 +29,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid, handleChangeTab }
           return (<GenerateImagesTR key={index} frame={item} index={index} />)
         })
       }
+      <div style={{height: '80px'}}></div>
     </div>
   )
 }

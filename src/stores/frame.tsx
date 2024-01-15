@@ -26,7 +26,7 @@ export const usePersistImtateStorage = create<ImtateStorage>((set, get) => ({
         let scriptFile = await path.join(pid, "imtate.json")
         let exist = await fs.exists(scriptFile, { dir: workspaceFileDirectory })
         if (!exist) {
-            set({ pid: pid })
+            set({ pid: pid, videoPayload: {}, videoPath: undefined })
             return
         }
         let scriptJson = await fs.readTextFile(scriptFile, { dir: workspaceFileDirectory })
@@ -41,7 +41,8 @@ export const usePersistImtateStorage = create<ImtateStorage>((set, get) => ({
             "-output_format", "json",
             "-i", videoPath
         ])
-        let output = await cmd.execute()
+        let output = await cmd.execute();
+        console.log("output", JSON.parse(output.stdout))
         set({ videoPath: videoPath, videoPayload: JSON.parse(output.stdout) })
 
         //save file
