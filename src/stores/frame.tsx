@@ -98,6 +98,7 @@ export interface ImtateFramesStorage {
     pid: string | undefined
     frames: ImtateFrame[]
     load: (pid: string) => Promise<void>
+    removeFrame: (idx: number) => Promise<void>
     updateFrame: (idx: number, frame: ImtateFrame) => Promise<void>
 }
 
@@ -139,7 +140,11 @@ export const usePersistImtateFramesStorage = create<ImtateFramesStorage>((set, g
         stateFrames[idx] = frame
         set({ frames: stateFrames })
     },
-
+    removeFrame: async (idx: number) => {
+        let stateframes = [...get().frames!]
+        stateframes.splice(idx, 1)
+        set({ frames: stateframes })
+    },
     saveFrames: async () => {
         let store = get()
         let imtateFile = await path.join(store.pid as string, "frames.json")
