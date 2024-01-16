@@ -47,20 +47,17 @@ const retrieveRunMessage = async (client: OpenAIClient, threadId: string, runId:
 
     let fetchCount = 0
     while (fetchCount < 30) {
-        await delay(5000)
+        await delay(10000)
         //查询状态
         let runableResult = await client.api.beta.threads.runs.retrieve(threadId, runId)
-        console.info("run state", runableResult)
         if (runableResult.status === "completed") {
             //读取消息 分页
             let messages = await client.api.beta.threads.messages.list(threadId)
-            console.info("message state", messages)
             runmessages.push(...messages.data)
             while (messages.hasNextPage()) {
                 messages = await messages.getNextPage()
                 runmessages.push(...messages.data)
             }
-            console.info("分页分镜结果", messages)
             break
         }
         fetchCount++
@@ -78,10 +75,9 @@ const retrieveRunMessage = async (client: OpenAIClient, threadId: string, runId:
             }
             return text
         })
-    console.info("chapterContents", chapterContents)
 
     //转换格式 读取json格式
-    return chapterContents.map(text => { try { return JSON.parse(text) } catch (err) { return null } }).filter(item => item)
+    return chapterContents.map(text => { try { console.info("messageText", text); return JSON.parse(text) } catch (err) { return null } }).filter(item => item)
 }
 
 
@@ -137,8 +133,9 @@ export const usePersistUserAssistantsApi = create<UserAssistantsApi>((set, get) 
         })
         set({ threadId: threadRun.thread_id, runId: threadRun.id })
 
-        console.info("threadRun", threadRun)
-        return retrieveRunMessage(client, threadRun.thread_id, threadRun.id)
+
+        //数组
+        return await retrieveRunMessage(client, threadRun.thread_id, threadRun.id)
     },
     //角色收集
     characterCollecting: async (client: OpenAIClient, fileId: string) => {

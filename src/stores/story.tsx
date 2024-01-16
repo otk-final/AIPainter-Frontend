@@ -128,7 +128,7 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
             let chapterObjects = await uasApi.scriptBoarding(client, fileId)
             console.info("chapters", chapterObjects)
 
-            chapters = chapterObjects.map(cp => {
+            chapters = chapterObjects.flatMap(cp => {
                 return {
                     id: uuid(),
                     original: cp["original"] || "",
@@ -202,7 +202,6 @@ export const usePersistChaptersStorage = create<ChaptersStorage>((set, get) => (
 
         //初始化文件
         let store = { pid: pid, chapters: chapters }
-        debugger
         set(store)
         return await fs.writeTextFile(chaptersFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
     },
