@@ -3,10 +3,12 @@ import { Button, Carousel, Image, message, Modal } from 'antd';
 import './index.less'
 import assets from '@/assets'
 import { history } from "umi"
-import { getLoginInfo, useLogin } from '@/uses';
+import { useLogin } from '@/uses';
 import { Project, usePersistWorkspaces } from '@/stores/project';
-import { ImitateProjectModal, StoryProjectModal } from '@/components/create-project';
+import { ProjectModal } from '@/components/create-project';
 
+
+export type ProjectType  = "story" | "imitate" | ""
 interface homeDataProps {
   key: string,
   title: string,
@@ -17,7 +19,7 @@ interface homeDataProps {
 
 const data: homeDataProps[] = [
   {
-    key: "create",
+    key: "story",
     title: "创作视频",
     describe: "三步完成批量绘图&音视频生成",
     btnText: "开始创作"
@@ -60,10 +62,8 @@ const carouselData = [
 ]
 
 const HomePage = () => {
-  const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
-  const [isImitateProjectOpen, setIsImitateProjectOpen] = useState(false);
-  const loginInfo = getLoginInfo();
-  const { login, logout, loginState } = useLogin();
+  const [isProjectOpen, setIsProjectOpen] = useState<ProjectType>("");
+  const { loginState } = useLogin();
 
   const handleBtn = (i: homeDataProps) => {
     if (!loginState.isLogin) {
@@ -72,12 +72,9 @@ const HomePage = () => {
 
     if(i?.pageUrl) {
       history.push(i.pageUrl)
-    } else if (i.key === "create") {
-      setIsCreateProjectOpen(true);
-    } else if (i.key === "imitate") {
-      setIsImitateProjectOpen(true);
-    }
-
+    } else if (i.key === "story" || i.key === "imitate") {
+      setIsProjectOpen(i.key)
+    } 
   }
 
   //加载项目
@@ -174,10 +171,7 @@ const HomePage = () => {
       <div className="section-title-wrap">我的创作<span>（生成素材特为您保留30天）</span></div>
 
       {projects.length ? renderMyCreation() : renderMyCreationEmpty()}
-
-      <StoryProjectModal isOpen={isCreateProjectOpen} onClose={() => setIsCreateProjectOpen(false)} />
-      <ImitateProjectModal isOpen={isImitateProjectOpen} onClose={() => setIsImitateProjectOpen(false)} />
-
+      <ProjectModal isOpen={!!isProjectOpen} onClose={() => setIsProjectOpen("")} type={isProjectOpen}/>
     </div>
   );
 }
