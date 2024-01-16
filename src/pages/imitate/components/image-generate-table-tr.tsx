@@ -4,6 +4,7 @@ import { Fragment, useEffect, useState } from "react";
 import { generateImagesColumns } from "../data";
 import { ImtateFrame, usePersistImtateFramesStorage } from "@/stores/frame";
 import { tauri } from "@tauri-apps/api";
+import {HistoryImageModule} from "@/components"
 
 interface GenerateImagesTRProps {
     index: number
@@ -11,12 +12,26 @@ interface GenerateImagesTRProps {
 }
 
 const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, frame }) => {
-
+    const [isOpenHistory, setIsOpenHistory] = useState(false);
     const [stateFrame, setFrame] = useState<ImtateFrame>({ ...frame })
     const { frames, removeFrame, updateFrame } = usePersistImtateFramesStorage(state => state)
     useEffect(() => {
         updateFrame(index, stateFrame)
     }, [index, stateFrame])
+
+    const handleGenerateImage = async () => {
+        let randIdx = Math.floor(Math.random() * frames.length)
+        let randPath = frames[randIdx].path
+
+        let imageHistroy = stateFrame.drawImageHistory ? [...stateFrame.drawImageHistory!] : []
+        imageHistroy.push(randPath)
+
+        setFrame({ ...stateFrame, drawImage: randPath, drawImageHistory: imageHistroy })
+    }
+
+    const handleScaleMax = async () => {
+        message.warning("待开发")
+    }
 
     const renderNumber = () => {
         return (
@@ -36,27 +51,29 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, frame }) => 
         )
     }
 
+
     const renderImage = (path?: string) => {
         if (!path) {
             return null
         }
-        let frameUrl = tauri.convertFileSrc(path)
-        return <Image src={frameUrl} className="generate-image" preview={false} />
+        return <Image src={ tauri.convertFileSrc(path)} className="generate-image" preview={false} />
     }
+   
 
-
-    const handleGenerateImage = async () => {
-        let randIdx = Math.floor(Math.random() * frames.length)
-        let randPath = frames[randIdx].path
-
-        let imageHistroy = stateFrame.drawImageHistory ? [...stateFrame.drawImageHistory!] : []
-        imageHistroy.push(randPath)
-
-        setFrame({ ...stateFrame, drawImage: randPath, drawImageHistory: imageHistroy })
-    }
-
-    const handleScaleMax = async () => {
-        message.warning("待开发")
+    const renderImageHistory = () => {
+        if (!stateFrame?.drawImageHistory?.length) {
+            return <div>待生成</div>
+        }
+        return (
+            <div className="flexR" 
+                style={{ flexWrap: "wrap", justifyContent: "flex-start", width: '100%' }}
+                onClick={()=> setIsOpenHistory(true)}
+            >
+                {stateFrame?.drawImageHistory?.map((p, idx) => {
+                    return <Image src={tauri.convertFileSrc(p)} className="generate-image size-s" preview={false} key={idx} />
+                })}
+            </div>
+        )
     }
 
 
@@ -64,27 +81,8 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, frame }) => 
         return (
             <Fragment>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateImage}>生成</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleScaleMax}>高清放大</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateFrame.drawImageHistory} onClick={handleScaleMax}>高清放大</Button>
             </Fragment>
-        )
-    }
-
-
-
-    const renderImageHistory = () => {
-        if (!stateFrame.drawImageHistory) {
-            return <div>待生成</div>
-        }
-        let paths = stateFrame.drawImageHistory.map(item => {
-            return tauri.convertFileSrc(item)
-        })
-
-        return (
-            <div className="flexR" style={{ flexWrap: "wrap", justifyContent: "flex-start", width: '100%' }}>
-                {paths.map((p, idx) => {
-                    return <Image src={p} className="generate-image size-s" preview={false} key={idx} />
-                })}
-            </div>
         )
     }
 
@@ -103,6 +101,12 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, frame }) => 
                     </div>
                 )
             })}
+            <HistoryImageModule 
+             isOpen={isOpenHistory} onClose={()=>setIsOpenHistory(false)}
+             paths={stateFrame?.drawImageHistory || []} defaultPath={stateFrame.drawImage || ""}
+             onChangeNewImage={(v)=> setFrame(res=> {
+                return {...res, drawImage: v}
+             })}/>
         </div>
     )
 }

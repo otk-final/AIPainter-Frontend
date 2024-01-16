@@ -36,6 +36,9 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
         message.loading({
             content: '正在抽帧..',
             duration: 0,
+            style: {
+                marginTop: "350px"
+            }
         })
         startCollectFrames().then(() => { 
             handleChangeTab("generateImages");

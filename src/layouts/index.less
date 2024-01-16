@@ -17,7 +17,7 @@ body {
   /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
   &::-webkit-scrollbar {
       width: 10px;
-      height: 0;
+      height: 10px;
       // background-color: #f61;
   }
 
@@ -344,6 +344,9 @@ body {
   }
 }
 
+.ant-message.ant-message-top .ant-message-notice-wrapper .ant-message-notice-content {
+  background-color: @bg-btn;
+}
 
 .ant-modal-confirm-body-wrapper {
   & .ant-modal-confirm-body.ant-modal-confirm-body-has-title {

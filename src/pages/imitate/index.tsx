@@ -1,4 +1,4 @@
-import { Button, Tabs, TabsProps } from 'antd';
+import { Button, message, Tabs, TabsProps } from 'antd';
 import React, { useEffect, useState } from 'react'
 import './index.less'
 import { LeftOutlined } from '@ant-design/icons';
@@ -23,7 +23,7 @@ const imitateTabs: TabsProps["items"] = [
 const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   const [currentTab, setCurrentTab] = useState<ImitateTabType>("exportFrames");
   const [tabs, setTabs] = useState(imitateTabs)
-  const { videoPath, load } = usePersistImtateStorage(state => state)
+  const { videoPath, load } = usePersistImtateStorage(state => state);
 
   useEffect(() => {
 
@@ -38,6 +38,18 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
     load(pid)
   }, [pid, videoPath])
 
+  const handleDraft = () => {
+    message.loading({
+      content: '导出剪映草稿..',
+      duration: 0,
+      style: {
+          marginTop: "350px"
+      }
+    })
+
+    setTimeout( message.destroy, 3000)
+  }
+
   return (
     <div className="imitate-wrap">
       <div className='page-header flexR'>
@@ -45,7 +57,9 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
           <div className="nav-back" onClick={() => history.back()}><LeftOutlined twoToneColor="#fff" /></div>
           <Tabs defaultActiveKey={currentTab} activeKey={currentTab} items={tabs} onChange={(key) => setCurrentTab(key as ImitateTabType)} />
         </div>
-        <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!videoPath} > {currentTab === "exportFrames" ? "下一步" : "导出剪映草稿"}</Button>
+        {currentTab === "exportFrames" ? null :
+        <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!videoPath} onClick={handleDraft}> 导出剪映草稿</Button>
+        }
       </div>
       <div className='page-header-placeholder'></div>
 
