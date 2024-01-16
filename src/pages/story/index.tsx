@@ -16,21 +16,38 @@ type ActionTabType = "storyboard" | "drawbatch" | "videogeneration"
 const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
   const [cur, setCur] = useState<ActionTabType>("storyboard");
   const [tabs, setTabs] = useState(createTabs)
-  const { script, load } = usePersistScriptStorage(state => state)
-  const { loadActors } = usePersistActorsStorage(state => state)
-  const { chapters, loadChapters } = usePersistChaptersStorage(state => state)
+
+  //状态
+  const scriptLoadHandle = usePersistScriptStorage(state => state.load)
+  const actorsLoadHandle = usePersistActorsStorage(state => state.load)
+  const chaptersLoadHandle = usePersistChaptersStorage(state => state.load)
+
+
+  const chapters = usePersistChaptersStorage(state => state.chapters)
+
+
+  const scriptQuitHandle = usePersistScriptStorage(state => state.quit)
+  const actorsQuitHandle = usePersistActorsStorage(state => state.quit)
+  const chaptersQuitHandle = usePersistChaptersStorage(state => state.quit)
+
 
   //加载配置项
   useEffect(() => {
 
     //加载当前工作需要的所有页面数据
     const initializeContext = async () => {
-      await load(pid)
-      await loadActors(pid)
-      await loadChapters(pid)
+      await scriptLoadHandle(pid)
+      await actorsLoadHandle(pid)
+      await chaptersLoadHandle(pid)
     }
-
     initializeContext().catch(err => message.error(err))
+
+    //释放
+    return () => {
+      scriptQuitHandle()
+      actorsQuitHandle()
+      chaptersQuitHandle()
+    }
   }, [pid])
 
 

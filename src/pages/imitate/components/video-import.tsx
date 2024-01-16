@@ -67,7 +67,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
         <div style={{ paddingLeft: "30px", paddingRight: '30px', height: "calc(100% - 78px)", overflow: 'scroll' }}>
             <div className='flexR'>
                 <div>请导入视频：</div>
-                <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported} disabled={!!videoPlayURL}>导入</Button>
+                <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported} >导入</Button>
                 <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!videoPath} onClick={handleCollectFrames}>开始抽帧</Button>
             </div>
 

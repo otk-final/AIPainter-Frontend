@@ -10,6 +10,7 @@ export interface ImtateStorage {
     videoPath?: string | undefined
     videoPayload?: any
     isRunning: boolean
+    quit: () => Promise<void>
     load: (pid: string) => Promise<void>
     importVideo: (videoPath: string) => Promise<void>
     startCollectFrames: () => Promise<void>
@@ -21,6 +22,9 @@ export const usePersistImtateStorage = create<ImtateStorage>((set, get) => ({
     videoPath: undefined,
     videoPayload: {},
     isRunning: false,
+    quit: async () => {
+        set({ pid: undefined, videoPath: undefined, videoPayload: {}, isRunning: false })
+    },
     load: async (pid: string) => {
         //读取原始脚本
         let scriptFile = await path.join(pid, "imtate.json")
@@ -98,6 +102,7 @@ export interface ImtateFrame {
 export interface ImtateFramesStorage {
     pid: string | undefined
     frames: ImtateFrame[]
+    quit: () => Promise<void>
     load: (pid: string) => Promise<void>
     removeFrame: (idx: number) => Promise<void>
     updateFrame: (idx: number, frame: ImtateFrame) => Promise<void>
@@ -106,18 +111,22 @@ export interface ImtateFramesStorage {
 export const usePersistImtateFramesStorage = create<ImtateFramesStorage>((set, get) => ({
     pid: undefined,
     frames: [],
+    quit: async () => {
+        set({ pid: undefined, frames: [] })
+    },
     load: async (pid: string) => {
         //读取原始脚本
         let scriptFile = await path.join(pid, "frames.json")
-        let exist = await fs.exists(scriptFile, { dir: workspaceFileDirectory,append:true })
+        let exist = await fs.exists(scriptFile, { dir: workspaceFileDirectory, append: true })
         if (!exist) {
+            debugger
             //读取文件夹下数据
             let frameDir = await path.join(pid, "frames")
 
             exist = await fs.exists(frameDir, {
                 dir: workspaceFileDirectory,
             })
-            if (!exist){
+            if (!exist) {
                 set({ pid: pid, frames: [] })
                 return
             }

@@ -2,7 +2,7 @@ import { Button, Divider, Input, Modal, Select, Tabs, TabsProps } from "antd"
 import { useState } from "react";
 import "./index.less"
 import { dialog, path } from "@tauri-apps/api";
-import { Actor, Chapter, ImportType, Script, usePersistActorsStorage, usePersistChaptersStorage, usePersistScriptStorage } from "@/stores/story";
+import { Actor, ImportType, Script, usePersistActorsStorage, usePersistChaptersStorage, usePersistScriptStorage } from "@/stores/story";
 import { usePersistUserAssistantsApi } from "@/stores/api";
 import TextArea from "antd/es/input/TextArea";
 import { v4 as uuid } from "uuid"
@@ -28,7 +28,7 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
 
     const [cur, setCur] = useState<ImportType>("file");
     const [loading, setLoading] = useState(false)
-    const [boardType, setBoardType] = useState<string>("ai")
+    const [boardType, setBoardType] = useState<string>("line")
 
     const { pid, script, startBoarding } = usePersistScriptStorage(state => state)
     const { initializeChapters } = usePersistChaptersStorage(state => state)
@@ -108,7 +108,7 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
                     value={boardType}
                     onChange={setBoardType}
                     options={[
-                        { value: 'ai', label: '通过"智能解析"分镜（适用于新手）' },
+                        { value: 'ai', label: '通过"智能解析"分镜' },
                         { value: 'line', label: '通过“换行”区分' },
                     ]}
                 />

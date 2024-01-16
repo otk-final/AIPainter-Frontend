@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import './index.less'
 import { LeftOutlined } from '@ant-design/icons';
 import { history, useParams } from "umi"
-import { usePersistImtateStorage } from '@/stores/frame';
+import { usePersistImtateFramesStorage, usePersistImtateStorage } from '@/stores/frame';
 import VideoImportTab from './components/video-import';
 import ImageGenerateTab from './components/image-generate';
 
@@ -23,31 +23,49 @@ const imitateTabs: TabsProps["items"] = [
 const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   const [currentTab, setCurrentTab] = useState<ImitateTabType>("exportFrames");
   const [tabs, setTabs] = useState(imitateTabs)
-  const { videoPath, load } = usePersistImtateStorage(state => state);
+  const { frames } = usePersistImtateFramesStorage(state => state);
+
+
+  const imtateLoadHanlde = usePersistImtateStorage(state => state.load)
+  const framesLoadHanlde = usePersistImtateFramesStorage(state => state.load)
+
+  const imtateQuitHanlde = usePersistImtateStorage(state => state.quit)
+  const framesQuitHanlde = usePersistImtateFramesStorage(state => state.quit)
+
+
 
   useEffect(() => {
 
-    if (videoPath) {
-      let newRes = tabs?.map((i) => {
-        return { ...i, disabled: false }
-      })
-      setTabs(newRes)
-    }
-
     //加载数据
-    load(pid)
-  }, [pid, videoPath])
+    imtateLoadHanlde(pid)
+    framesLoadHanlde(pid)
 
+    return () => {
+      imtateQuitHanlde()
+      framesQuitHanlde()
+    }
+  }, [pid])
+
+
+  useEffect(() => {
+    if (frames && frames.length >= 0) {
+      tabs[1].disabled = false
+      setTabs([...tabs])
+    }
+  }, [frames])
+
+
+
+  //导出
   const handleDraft = () => {
     message.loading({
       content: '导出剪映草稿..',
       duration: 0,
       style: {
-          marginTop: "350px"
+        marginTop: "350px"
       }
     })
-
-    setTimeout( message.destroy, 3000)
+    setTimeout(message.destroy, 3000)
   }
 
   return (
@@ -58,7 +76,7 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
           <Tabs defaultActiveKey={currentTab} activeKey={currentTab} items={tabs} onChange={(key) => setCurrentTab(key as ImitateTabType)} />
         </div>
         {currentTab === "exportFrames" ? null :
-        <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!videoPath} onClick={handleDraft}> 导出剪映草稿</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!frames || frames.length === 0} onClick={handleDraft}> 导出剪映草稿</Button>
         }
       </div>
       <div className='page-header-placeholder'></div>

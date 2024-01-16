@@ -71,6 +71,7 @@ export interface ScriptStorage {
     pid: string | undefined
     script: Script | undefined
     style: string,
+    quit: () => Promise<void>
     load: (pid: string) => Promise<void>
     setStyle: (style: string) => Promise<void>
     startBoarding: (uasApi: UserAssistantsApi, boardType: string, script: Script) => Promise<Chapter[]>
@@ -81,18 +82,20 @@ const workspaceFileDirectory = BaseDirectory.AppLocalData
 
 
 
-
 //剧本
 export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
     pid: undefined,
     script: undefined,
     style: "default",
+    quit: async () => {
+        set({ pid: undefined, script: undefined })
+    },
     load: async (pid: string) => {
         //读取原始脚本
         let scriptFile = await path.join(pid, "script.json")
         let exist = await fs.exists(scriptFile, { dir: workspaceFileDirectory })
         if (!exist) {
-            set({ pid: pid })
+            set({ pid: pid, script: undefined })
             return
         }
         let scriptJson = await fs.readTextFile(scriptFile, { dir: workspaceFileDirectory })
@@ -140,7 +143,7 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
             //换行 本地解析
             let scriptText = ""
             if (script.type === "file") {
-                scriptText = await fs.readTextFile(script.input)
+                scriptText = await fs.readTextFile(script.path)
             } else {
                 scriptText = script.input
             }
@@ -167,7 +170,8 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
 export interface ChaptersStorage {
     pid: string | undefined
     chapters: Chapter[] | undefined
-    loadChapters: (pid: string) => Promise<void>
+    quit: () => Promise<void>
+    load: (pid: string) => Promise<void>
     initializeChapters: (pid: string, chapters: Chapter[]) => Promise<void>
     addChapter: (idx: number, chapter: Chapter) => Promise<void>
     updateChapter: (idx: number, chapter: Chapter) => Promise<void>
@@ -179,12 +183,15 @@ export interface ChaptersStorage {
 export const usePersistChaptersStorage = create<ChaptersStorage>((set, get) => ({
     pid: undefined,
     chapters: undefined,
-    loadChapters: async (pid: string) => {
+    quit: async () => {
+        set({ pid: undefined, chapters: undefined })
+    },
+    load: async (pid: string) => {
         //读取原始脚本
         let chaptersFile = await path.join(pid, "chapters.json")
         let exist = await fs.exists(chaptersFile, { dir: workspaceFileDirectory })
         if (!exist) {
-            set({ pid: pid })
+            set({ pid: pid, chapters: [] })
             return
         }
         let chaptersJson = await fs.readTextFile(chaptersFile, { dir: workspaceFileDirectory })
@@ -234,7 +241,8 @@ export const usePersistChaptersStorage = create<ChaptersStorage>((set, get) => (
 export interface ActorsStorage {
     pid: string | undefined
     actors: Actor[]
-    loadActors: (pid: string) => Promise<void>
+    quit: () => Promise<void>
+    load: (pid: string) => Promise<void>
     addActor: () => Promise<void>
     updateActor: (idx: number, actor: Actor) => Promise<void>
     removeActor: (idx: number) => Promise<void>
@@ -244,8 +252,11 @@ export interface ActorsStorage {
 //剧本角色
 export const usePersistActorsStorage = create<ActorsStorage>((set, get) => ({
     pid: undefined,
-    actors: [{ id: uuid(), name: "角色1", alias: "", style: "", traits: [] }],
-    loadActors: async (pid: string) => {
+    actors: [],
+    quit: async () => {
+        set({ pid: undefined, actors: [{ id: uuid(), name: "角色1", alias: "", style: "", traits: [] }] })
+    },
+    load: async (pid: string) => {
         //读取原始脚本
         let actorsFile = await path.join(pid, "actors.json")
         let exist = await fs.exists(actorsFile, { dir: workspaceFileDirectory })
