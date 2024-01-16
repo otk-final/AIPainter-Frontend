@@ -1,7 +1,7 @@
-import assets from "@/assets"
 import { CaretDownFilled, CaretUpFilled, CloseOutlined } from "@ant-design/icons"
 import { Button, Input } from "antd"
 import { useEffect, useState } from "react"
+import { TraitsConfig, TraitsOption } from "./traits"
 
 export type TagRenderType = "text" | "image"
 export type TagLangType = "en" | "cn"
@@ -12,7 +12,7 @@ export interface TagItemProps {
     renderType: TagRenderType
     langType: TagLangType,
     isChecked: boolean
-    tag?: any
+    tag?: TraitsOption
     handleCheckTag?: (checked: boolean, item: any) => void
     handleRemoveTag?: (item: any) => void
 }
@@ -38,8 +38,8 @@ export const TagItem: React.FC<TagItemProps> = ({ renderType, langType, isChecke
         return (
             <div className={`role-tag-img-wrap ${stateChecked ? "cur" : ""}`}
                 onClick={handleClick}>
-                <img src={assets.actor} className="tag-img" />
-                <div className="tag-img-text">{tag.cn}</div>
+                <img src={tag?.image} className="tag-img" />
+                <div className="tag-img-text">{tag?.label}</div>
             </div>
         )
     }
@@ -47,7 +47,7 @@ export const TagItem: React.FC<TagItemProps> = ({ renderType, langType, isChecke
     return (
         <div className={`role-tag-wrap ${stateChecked ? "cur" : ""}`} onClick={handleClick}>
             {handleRemoveTag && <CloseOutlined className="icon" onClick={() => handleRemoveTag!(tag)} />}
-            {langType === "cn" ? tag.cn : tag.en}
+            {langType === "cn" ? tag?.label : tag?.value}
         </div>
     )
 }
@@ -56,7 +56,7 @@ export const TagItem: React.FC<TagItemProps> = ({ renderType, langType, isChecke
 
 interface RoleTagsProps {
     renderType: TagRenderType
-    tags?: any
+    tags?: TraitsConfig
     hasTags: any[]
     handleCheckTag: (checked: boolean, item: any) => void
     handleRemoveTag?: (item: any) => void
@@ -64,7 +64,7 @@ interface RoleTagsProps {
 
 export const CustomTags: React.FC<RoleTagsProps> = ({ tags, hasTags, handleCheckTag }) => {
     const [input, setInput] = useState("");
-    const [customTags, setCustomTags] = useState<any[]>([...tags.options])
+    const [customTags, setCustomTags] = useState<any[]>([...tags!.options])
 
     const handleDelete = (tag: any) => {
         setCustomTags([...customTags.filter(item => item.key !== tag.key)])
@@ -78,7 +78,7 @@ export const CustomTags: React.FC<RoleTagsProps> = ({ tags, hasTags, handleCheck
         }
 
         //默认选中
-        const newTag = { key: "custom-" + customTags.length + 1, cn: input, en: input }
+        const newTag: TraitsOption = { key: "custom@" + customTags.length + 1, label: input, value: input }
         customTags.push(newTag)
 
         setCustomTags([...customTags])
@@ -114,7 +114,7 @@ export const CustomTags: React.FC<RoleTagsProps> = ({ tags, hasTags, handleCheck
 export const OptionalTags: React.FC<RoleTagsProps> = ({ renderType, tags, hasTags, handleCheckTag }) => {
     const [fold, setFold] = useState(false)
 
-    const isChecked = (tag: any) => {
+    const isChecked = (tag: TraitsOption) => {
         return hasTags.some(t => t.key === tag.key)
     }
 
@@ -122,12 +122,12 @@ export const OptionalTags: React.FC<RoleTagsProps> = ({ renderType, tags, hasTag
         <div className="role-tags-wrap">
             <div className="role-tags-title" onClick={() => setFold(!fold)}>
                 {!fold ? <CaretUpFilled className="icon" /> : <CaretDownFilled className="icon" />}
-                {tags.text}
-                <span>{tags.subText}</span>
+                {tags?.name}
+                <span>{tags?.requirement}</span>
             </div>
             {!fold ? (
                 <div className="role-tags-box flexR">
-                    {tags.options.map((tag: any, idx: number) => <TagItem key={idx} renderType={renderType} langType={'cn'} tag={tag} isChecked={isChecked(tag)} handleCheckTag={handleCheckTag}></TagItem>)}
+                    {tags?.options.map((tag: any, idx: number) => <TagItem key={idx} renderType={renderType} langType={'cn'} tag={tag} isChecked={isChecked(tag)} handleCheckTag={handleCheckTag}></TagItem>)}
                 </div>
             ) : null}
         </div>

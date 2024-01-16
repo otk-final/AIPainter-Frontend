@@ -2,7 +2,7 @@ import assets from "@/assets";
 import { Modal, Tabs, TabsProps } from "antd"
 import { useMemo, useState } from "react";
 import { CustomTags, OptionalTags, CheckedTags, TagRenderType } from "./tags-item";
-
+import { TraitsConfig, TraitsOption, traitsConfigs } from "./traits";
 interface TagModalProps {
     isOpen: boolean,
     initTags: any[],
@@ -10,162 +10,13 @@ interface TagModalProps {
     onConfirm: (checkedTags: any[]) => void
 }
 
-
-const mockdata = [
-    {
-        key: 'clothes-common',
-        text: '常用全套',
-        subText: '（单选项，如无特别要求，可不选）',
-        options: []
-    },
-    {
-        key: 'clothes-coat',
-        text: '上身',
-        subText: '（单选项，如无特别要求，可不选）',
-        options: []
-    },
-    {
-        key: 'clothes-pants',
-        text: '下身',
-        subText: '（单选项，如无特别要求，可不选）',
-        options: []
-    },
-    {
-        key: 'clothes-shoes',
-        text: '鞋子',
-        subText: '（单选项，如无特别要求，可不选）',
-        options: []
-    },
-    {
-        key: 'clothes-hats',
-        text: '帽子',
-        subText: '（单选项，如无特别要求，可不选）',
-        options: []
-    },
-    {
-        key: 'face-eye',
-        text: '眼睛',
-        subText: '（单选项，如无特别要求，可不选）',
-        options: []
-    },
-    {
-        key: 'face-ear',
-        text: '耳朵',
-        subText: '（单选项，如无特别要求，可不选）',
-        options: []
-    },
-    {
-        key: 'face-nose',
-        text: '鼻子',
-        subText: '（单选项，如无特别要求，可不选）',
-        options: []
-    },
-    {
-        key: 'face-mouth',
-        text: '嘴巴',
-        subText: '（单选项，如无特别要求，可不选）',
-        options: []
-    },
-    {
-        key: 'face-skin',
-        text: '肤色',
-        subText: '（单选项，如无特别要求，可不选）',
-        options: [
-            {
-                key: 'face-skin@1',
-                cn: '苍白肤色',
-                en: "white"
-            }
-        ]
-    },
-    {
-        group: 'people',
-        key: 'role',
-        text: '角色',
-        subText: '（单选项，角色固定时，建议选择，默认权重1.1）',
-        options: [
-            {
-                key: 'people-role@1',
-                cn: '女青年',
-                en: 'women'
-            },
-            {
-                key: 'people-role@2',
-                cn: '男青年',
-                en: 'man'
-            }
-        ]
-    },
-    {
-        group: 'people',
-        key: 'body',
-        text: '体型',
-        subText: '（单选项，如无特别要求，可不选）',
-        options: [
-            {
-                key: 'people-body@1',
-                label: '偏瘦'
-            },
-            {
-                key: 'people-body@2',
-                label: '健壮'
-            }
-        ]
-    },
-    {
-        key: 'hair-color',
-        text: '发色',
-        subText: '（单选项，如无特别要求，可不选）',
-        options: [
-            {
-                key: 'hair-color@1',
-                cn: '黑色',
-                en: 'black'
-            },
-            {
-                key: 'hair-color@2',
-                cn: '棕色',
-                en: 'bron'
-            }
-        ]
-    },
-    {
-        key: 'hair-style',
-        text: '常用发型',
-        subText: '（单选项，如无特别要求，可不选）',
-        options: [
-            {
-                key: 'hair-style@1',
-                cn: '短发',
-                en: 'short'
-            },
-            {
-                key: 'hair-style@2',
-                cn: '长发',
-                en: 'long'
-            }
-        ]
-    },
-    {
-        group: 'custom',
-        key: 'custom',
-        text: '用户自定义标签',
-        subText: '用户自定义标签',
-        options: [
-
-        ]
-    }
-]
-
-
-
 const tabs: TabsProps["items"] = [
     {
         key: "common",
         label: "常用",
     },
     {
-        key: "people",
+        key: "person",
         label: "人物",
     },
     {
@@ -181,8 +32,8 @@ const tabs: TabsProps["items"] = [
         label: "五官",
     },
     {
-        key: "sight",
-        label: "视角",
+        key: "lens",
+        label: "镜头",
     },
     {
         key: "emote",
@@ -197,8 +48,8 @@ const tabs: TabsProps["items"] = [
 
 
 const TagModal: React.FC<TagModalProps> = ({ isOpen, initTags, onClose, onConfirm }) => {
-    const [cur, setCur] = useState("hair");
-    const [checkedTags, setCheckedTags] = useState<any[]>(initTags);
+    const [cur, setCur] = useState("person");
+    const [checkedTags, setCheckedTags] = useState<TraitsOption[]>(initTags);
     const [renderType, setRenderType] = useState<TagRenderType>('text')
 
 
@@ -226,13 +77,22 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, initTags, onClose, onConfir
 
     const renderOptionalTags = (tabKey: string) => {
 
-        const groups = mockdata.filter(item => item.key.startsWith(tabKey))
+        const groups = traitsConfigs.filter(item => item.key.startsWith(tabKey))
 
         //自定义
         if (tabKey === "custom") {
+            let checkedCustomTags = checkedTags ? checkedTags.filter(t => t.key.startsWith("custom")) : []
+
+            let customConfig: TraitsConfig = {
+                key: "custom",
+                name: "自定义",
+                requirement: "",
+                options: [...checkedCustomTags]
+            }
+
             return <div className="flexR" style={{ alignItems: "stretch" }}>
                 <div className="left">
-                    <CustomTags renderType={renderType} handleCheckTag={handleCheckTag} hasTags={checkedTags} tags={groups[0]} key={tabKey} />
+                    <CustomTags renderType={renderType} handleCheckTag={handleCheckTag} hasTags={checkedTags} tags={customConfig} key={tabKey} />
                 </div>
             </div>
         }

@@ -3,7 +3,7 @@ import TextArea from "antd/es/input/TextArea";
 import { Fragment, useEffect, useState } from "react";
 import { drawbatchColumns } from "../data";
 import { Chapter, usePersistChaptersStorage } from "@/stores/story";
-import { dialog, fs, tauri } from "@tauri-apps/api";
+import {  tauri } from "@tauri-apps/api";
 
 interface ChapterTableTRProps {
     idx: number,

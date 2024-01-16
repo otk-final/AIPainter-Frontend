@@ -2,10 +2,10 @@ import { Button, Divider, Input, Modal, Select, Tabs, TabsProps } from "antd"
 import { useState } from "react";
 import "./index.less"
 import { dialog, path } from "@tauri-apps/api";
-import { Chapter, ImportType, Script, usePersistChaptersStorage, usePersistScriptStorage } from "@/stores/story";
+import { Actor, Chapter, ImportType, Script, usePersistActorsStorage, usePersistChaptersStorage, usePersistScriptStorage } from "@/stores/story";
 import { usePersistUserAssistantsApi } from "@/stores/api";
 import TextArea from "antd/es/input/TextArea";
-
+import { v4 as uuid } from "uuid"
 
 const importTabItems: TabsProps['items'] = [
     {
@@ -32,6 +32,7 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
 
     const { pid, script, startBoarding } = usePersistScriptStorage(state => state)
     const { initializeChapters } = usePersistChaptersStorage(state => state)
+    const { saveActors } = usePersistActorsStorage(state => state)
     const uasApi = usePersistUserAssistantsApi(state => state)
 
 
@@ -53,7 +54,25 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
     //分镜
     const handleBoading = async () => {
         setLoading(true)
-        startBoarding(uasApi, boardType, { ...stateScript, type: cur }).finally(() => { setLoading(false); onClose() })
+
+        //分镜
+        let chapters = await startBoarding(uasApi, boardType, { ...stateScript, type: cur }).finally(() => { setLoading(false); onClose() })
+        
+        //过滤出所有角色信息
+        const actorNames = Array.from(new Set(chapters.flatMap(item => item.actors)));
+        const actors = actorNames.map((an) => {
+            return {
+                id: uuid(),
+                name: an,
+                alias: "",
+                style: "",
+                traits: []
+            } as Actor
+        })
+        await saveActors([...actors])
+
+        //保存分镜
+        await initializeChapters(pid!, [...chapters])
     }
 
     const renderFileImport = () => {

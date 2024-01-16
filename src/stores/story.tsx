@@ -19,8 +19,12 @@ export interface Script {
 export interface Chapter {
     id: string
     original: string
-    keywords: string
     actors: string[]
+
+    sceneDialogues: string[],
+    sceneName?: string
+    sceneDescription?: string
+
     actorsPrompt?: {
         cn: string
         en: string
@@ -39,14 +43,22 @@ export interface Actor {
     name: string
     alias: string
     style: string
-    features: ActorPromptValue[]
+    traits: TraitsOption[]
 }
 
-export interface ActorPromptValue {
+export interface TraitsConfig {
     key: string
-    cn: string
-    en: string
-    weight: string
+    name: string
+    requirement?: string
+    options: TraitsOption[]
+}
+
+export interface TraitsOption {
+    key: string
+    label: string
+    value?: string
+    image?: string
+    weight?: string
 }
 
 
@@ -60,31 +72,21 @@ export interface ScriptStorage {
     script: Script | undefined
     style: string,
     load: (pid: string) => Promise<void>
-    startBoarding: (uasApi: UserAssistantsApi, boardType: string, script: Script) => Promise<void>
+    setStyle: (style: string) => Promise<void>
+    startBoarding: (uasApi: UserAssistantsApi, boardType: string, script: Script) => Promise<Chapter[]>
 }
 
 
 const workspaceFileDirectory = BaseDirectory.AppLocalData
 
 
-const mockChapters: Chapter[] = [
-    {
-        id: "1",
-        original: "原来这几年，七玄门和野狼帮的冲突更加厉害，双方为了几块说不清归属的富裕城镇打了大大小小的十几仗，都损失了不少的人手。因为野狼帮的帮众都是用训练马贼的一套训练出来的，一个个厮杀起来全不要命，见到血后就更加疯狂，而七玄门的弟子虽然武艺较高但没有那股狠劲，在拼杀中缩手缩脚，这样一来双方死伤更多的往往是后者。一连几场下来，七玄门的几位大人物再也坐不住了，把本门的大部分内门弟子全都派了出去，去参加双方接下来的一连串拼斗，一方面这几块地盘绝不能失，另一方面让弟子们也都见见江湖的残酷性，去磨练一番，长长实际的战斗经验。",
-        keywords: "", actors: ["七玄门", "野狼帮"], state: 1
-    },
-    {
-        id: "2",
-        original: "韩立估计着墨大夫回山的时间，觉得他在附近的地方是不可能找到什么好的药材，他恐怕要去比较远的地方去寻找，很可能是要去那些人迹罕至的深山老林之处，只有那样的偏僻地方才有希望采得到一些稀有药材，但这样路上一来一回，再加上当中搜寻药材所花费的时间，最少也要花上近一年的光阴才能赶回山里。",
-        keywords: "", actors: ["韩立", "墨大夫"], state: 1
-    }
-]
+
 
 //剧本
 export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
     pid: undefined,
     script: undefined,
-    style: "std",
+    style: "default",
     load: async (pid: string) => {
         //读取原始脚本
         let scriptFile = await path.join(pid, "script.json")
@@ -106,14 +108,13 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
             mode: "gpt-4-1106-preview"
         }
 
-        debugger
+        let chapters: Chapter[] = []
         if (boardType === "ai") {
             //ai  上传剧本
             let fileId = ""
             if (script.type === "file") {
                 let fileName = await path.basename(script.path)
                 fileId = await uasApi.fileUpload(client, fileName, script.path)
-
             } else {
                 fileId = await uasApi.scriptUpload(client, script.input)
                 script.path = ""
@@ -121,12 +122,22 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
             set({ script: script })
 
             //开始分镜
-            let chapters = await uasApi.scriptBoarding(client, fileId)
-            console.info("chapters", chapters)
+            let chapterObjects = await uasApi.scriptBoarding(client, fileId)
+            console.info("chapters", chapterObjects)
+
+            chapters = chapterObjects.map(cp => {
+                return {
+                    id: uuid(),
+                    original: cp["original"] || "",
+                    actors: cp["characters"] || [],
+                    sceneDialogues: cp["dialogues"] || [],
+                    sceneName: cp["scene"] || "",
+                    sceneDescription: cp["description"] || ""
+                } as Chapter
+            })
 
         } else if (boardType === "line") {
             //换行 本地解析
-
             let scriptText = ""
             if (script.type === "file") {
                 scriptText = await fs.readTextFile(script.input)
@@ -134,9 +145,17 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
                 scriptText = script.input
             }
 
-            let lines = scriptText.split("\r\n")
-            console.info(lines)
+            let lines = scriptText.split("\n")
+            chapters = lines.filter(line => line !== "").map(line => {
+                return {
+                    id: uuid(),
+                    original: line.trim(),
+                    actors: [] as string[],
+                    sceneDialogues: [] as string[]
+                } as Chapter
+            })
         }
+        return chapters
     }
 }))
 
@@ -219,13 +238,13 @@ export interface ActorsStorage {
     addActor: () => Promise<void>
     updateActor: (idx: number, actor: Actor) => Promise<void>
     removeActor: (idx: number) => Promise<void>
-    saveActors: () => Promise<void>
+    saveActors: (actors: Actor[]) => Promise<void>
 }
 
 //剧本角色
 export const usePersistActorsStorage = create<ActorsStorage>((set, get) => ({
     pid: undefined,
-    actors: [{ id: uuid(), name: "角色1", alias: "", style: "", features: [] }],
+    actors: [{ id: uuid(), name: "角色1", alias: "", style: "", traits: [] }],
     loadActors: async (pid: string) => {
         //读取原始脚本
         let actorsFile = await path.join(pid, "actors.json")
@@ -233,7 +252,7 @@ export const usePersistActorsStorage = create<ActorsStorage>((set, get) => ({
         if (!exist) {
 
             //初始化文件
-            let initJson = { pid: pid, actors: [{ id: uuid(), name: "角色1", alias: "", style: "", features: [] }] }
+            let initJson = { pid: pid, actors: [{ id: uuid(), name: "角色1", alias: "", style: "", traits: [] }] }
             await fs.writeTextFile(actorsFile, JSON.stringify(initJson), { dir: workspaceFileDirectory, append: false })
 
             set(initJson)
@@ -244,7 +263,7 @@ export const usePersistActorsStorage = create<ActorsStorage>((set, get) => ({
     },
     addActor: async () => {
         let stateActors = [...get().actors]
-        stateActors.push({ id: uuid(), name: "角色" + (stateActors.length + 1), alias: "", style: "", features: [] })
+        stateActors.push({ id: uuid(), name: "角色" + (stateActors.length + 1), alias: "", style: "", traits: [] })
         set({ actors: stateActors })
     },
     updateActor: async (idx: number, actor: Actor) => {
@@ -257,9 +276,14 @@ export const usePersistActorsStorage = create<ActorsStorage>((set, get) => ({
         stateActors.splice(idx, 1)
         set({ actors: stateActors })
     },
-    saveActors: async () => {
+    saveActors: async (actors: Actor[]) => {
+
+        let { pid } = get()
+        set({ actors: [...actors] })
+
+        //保存
         let store = get()
-        let actorsFile = await path.join(store.pid as string, "actors.json")
+        let actorsFile = await path.join(pid as string, "actors.json")
         return await fs.writeTextFile(actorsFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
     },
 }))

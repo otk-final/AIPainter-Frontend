@@ -73,10 +73,10 @@ export const RoleItem: React.FC<RoleItemProps> = ({ actor, index }) => {
       <div className='content-title' style={{ marginTop: '20px', marginBottom: '10px' }}>角色风格</div>
       <Button type='default' block className='btn-default-auto' > 添加LoRA（风格）</Button>
       {isOpen && <TagModal isOpen={isOpen}
-        initTags={stateActor.features}
+        initTags={stateActor.traits}
         onClose={() => { setOpen(false) }}
-        onConfirm={(features) => {
-          setActor({ ...stateActor, features: features })
+        onConfirm={(traits) => {
+          setActor({ ...stateActor, traits: traits })
           setOpen(false)
         }} />}
     </div>
@@ -89,7 +89,7 @@ const RoleSetPage = () => {
   //当前项目配置
   let { actors, addActor, saveActors } = usePersistActorsStorage(state => state)
   const saveActorsHandle = () => {
-    saveActors().then(() => { message.success("保存成功") }).finally(() => { history.back() })
+    saveActors(actors).then(() => { message.success("保存成功") }).finally(() => { history.back() })
   }
 
 

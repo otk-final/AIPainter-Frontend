@@ -5,7 +5,7 @@ import { drawbatchColumns } from "../data"
 import { usePersistChaptersStorage, usePersistScriptStorage } from "@/stores/story"
 
 const Drawbatch = () => {
-    const { drawConfig, updateDrawConfig } = usePersistScriptStorage(state => state)
+    const { style, setStyle } = usePersistScriptStorage(state => state)
     const { chapters } = usePersistChaptersStorage(state => state)
 
     const renderTable = () => {
@@ -33,12 +33,13 @@ const Drawbatch = () => {
                 <Select
                     className={`select-auto`}
                     style={{ width: '300px' }}
-                    value={drawConfig?.template}
-                    onChange={(v) => { updateDrawConfig({ ...drawConfig!, template: v }) }}
+                    value={style}
+                    onChange={setStyle}
                     options={[
-                        { value: '1', label: '卡通' },
-                        { value: '2', label: '国风' },
-                        { value: '3', label: '写实' },
+                        { value: 'default', label: '默认' },
+                        { value: 'cartoon', label: '卡通' },
+                        { value: 'national', label: '国风' },
+                        { value: 'nature', label: '写实' },
                     ]}
                 />
             </div>
