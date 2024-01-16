@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "aip",
-    "version": "0.0.3"
+    "version": "0.0.4"
   },
   "tauri": {
     "updater": {
@@ -80,14 +80,14 @@
       ]
     },
     "security": {
-      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost"
+      "csp": null
     },
     "windows": [
       {
         "decorations": true,
         "fullscreen": false,
         "resizable": true,
-        "title": "AI 新版本 0.0.3",
+        "title": "AI 新版本 0.0.4",
         "center": true,
         "minWidth": 1200,
         "minHeight": 900
