@@ -39,7 +39,7 @@ const delay = (ms: number) => {
     return new Promise(resolve => { setTimeout(resolve, ms) });
 }
 
-const jsonRegex = new RegExp(/```json(.*?)```/)
+// const jsonRegex = new RegExp(/```json(.*?)```/)
 
 const retrieveRunMessage = async (client: OpenAIClient, threadId: string, runId: string) => {
     // 轮询获取消息  批量推理
@@ -73,16 +73,15 @@ const retrieveRunMessage = async (client: OpenAIClient, threadId: string, runId:
         .map(item => {
             let text = (item as MessageContentText).text.value
             console.info(text)
-            if (text.startsWith("```json")) {
-                let matched = text.match(jsonRegex);
-                if (matched) return matched[1]
+            if (text.startsWith("```json") && text.endsWith("```")) {
+                return text.substring(7, text.length - 3)
             }
             return text
         })
     console.info("chapterContents", chapterContents)
 
     //转换格式 读取json格式
-    return chapterContents.map(text => { return JSON.parse(text) })
+    return chapterContents.map(text => { try { return JSON.parse(text) } catch (err) { return null } }).filter(item => item)
 }
 
 

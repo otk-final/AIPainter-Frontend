@@ -2,7 +2,7 @@ import { Button, Input, message } from 'antd';
 import './index.less'
 import { history } from "umi"
 import { DeleteOutlined, LeftOutlined, PlusOutlined } from '@ant-design/icons';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import TagModal from './components/tags-modal';
 import { Actor, usePersistActorsStorage } from '@/stores/story';
 import { dialog } from '@tauri-apps/api';
@@ -84,14 +84,21 @@ export const RoleItem: React.FC<RoleItemProps> = ({ actor, index }) => {
 }
 
 
-const RoleSetPage = () => {
+const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
 
   //当前项目配置
-  let { actors, addActor, saveActors } = usePersistActorsStorage(state => state)
-  const saveActorsHandle = () => {
+  let { actors, load, addActor, saveActors } = usePersistActorsStorage(state => state)
+
+  const saveActorsHandle = async () => {
     saveActors(actors).then(() => { message.success("保存成功") }).finally(() => { history.back() })
   }
+  
 
+  useEffect(() => {
+    load(pid)
+
+    
+  }, [pid])
 
 
   return (

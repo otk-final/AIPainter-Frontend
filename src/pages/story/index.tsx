@@ -26,9 +26,6 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
   const chapters = usePersistChaptersStorage(state => state.chapters)
 
 
-  const scriptQuitHandle = usePersistScriptStorage(state => state.quit)
-  const actorsQuitHandle = usePersistActorsStorage(state => state.quit)
-  const chaptersQuitHandle = usePersistChaptersStorage(state => state.quit)
 
 
   //加载配置项
@@ -42,12 +39,6 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
     }
     initializeContext().catch(err => message.error(err))
 
-    //释放
-    return () => {
-      scriptQuitHandle()
-      actorsQuitHandle()
-      chaptersQuitHandle()
-    }
   }, [pid])
 
 
@@ -106,11 +97,22 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
 
   }
 
+  const scriptQuitHandle = usePersistScriptStorage(state => state.quit)
+  const actorsQuitHandle = usePersistActorsStorage(state => state.quit)
+  const chaptersQuitHandle = usePersistChaptersStorage(state => state.quit)
+
+  const handleQuit =  ()=>{
+    scriptQuitHandle()
+    actorsQuitHandle()
+    chaptersQuitHandle()
+    history.back()
+  }
+
   return (
     <div className="create-wrap">
       <div className='page-header flexR'>
         <div className="flexR">
-          <div className="nav-back" onClick={() => history.back()}><LeftOutlined twoToneColor="#fff" onClick={saveAllHandle} /></div>
+          <div className="nav-back" onClick={handleQuit}><LeftOutlined twoToneColor="#fff" onClick={saveAllHandle} /></div>
           <Tabs defaultActiveKey="paint" activeKey={cur} items={tabs} onChange={(key) => setCur(key as ActionTabType)} />
         </div>
         {customButtons()}

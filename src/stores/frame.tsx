@@ -119,10 +119,9 @@ export const usePersistImtateFramesStorage = create<ImtateFramesStorage>((set, g
         let scriptFile = await path.join(pid, "frames.json")
         let exist = await fs.exists(scriptFile, { dir: workspaceFileDirectory, append: true })
         if (!exist) {
-            debugger
+
             //读取文件夹下数据
             let frameDir = await path.join(pid, "frames")
-
             exist = await fs.exists(frameDir, {
                 dir: workspaceFileDirectory,
             })
@@ -130,7 +129,7 @@ export const usePersistImtateFramesStorage = create<ImtateFramesStorage>((set, g
                 set({ pid: pid, frames: [] })
                 return
             }
-
+            debugger
             let frameImageFiles = await fs.readDir(frameDir, {
                 dir: workspaceFileDirectory,
                 recursive: false

@@ -2,6 +2,7 @@ import GenerateImagesTR from "./image-generate-table-tr"
 import { generateImagesColumns } from "../data"
 import { ImitateTabType } from ".."
 import { usePersistImtateFramesStorage } from "@/stores/frame"
+import { useEffect } from "react"
 
 interface ImageGenerateProps {
   pid: string,
@@ -11,7 +12,11 @@ interface ImageGenerateProps {
 const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
 
   const { frames } = usePersistImtateFramesStorage(state => state)
-  
+  const framesLoadHanlde = usePersistImtateFramesStorage(state => state.load)
+  useEffect(() => {
+    framesLoadHanlde(pid)
+  }, [pid])
+
   return (
     <div className="generate-image-wrap scrollbar">
       <div className='th flexR'>

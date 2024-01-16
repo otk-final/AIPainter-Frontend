@@ -202,6 +202,7 @@ export const usePersistChaptersStorage = create<ChaptersStorage>((set, get) => (
 
         //初始化文件
         let store = { pid: pid, chapters: chapters }
+        debugger
         set(store)
         return await fs.writeTextFile(chaptersFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
     },
@@ -254,7 +255,7 @@ export const usePersistActorsStorage = create<ActorsStorage>((set, get) => ({
     pid: undefined,
     actors: [],
     quit: async () => {
-        set({ pid: undefined, actors: [{ id: uuid(), name: "角色1", alias: "", style: "", traits: [] }] })
+        set({ pid: undefined, actors: [] })
     },
     load: async (pid: string) => {
         //读取原始脚本

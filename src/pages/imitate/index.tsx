@@ -16,7 +16,6 @@ const imitateTabs: TabsProps["items"] = [
   {
     key: "generateImages",
     label: "图生图",
-    disabled: true
   },
 ];
 
@@ -25,36 +24,11 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   const [tabs, setTabs] = useState(imitateTabs)
   const { frames } = usePersistImtateFramesStorage(state => state);
 
-
   const imtateLoadHanlde = usePersistImtateStorage(state => state.load)
-  const framesLoadHanlde = usePersistImtateFramesStorage(state => state.load)
-
-  const imtateQuitHanlde = usePersistImtateStorage(state => state.quit)
-  const framesQuitHanlde = usePersistImtateFramesStorage(state => state.quit)
-
-
-
   useEffect(() => {
-
     //加载数据
     imtateLoadHanlde(pid)
-    framesLoadHanlde(pid)
-
-    return () => {
-      imtateQuitHanlde()
-      framesQuitHanlde()
-    }
   }, [pid])
-
-
-  useEffect(() => {
-    if (frames && frames.length >= 0) {
-      tabs[1].disabled = false
-      setTabs([...tabs])
-    }
-  }, [frames])
-
-
 
   //导出
   const handleDraft = () => {
@@ -68,11 +42,25 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
     setTimeout(message.destroy, 3000)
   }
 
+
+
+  const imtateQuitHanlde = usePersistImtateStorage(state => state.quit)
+  const framesQuitHanlde = usePersistImtateFramesStorage(state => state.quit)
+
+
+  const handleQuit = () => {
+    imtateQuitHanlde()
+    framesQuitHanlde()
+    history.back()
+  }
+
+
+
   return (
     <div className="imitate-wrap">
       <div className='page-header flexR'>
         <div className="flexR">
-          <div className="nav-back" onClick={() => history.back()}><LeftOutlined twoToneColor="#fff" /></div>
+          <div className="nav-back" onClick={handleQuit}><LeftOutlined twoToneColor="#fff" /></div>
           <Tabs defaultActiveKey={currentTab} activeKey={currentTab} items={tabs} onChange={(key) => setCurrentTab(key as ImitateTabType)} />
         </div>
         {currentTab === "exportFrames" ? null :
