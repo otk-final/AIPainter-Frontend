@@ -2,6 +2,8 @@
 import { defineConfig } from "umi";
 
 export default defineConfig({
+  jsMinifier: 'terser',
+  cssMinifier: 'cssnano',
   routes: [
     { path: "/", component: "@/pages/index/index" },
     { path: "/setting", component: "@/pages/setting/index" },
