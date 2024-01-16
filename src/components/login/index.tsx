@@ -1,6 +1,6 @@
 import { useLogin } from "@/uses";
 import { Button, Input, InputNumber, message, Modal, Radio } from "antd"
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./index.less"
 
 interface LoginModuleProps {
@@ -8,22 +8,42 @@ interface LoginModuleProps {
     onClose: ()=>void
 }
 
+const initSecond = 60;
 const LoginModule:React.FC<LoginModuleProps> = ({isOpen, onClose})=> {
     const {login} = useLogin();
-    const [count, setcount] = useState(60);
-    const [phone, setPhone] = useState("");
+    const [count, setCount] = useState(0);
+    const [phone, setPhone] = useState("13476259563");
     const [verify, setVerify] = useState("");
     const [checked, setChecked] = useState(false);
+    const timeId = useRef()
 
+    useEffect(() => {
+        timeId.current && clearInterval(timeId.current);
+        return () => {
+          clearInterval(timeId.current)
+        }
+    }, [])
+
+    useEffect(() => {
+        // 当倒计时为0时 清除定时器
+        if (count === initSecond) {
+            timeId.current = setInterval(()=> setCount(t => --t), 1000)
+        }else if (count <= 0){
+            timeId.current && clearInterval(timeId.current)
+        }
+    },[count])
+
+    
     const handleGetVerifyCode = ()=> {
+        if (count) return;
         if(!/^[0-9]{11}$/.test(phone)) {
             message.error('请填写正确手机号');
             return;
-        } else {
-            console.log("sss");
         }
+        setCount(initSecond)
     }
 
+    
     const handleSumbit = () => {
         if(!phone) {
             return message.error('请填写正确手机号');
@@ -62,11 +82,11 @@ const LoginModule:React.FC<LoginModuleProps> = ({isOpen, onClose})=> {
             footer={null}
             className="home-login-modal"
             width={600}>
-            <InputNumber  className="inputnumber-auto" size="large" controls={false} maxLength={11} placeholder="请输入手机号" prefix={renderPrefix()} 
+            <InputNumber value={phone}  className="inputnumber-auto" size="large" controls={false} maxLength={11} placeholder="请输入手机号" prefix={renderPrefix()} 
             onChange={(v)=> setPhone(`${v}`)}/>
             <div className="verify-wrap flexR">
                 <InputNumber  className="inputnumber-auto" size="large" controls={false} placeholder="请输入手机验证码" maxLength={4} onChange={(v)=> setVerify(`${v}`)}/>
-                <div className="btn-getCode" onClick={handleGetVerifyCode}>荻取验证码</div>
+                <div className="btn-getCode" onClick={handleGetVerifyCode}>{!count ? "荻取验证码": `${count}秒后获取`}</div>
             </div>
             <Input size="large" placeholder="请输入邀请码(可为空）"  />
 
