@@ -143,7 +143,7 @@ interface CheckedTagsProps {
 
 
 export const CheckedTags: React.FC<CheckedTagsProps> = ({ tags, handleCheckTag, handleConfirm }) => {
-    const [lang, setLang] = useState<TagLangType>("cn")
+    const [lang, setLang] = useState<TagLangType>("cn");
     const handleReset = () => {
 
     }
@@ -166,7 +166,11 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ tags, handleCheckTag, 
                     </div>
                     <div className="clean" onClick={handleReset}>清空</div>
                 </div>
-                <Button type="primary" block className="bottom-item btn-primary-auto" onClick={handleConfirm}>保存</Button>
+                <div className="flexR" style={{justifyContent: 'space-between'}}>
+                <Button type="primary" block className="btn-primary-auto" style={{width: '180px'}} >预览</Button>
+                <Button type="primary" block className="btn-primary-auto" style={{width: '180px'}} onClick={handleConfirm}>保存</Button>
+
+                </div>
             </div>
         </div>
     )
