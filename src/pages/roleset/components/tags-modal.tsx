@@ -99,12 +99,10 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, initTags, onClose, onConfir
 
         //系统可选
         return (
-            <div className="flexR" style={{ alignItems: "stretch" }}>
-                <div className="left">
-                    {groups.map((tags: any) => {
-                        return <OptionalTags renderType={renderType} handleCheckTag={handleCheckTag} hasTags={checkedTags} tags={tags} key={tags.key} />
-                    })}
-                </div>
+            <div className="left">
+                {groups.map((tags: any) => {
+                    return <OptionalTags renderType={renderType} handleCheckTag={handleCheckTag} hasTags={checkedTags} tags={tags} key={tags.key} />
+                })}
             </div>
         )
     }
