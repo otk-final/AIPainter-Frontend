@@ -89,8 +89,8 @@
         "resizable": true,
         "title": "AI 新版本 0.0.4",
         "center": true,
-        "minWidth": 1200,
-        "minHeight": 900
+        "minWidth": 1700,
+        "minHeight": 1000
       }
     ]
   }

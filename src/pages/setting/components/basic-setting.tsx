@@ -2,11 +2,8 @@ import { dialog, path } from '@tauri-apps/api';
 import { Button, Input } from 'antd';
 import React from 'react'
 
-interface BasicSettingProps {
-    onCallBack: (v: any)=>void
-}
 
-const BasicSetting:React.FC<BasicSettingProps> = ({onCallBack})=>{
+const BasicSetting:React.FC = ()=>{
 
     const handleChangePosition = async () => {
          //选择文件

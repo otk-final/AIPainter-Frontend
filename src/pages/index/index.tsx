@@ -70,6 +70,7 @@ const HomePage = () => {
       return message.warning("请先登陆～")
     }
 
+
     if(i?.pageUrl) {
       history.push(i.pageUrl)
     } else if (i.key === "story" || i.key === "imitate") {

@@ -28,114 +28,99 @@ export const defaultFormValue = {
   negativeWord: ""
 }
 
-export const setTabItems: TabsProps['items'] = [
-    {
-      key: 'paint',
-      label: '绘图设置',
-    },
-    // {
-    //   key: 'translate',
-    //   label: '翻译设置',
-    // },
-    {
-      key: 'basic',
-      label: '基础设置',
-    },
-  ];
-  
-export interface FormDataProps {
-    type: 'slect' | 'slider' | "input" | "switch" | 'text-area',
-    key: string,
-    label: string,
-    option?: {
-      min?: number,
-      max?: number,
-      placeholder?: ""
-    }
-  }
 
-export const formData:FormDataProps[]  = [
-    {
-      type: "slect",
-      key: "urlKey",
-      label: "SD WebUI URL地址",
-    },
-    {
-      type: "slider",
-      key: "widthV",
-      label: "宽度",
-      option: {
-        min: 100,
-        max: 1000
-      }
-    },
-    {
-      type: "slider",
-      key: "stepV",
-      label: "迭代步敬",
-      option: {
-        min: 1,
-        max: 100
-      }
-    },
-    {
-      type: "slider",
-      key: "weightV",
-      label: "提示词权重",
-      option: {
-        min: 1,
-        max: 50
-      }
-    },
-    {
-      type: "slect",
-      key: "vae",
-      label: "外观 VAE 模型",
-    },
-    {
-      type: "slider",
-      key: "heightV",
-      label: "高度",
-      option: {
-        min: 100,
-        max: 1000
-      }
-    },
-    {
-      type: "slect",
-      key: "method",
-      label: "采样方法",
-    },
-    {
-      type: "input",
-      key: "seed",
-      label: "随机数种子 (Seed)",
-    },
-    {
-        type: "switch",
-        key: "faceRepair",
-        label: "面部修复",
-    },
-    {
-        type: "switch",
-        key: "hdRepair",
-        label: "高清修复",
-    },
-    {
-      type: "text-area",
-      key: "positiveWord",
-      label: "正面预设词",
-      option: {
-        placeholder: "请输入正面预设词",
-      }
+export interface FormDataProps {
+  type: 'slect' | 'slider' | "input" | "switch" | 'text-area',
+  key: string,
+  label: string,
+  option?: {
+    min?: number,
+    max?: number,
+    placeholder?: ""
+  }
+}
+
+export const formData: FormDataProps[] = [
+  {
+    type: "slect",
+    key: "urlKey",
+    label: "SD WebUI URL地址",
+  },
+  {
+    type: "slider",
+    key: "widthV",
+    label: "宽度",
+    option: {
+      min: 100,
+      max: 1000
+    }
+  },
+  {
+    type: "slider",
+    key: "stepV",
+    label: "迭代步敬",
+    option: {
+      min: 1,
+      max: 100
+    }
+  },
+  {
+    type: "slider",
+    key: "weightV",
+    label: "提示词权重",
+    option: {
+      min: 1,
+      max: 50
+    }
+  },
+  {
+    type: "slect",
+    key: "vae",
+    label: "外观 VAE 模型",
+  },
+  {
+    type: "slider",
+    key: "heightV",
+    label: "高度",
+    option: {
+      min: 100,
+      max: 1000
+    }
+  },
+  {
+    type: "slect",
+    key: "method",
+    label: "采样方法",
+  },
+  {
+    type: "input",
+    key: "seed",
+    label: "随机数种子 (Seed)",
+  },
+  {
+    type: "switch",
+    key: "faceRepair",
+    label: "面部修复",
+  },
+  {
+    type: "switch",
+    key: "hdRepair",
+    label: "高清修复",
   },
   {
     type: "text-area",
-      key: "negativeWord",
-      label: "反面预设词",
-      option: {
-        placeholder: "请输入正面预设词",
-      }
+    key: "positiveWord",
+    label: "正面预设词",
+    option: {
+      placeholder: "请输入正面预设词",
+    }
+  },
+  {
+    type: "text-area",
+    key: "negativeWord",
+    label: "反面预设词",
+    option: {
+      placeholder: "请输入正面预设词",
+    }
   },
 ]
-  

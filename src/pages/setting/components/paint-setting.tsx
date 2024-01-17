@@ -1,158 +1,105 @@
-import { Button, Input, Select, Slider, InputNumber, Switch } from 'antd';
-import React, { useState} from 'react'
-import {FormDataProps, formData, PaintFormValueProps, defaultFormValue} from '../data'
+import { Button, Input } from 'antd';
+import React, { } from 'react'
 import TextArea from 'antd/es/input/TextArea';
-import { SlackOutlined, SyncOutlined } from '@ant-design/icons';
-
-interface PaintSettingProps {
-    onCallBack: (v: PaintFormValueProps)=>void
-}
+import { DeleteFilled, PlusOutlined, } from '@ant-design/icons';
+import { usePersistComfyUIStorage } from '@/stores/comfyui';
+import { dialog } from '@tauri-apps/api';
 
 
-const PaintSetting:React.FC<PaintSettingProps> = ({onCallBack})=>{
-    const [formValue, setFormValue] = useState<PaintFormValueProps>(defaultFormValue)
-  
-    console.log("formValue", formValue)
 
-    const handleValue = (data: FormDataProps, v:any)=>{
-        setFormValue((res)=> {
-            let newRes = {...res, [data.key]: v }
-            onCallBack(newRes)
-            return newRes
+const PaintSetting: React.FC = () => {
+    const { url, prompt, negativePrompt, modeApis, reverseApi, setHandle, uploadModeApi, addModeApi, removeModeApi, uploadReverseApi } = usePersistComfyUIStorage(state => state)
+    const handleUpdateMode = async (idx: number) => {
+        let selected = await dialog.open({
+            title: "选择Comfy Workflow Api 文件",
+            multiple: false,
+            filters: [{ name: "api文件", extensions: ["json"] }]
         })
+        if (!selected) {
+            return
+        }
+        await uploadModeApi(idx, selected as string)
     }
-  
-    const renderItemSlect = (data: FormDataProps) => {
-        return (
-          <div className='item' key={data.key}>
-              <div className='setting-label'>{data.label}</div>
-              <div className='item-form flexR'>
-                <Select
-                  className={`select-auto ${data.key !== 'urlKey' ? "": "w67"}`}
-                  defaultValue="lucy"
-                  onChange={(v)=>handleValue(data, v)}
-                  options={[
-                    { value: 'jack', label: 'Jack' },
-                    { value: 'lucy', label: 'Lucy' },
-                    { value: 'Yiminghe', label: 'yiminghe' },
-                    { value: 'disabled', label: 'Disabled', disabled: true },
-                  ]}
-                />
-                {data.key !== 'urlKey' ? null : <div className='btn-s'><SyncOutlined/></div>}
-              </div>
-          </div>
-        )
-    }
-  
-      const renderItemSlider = (data: FormDataProps)=>{
-        return (
-          <div className='item' key={data.key}>
-              <div className='item-header flexR'>
-                <div className='setting-label'>{data.label}</div>
-                <InputNumber
-                  min={data?.option?.min}
-                  max={data?.option?.max}
-                  value={formValue[data.key]}
-                  onChange={(v)=> handleValue(data, v)}
-                  className="inputnumber-auto"
-                  controls={false}
-                />
-              </div>
-              <Slider
-                  className='slider-auto'
-                  min={data?.option?.min}
-                  max={data?.option?.max}
-                  onChange={(v)=> handleValue(data, v)}
-                  value={formValue[data.key]}
-              />
-          </div>
-        )
-      }
-  
-    const renderItemInput = (data: FormDataProps)=> {
-        return (
-          <div className='item' key={data.key}>
-              <div className='setting-label'>{data.label}</div>
-              <div className='item-form flexR'>
-                <InputNumber
-                  value={formValue[data.key]}
-                  className="main-inputnumber-auto"
-                  controls={false}
-                  disabled
-                />
-               <div className='btn-s' onClick={()=>{
-                setFormValue((res)=> ({...res, [data.key]: Math.floor(Math.random() * 100) + 1}))
-               }}><SlackOutlined/></div>
-              </div>
-          </div>
-        )
-    }
-  
-    const renderItemSwitch = (data: FormDataProps)=> {
-        return (
-          <div className='item item-no-top flexR' key={data.key}>
-              <div>{data.label}</div>
-              <Switch  onChange={(v)=>handleValue(data, v)} className="switch-auto" />
-          </div>
-        )
-    }
-  
-    const renderItem = ()=>{
-        return formData.map((i)=>{
-            switch(i.type) {
-            case "slect" :
-                return renderItemSlect(i)
-            case "slider" :
-                return renderItemSlider(i)
-            case "input" :
-                return renderItemInput(i)
-            case "switch" :
-                return renderItemSwitch(i)
-            default:
-                return null
-            }
+
+    const handleUploadReverse = async () => {
+        let selected = await dialog.open({
+            title: "选择Comfy Workflow Api 文件",
+            multiple: false,
+            filters: [{ name: "api文件", extensions: ["json"] }]
         })
+        if (!selected) {
+            return
+        }
+        await uploadReverseApi(selected as string)
     }
+
 
     return (
-        <div style={{height:"calc(100% - 78px)", overflow: 'scroll', paddingLeft: '30px', paddingRight: '30px'}}>
+        <div style={{ height: "calc(100% - 78px)", overflow: 'scroll', paddingLeft: '30px', paddingRight: '30px' }}>
             <div className='setting-section'>
-                <div className='setting-title'>sD WebUI 环境配置</div>
+                <div className='setting-title'>ComfyUI 环境配置</div>
+
                 <div className='setting-form-label flexR half-width'>
                     <div className='flexR'>
-                    <div className='setting-label'>SD WebUI URL地址 </div>
-                    <span className='setting-label color-primary'>开启方法</span>
+                        <div className='setting-label'>URL地址</div>
                     </div>
-                    <div className='setting-label color-open'>已启动</div>
                 </div>
                 <div className='setting-form flexR half-width'>
-                    <Input size="large" placeholder="http://127.0.0.1:7860/"  className='input-s '/>
+                    <Input size="large" placeholder="http://127.0.0.1:8188/" className='input-s' value={url} onChange={(e) => { setHandle({ url: e.target.value }) }} />
                     <Button type="primary" className="btn-primary-auto btn-primary-108">检测环境</Button>
                 </div>
-                </div>
-                <div className='setting-section no-padding-h'>
-                <div className='setting-title'>批量绘图设置（通用模版）</div>
+            </div >
+
+            <div className='setting-section'>
+                <div className='setting-title'>ComfyUI Api配置</div>
                 <div className='content flexR'>
-                    {renderItem()}
+                    <div className='setting-title'>模型
+                        <Button type="primary" size={'small'} className="btn-primary-auto btn-primary-108" icon={<PlusOutlined />} onClick={addModeApi}>添加模型</Button>
+                    </div>
                 </div>
-                <div className='section-bottom flexR'>
-                    {formData.slice(formData.length - 2).map((data)=>{
-                    return (
-                        <div className='item section-bottom' key={data.key}>
-                        <div className='setting-label'>{data.label}</div>
-                        <TextArea rows={10} placeholder={data?.option?.placeholder} 
-                        maxLength={1000} 
-                        className="text-area-auto"
-                        onChange={(v)=>handleValue(data, v.target.value)}/>
-                        </div>
-                    )
-                    })}
+
+                {modeApis.map((item, idx) => {
+                    return (<div className='setting-form flexR' key={idx}>
+                        <Input size="large" placeholder="点击更换 workflow json 文件" className='input-s' value={item.path} readOnly onClick={() => handleUpdateMode(idx)} />
+                        <Button type="primary" className="btn-primary-auto btn-primary-108" icon={<DeleteFilled />} disabled={modeApis.length === 1} onClick={() => removeModeApi(idx)}>删除模型</Button>
+                    </div>)
+                })}
+
+
+                <div className='setting-title'></div>
+                <div className='content flexR'>
+                    <div className='setting-title'>反推关键词</div>
+                </div>
+                <div className='setting-form flexR'>
+                    <Input size="large" placeholder="点击更换 workflow json 文件" className='input-s' value={reverseApi?.path} readOnly onClick={handleUploadReverse} />
                 </div>
             </div>
-        </div>
+
+            <div className='setting-section no-padding-h'>
+                <div className='setting-title'>提示词设置（通用模版）</div>
+                <div className='section-bottom flexR'>
+                    <div className='item'>
+                        <div className='setting-label'>{'正向提示词'}</div>
+                        <TextArea rows={10} placeholder={'正向提示词'}
+                            maxLength={1000}
+                            className="text-area-auto"
+                            value={prompt}
+                            onChange={(v) => { setHandle({ prompt: v.target.value }) }} />
+                    </div>
+                    <div className='item'>
+                        <div className='setting-label'>{'反向提示词'}</div>
+                        <TextArea rows={10} placeholder={'反向提示词'}
+                            maxLength={1000}
+                            className="text-area-auto"
+                            value={negativePrompt}
+                            onChange={(v) => { setHandle({ negativePrompt: v.target.value }) }} />
+                    </div>
+                </div>
+            </div>
+        </div >
 
     )
-    
+
 
 }
 
