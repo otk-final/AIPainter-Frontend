@@ -16,3 +16,18 @@ export const getTime = (t: number): string=>{
       return  time_result = `00:${time > 9 ? time : '0'+time}`;
     }
 }
+
+/**
+ * !!!会判断是否有小数，有则显示没有显示整数
+ * 根据以分为单位的价格取整、小数，单位元
+ * e.g. 1000 => 10   1010 => 10.10
+ * @param price 价格
+ */
+ export function getPriceInt(price?: number) {
+  if (!price || isNaN(price)) return "0";
+  const priceArr = (price / 100).toFixed(2).split(".");
+  if (priceArr.length === 2) {
+    return priceArr[1] === "00" ? priceArr[0] : priceArr.join(".");
+  }
+  return priceArr[0];
+}

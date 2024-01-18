@@ -1,4 +1,6 @@
 import assets from "@/assets";
+import { useLogin } from "@/uses";
+import { getPriceInt } from "@/utils";
 import { Button, Modal,  } from "antd"
 import { useState } from "react";
 import "./index.less"
@@ -8,11 +10,27 @@ interface MemberRechargeModuleProps {
     onClose: ()=>void
 }
 
-const MemberRechargeModule:React.FC<MemberRechargeModuleProps> = ({isOpen, onClose})=> {
-    const [price, setPrice] = useState(6800);
 
-    const handlePay = ()=>{
-       
+const memberDatas = [
+    {
+        price: 6800,
+        time: 30,
+        label: '月度'
+    },
+    {
+        price: 19800,
+        time: 180,
+        label: '半年'
+    }
+]
+
+const MemberRechargeModule:React.FC<MemberRechargeModuleProps> = ({isOpen, onClose})=> {
+    const [cur, setCur] = useState(memberDatas[0]);
+    const {loginState, updateLoginState} = useLogin();
+
+    const handlePay = ()=> {
+
+        updateLoginState({...loginState, endTime: "2025-01-26"})
     }
    const contentDatas = [
     {
@@ -43,9 +61,9 @@ const MemberRechargeModule:React.FC<MemberRechargeModuleProps> = ({isOpen, onClo
                     <div className="name-wrap flexR">
                         <div className="flexR">
                             <img src={assets.userImg} className="user-img"/>
-                            <div>用户34444</div>
+                            <div>{loginState.nickName}</div>
                         </div>
-                        <div>VIP 到期时间：2024-01-26</div>
+                        <div>VIP 到期时间：{loginState.endTime}</div>
                     </div>
                     <div className="user-content-wrap flexR">
                         {contentDatas.map((i, index)=>{
@@ -60,22 +78,27 @@ const MemberRechargeModule:React.FC<MemberRechargeModuleProps> = ({isOpen, onClo
                     </div>
                 </div>
                 <div className="flexR">
-                    <div className={`recharge-item flexC ${price === 6800 ? "cur": ""}`} onClick={()=>setPrice(6800)}>
-                        <div className="unit">月度</div>
-                        <div className="price-wrap flexR"><span className="unit">¥</span><span className="price">68</span></div>
-                        <div className="per">2.3元/天</div>
-                    </div>
-                    <div className={`recharge-item flexC ${price === 19800 ? "cur": ""}`} onClick={()=>setPrice(19800)}>
-                        <div className="unit">半年</div>
-                        <div className="price-wrap flexR"><span className="unit">¥</span><span className="price">198</span></div>
-                        <div className="per">1.1元/天</div>
-                    </div>
+                    {memberDatas.map((i)=>{
+                        return (
+                            <div className={`recharge-item flexC ${cur.price === i.price ? "cur": ""}`} onClick={()=>setCur(i)}>
+                                <div className="unit">{i.label}</div>
+                                <div className="price-wrap flexR"><span className="unit">¥</span><span className="price">{getPriceInt(i.price)}</span></div>
+                                <div className="per">{(i.price / i.time / 100).toFixed(1)}元/天</div>
+                            </div>
+                        )
+                    })}
                 </div>
                 <div className="bottom-wrap flexR">
-                    <div className="bottom-item flexR"><span className="text">同意并交付</span>  <div className="price-wrap flexR"><span className="unit">¥</span>  <span className="price">{price}</span></div></div>
+                    <div className="bottom-item flexR">
+                        <span className="text">同意并交付</span>  
+                        <div className="price-wrap flexR">
+                            <span className="unit">¥</span>  
+                            <span className="price">{getPriceInt(cur.price)}</span>
+                        </div>
+                    </div>
                     <Button type="primary" block className="bottom-item btn-primary-auto" onClick={handlePay}>去支付</Button>
                 </div>
-                <div className="assist-wrap flexR">已同意并阅读 <span>会员服务协议</span> </div>
+                {/* <div className="assist-wrap flexR">已同意并阅读 <span>会员服务协议</span> </div> */}
         </Modal>
     )
 }
