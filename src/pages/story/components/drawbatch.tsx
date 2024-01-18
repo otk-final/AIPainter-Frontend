@@ -3,9 +3,10 @@ import { Select } from "antd"
 import DrawTableTR from "./drawbatch-table-tr"
 import { drawbatchColumns } from "../data"
 import { usePersistChaptersStorage, usePersistScriptStorage } from "@/stores/story"
+import { useState } from "react"
 
 const Drawbatch = () => {
-    const { style, setStyle } = usePersistScriptStorage(state => state)
+    const [style, setStyle] = useState<string>("默认")
     const { chapters } = usePersistChaptersStorage(state => state)
 
     const renderTable = () => {
@@ -18,7 +19,7 @@ const Drawbatch = () => {
                 </div>
                 {
                     chapters?.map((chapter, index) => {
-                        return (<DrawTableTR key={chapter.id} idx={index} chapter={chapter} />
+                        return (<DrawTableTR key={chapter.id} idx={index} chapter={chapter} style={style} />
                         )
                     })
                 }

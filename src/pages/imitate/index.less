@@ -1,3 +1,43 @@
+.drawbatch-wrap {
+    padding: 0 30px;
+    height: calc(100% - 78px);
+    overflow: scroll;
+
+    & .drawbatch-header {
+
+        & .lable {
+            font-size: 14px;
+            color: @m-font-color;
+            margin-right: 10px;
+        }
+    }
+
+    & .text-area-auto {
+        background-color: inherit;
+        border: 1px solid transparent;
+        color: @m-font-color;
+        font-size: 14px;
+        height: 100%;
+
+        &::placeholder {
+            color: @xs-font-color;
+        }
+    }
+
+    & .drawbath-image {
+        width: 200px;
+        height: 200px;
+
+        &.size-s {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 10px;
+            margin-right: 10px;
+        }
+    }
+
+}
+
 .imitate-wrap {
     background-color: #121212;
     height: calc(100% - 90px);
@@ -35,33 +75,45 @@
         height: calc(100% - 78px);
         overflow: scroll;
 
+        & .generate-header {
+            margin-bottom: 20px;
+
+            & .lable {
+                font-size: 14px;
+                color: @m-font-color;
+                margin-right: 10px;
+            }
+        }
+
+
         & .th {
             background-color: #29292D;
             height: 68px;
             border-radius: 8px 8px 0 0;
             line-height: 68px;
         }
-    
+
         & .th-td {
             font-size: 16px;
             color: @m-font-color;
             text-align: center;
             padding: 0 16px;
-           
+
         }
-    
+
         & .tr {
-            display:-webkit-flex;
+            display: -webkit-flex;
             align-items: stretch;
             background-color: #121212;
+
             &:nth-child(even) {
                 background-color: #1B1B1D;
             }
         }
-    
+
         & .td {
             justify-content: flex-start;
-            height:inherit;
+            height: inherit;
             border-right: 1px dashed #484848;
             padding: 12px 16px;
             box-sizing: border-box;
@@ -69,11 +121,11 @@
             color: @m-font-color;
             word-wrap: break-word;
             word-break: break-all;
-    
+
             &:nth-last-child(1) {
                 border-right: none
             }
-    
+
             & .index {
                 height: 36px;
                 background-color: @bg-btn;
@@ -84,7 +136,7 @@
                 margin-bottom: 10px;
                 border-radius: 4px;
             }
-    
+
             & .btn-default-98 {
                 width: 98px;
                 height: 32px;
@@ -92,6 +144,7 @@
                 font-size: 14px;
                 margin: 7px;
                 padding: 0;
+
                 &:hover {
                     border-color: @m-font-color;
                 }
@@ -104,6 +157,7 @@
             color: @m-font-color;
             font-size: 14px;
             padding: 0;
+
             &::placeholder {
                 color: @xs-font-color;
             }

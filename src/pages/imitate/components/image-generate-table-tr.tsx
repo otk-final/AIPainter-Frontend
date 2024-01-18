@@ -5,16 +5,17 @@ import { generateImagesColumns } from "../data";
 import { ImtateFrame, usePersistImtateFramesStorage } from "@/stores/frame";
 import { tauri } from "@tauri-apps/api";
 import { HistoryImageModule } from "@/components"
-import { Image2TextHandle, WorkflowScript, registerComfyUIPromptCallback, usePersistComfyUIStorage } from "@/stores/comfyui";
+import { Image2TextHandle, Text2ImageHandle, WorkflowScript, registerComfyUIPromptCallback, usePersistComfyUIStorage } from "@/stores/comfyui";
 import { v4 as uuid } from "uuid"
 import { usePersistUserIdentificationStorage } from "@/stores/auth";
 
 interface GenerateImagesTRProps {
     index: number
+    style: string
     frame: ImtateFrame,
 }
 
-const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, frame }) => {
+const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame }) => {
     const [isOpenHistory, setIsOpenHistory] = useState(false);
     const [stateFrame, setFrame] = useState<ImtateFrame>({ ...frame })
     const { frames, removeFrame, updateFrame } = usePersistImtateFramesStorage(state => state)
@@ -55,12 +56,10 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, frame }) => 
         //关键词所在的节点数
         let step = ws.getWD14TaggerStep()
 
-        const callback = async (type: string, data: any) => {
-            //反显示
-            let status = await comfyuiApi.history(data.prompt_id)
-            console.info("status", step, status)
-            let reversePrompts = status[data.prompt_id]!.outputs![step]!.tags! as string[]
-            console.info("reversePrompts", reversePrompts)
+        const callback = async (promptId: string, respData: any) => {
+
+            //定位结果
+            let reversePrompts = respData[promptId]!.outputs![step]!.tags! as string[]
             if (reversePrompts) setFrame({ ...stateFrame, drawPrompt: reversePrompts.join(",") })
 
             message.destroy()
@@ -72,7 +71,31 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, frame }) => 
 
 
     const handleImage2Image = async () => {
+        if (!style) {
+            await message.warning("请选择图片风格")
+            return
+        }
+        message.loading("图片生成中...", 0)
+        let comfyuiApi = comfyui.buildApi(clientId)
 
+        //根据当前风格选择脚本 提交当前关键词，和默认反向关键词
+        let ws = new WorkflowScript(await comfyui.loadModeApi(style))
+        let job = await comfyuiApi.prompt(ws, { positive: stateFrame.drawPrompt!, negative: comfyui.negativePrompt! }, Text2ImageHandle)
+
+        const callback = async (promptId: string, respData: any) => {
+            //回调消息不及时 定时查询
+            console.info("status", respData)
+
+
+            //下载文件
+
+            //更新数据
+
+            message.destroy()
+        }
+
+        //监听任务
+        registerComfyUIPromptCallback({ jobId: stateFrame.path, promptId: job.prompt_id, handle: callback })
     }
 
 
@@ -127,7 +150,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, frame }) => 
     const renderOperate = () => {
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateImage}>生成图片</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleImage2Image}>生成图片</Button>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleImage2Text}>反推关键词</Button>
             </Fragment>
         )

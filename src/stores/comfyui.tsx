@@ -44,7 +44,7 @@ export const usePersistComfyUIStorage = create<ComfyUIStorage>((set, get) => ({
         url: "http://192.168.48.123:8188",
         websocket: "ws://192.168.48.123:8188/ws",
     },
-    modeApis: [{ name: "", path: "", script: {} }],
+    modeApis: [{ name: "默认", path: "" }],
     load: async () => {
         //创建目录
         await fs.createDir("env", { dir: workspaceFileDirectory, recursive: true })
@@ -76,7 +76,7 @@ export const usePersistComfyUIStorage = create<ComfyUIStorage>((set, get) => ({
     },
     uploadModeApi: async (index: number, workflowPath: string) => {
         let workflowFileName = await path.basename(workflowPath)
-
+        debugger
         //读取文件
         let wfText = await fs.readTextFile(workflowPath)
 
@@ -102,6 +102,7 @@ export const usePersistComfyUIStorage = create<ComfyUIStorage>((set, get) => ({
         return JSON.parse(wfText)
     },
     loadModeApi: async (name: string) => {
+
         let { modeApis } = get()
         let modeApi = modeApis.find(item => item.name === name)
 
@@ -143,7 +144,7 @@ export interface ComfyUIPromptEvent {
 interface ComfyUIPromptCallback {
     jobId: string
     promptId: string
-    handle: (status: string, data: any) => Promise<void>
+    handle: (promptId: string, respData: any) => Promise<void>
 }
 
 
@@ -156,15 +157,36 @@ export const registerComfyUIPromptCallback = (cb: ComfyUIPromptCallback) => {
     center.push(cb)
 }
 
+const delay = (ms: number) => {
+    return new Promise(resolve => { setTimeout(resolve, ms) });
+}
+
 //执行回调
-export const doComfyUIPromptCallback = (promptId: string, type: string, data: any) => {
+export const doComfyUIPromptCallback = async (api: ComfyUIApi, promptId: string) => {
+    console.log("回调业务方")
     let idx = center.findIndex(item => item.promptId == promptId)
     if (idx === -1) {
         return
     }
+
+    //查询结果
+    let fetchCount = 0
+    let respData: any
+    while (fetchCount <= 10) {
+
+        //查询状态 如果非空对象 则表示完成
+        respData = await api.history(promptId)
+        if (respData && Object.keys(respData).length > 0) {
+            break
+        }
+        await delay(1000)
+        fetchCount++
+    }
+
+
     //执行 忽略异常
     try {
-        center[idx].handle(type, data)
+        center[idx].handle(promptId, respData)
     } catch (err) {
         console.info(err)
     }
@@ -195,7 +217,9 @@ export class ComfyUIApi {
         //websocket  只保持一个链接
         let ws = new WebSocket(host.websocket + "?client_id=" + clientId)
         ws.onopen = this.wsOpen
-        ws.onmessage = this.wsReceived
+        ws.onmessage = (message: MessageEvent) => {
+            this.wsReceived(message)
+        }
         ws.onclose = this.wsClose
     }
 
@@ -205,14 +229,26 @@ export class ComfyUIApi {
 
 
     private wsReceived(message: MessageEvent) {
+        console.info('message', message.type, message.data)
+
+        let dataType = typeof message.data
+        if (dataType !== 'string') {
+            return
+        }
+
         //server
         let { type, data } = JSON.parse(message.data) as ComfyUIPromptEvent
-        if (type === "progress" && data.prompt_id && !data.node) {
+        if (type === "progress") {
+            let isCompleted = data.value && data.max && (data.value as string === data.max as string) && data.prompt_id
             //通知业务
-            doComfyUIPromptCallback(data.prompt_id, type, data)
+            if (isCompleted) doComfyUIPromptCallback(this, data.prompt_id)
         } else {
-            console.info('message.data', message.data)
+            console.info('message.other', message.data)
         }
+    }
+
+    private isCompleted(data: any): boolean {
+        return data.value && data.max && (data.value as string === data.max as string) && data.prompt_id
     }
     private wsClose() {
         console.info('ws closed')
