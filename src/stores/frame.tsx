@@ -129,7 +129,6 @@ export const usePersistImtateFramesStorage = create<ImtateFramesStorage>((set, g
                 set({ pid: pid, frames: [] })
                 return
             }
-            debugger
             let frameImageFiles = await fs.readDir(frameDir, {
                 dir: workspaceFileDirectory,
                 recursive: false

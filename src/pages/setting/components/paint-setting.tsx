@@ -8,7 +8,7 @@ import { dialog } from '@tauri-apps/api';
 
 
 const PaintSetting: React.FC = () => {
-    const { url, prompt, negativePrompt, modeApis, reverseApi, setHandle, uploadModeApi, addModeApi, removeModeApi, uploadReverseApi } = usePersistComfyUIStorage(state => state)
+    const { url, positivePrompt, negativePrompt, modeApis, reverseApi, setHandle, uploadModeApi, addModeApi, removeModeApi, uploadReverseApi } = usePersistComfyUIStorage(state => state)
     const handleUpdateMode = async (idx: number) => {
         let selected = await dialog.open({
             title: "选择Comfy Workflow Api 文件",
@@ -83,8 +83,8 @@ const PaintSetting: React.FC = () => {
                         <TextArea rows={10} placeholder={'正向提示词'}
                             maxLength={1000}
                             className="text-area-auto"
-                            value={prompt}
-                            onChange={(v) => { setHandle({ prompt: v.target.value }) }} />
+                            value={positivePrompt}
+                            onChange={(v) => { setHandle({ positivePrompt: v.target.value }) }} />
                     </div>
                     <div className='item'>
                         <div className='setting-label'>{'反向提示词'}</div>

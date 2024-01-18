@@ -1,10 +1,13 @@
-import { Button, Image, message } from "antd"
+import { Button, Image } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import { Fragment, useEffect, useState } from "react";
 import { generateImagesColumns } from "../data";
 import { ImtateFrame, usePersistImtateFramesStorage } from "@/stores/frame";
 import { tauri } from "@tauri-apps/api";
-import {HistoryImageModule} from "@/components"
+import { HistoryImageModule } from "@/components"
+import { ComfyUIApi, Image2TextHandle, WorkflowScript, usePersistComfyUIStorage } from "@/stores/comfyui";
+import { v4 as uuid } from "uuid"
+import { usePersistUserIdentificationStorage } from "@/stores/auth";
 
 interface GenerateImagesTRProps {
     index: number
@@ -29,8 +32,26 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, frame }) => 
         setFrame({ ...stateFrame, drawImage: randPath, drawImageHistory: imageHistroy })
     }
 
-    const handleScaleMax = async () => {
-        message.warning("待开发")
+
+    //comfyui
+    const comfyui = usePersistComfyUIStorage(state => state)
+    const { clientId } = usePersistUserIdentificationStorage(state => state)
+    const comfyuiApi = new ComfyUIApi(clientId, comfyui)
+
+
+    //反推关键词
+    const handleImage2Text = async () => {
+
+        let filename = uuid()
+        //上传文件
+        await comfyuiApi.upload("imitate/" + uuid(), stateFrame.path, filename)
+
+        //提交任务
+        let ws = new WorkflowScript(comfyui.loadReverseApi())
+        let job = await comfyuiApi.prompt(ws, { subfolder: clientId, filename: filename }, Image2TextHandle)
+
+        console.info("job", job)
+        //监听任务
     }
 
     const renderNumber = () => {
@@ -56,18 +77,18 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, frame }) => 
         if (!path) {
             return null
         }
-        return <Image src={ tauri.convertFileSrc(path)} className="generate-image" preview={false} />
+        return <Image src={tauri.convertFileSrc(path)} className="generate-image" preview={false} />
     }
-   
+
 
     const renderImageHistory = () => {
         if (!stateFrame?.drawImageHistory?.length) {
             return <div>待生成</div>
         }
         return (
-            <div className="flexR" 
+            <div className="flexR"
                 style={{ flexWrap: "wrap", justifyContent: "flex-start", width: '100%' }}
-                onClick={()=> setIsOpenHistory(true)}
+                onClick={() => setIsOpenHistory(true)}
             >
                 {stateFrame?.drawImageHistory?.map((p, idx) => {
                     return <Image src={tauri.convertFileSrc(p)} className="generate-image size-s" preview={false} key={idx} />
@@ -80,8 +101,8 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, frame }) => 
     const renderOperate = () => {
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateImage}>生成</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateFrame.drawImageHistory} onClick={handleScaleMax}>高清放大</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateImage}>生成图片</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleImage2Text}>反推关键词</Button>
             </Fragment>
         )
     }
@@ -101,12 +122,12 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, frame }) => 
                     </div>
                 )
             })}
-            <HistoryImageModule 
-             isOpen={isOpenHistory} onClose={()=>setIsOpenHistory(false)}
-             paths={stateFrame?.drawImageHistory || []} defaultPath={stateFrame.drawImage || ""}
-             onChangeNewImage={(v)=> setFrame(res=> {
-                return {...res, drawImage: v}
-             })}/>
+            <HistoryImageModule
+                isOpen={isOpenHistory} onClose={() => setIsOpenHistory(false)}
+                paths={stateFrame?.drawImageHistory || []} defaultPath={stateFrame.drawImage || ""}
+                onChangeNewImage={(v) => setFrame(res => {
+                    return { ...res, drawImage: v }
+                })} />
         </div>
     )
 }

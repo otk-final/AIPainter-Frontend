@@ -2,8 +2,7 @@ import { fs, path } from "@tauri-apps/api"
 import { BaseDirectory } from "@tauri-apps/api/fs"
 import { create } from "zustand"
 import { v4 as uuid } from "uuid"
-import { OpenAIClient, UserAssistantsApi } from "./api"
-import OpenAI from "openai"
+import { GPTAssistantsApi } from "./gpt"
 
 
 export type ImportType = "input" | "file"
@@ -74,7 +73,7 @@ export interface ScriptStorage {
     quit: () => Promise<void>
     load: (pid: string) => Promise<void>
     setStyle: (style: string) => Promise<void>
-    startBoarding: (uasApi: UserAssistantsApi, boardType: string, script: Script) => Promise<Chapter[]>
+    startBoarding: (uasApi: GPTAssistantsApi, boardType: string, script: Script) => Promise<Chapter[]>
 }
 
 
@@ -104,12 +103,7 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
     setStyle: async (key: string) => {
         set({ style: key })
     },
-    startBoarding: async (uasApi: UserAssistantsApi, boardType: string, script: Script) => {
-
-        let client: OpenAIClient = {
-            api: new OpenAI({ baseURL: "https://wx.yryz3.com/aipainter-openai/v1", apiKey: "xxx", dangerouslyAllowBrowser: true, timeout: 60000 }),
-            mode: "gpt-4-1106-preview"
-        }
+    startBoarding: async (gptApi: GPTAssistantsApi, boardType: string, script: Script) => {
 
         let chapters: Chapter[] = []
         if (boardType === "ai") {
@@ -117,15 +111,15 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
             let fileId = ""
             if (script.type === "file") {
                 let fileName = await path.basename(script.path)
-                fileId = await uasApi.fileUpload(client, fileName, script.path)
+                fileId = await gptApi.fileUpload(fileName, script.path)
             } else {
-                fileId = await uasApi.scriptUpload(client, script.input)
+                fileId = await gptApi.scriptUpload(script.input)
                 script.path = ""
             }
             set({ script: script })
 
             //开始分镜
-            let chapterObjects = await uasApi.scriptBoarding(client, fileId)
+            let chapterObjects = await gptApi.scriptBoarding(fileId)
             console.info("chapters", chapterObjects)
 
             chapters = chapterObjects.flatMap(cp => {
@@ -225,14 +219,9 @@ export const usePersistChaptersStorage = create<ChaptersStorage>((set, get) => (
         let chaptersFile = await path.join(store.pid as string, "chapters.json")
         return await fs.writeTextFile(chaptersFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
     },
-    smartAnalyzing: async (uasApi: UserAssistantsApi, index: number, script: Script) => {
-
-        let client: OpenAIClient = {
-            api: new OpenAI({ baseURL: "https://wx.yryz3.com/aipainter-openai/v1", apiKey: "xxx", dangerouslyAllowBrowser: true, timeout: 60000 }),
-            mode: "gpt-4-1106-preview"
-        }
+    smartAnalyzing: async (gptApi: GPTAssistantsApi, index: number, script: Script) => {
         let chapterText = get().chapters![index].original
-        let newChapters = uasApi.chapterBoarding(client, script.fileId, chapterText)
+        let newChapters = gptApi.chapterBoarding(script.fileId, chapterText)
         console.info(newChapters)
     }
 }))

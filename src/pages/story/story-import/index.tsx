@@ -3,9 +3,10 @@ import { useState } from "react";
 import "./index.less"
 import { dialog, path } from "@tauri-apps/api";
 import { Actor, ImportType, Script, usePersistActorsStorage, usePersistChaptersStorage, usePersistScriptStorage } from "@/stores/story";
-import { usePersistUserAssistantsApi } from "@/stores/api";
 import TextArea from "antd/es/input/TextArea";
 import { v4 as uuid } from "uuid"
+import { GPTAssistantsApi, usePersistGPTStorage } from "@/stores/gpt";
+import { usePersistUserIdentificationStorage } from "@/stores/auth";
 
 const importTabItems: TabsProps['items'] = [
     {
@@ -33,8 +34,8 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
     const { pid, script, startBoarding } = usePersistScriptStorage(state => state)
     const { initializeChapters } = usePersistChaptersStorage(state => state)
     const { saveActors } = usePersistActorsStorage(state => state)
-    const uasApi = usePersistUserAssistantsApi(state => state)
-
+    const gpt = usePersistGPTStorage(state => state)
+    const { userAssistantId } = usePersistUserIdentificationStorage(state => state)
 
     const [stateScript, setScript] = useState<Script>({ ...script! })
 
@@ -55,9 +56,10 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
     const handleBoading = async () => {
         setLoading(true)
 
+        let uasApi = new GPTAssistantsApi(gpt, userAssistantId!)
         //分镜
         let chapters = await startBoarding(uasApi, boardType, { ...stateScript, type: cur }).finally(() => { setLoading(false); onClose() })
-        
+
         //过滤出所有角色信息
         const actorNames = Array.from(new Set(chapters.flatMap(item => item.actors)));
         const actors = actorNames.map((an) => {
