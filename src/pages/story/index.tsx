@@ -2,12 +2,12 @@ import { Button, Select, Tabs, InputNumber, message } from 'antd';
 import React, { useEffect, useState } from 'react'
 import './index.less'
 import { createTabs } from './data'
-import { LeftOutlined } from '@ant-design/icons';
 import { history, useParams } from "umi"
 import Storyboard from './components/storyboard';
 import Drawbatch from './components/drawbatch';
 import Videogeneration from './components/videogeneration'
 import { usePersistActorsStorage, usePersistChaptersStorage, usePersistScriptStorage } from '@/stores/story';
+import { Header } from '@/components';
 
 type ActionTabType = "storyboard" | "drawbatch" | "videogeneration"
 
@@ -110,14 +110,10 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
 
   return (
     <div className="create-wrap">
-      <div className='page-header flexR'>
-        <div className="flexR">
-          <div className="nav-back" onClick={handleQuit}><LeftOutlined twoToneColor="#fff" onClick={saveAllHandle} /></div>
-          <Tabs defaultActiveKey="paint" activeKey={cur} items={tabs} onChange={(key) => setCur(key as ActionTabType)} />
-        </div>
-        {customButtons()}
-      </div>
-      <div className='page-header-placeholder'></div>
+      <Header onQuit={handleQuit}
+       renderLeft={<Tabs defaultActiveKey="paint" activeKey={cur} items={tabs} onChange={(key) => setCur(key as ActionTabType)} />} 
+       renderRight={customButtons()}
+       />
       {cur === "storyboard" ? <Storyboard pid={pid} /> : null}
       {cur === 'drawbatch' ? <Drawbatch /> : null}
       {cur === "videogeneration" ? <Videogeneration /> : null}

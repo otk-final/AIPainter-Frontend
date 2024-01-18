@@ -3,3 +3,4 @@ export {default as LoginModule} from './login'
 export {default as MemberRechargeModule} from './member-recharge'
 export {default as UserInfoModule} from './user-info'
 export {default as HistoryImageModule} from './history-image'
+export {default as Header } from './header';
