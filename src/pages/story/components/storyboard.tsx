@@ -35,10 +35,7 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
                         <Button type='default' className='btn-default-auto btn-default-150 l-p' onClick={() => setFileImportOpen(true)}>导入脚本文件</Button>
                         <Button type='primary' className='btn-primary-auto btn-primary-108'>推理关键词</Button>
                     </div>
-                    <div className='right flexR '>
-                        <QuestionCircleOutlined />
-                        <div className='text flexR'>已完成分镜: 1/79</div>
-                    </div>
+                    <div className='text flexR'>已完成分镜: 1/{chapters?.length}</div>
                 </div>
                 <div className='script-table-wrap'>
                     <div className='th flexR'>
