@@ -44,6 +44,7 @@ export const usePersistComfyUIStorage = create<ComfyUIStorage>((set, get) => ({
         url: "http://192.168.48.123:8188",
         websocket: "ws://192.168.48.123:8188/ws",
     },
+    negativePrompt: "violent",
     modeApis: [{ name: "默认", path: "" }],
     load: async () => {
         //创建目录
@@ -76,7 +77,6 @@ export const usePersistComfyUIStorage = create<ComfyUIStorage>((set, get) => ({
     },
     uploadModeApi: async (index: number, workflowPath: string) => {
         let workflowFileName = await path.basename(workflowPath)
-        debugger
         //读取文件
         let wfText = await fs.readTextFile(workflowPath)
 

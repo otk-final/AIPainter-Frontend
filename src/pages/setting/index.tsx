@@ -36,16 +36,16 @@ const SettingPage = () => {
   }, [])
 
   const handleSave = async () => {
-    save().then(() => { message.success("保存成功") })
+    save().then(() => { message.success("保存成功") }).finally(() => history.back())
   }
 
 
   return (
     <div className="setting-wrap">
-      <Header 
-        renderLeft={<Tabs defaultActiveKey="paint" items={setTabItems} onChange={onChange} />} 
+      <Header
+        renderLeft={<Tabs defaultActiveKey="paint" items={setTabItems} onChange={onChange} />}
         renderRight={<Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleSave}>保存设置</Button>}
-        />
+      />
       {cur === 'paint' ? <PaintSetting /> : null}
       {cur === "basic" ? <BasicSetting /> : null}
     </div>

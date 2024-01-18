@@ -96,7 +96,7 @@ export class GPTAssistantsApi {
     runId?: string
 
     constructor(client: GPTClient, assistantId: string) {
-        this.api = client.buildApi()
+        this.api = client.buildClient()
         this.mode = client.mode
         this.assistantId = assistantId
     }

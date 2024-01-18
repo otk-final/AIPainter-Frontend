@@ -237,19 +237,14 @@ export const usePersistActorsStorage = create<ActorsStorage>((set, get) => ({
     pid: undefined,
     actors: [],
     quit: async () => {
-        set({ pid: undefined, actors: [] })
+        set({ pid: undefined })
     },
     load: async (pid: string) => {
         //读取原始脚本
         let actorsFile = await path.join(pid, "actors.json")
         let exist = await fs.exists(actorsFile, { dir: workspaceFileDirectory })
         if (!exist) {
-
-            //初始化文件
-            let initJson = { pid: pid, actors: [{ id: uuid(), name: "角色1", alias: "", style: "", traits: [] }] }
-            await fs.writeTextFile(actorsFile, JSON.stringify(initJson), { dir: workspaceFileDirectory, append: false })
-
-            set(initJson)
+            set({ pid: pid, actors: [{ id: uuid(), name: "角色1", alias: "", style: "", traits: [] }] })
             return
         }
         let actorsJson = await fs.readTextFile(actorsFile, { dir: workspaceFileDirectory })

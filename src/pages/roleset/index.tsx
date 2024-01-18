@@ -89,21 +89,18 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
 
   //当前项目配置
   let { actors, load, addActor, saveActors } = usePersistActorsStorage(state => state)
-
+  load(pid)
+  
   const saveActorsHandle = async () => {
     saveActors(actors).then(() => { message.success("保存成功") }).finally(() => { history.back() })
   }
-  
 
-  useEffect(() => {
-    load(pid)
-  }, [pid])
 
-  const renderHeaderRight = ()=>{
+  const renderHeaderRight = () => {
     return (
       <div className='flexR'>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={addActor}>新增角色</Button>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={saveActorsHandle}>保存</Button>
+        <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={addActor}>新增角色</Button>
+        <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={saveActorsHandle}>保存</Button>
       </div>
     )
   }
@@ -111,7 +108,7 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
 
   return (
     <div className="roleset-wrap">
-      <Header renderRight={renderHeaderRight()}/>
+      <Header renderRight={renderHeaderRight()} />
       <div className='sub-text'>建议角色设置不要超过2个,如剧本中无固定角色可跳过该步骤。SD在同画面的出现多个角色时，识别能力较差。同画面多人指定角色形象的功能在开发中。</div>
       <div className='roles-wrap flexR'>
         {actors.map((actor, index) => {

@@ -21,8 +21,6 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
   const scriptLoadHandle = usePersistScriptStorage(state => state.load)
   const actorsLoadHandle = usePersistActorsStorage(state => state.load)
   const chaptersLoadHandle = usePersistChaptersStorage(state => state.load)
-
-
   const chapters = usePersistChaptersStorage(state => state.chapters)
 
 
@@ -33,8 +31,8 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
 
     //加载当前工作需要的所有页面数据
     const initializeContext = async () => {
-      await scriptLoadHandle(pid)
       await actorsLoadHandle(pid)
+      await scriptLoadHandle(pid)
       await chaptersLoadHandle(pid)
     }
     initializeContext().catch(err => message.error(err))
@@ -98,12 +96,10 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
   }
 
   const scriptQuitHandle = usePersistScriptStorage(state => state.quit)
-  const actorsQuitHandle = usePersistActorsStorage(state => state.quit)
   const chaptersQuitHandle = usePersistChaptersStorage(state => state.quit)
 
   const handleQuit =  ()=>{
     scriptQuitHandle()
-    actorsQuitHandle()
     chaptersQuitHandle()
     history.back()
   }

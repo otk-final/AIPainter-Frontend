@@ -39,15 +39,30 @@ const PaintSetting: React.FC = () => {
             <div className='setting-section'>
                 <div className='setting-title'>ComfyUI 环境配置</div>
 
-                <div className='setting-form-label flexR half-width'>
+                <div className='flexR half-width'>
                     <div className='flexR'>
-                        <div className='setting-label'>URL地址</div>
+                        <div className='setting-label'>Http地址</div>
                     </div>
                 </div>
-                <div className='setting-form flexR half-width'>
-                    <Input size="large" placeholder="http://127.0.0.1:8188/" className='input-s' value={host?.url} onChange={(e) => { setHost({ ...host!, url: e.target.value }) }} />
-                    <Button type="primary" className="btn-primary-auto btn-primary-108">检测环境</Button>
+
+                <div className='setting-form-label flexR half-width'>
+                    <div className='setting-form flexR half-width'>
+                        <Input size="large" placeholder="http://127.0.0.1:8188" className='input-s' value={host?.url} onChange={(e) => { setHost({ ...host!, url: e.target.value }) }} />
+                    </div>
                 </div>
+
+                <div className='flexR half-width'>
+                    <div className='flexR'>
+                        <div className='setting-label'>Websocket地址</div>
+                    </div>
+                </div>
+
+                <div className='setting-form-label flexR half-width'>
+                    <div className='setting-form flexR half-width'>
+                        <Input size="large" placeholder="ws://127.0.0.1:8188" className='input-s' value={host?.websocket} onChange={(e) => { setHost({ ...host!, websocket: e.target.value }) }} />
+                    </div>
+                </div>
+
             </div >
 
             <div className='setting-section'>
