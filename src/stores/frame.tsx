@@ -94,7 +94,7 @@ export interface ImtateFrame {
     path: string,
     drawPrompt?: string
     drawImage?: string
-    drawImageHistory?: string[]
+    drawImageHistory: string[]
     drawConfig?: any
 }
 
@@ -106,6 +106,7 @@ export interface ImtateFramesStorage {
     load: (pid: string) => Promise<void>
     removeFrame: (idx: number) => Promise<void>
     updateFrame: (idx: number, frame: ImtateFrame) => Promise<void>
+    saveOutputFrameFile: (idx: number, fileName: string, fileBuffer: ArrayBuffer) => Promise<string>
 }
 
 export const usePersistImtateFramesStorage = create<ImtateFramesStorage>((set, get) => ({
@@ -119,7 +120,6 @@ export const usePersistImtateFramesStorage = create<ImtateFramesStorage>((set, g
         let scriptFile = await path.join(pid, "frames.json")
         let exist = await fs.exists(scriptFile, { dir: workspaceFileDirectory, append: true })
         if (!exist) {
-
             //读取文件夹下数据
             let frameDir = await path.join(pid, "frames")
             exist = await fs.exists(frameDir, {
@@ -139,6 +139,7 @@ export const usePersistImtateFramesStorage = create<ImtateFramesStorage>((set, g
                     idx: Number.parseInt(seq!),
                     name: file.name,
                     path: file.path,
+                    drawImageHistory: []
                 } as ImtateFrame
             })
             //sort
@@ -157,6 +158,7 @@ export const usePersistImtateFramesStorage = create<ImtateFramesStorage>((set, g
         stateFrames[idx] = frame
         set({ frames: stateFrames })
     },
+
     removeFrame: async (idx: number) => {
         let stateframes = [...get().frames!]
         stateframes.splice(idx, 1)
@@ -166,5 +168,20 @@ export const usePersistImtateFramesStorage = create<ImtateFramesStorage>((set, g
         let store = get()
         let imtateFile = await path.join(store.pid as string, "frames.json")
         return await fs.writeTextFile(imtateFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
+    },
+    saveOutputFrameFile: async (idx: number, fileName: string, fileBuffer: ArrayBuffer) => {
+        let { pid } = get()
+
+        //创建目录
+        let outputDir = await path.join(pid as string, "outputs")
+        await fs.createDir(outputDir, {
+            dir: workspaceFileDirectory, recursive: true
+        })
+        //保存图片
+        let newFramePath = await path.join(outputDir, fileName)
+        await fs.writeBinaryFile(newFramePath, fileBuffer, { dir: workspaceFileDirectory, append: false })
+
+        //返回全路径
+        return await path.join(await path.appLocalDataDir(), newFramePath)
     }
 }))

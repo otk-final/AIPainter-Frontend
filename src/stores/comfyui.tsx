@@ -284,11 +284,10 @@ export class ComfyUIApi {
     }
 
     //download
-    async download(subfolder: string, fileName: any, saveFilePath: string): Promise<void> {
+    async download(subfolder: string, fileName: any): Promise<ArrayBuffer> {
         //下载网络文件
         let resp = await this.api.get('/view', { params: { subfolder: subfolder, filename: fileName, type: "output" }, responseType: 'arraybuffer' })
-        //写入本地文件
-        return await fs.writeBinaryFile(saveFilePath, Buffer.from(resp.data), { append: false })
+        return Buffer.from(resp.data)
     }
 }
 

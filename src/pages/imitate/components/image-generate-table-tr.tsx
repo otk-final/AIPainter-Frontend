@@ -18,7 +18,7 @@ interface GenerateImagesTRProps {
 const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame }) => {
     const [isOpenHistory, setIsOpenHistory] = useState(false);
     const [stateFrame, setFrame] = useState<ImtateFrame>({ ...frame })
-    const { frames, removeFrame, updateFrame } = usePersistImtateFramesStorage(state => state)
+    const { frames, removeFrame, updateFrame, saveOutputFrameFile } = usePersistImtateFramesStorage(state => state)
     useEffect(() => {
         updateFrame(index, stateFrame)
     }, [index, stateFrame])
@@ -61,7 +61,6 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
             //定位结果
             let reversePrompts = respData[promptId]!.outputs![step]!.tags! as string[]
             if (reversePrompts) setFrame({ ...stateFrame, drawPrompt: reversePrompts.join(",") })
-
             message.destroy()
         }
 
@@ -69,6 +68,219 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
         registerComfyUIPromptCallback({ jobId: stateFrame.path, promptId: job.prompt_id, handle: callback })
     }
 
+
+
+    let mockData = {
+        "68af50ed-d8f9-4e89-84b2-537cbb8f2568": {
+            "prompt": [
+                1,
+                "68af50ed-d8f9-4e89-84b2-537cbb8f2568",
+                {
+                    "3": {
+                        "inputs": {
+                            "seed": 715154751274101,
+                            "steps": 20,
+                            "cfg": 8,
+                            "sampler_name": "euler_ancestral",
+                            "scheduler": "normal",
+                            "denoise": 1,
+                            "model": [
+                                "10",
+                                0
+                            ],
+                            "positive": [
+                                "6",
+                                0
+                            ],
+                            "negative": [
+                                "7",
+                                0
+                            ],
+                            "latent_image": [
+                                "10",
+                                1
+                            ]
+                        },
+                        "class_type": "KSampler",
+                        "_meta": {
+                            "title": "KSampler"
+                        }
+                    },
+                    "4": {
+                        "inputs": {
+                            "ckpt_name": "AnythingV5Ink_ink.safetensors"
+                        },
+                        "class_type": "CheckpointLoaderSimple",
+                        "_meta": {
+                            "title": "Load Checkpoint"
+                        }
+                    },
+                    "6": {
+                        "inputs": {
+                            "text": "1girl, long_hair, looking_at_viewer, black_hair, brown_eyes, jewelry, sitting, closed_mouth, earrings, solo_focus, bracelet, cup, blurry_background, head_rest, chinese_text",
+                            "clip": [
+                                "4",
+                                1
+                            ]
+                        },
+                        "class_type": "CLIPTextEncode",
+                        "_meta": {
+                            "title": "CLIP Text Encode (Prompt)"
+                        }
+                    },
+                    "7": {
+                        "inputs": {
+                            "text": "violent",
+                            "clip": [
+                                "4",
+                                1
+                            ]
+                        },
+                        "class_type": "CLIPTextEncode",
+                        "_meta": {
+                            "title": "CLIP Text Encode (Prompt)"
+                        }
+                    },
+                    "8": {
+                        "inputs": {
+                            "samples": [
+                                "3",
+                                0
+                            ],
+                            "vae": [
+                                "16",
+                                0
+                            ]
+                        },
+                        "class_type": "VAEDecode",
+                        "_meta": {
+                            "title": "VAE Decode"
+                        }
+                    },
+                    "9": {
+                        "inputs": {
+                            "filename_prefix": "ComfyUI",
+                            "images": [
+                                "8",
+                                0
+                            ]
+                        },
+                        "class_type": "SaveImage",
+                        "_meta": {
+                            "title": "Save Image"
+                        }
+                    },
+                    "10": {
+                        "inputs": {
+                            "batch_size": 1,
+                            "model": [
+                                "4",
+                                0
+                            ],
+                            "reference": [
+                                "14",
+                                0
+                            ]
+                        },
+                        "class_type": "ReferenceOnlySimple",
+                        "_meta": {
+                            "title": "ReferenceOnlySimple"
+                        }
+                    },
+                    "11": {
+                        "inputs": {
+                            "image": "output_image6.png",
+                            "upload": "image"
+                        },
+                        "class_type": "LoadImage",
+                        "_meta": {
+                            "title": "Load Image"
+                        }
+                    },
+                    "13": {
+                        "inputs": {
+                            "upscale_method": "nearest-exact",
+                            "width": 512,
+                            "height": 512,
+                            "crop": "disabled",
+                            "image": [
+                                "11",
+                                0
+                            ]
+                        },
+                        "class_type": "ImageScale",
+                        "_meta": {
+                            "title": "Upscale Image"
+                        }
+                    },
+                    "14": {
+                        "inputs": {
+                            "pixels": [
+                                "13",
+                                0
+                            ],
+                            "vae": [
+                                "16",
+                                0
+                            ]
+                        },
+                        "class_type": "VAEEncode",
+                        "_meta": {
+                            "title": "VAE Encode"
+                        }
+                    },
+                    "16": {
+                        "inputs": {
+                            "vae_name": "kl-f8-anime2.ckpt"
+                        },
+                        "class_type": "VAELoader",
+                        "_meta": {
+                            "title": "Load VAE"
+                        }
+                    }
+                },
+                {},
+                [
+                    "9"
+                ]
+            ],
+            "outputs": {
+                "9": {
+                    "images": [
+                        {
+                            "filename": "ComfyUI_00391_.png",
+                            "subfolder": "",
+                            "type": "output"
+                        },
+                        {
+                            "filename": "ComfyUI_00392_.png",
+                            "subfolder": "",
+                            "type": "output"
+                        }
+                    ]
+                }
+            },
+            "status": {
+                "status_str": "success",
+                "completed": true,
+                "messages": [
+                    [
+                        "execution_start",
+                        {
+                            "prompt_id": "68af50ed-d8f9-4e89-84b2-537cbb8f2568"
+                        }
+                    ],
+                    [
+                        "execution_cached",
+                        {
+                            "nodes": [],
+                            "prompt_id": "68af50ed-d8f9-4e89-84b2-537cbb8f2568"
+                        }
+                    ]
+                ]
+            }
+        }
+    }
 
     const handleImage2Image = async () => {
         if (!style) {
@@ -81,15 +293,28 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
         //根据当前风格选择脚本 提交当前关键词，和默认反向关键词
         let ws = new WorkflowScript(await comfyui.loadModeApi(style))
         let job = await comfyuiApi.prompt(ws, { positive: stateFrame.drawPrompt!, negative: comfyui.negativePrompt! }, Text2ImageHandle)
+        let step = ws.getOutputImageStep()
+
 
         const callback = async (promptId: string, respData: any) => {
             //回调消息不及时 定时查询
             console.info("status", respData)
-
-
+            
             //下载文件
+            let images = respData[promptId]!.outputs![step].images! as { filename: string, subfolder: string, type: string }[]
+            images.forEach(async (item) => {
 
-            //更新数据
+                //下载，保存
+                let fileBuffer = await comfyuiApi.download(item.subfolder, item.filename)
+                debugger
+                let filePath = await saveOutputFrameFile(index, item.filename, fileBuffer)
+
+                //更新状态
+                stateFrame.drawImageHistory.push(filePath)
+                stateFrame.drawImage = filePath
+
+                setFrame({ ...stateFrame })
+            })
 
             message.destroy()
         }

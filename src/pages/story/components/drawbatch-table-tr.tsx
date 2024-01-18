@@ -3,16 +3,17 @@ import TextArea from "antd/es/input/TextArea";
 import { Fragment, useEffect, useState } from "react";
 import { drawbatchColumns } from "../data";
 import { Chapter, usePersistChaptersStorage } from "@/stores/story";
-import {  tauri } from "@tauri-apps/api";
+import { tauri } from "@tauri-apps/api";
 import { HistoryImageModule } from "@/components";
 
 interface ChapterTableTRProps {
     idx: number,
+    style: string
     chapter: Chapter,
 }
 
 
-const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, chapter }) => {
+const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, style, chapter }) => {
 
     const [isOpenHistory, setIsOpenHistory] = useState(false);
     const { updateChapter } = usePersistChaptersStorage(state => state)
@@ -74,7 +75,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, chapter }) => {
         }
         return (
             <div className="flexR" style={{ flexWrap: "wrap", justifyContent: "flex-start", width: '100%' }}
-            onClick={()=> setIsOpenHistory(true)}>
+                onClick={() => setIsOpenHistory(true)}>
                 {stateChapter?.drawImageHistory?.map((p, idx) => {
                     return <Image src={tauri.convertFileSrc(p)} className="drawbath-image size-s" preview={false} key={idx} />
                 })}
@@ -106,12 +107,12 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, chapter }) => {
                     </div>
                 )
             })}
-            <HistoryImageModule 
-             isOpen={isOpenHistory} onClose={()=>setIsOpenHistory(false)}
-             paths={stateChapter.drawImageHistory || []} defaultPath={stateChapter.drawImage || ""}
-             onChangeNewImage={(v)=> setChapter(res=> {
-                return {...res, drawImage: v}
-             })}/>
+            <HistoryImageModule
+                isOpen={isOpenHistory} onClose={() => setIsOpenHistory(false)}
+                paths={stateChapter.drawImageHistory || []} defaultPath={stateChapter.drawImage || ""}
+                onChangeNewImage={(v) => setChapter(res => {
+                    return { ...res, drawImage: v }
+                })} />
         </div>
     )
 }

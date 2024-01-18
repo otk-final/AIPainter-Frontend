@@ -69,10 +69,8 @@ export interface DrawGlobalConfig {
 export interface ScriptStorage {
     pid: string | undefined
     script: Script | undefined
-    style: string,
     quit: () => Promise<void>
     load: (pid: string) => Promise<void>
-    setStyle: (style: string) => Promise<void>
     startBoarding: (uasApi: GPTAssistantsApi, boardType: string, script: Script) => Promise<Chapter[]>
 }
 
@@ -85,7 +83,6 @@ const workspaceFileDirectory = BaseDirectory.AppLocalData
 export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
     pid: undefined,
     script: undefined,
-    style: "default",
     quit: async () => {
         set({ pid: undefined, script: undefined })
     },
@@ -99,9 +96,6 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
         }
         let scriptJson = await fs.readTextFile(scriptFile, { dir: workspaceFileDirectory })
         set({ ...JSON.parse(scriptJson) })
-    },
-    setStyle: async (key: string) => {
-        set({ style: key })
     },
     startBoarding: async (gptApi: GPTAssistantsApi, boardType: string, script: Script) => {
 
