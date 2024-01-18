@@ -1,19 +1,18 @@
-import { fs, os, path, tauri } from "@tauri-apps/api"
+import { fs, path } from "@tauri-apps/api"
 import { BaseDirectory } from "@tauri-apps/api/fs"
 import axios, { Axios } from "axios"
 import { create } from "zustand"
 
-export interface ComfyUIWorkflowApi {
+export interface ComfyUIWorkflow {
     name: string
     path: string
-    workflow: any
 }
 
 export interface ComfyUIStorage {
     url: string
-    modeApis: ComfyUIWorkflowApi[]
-    reverseApi?: ComfyUIWorkflowApi,
-    prompt?: string,
+    modeApis: ComfyUIWorkflow[]
+    reverseApi?: ComfyUIWorkflow,
+    positivePrompt?: string,
     negativePrompt?: string,
     isLocal: () => boolean
     addModeApi: () => void
@@ -23,13 +22,17 @@ export interface ComfyUIStorage {
     uploadModeApi: (index: number, workflowPath: string) => Promise<void>
     uploadReverseApi: (workflowPath: string) => Promise<void>
     setHandle: (state: any) => void
+
+    loadReverseApi: () => any
+
+    loadModeApi: (name: string) => any
 }
 
 const workspaceFilePath = "env" + path.sep + "comfyui.json"
 const workspaceFileDirectory = BaseDirectory.AppLocalData
 export const usePersistComfyUIStorage = create<ComfyUIStorage>((set, get) => ({
-    url: "",
-    modeApis: [{ name: "", path: "", workflow: {} }],
+    url: "http://192.168.48.123:8188",
+    modeApis: [{ name: "", path: "", script: {} }],
     load: async () => {
         //创建目录
         await fs.createDir("env", { dir: workspaceFileDirectory, recursive: true })
@@ -54,7 +57,7 @@ export const usePersistComfyUIStorage = create<ComfyUIStorage>((set, get) => ({
     },
     addModeApi: async () => {
         let { modeApis } = get()
-        modeApis.push({ name: "", path: "", workflow: {} })
+        modeApis.push({ name: "", path: "" })
         set({ modeApis: modeApis })
     },
     removeModeApi: async (idx: number) => {
@@ -69,10 +72,10 @@ export const usePersistComfyUIStorage = create<ComfyUIStorage>((set, get) => ({
         let wfText = await fs.readTextFile(workflowPath)
 
         //校验文件
-        let workflow = JSON.parse(wfText)
+        JSON.parse(wfText)
 
         let { modeApis } = get()
-        modeApis[index] = { name: workflowFileName, path: workflowPath, workflow: workflow }
+        modeApis[index] = { name: workflowFileName, path: workflowPath }
         set({ modeApis: [...modeApis] })
     },
     uploadReverseApi: async (workflowPath: string) => {
@@ -80,40 +83,52 @@ export const usePersistComfyUIStorage = create<ComfyUIStorage>((set, get) => ({
         //读取文件
         let wfText = await fs.readTextFile(workflowPath)
         //校验文件
-        let workflow = JSON.parse(wfText)
-        set({ reverseApi: { name: workflowFileName, path: workflowPath, workflow: workflow } })
+        JSON.parse(wfText)
+        set({ reverseApi: { name: workflowFileName, path: workflowPath } })
     },
-    setHandle: set
+    setHandle: set,
+    loadReverseApi: async () => {
+        let { reverseApi } = get()
+        let wfText = await fs.readTextFile(reverseApi!.path)
+        return JSON.parse(wfText)
+    },
+    loadModeApi: async (name: string) => {
+        let { modeApis } = get()
+        let modeApi = modeApis.find(item => item.name === name)
+
+        let wfText = await fs.readTextFile(modeApi!.path)
+        return JSON.parse(wfText)
+    }
 }))
 
 
 
-interface ComfyUIPromptTask {
+export interface ComfyUIPromptTask {
     prompt_id: string
     number: number
     node_errors: any
 }
 
-interface ComfyUIPromptEvent {
+export interface ComfyUIPromptEvent {
     type: string
     data: any
 }
 
 
 
-class ComfyUIApi {
+export class ComfyUIApi {
     api: Axios
     clientId: string
-    storage: ComfyUIStorage
+    // storage: ComfyUIStorage
     constructor(clientId: string, config: ComfyUIStorage) {
 
-        this.storage = config
+        // this.storage = config
         this.clientId = clientId
-
+        debugger
         //api
         this.api = axios.create({
             baseURL: config.url,
-            timeout: 0
+            timeout: -1
         })
 
         //websocket  只保持一个链接
@@ -158,7 +173,7 @@ class ComfyUIApi {
 
     //任务状态
     async history(prompt_id: string): Promise<any> {
-        return await this.api.get("history/" + prompt_id)
+        return await this.api.get("/history/" + prompt_id)
     }
 
     //upload
@@ -187,7 +202,7 @@ class ComfyUIApi {
 }
 
 //补全Prompt接口参数
-type CompletionPromptParams<T> = (api: ComfyUIApi, script: WorkflowScript, params: T) => any
+export type CompletionPromptParams<T> = (api: ComfyUIApi, script: WorkflowScript, params: T) => any
 
 
 interface WorkflowNode {
@@ -202,7 +217,7 @@ interface WorkflowNode {
 
 
 
-class WorkflowScript {
+export class WorkflowScript {
     nodes: WorkflowNode[]
     constructor(script: any) {
         this.nodes = []
@@ -253,7 +268,7 @@ class WorkflowScript {
         return this.getOutputStep("WD14Tagger")
     }
     private getOutputStep(classType: string): string {
-        //一个工作流中 可能出现多个相同逻辑节点，已用户最后节点导出为主，及节点编号最大值
+        //一个工作流中 可能出现多个相同逻辑节点，以用户最后节点导出为主，及节点编号最大值
         let saveImages = this.getNodes(classType)
         saveImages = saveImages.sort((a: WorkflowNode, b: WorkflowNode) => {
             return Number.parseInt(a.step) - Number.parseInt(b.step)
@@ -264,7 +279,7 @@ class WorkflowScript {
 
 
 
-interface ImageFileParams {
+export interface ImageFileParams {
     subfolder: string
     filename: string
 }
@@ -274,7 +289,7 @@ export const Image2TextHandle: CompletionPromptParams<ImageFileParams> = (api: C
     script.setInputImage(file.subfolder + "/" + file.filename)
 }
 
-interface Text2ImageParams {
+export interface Text2ImageParams {
     positive: string
     negative: string
 }
