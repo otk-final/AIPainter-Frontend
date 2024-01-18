@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button,  Input } from 'antd';
+import { Button,  Input, Modal } from 'antd';
 import './index.less'
 import { DeleteOutlined } from '@ant-design/icons';
 import { Header } from '@/components';
@@ -10,6 +10,22 @@ const TikTokPage = () => {
     const [url, setUrl] = useState('');
 
     const handleLoad = () => {}
+
+    const handleDel = (item) => {
+        Modal.confirm({
+          title: '确认删除',
+          okText: '确认',
+          cancelText: '取消',
+          footer: (_, { OkBtn, CancelBtn })=> (
+            <div className='flexR' style={{justifyContent: 'center'}}>
+               <CancelBtn />
+               <OkBtn />
+            </div>
+          ),
+          onOk: ()=> {
+          }
+          });
+    }
 
     const renderHeaderLeft = ()=>{
         return (
@@ -30,8 +46,11 @@ const TikTokPage = () => {
         <div className='video-wrap flexR' style={{height:"calc(100% - 78px)", overflow: 'scroll'}}>
                 {['', '', '', '','', ].map((i, index)=>{
                     return (
-                        <div className='video-item' key={index}>
-                            <DeleteOutlined className='del flexR'/>
+                        <div className='video-item-wrap' >
+                            <div className='video-item' key={index}>
+                                <DeleteOutlined className='del flexR' onClick={handleDel}/>
+                            </div>
+                            <div className='text'>11月27日 09:20</div>
                         </div>
                     )
                 })}
