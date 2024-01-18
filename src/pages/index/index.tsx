@@ -8,7 +8,7 @@ import { Project, usePersistWorkspaces } from '@/stores/project';
 import { ProjectModal } from '@/components/create-project';
 
 
-export type ProjectType  = "story" | "imitate" | ""
+export type ProjectType = "story" | "imitate" | ""
 interface homeDataProps {
   key: string,
   title: string,
@@ -71,11 +71,11 @@ const HomePage = () => {
     }
 
 
-    if(i?.pageUrl) {
+    if (i?.pageUrl) {
       history.push(i.pageUrl)
     } else if (i.key === "story" || i.key === "imitate") {
       setIsProjectOpen(i.key)
-    } 
+    }
   }
 
   //加载项目
@@ -93,16 +93,16 @@ const HomePage = () => {
       title: '确认删除',
       okText: '确认',
       cancelText: '取消',
-      footer: (_, { OkBtn, CancelBtn })=> (
-        <div className='flexR' style={{justifyContent: 'center'}}>
-           <CancelBtn />
-           <OkBtn />
+      footer: (_, { OkBtn, CancelBtn }) => (
+        <div className='flexR' style={{ justifyContent: 'center' }}>
+          <CancelBtn />
+          <OkBtn />
         </div>
       ),
-      onOk: ()=> {
+      onOk: () => {
         remove(item!.id)
       }
-      });
+    });
   }
 
   const renderMyCreation = () => {
@@ -113,13 +113,13 @@ const HomePage = () => {
             <div className="home-item-wrap flexR" key={index}>
               <div className="left flexC">
                 <div className="title one-line">{item?.name}</div>
-                <div className="describe" style={{marginTop: '-10px'}}>类型: {item?.type}</div>
+                <div className="describe" style={{ marginTop: '-10px' }}>类型: {item?.type}</div>
                 <div className="describe">开始时间: {item?.createTime}</div>
                 <div className="describe">当前环节: {item?.step}</div>
               </div>
               <div className="right flexC">
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={() => { handleGoon(item!) }}>继续创作</Button>
-                <Button type="default" className="btn-default-auto btn-default-100" style={{marginTop: '10px'}} onClick={()=> handleDel(item)}>删除</Button>
+                <Button type="default" className="btn-default-auto btn-default-100" style={{ marginTop: '10px' }} onClick={() => handleDel(item)}>删除</Button>
               </div>
             </div>
           )
@@ -172,7 +172,7 @@ const HomePage = () => {
       <div className="section-title-wrap">我的创作<span>（生成素材特为您保留30天）</span></div>
 
       {projects.length ? renderMyCreation() : renderMyCreationEmpty()}
-      <ProjectModal isOpen={!!isProjectOpen} onClose={() => setIsProjectOpen("")} type={isProjectOpen}/>
+      <ProjectModal isOpen={!!isProjectOpen} onClose={() => setIsProjectOpen("")} type={isProjectOpen} />
     </div>
   );
 }

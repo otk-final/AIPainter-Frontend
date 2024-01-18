@@ -8,7 +8,7 @@ import { dialog } from '@tauri-apps/api';
 
 
 const PaintSetting: React.FC = () => {
-    const { url, positivePrompt, negativePrompt, modeApis, reverseApi, setHandle, uploadModeApi, addModeApi, removeModeApi, uploadReverseApi } = usePersistComfyUIStorage(state => state)
+    const { host, positivePrompt, negativePrompt, modeApis, reverseApi, setHost, setHandle, uploadModeApi, addModeApi, removeModeApi, uploadReverseApi } = usePersistComfyUIStorage(state => state)
     const handleUpdateMode = async (idx: number) => {
         let selected = await dialog.open({
             title: "选择Comfy Workflow Api 文件",
@@ -45,7 +45,7 @@ const PaintSetting: React.FC = () => {
                     </div>
                 </div>
                 <div className='setting-form flexR half-width'>
-                    <Input size="large" placeholder="http://127.0.0.1:8188/" className='input-s' value={url} onChange={(e) => { setHandle({ url: e.target.value }) }} />
+                    <Input size="large" placeholder="http://127.0.0.1:8188/" className='input-s' value={host?.url} onChange={(e) => { setHost({ ...host!, url: e.target.value }) }} />
                     <Button type="primary" className="btn-primary-auto btn-primary-108">检测环境</Button>
                 </div>
             </div >

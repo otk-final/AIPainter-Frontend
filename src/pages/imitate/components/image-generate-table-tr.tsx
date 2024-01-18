@@ -1,11 +1,11 @@
-import { Button, Image } from "antd"
+import { Button, Image, message } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import { Fragment, useEffect, useState } from "react";
 import { generateImagesColumns } from "../data";
 import { ImtateFrame, usePersistImtateFramesStorage } from "@/stores/frame";
 import { tauri } from "@tauri-apps/api";
 import { HistoryImageModule } from "@/components"
-import { ComfyUIApi, Image2TextHandle, WorkflowScript, usePersistComfyUIStorage } from "@/stores/comfyui";
+import { Image2TextHandle, WorkflowScript, registerComfyUIPromptCallback, usePersistComfyUIStorage } from "@/stores/comfyui";
 import { v4 as uuid } from "uuid"
 import { usePersistUserIdentificationStorage } from "@/stores/auth";
 
@@ -36,23 +36,48 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, frame }) => 
     //comfyui
     const comfyui = usePersistComfyUIStorage(state => state)
     const { clientId } = usePersistUserIdentificationStorage(state => state)
-    const comfyuiApi = new ComfyUIApi(clientId, comfyui)
 
 
     //反推关键词
     const handleImage2Text = async () => {
 
+        message.loading("反推关键词...", 0)
         let filename = uuid()
+        let comfyuiApi = comfyui.buildApi(clientId)
+
         //上传文件
-        await comfyuiApi.upload("imitate/" + uuid(), stateFrame.path, filename)
+        await comfyuiApi.upload(clientId, stateFrame.path, filename)
 
         //提交任务
-        let ws = new WorkflowScript(comfyui.loadReverseApi())
+        let ws = new WorkflowScript(await comfyui.loadReverseApi())
         let job = await comfyuiApi.prompt(ws, { subfolder: clientId, filename: filename }, Image2TextHandle)
 
-        console.info("job", job)
+        //关键词所在的节点数
+        let step = ws.getWD14TaggerStep()
+
+        const callback = async (type: string, data: any) => {
+            //反显示
+            let status = await comfyuiApi.history(data.prompt_id)
+            console.info("status", step, status)
+            let reversePrompts = status[data.prompt_id]!.outputs![step]!.tags! as string[]
+            console.info("reversePrompts", reversePrompts)
+            if (reversePrompts) setFrame({ ...stateFrame, drawPrompt: reversePrompts.join(",") })
+
+            message.destroy()
+        }
+
         //监听任务
+        registerComfyUIPromptCallback({ jobId: stateFrame.path, promptId: job.prompt_id, handle: callback })
     }
+
+
+    const handleImage2Image = async () => {
+
+    }
+
+
+
+
 
     const renderNumber = () => {
         return (
@@ -68,6 +93,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, frame }) => 
         return (
             <TextArea rows={7} placeholder={"请输入关键词"}
                 maxLength={1000} className="text-area-auto"
+                value={stateFrame.drawPrompt}
                 onChange={(e) => { setFrame({ ...stateFrame, drawPrompt: e.target.value }) }} />
         )
     }
