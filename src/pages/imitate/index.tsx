@@ -6,6 +6,7 @@ import { history, useParams } from "umi"
 import { usePersistImtateFramesStorage, usePersistImtateStorage } from '@/stores/frame';
 import VideoImportTab from './components/video-import';
 import ImageGenerateTab from './components/image-generate';
+import { usePersistComfyUIStorage } from '@/stores/comfyui';
 
 export type ImitateTabType = "exportFrames" | "generateImages"
 const imitateTabs: TabsProps["items"] = [
@@ -25,9 +26,11 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   const { frames } = usePersistImtateFramesStorage(state => state);
 
   const imtateLoadHanlde = usePersistImtateStorage(state => state.load)
+  const loadComfy = usePersistComfyUIStorage(state => state.load)
   useEffect(() => {
     //加载数据
     imtateLoadHanlde(pid)
+    loadComfy()
   }, [pid])
 
   //导出

@@ -8,13 +8,18 @@ export interface ComfyUIWorkflow {
     path: string
 }
 
-export interface ComfyUIStorage {
+export interface ComfyUIHost {
     url: string
+    websocket: string
+}
+
+
+export interface ComfyUIStorage {
+    host?: ComfyUIHost
     modeApis: ComfyUIWorkflow[]
     reverseApi?: ComfyUIWorkflow,
     positivePrompt?: string,
     negativePrompt?: string,
-    isLocal: () => boolean
     addModeApi: () => void
     load: () => Promise<void>
     save: () => Promise<void>
@@ -26,12 +31,19 @@ export interface ComfyUIStorage {
     loadReverseApi: () => any
 
     loadModeApi: (name: string) => any
+
+    setHost: (host: ComfyUIHost) => void
+    buildApi: (clientId: string) => ComfyUIApi
 }
 
+let _baseApi: ComfyUIApi | undefined = undefined
 const workspaceFilePath = "env" + path.sep + "comfyui.json"
 const workspaceFileDirectory = BaseDirectory.AppLocalData
 export const usePersistComfyUIStorage = create<ComfyUIStorage>((set, get) => ({
-    url: "http://192.168.48.123:8188",
+    host: {
+        url: "http://192.168.48.123:8188",
+        websocket: "ws://192.168.48.123:8188/ws",
+    },
     modeApis: [{ name: "", path: "", script: {} }],
     load: async () => {
         //创建目录
@@ -42,14 +54,11 @@ export const usePersistComfyUIStorage = create<ComfyUIStorage>((set, get) => ({
         if (!exist) {
             return
         }
+
         let jsonText = await fs.readTextFile(workspaceFilePath, {
             dir: workspaceFileDirectory
         })
         set({ ...JSON.parse(jsonText) })
-    },
-    isLocal: () => {
-        let { url } = get()
-        return url.indexOf("127.0.0.1") !== -1 || url.indexOf("localhost") !== -1
     },
     save: async () => {
         let store = get()
@@ -98,8 +107,23 @@ export const usePersistComfyUIStorage = create<ComfyUIStorage>((set, get) => ({
 
         let wfText = await fs.readTextFile(modeApi!.path)
         return JSON.parse(wfText)
+    },
+    setHost: (host: ComfyUIHost) => {
+        //重置api
+        _baseApi = undefined
+        set({ host: host })
+    },
+    buildApi: (clientId: string) => {
+        let { host } = get()
+        if (_baseApi) {
+            return _baseApi
+        }
+        //缓存链接
+        _baseApi = new ComfyUIApi(clientId, host!)
+        return _baseApi
     }
 }))
+
 
 
 
@@ -116,68 +140,99 @@ export interface ComfyUIPromptEvent {
 
 
 
+interface ComfyUIPromptCallback {
+    jobId: string
+    promptId: string
+    handle: (status: string, data: any) => Promise<void>
+}
+
+
+let center: ComfyUIPromptCallback[] = []
+
+//注册任务
+export const registerComfyUIPromptCallback = (cb: ComfyUIPromptCallback) => {
+    //查找已经存在任务，先删除
+    center = center.filter(item => item.jobId !== cb.jobId)
+    center.push(cb)
+}
+
+//执行回调
+export const doComfyUIPromptCallback = (promptId: string, type: string, data: any) => {
+    let idx = center.findIndex(item => item.promptId == promptId)
+    if (idx === -1) {
+        return
+    }
+    //执行 忽略异常
+    try {
+        center[idx].handle(type, data)
+    } catch (err) {
+        console.info(err)
+    }
+    //删除
+    center.splice(idx, 1)
+}
+
+
+
 export class ComfyUIApi {
     api: Axios
     clientId: string
+
     // storage: ComfyUIStorage
-    constructor(clientId: string, config: ComfyUIStorage) {
+    constructor(clientId: string, host: ComfyUIHost) {
 
         // this.storage = config
         this.clientId = clientId
-        debugger
+
         //api
         this.api = axios.create({
-            baseURL: config.url,
-            timeout: -1
+            baseURL: host.url,
+            timeout: -1,
+            withCredentials: false
         })
 
+
         //websocket  只保持一个链接
-        let ws = new WebSocket(config.url + "/ws?client_id=" + clientId)
+        let ws = new WebSocket(host.websocket + "?client_id=" + clientId)
         ws.onopen = this.wsOpen
         ws.onmessage = this.wsReceived
         ws.onclose = this.wsClose
     }
 
-    wsOpen() {
+    private wsOpen() {
         console.info('ws opened')
     }
-    wsReceived(message: MessageEvent<ComfyUIPromptEvent>) {
+
+
+    private wsReceived(message: MessageEvent) {
         //server
-        let { type, data } = message.data
-        if (type === "executing") {
-            if (data.node) {
-                //is runing at some node
-            } else {
-                //is finished
-            }
-        } else if (type === "progress") {
-            //当前进度信息
-
-        } else if (type === "execution_start") {
-            //已经开始执行
-
-        } else if (type === "status") {
-            //任务数据发送变更
+        let { type, data } = JSON.parse(message.data) as ComfyUIPromptEvent
+        if (type === "progress" && data.prompt_id && !data.node) {
+            //通知业务
+            doComfyUIPromptCallback(data.prompt_id, type, data)
+        } else {
+            console.info('message.data', message.data)
         }
     }
-    wsClose() {
+    private wsClose() {
         console.info('ws closed')
     }
 
     //post prompt
     async prompt<T>(script: WorkflowScript, params: T, handle: CompletionPromptParams<T>): Promise<ComfyUIPromptTask> {
         let prompt = handle(this, script, params)
+        console.info("submit prompt", params, prompt)
         //提交任务
-        return await this.api.post("/prompt", { clientId: this.clientId, prompt: prompt }) as ComfyUIPromptTask
+        return await this.api.post("/prompt", { clientId: this.clientId, prompt: prompt }).then(resp => resp.data)
     }
 
     //任务状态
     async history(prompt_id: string): Promise<any> {
-        return await this.api.get("/history/" + prompt_id)
+        return await this.api.get("/history/" + prompt_id).then(resp => resp.data)
     }
 
     //upload
-    async upload(subfolder: string, filePath: string, fileName: string): Promise<void> {
+    async upload(subfolder: string, filePath: string, fileName: string): Promise<any> {
 
         //参数 每次上传覆盖文件
         let imageBytes = await fs.readBinaryFile(filePath)
@@ -187,9 +242,9 @@ export class ComfyUIApi {
         formData.append("overwrite", 'true')
 
 
-        await this.api.post('/upload/image', formData, {
+        return await this.api.post('/upload/image', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
-        })
+        }).then(resp => resp.data)
     }
 
     //download
@@ -197,7 +252,7 @@ export class ComfyUIApi {
         //下载网络文件
         let resp = await this.api.get('/view', { params: { subfolder: subfolder, filename: fileName, type: "output" }, responseType: 'arraybuffer' })
         //写入本地文件
-        await fs.writeBinaryFile(saveFilePath, Buffer.from(resp.data), { append: false })
+        return await fs.writeBinaryFile(saveFilePath, Buffer.from(resp.data), { append: false })
     }
 }
 
@@ -275,6 +330,13 @@ export class WorkflowScript {
         })
         return saveImages[0].step
     }
+    toObject(): any {
+        let obj: any = {}
+        this.nodes.forEach(item => {
+            obj[item.step] = item.node
+        })
+        return obj
+    }
 }
 
 
@@ -287,6 +349,8 @@ export interface ImageFileParams {
 //图反推关键词
 export const Image2TextHandle: CompletionPromptParams<ImageFileParams> = (api: ComfyUIApi, script: WorkflowScript, file: ImageFileParams) => {
     script.setInputImage(file.subfolder + "/" + file.filename)
+
+    return script.toObject()
 }
 
 export interface Text2ImageParams {
@@ -298,10 +362,12 @@ export interface Text2ImageParams {
 export const Text2ImageHandle: CompletionPromptParams<Text2ImageParams> = (api: ComfyUIApi, script: WorkflowScript, params: Text2ImageParams) => {
     script.setNegativePrompt(params.negative)
     script.setPositivePrompt(params.positive)
+    return script.toObject()
 }
 
 
 //图生图
 export const Image2ImageHandle: CompletionPromptParams<ImageFileParams> = (api: ComfyUIApi, script: WorkflowScript, file: ImageFileParams) => {
     script.setInputImage(file.subfolder + "/" + file.filename)
+    return script.toObject()
 }
