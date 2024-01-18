@@ -24,14 +24,14 @@ export interface ComfyUIStorage {
     setHandle: (state: any) => void
 
     loadReverseApi: () => any
-    
+
     loadModeApi: (name: string) => any
 }
 
 const workspaceFilePath = "env" + path.sep + "comfyui.json"
 const workspaceFileDirectory = BaseDirectory.AppLocalData
 export const usePersistComfyUIStorage = create<ComfyUIStorage>((set, get) => ({
-    url: "",
+    url: "http://192.168.48.123:8188",
     modeApis: [{ name: "", path: "", script: {} }],
     load: async () => {
         //创建目录
@@ -119,16 +119,16 @@ export interface ComfyUIPromptEvent {
 export class ComfyUIApi {
     api: Axios
     clientId: string
-    storage: ComfyUIStorage
+    // storage: ComfyUIStorage
     constructor(clientId: string, config: ComfyUIStorage) {
 
-        this.storage = config
+        // this.storage = config
         this.clientId = clientId
-
+        debugger
         //api
         this.api = axios.create({
             baseURL: config.url,
-            timeout: 0
+            timeout: -1
         })
 
         //websocket  只保持一个链接
