@@ -75,7 +75,7 @@ export default function Layout(props: any) {
           {loginState.isLogin ?
             <Fragment>
               <div className="endtime-wrap flexR">
-                {`账号到期时间:  `}<span className="endtime">2024-01-26</span>
+                {`账号到期时间:  `}<span className="endtime">{loginState.endTime}</span>
               </div>
               <div className="member" onClick={() => setIsMemberRechargeOpen(true)}>续费超级会员</div>
             </Fragment>

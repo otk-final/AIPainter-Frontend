@@ -1,11 +1,12 @@
 import { Button, Input, message } from 'antd';
 import './index.less'
 import { history } from "umi"
-import { DeleteOutlined, LeftOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useEffect, useRef, useState } from 'react';
 import TagModal from './components/tags-modal';
 import { Actor, usePersistActorsStorage } from '@/stores/story';
 import { dialog } from '@tauri-apps/api';
+import { Header } from '@/components';
 
 
 
@@ -96,23 +97,21 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
 
   useEffect(() => {
     load(pid)
-
-    
   }, [pid])
+
+  const renderHeaderRight = ()=>{
+    return (
+      <div className='flexR'>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={addActor}>新增角色</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={saveActorsHandle}>保存</Button>
+      </div>
+    )
+  }
 
 
   return (
     <div className="roleset-wrap">
-      <div className='page-header flexR'>
-        <div className="flexR">
-          <div className="nav-back" onClick={() => history.back()}><LeftOutlined twoToneColor="#fff" /></div>
-        </div>
-        <div className='flexR'>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={addActor}>新增角色</Button>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={saveActorsHandle}>保存</Button>
-        </div>
-      </div>
-      <div className='page-header-placeholder'></div>
+      <Header renderRight={renderHeaderRight()}/>
       <div className='sub-text'>建议角色设置不要超过2个,如剧本中无固定角色可跳过该步骤。SD在同画面的出现多个角色时，识别能力较差。同画面多人指定角色形象的功能在开发中。</div>
       <div className='roles-wrap flexR'>
         {actors.map((actor, index) => {

@@ -3,9 +3,8 @@ import React, { useEffect, useState } from 'react'
 import './index.less'
 import PaintSetting from './components/paint-setting';
 import BasicSetting from './components/basic-setting';
-import { LeftOutlined } from '@ant-design/icons';
-import { history } from "umi"
 import { usePersistComfyUIStorage } from '@/stores/comfyui';
+import { Header } from '@/components';
 
 type setTabType = "paint" | "translate" | "basic"
 
@@ -39,16 +38,14 @@ const SettingPage = () => {
   const handleSave = async () => {
     save().then(() => { message.success("保存成功") })
   }
+
+
   return (
     <div className="setting-wrap">
-      <div className='page-header flexR'>
-        <div className="flexR">
-          <div className="nav-back" onClick={() => history.back()}><LeftOutlined twoToneColor="#fff" /></div>
-          <Tabs defaultActiveKey="paint" items={setTabItems} onChange={onChange} />
-        </div>
-        <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleSave}>保存设置</Button>
-      </div>
-      <div className='page-header-placeholder'></div>
+      <Header 
+        renderLeft={<Tabs defaultActiveKey="paint" items={setTabItems} onChange={onChange} />} 
+        renderRight={<Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleSave}>保存设置</Button>}
+        />
       {cur === 'paint' ? <PaintSetting /> : null}
       {cur === "basic" ? <BasicSetting /> : null}
     </div>

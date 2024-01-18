@@ -49,10 +49,7 @@ const LoginModule:React.FC<LoginModuleProps> = ({isOpen, onClose})=> {
             return message.error('请填写正确手机号');
         }
 
-        if(!checked) {
-           return message.error('请勾选《用户协议》');
-        }
-
+       
         if(!verify) {
             return message.error('请填写验证码');
         }

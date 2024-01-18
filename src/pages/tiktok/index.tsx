@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Button,  Input } from 'antd';
 import './index.less'
-import { DeleteOutlined, LeftOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
+import { Header } from '@/components';
 
 
 
@@ -9,22 +10,23 @@ const TikTokPage = () => {
     const [url, setUrl] = useState('');
 
     const handleLoad = () => {}
-  
-    return (
-        <div className="tiktok-wrap scrollbar">
-            <div className='page-header flexR'>
-            <div className="flexR">
-            <div className="nav-back" onClick={() => history.back()}><LeftOutlined twoToneColor="#fff"  /></div>
+
+    const renderHeaderLeft = ()=>{
+        return (
             <div className='flexR'>
                 视频地址
                 <Input size='large' value={url} className='tiktok-input'
                 placeholder='请输入视频url'
                  onChange={(v)=>setUrl(v.target.value)}/>
             </div>
-            </div>
-            <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleLoad}>下载</Button>
-        </div>
-        <div className='page-header-placeholder'></div>
+        )
+    }
+  
+    return (
+        <div className="tiktok-wrap scrollbar">
+            <Header renderLeft={renderHeaderLeft()} 
+            renderRight={<Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleLoad}>下载</Button>}
+            />
         <div className='video-wrap flexR' style={{height:"calc(100% - 78px)", overflow: 'scroll'}}>
                 {['', '', '', '','', ].map((i, index)=>{
                     return (

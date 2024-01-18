@@ -1,12 +1,12 @@
 import { Button, message, Tabs, TabsProps } from 'antd';
 import React, { useEffect, useState } from 'react'
 import './index.less'
-import { LeftOutlined } from '@ant-design/icons';
 import { history, useParams } from "umi"
 import { usePersistImtateFramesStorage, usePersistImtateStorage } from '@/stores/frame';
 import VideoImportTab from './components/video-import';
 import ImageGenerateTab from './components/image-generate';
 import { usePersistComfyUIStorage } from '@/stores/comfyui';
+import { Header } from '@/components';
 
 export type ImitateTabType = "exportFrames" | "generateImages"
 const imitateTabs: TabsProps["items"] = [
@@ -57,21 +57,20 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
     history.back()
   }
 
+  const renderHeaderLeft = () => {
+    return <Tabs defaultActiveKey={currentTab} activeKey={currentTab} items={tabs} onChange={(key) => setCurrentTab(key as ImitateTabType)} />
+  }
+
+  const renderHeaderRight = () => {
+    return currentTab === "exportFrames" ? null :
+      <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!frames || frames.length === 0} onClick={handleDraft}> 导出剪映草稿</Button>
+  }
+
 
 
   return (
     <div className="imitate-wrap">
-      <div className='page-header flexR'>
-        <div className="flexR">
-          <div className="nav-back" onClick={handleQuit}><LeftOutlined twoToneColor="#fff" /></div>
-          <Tabs defaultActiveKey={currentTab} activeKey={currentTab} items={tabs} onChange={(key) => setCurrentTab(key as ImitateTabType)} />
-        </div>
-        {currentTab === "exportFrames" ? null :
-          <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!frames || frames.length === 0} onClick={handleDraft}> 导出剪映草稿</Button>
-        }
-      </div>
-      <div className='page-header-placeholder'></div>
-
+      <Header onQuit={handleQuit} renderLeft={renderHeaderLeft()} renderRight={renderHeaderRight()} />
       {currentTab === "exportFrames" ? < VideoImportTab handleChangeTab={setCurrentTab} /> : null}
       {currentTab === 'generateImages' ? <ImageGenerateTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
     </div>
