@@ -2,6 +2,7 @@ import { CaretDownFilled, CaretUpFilled, CloseOutlined } from "@ant-design/icons
 import { Button, Input } from "antd"
 import { useEffect, useState } from "react"
 import { TraitsConfig, TraitsOption } from "./traits"
+import { tauri } from "@tauri-apps/api"
 
 export type TagRenderType = "text" | "image"
 export type TagLangType = "en" | "cn"
@@ -136,27 +137,52 @@ export const OptionalTags: React.FC<RoleTagsProps> = ({ renderType, tags, hasTag
 
 
 interface CheckedTagsProps {
-    tags?: any
+    tags?: TraitsOption[]
+    image?: string
     handleCheckTag: (checked: boolean, item: any) => void
-    handleConfirm: () => void
+    handleConfirm: (preview: string) => void
 }
 
 
-export const CheckedTags: React.FC<CheckedTagsProps> = ({ tags, handleCheckTag, handleConfirm }) => {
+export const CheckedTags: React.FC<CheckedTagsProps> = ({ tags, image, handleCheckTag, handleConfirm }) => {
     const [lang, setLang] = useState<TagLangType>("cn");
-    const handleReset = () => {
-
-    }
     const handleRemoveTag = (tag: any) => {
         handleCheckTag(false, tag)
     }
 
+    const [isPreview, setPreview] = useState<boolean>(false)
+    const [statePreviewPath, setPreviewPath] = useState<string>(image!)
+    const [statePreviewURL, setPreviewURL] = useState<string>("")
+
+    const handlePreview = () => {
+        setPreviewURL(tauri.convertFileSrc("/Users/hxy/Desktop/图片/2641692240020_.pic.jpg"))
+        setPreview(!isPreview)
+    }
+
+    //生成图片
+    const handlePreviewGenerate = () => {
+        
+        setPreview(true)
+    }
+
+
     return (
         <div className="right flexC">
             <div className="has-tags">
-                <div className="content flexR">
-                    {tags.map((tag: any, idx: number) => <TagItem key={idx} renderType={'text'} langType={lang} tag={tag} isChecked={true} handleRemoveTag={handleRemoveTag}></TagItem>)}
-                </div>
+
+                {
+                    isPreview &&
+                    <div className="content flexR">
+                            <img src={statePreviewURL} width={'100%'}></img>
+                    </div>
+                }
+                {
+                    !isPreview &&
+                    <div className="content flexR">
+                        {tags && tags.map((tag: any, idx: number) => <TagItem key={idx} renderType={'text'} langType={lang} tag={tag} isChecked={true} handleRemoveTag={handleRemoveTag}></TagItem>)}
+                    </div>
+                }
+
             </div>
             <div style={{ width: '100%' }}>
                 <div className="bottom flexRB">
@@ -164,12 +190,11 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ tags, handleCheckTag, 
                         <div className={`choose-item ${lang === 'cn' ? "cur" : ''}`} onClick={() => setLang('cn')}>中</div>
                         <div className={`choose-item ${lang === 'en' ? "cur" : ''}`} onClick={() => setLang('en')}>En</div>
                     </div>
-                    <div className="clean" onClick={handleReset}>清空</div>
+                    {statePreviewPath && <div className="clean" onClick={handlePreview}>预览</div>}
                 </div>
-                <div className="flexR" style={{justifyContent: 'space-between'}}>
-                <Button type="primary" block className="btn-primary-auto" style={{width: '180px'}} >预览</Button>
-                <Button type="primary" block className="btn-primary-auto" style={{width: '180px'}} onClick={handleConfirm}>保存</Button>
-
+                <div className="flexR" style={{ justifyContent: 'space-between' }}>
+                    <Button type="primary" block className="btn-primary-auto" style={{ width: '180px' }} onClick={handlePreviewGenerate} >生成</Button>
+                    <Button type="primary" block className="btn-primary-auto" style={{ width: '180px' }} onClick={() => { handleConfirm(statePreviewPath) }}>保存</Button>
                 </div>
             </div>
         </div>

@@ -71,12 +71,13 @@ export const RoleItem: React.FC<RoleItemProps> = ({ actor, index }) => {
         </div>
       </div>
       <div className='content-title' style={{ marginTop: '20px', marginBottom: '10px' }}>角色风格</div>
-      <Button type='default' block className='btn-default-auto' > 添加LoRA（风格）</Button>
+      <Button type='default' block className='btn-default-auto' > 添加角色配音</Button>
       {isOpen && <TagModal isOpen={isOpen}
         initTags={stateActor.traits}
+        initImage={stateActor.image}
         onClose={() => { setOpen(false) }}
-        onConfirm={(traits) => {
-          setActor({ ...stateActor, traits: traits })
+        onConfirm={(image, traits) => {
+          setActor({ ...stateActor, image: image, traits: traits })
           setOpen(false)
         }} />}
     </div>

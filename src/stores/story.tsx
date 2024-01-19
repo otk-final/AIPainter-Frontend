@@ -41,6 +41,7 @@ export interface Actor {
     name: string
     alias: string
     style: string
+    image?: string
     traits: TraitsOption[]
 }
 
