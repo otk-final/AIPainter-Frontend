@@ -11,7 +11,7 @@ interface StoryboardTableTRProps {
     chapter: Chapter,
 }
 
-const emptyChapter: Chapter = { id: 0, original: "", sceneDescription: "", sceneDialogues: [], actors: [], state: 1 }
+const emptyChapter: Chapter = { id: 0, original: "", sceneDescription: "", sceneDialogues: [], actors: [], drawImageHistory: [], state: 1 }
 const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) => {
 
     const { chapters, removeChapter, updateChapter, addChapter } = usePersistChaptersStorage(state => state)

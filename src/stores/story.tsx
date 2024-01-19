@@ -30,7 +30,7 @@ export interface Chapter {
     // 绘画参数
     drawPrompt?: string
     drawImage?: string
-    drawImageHistory?: string[]
+    drawImageHistory: string[]
     drawConfig?: any
 
     state: number
@@ -90,7 +90,8 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
                     actors: cp["characters"] || [],
                     sceneDialogues: cp["dialogues"] || [],
                     sceneName: cp["scene"] || "",
-                    sceneDescription: cp["description"] || ""
+                    sceneDescription: cp["description"] || "",
+                    drawImageHistory: [] as string[]
                 } as Chapter
             })
 
@@ -109,7 +110,8 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
                     id: idx,
                     original: line.trim(),
                     actors: [] as string[],
-                    sceneDialogues: [] as string[]
+                    sceneDialogues: [] as string[],
+                    drawImageHistory: [] as string[]
                 } as Chapter
             })
         }
@@ -132,6 +134,7 @@ export interface ChaptersStorage {
     updateChapter: (idx: number, chapter: Chapter) => Promise<void>
     removeChapter: (idx: number) => Promise<void>
     saveChapters: () => Promise<void>
+    saveOutputFrameFile: (idx: number, fileName: string, fileBuffer: ArrayBuffer) => Promise<string>
 }
 
 
@@ -206,6 +209,20 @@ export const usePersistChaptersStorage = create<ChaptersStorage>((set, get) => (
         let store = get()
         let chaptersFile = await path.join(store.pid as string, "chapters.json")
         return await fs.writeTextFile(chaptersFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
+    },
+    saveOutputFrameFile: async (idx: number, fileName: string, fileBuffer: ArrayBuffer) => {
+        let { pid } = get()
+
+        //创建目录
+        let outputDir = await path.join(pid as string, "outputs")
+        await fs.createDir(outputDir, {
+            dir: workspaceFileDirectory, recursive: true
+        })
+        //保存图片
+        let newFramePath = await path.join(outputDir, fileName)
+        await fs.writeBinaryFile(newFramePath, fileBuffer, { dir: workspaceFileDirectory, append: false })
+        //返回全路径
+        return await path.join(await path.appLocalDataDir(), newFramePath)
     }
 }))
 

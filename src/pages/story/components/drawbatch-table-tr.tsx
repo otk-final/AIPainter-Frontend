@@ -1,10 +1,12 @@
-import { Button, Image } from "antd"
+import { Button, Image, message } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import { Fragment, useEffect, useState } from "react";
 import { drawbatchColumns } from "../data";
 import { Chapter, usePersistChaptersStorage } from "@/stores/story";
 import { tauri } from "@tauri-apps/api";
 import { HistoryImageModule } from "@/components";
+import { Text2ImageHandle, WorkflowScript, registerComfyUIPromptCallback, usePersistComfyUIStorage } from "@/stores/comfyui";
+import { usePersistUserIdentificationStorage } from "@/stores/auth";
 
 interface ChapterTableTRProps {
     idx: number,
@@ -16,7 +18,7 @@ interface ChapterTableTRProps {
 const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, style, chapter }) => {
 
     const [isOpenHistory, setIsOpenHistory] = useState(false);
-    const { updateChapter } = usePersistChaptersStorage(state => state)
+    const { pid, updateChapter, saveOutputFrameFile } = usePersistChaptersStorage(state => state)
     const [stateChapter, setChapter] = useState<Chapter>(chapter)
     useEffect(() => {
 
@@ -83,11 +85,59 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, style, chapter }) => 
         )
     }
 
+    //comfyui
+    const comfyui = usePersistComfyUIStorage(state => state)
+    const { clientId } = usePersistUserIdentificationStorage(state => state)
+
+    const handleImage2Image = async () => {
+        if (!style) {
+            await message.warning("请选择图片风格")
+            return
+        }
+        message.loading("图片生成中...", 30 * 1000, () => {
+            console.info("xxx")
+        })
+        let comfyuiApi = comfyui.buildApi(clientId)
+
+        //根据当前风格选择脚本 提交当前关键词，和默认反向关键词
+        let ws = new WorkflowScript(await comfyui.loadModeApi(style))
+        let job = await comfyuiApi.prompt(ws, { positive: stateChapter.drawPrompt!, negative: comfyui.negativePrompt! }, Text2ImageHandle)
+        let step = ws.getOutputImageStep()
+
+
+        const callback = async (promptId: string, respData: any) => {
+            //回调消息不及时 定时查询
+            console.info("status", respData)
+
+            //下载文件
+            let images = respData[promptId]!.outputs![step].images! as { filename: string, subfolder: string, type: string }[]
+            images.forEach(async (item) => {
+
+                //下载，保存
+                let fileBuffer = await comfyuiApi.download(item.subfolder, item.filename)
+                let filePath = await saveOutputFrameFile(idx, item.filename, fileBuffer)
+
+                //更新状态
+                stateChapter.drawImageHistory.push(filePath)
+                stateChapter.drawImage = filePath
+
+                setChapter({ ...stateChapter })
+            })
+            message.destroy()
+        }
+        //监听任务
+        registerComfyUIPromptCallback({ jobId: pid!, promptId: job.prompt_id, handle: callback })
+    }
+
+    const handleImage2ImageCatch = () => {
+        handleImage2Image().catch(err => { message.destroy(); message.error(err.message) })
+    }
+
 
     const renderOperate = () => {
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRedraw}>重绘本镜</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleImage2ImageCatch}>重绘本镜</Button>
                 <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateChapter.drawImageHistory}>高清放大</Button>
             </Fragment>
         )
