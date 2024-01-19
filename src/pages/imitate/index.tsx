@@ -25,19 +25,12 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   const [tabs, setTabs] = useState(imitateTabs)
   const { frames } = usePersistImtateFramesStorage(state => state);
   const imtateLoadHandle = usePersistImtateStorage(state => state.load)
-  const comfyLoadHandle = usePersistComfyUIStorage(state => state.load)
-  
-
 
 
   //加载配置项
   useEffect(() => {
     //加载当前工作需要的所有页面数据
-    const initializeContext = async () => {
-      await comfyLoadHandle()
-      await imtateLoadHandle(pid)
-    }
-    initializeContext().catch(err => message.error(err))
+    imtateLoadHandle(pid)
   }, [pid])
 
 
@@ -56,7 +49,6 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
 
   const imtateQuitHanlde = usePersistImtateStorage(state => state.quit)
   const framesQuitHanlde = usePersistImtateFramesStorage(state => state.quit)
-
 
   const handleQuit = () => {
     imtateQuitHanlde()

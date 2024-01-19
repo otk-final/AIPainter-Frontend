@@ -15,6 +15,6 @@ export interface UserIdentificationStorage {
 
 
 export const usePersistUserIdentificationStorage = create<UserIdentificationStorage>((set, get) => ({
-    clientId: "abc",
+    clientId: "hxy",
     userAssistantId: "asst_iVUdB5cY5Y4yIq6uW5xdNEdM",
 }))

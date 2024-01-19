@@ -7,6 +7,7 @@ import { tauri } from "@tauri-apps/api";
 import { HistoryImageModule } from "@/components"
 import { Image2TextHandle, Text2ImageHandle, WorkflowScript, registerComfyUIPromptCallback, usePersistComfyUIStorage } from "@/stores/comfyui";
 import { usePersistUserIdentificationStorage } from "@/stores/auth";
+import OpenAI from "openai";
 
 interface GenerateImagesTRProps {
     index: number
@@ -41,7 +42,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
 
         //提交任务
         let ws = new WorkflowScript(await comfyui.loadReverseApi())
-        let job = await comfyuiApi.prompt(ws, { subfolder: clientId + "/" + pid, filename: filename }, Image2TextHandle)
+        let job = await comfyuiApi.prompt(ws, { subfolder: clientId, filename: filename }, Image2TextHandle)
 
         //关键词所在的节点数
         let step = ws.getWD14TaggerStep()
@@ -69,7 +70,9 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
             await message.warning("请选择图片风格")
             return
         }
-        message.loading("图片生成中...", 0)
+        message.loading("图片生成中...", 30 * 1000, () => {
+            console.info("xxx")
+        })
         let comfyuiApi = comfyui.buildApi(clientId)
 
         //根据当前风格选择脚本 提交当前关键词，和默认反向关键词

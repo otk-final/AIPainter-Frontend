@@ -6,8 +6,9 @@ import { history, useParams } from "umi"
 import Storyboard from './components/storyboard';
 import Drawbatch from './components/drawbatch';
 import Videogeneration from './components/videogeneration'
-import { usePersistActorsStorage, usePersistChaptersStorage, usePersistScriptStorage } from '@/stores/story';
+import { usePersistChaptersStorage, usePersistScriptStorage } from '@/stores/story';
 import { Header } from '@/components';
+import { usePersistActorsStorage } from '@/stores/actor';
 
 type ActionTabType = "storyboard" | "drawbatch" | "videogeneration"
 
@@ -98,7 +99,7 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
   const scriptQuitHandle = usePersistScriptStorage(state => state.quit)
   const chaptersQuitHandle = usePersistChaptersStorage(state => state.quit)
 
-  const handleQuit =  ()=>{
+  const handleQuit = () => {
     scriptQuitHandle()
     chaptersQuitHandle()
     history.back()
@@ -107,9 +108,9 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
   return (
     <div className="create-wrap">
       <Header onQuit={handleQuit}
-       renderLeft={<Tabs defaultActiveKey="paint" activeKey={cur} items={tabs} onChange={(key) => setCur(key as ActionTabType)} />} 
-       renderRight={customButtons()}
-       />
+        renderLeft={<Tabs defaultActiveKey="paint" activeKey={cur} items={tabs} onChange={(key) => setCur(key as ActionTabType)} />}
+        renderRight={customButtons()}
+      />
       {cur === "storyboard" ? <Storyboard pid={pid} /> : null}
       {cur === 'drawbatch' ? <Drawbatch /> : null}
       {cur === "videogeneration" ? <Videogeneration /> : null}

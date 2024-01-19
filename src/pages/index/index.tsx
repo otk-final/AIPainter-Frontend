@@ -6,6 +6,7 @@ import { history } from "umi"
 import { useLogin } from '@/uses';
 import { Project, usePersistWorkspaces } from '@/stores/project';
 import { ProjectModal } from '@/components/create-project';
+import { usePersistComfyUIStorage } from '@/stores/comfyui';
 
 
 export type ProjectType = "story" | "imitate" | ""
@@ -80,15 +81,18 @@ const HomePage = () => {
 
   //加载项目
   const { projects, load, remove, open } = usePersistWorkspaces(state => state)
+  const comfyLoadHandle = usePersistComfyUIStorage(state => state.load)
+
   useEffect(() => {
     load()
+    comfyLoadHandle()
   }, [])
 
   const handleGoon = (project: Project) => {
     open(project).finally(() => { history.push(project.type === "story" ? "/story/" + project.id : "/imitate/" + project.id) })
   }
 
-  const handleDel = (item) => {
+  const handleDel = (item: Project) => {
     Modal.confirm({
       title: '确认删除',
       okText: '确认',

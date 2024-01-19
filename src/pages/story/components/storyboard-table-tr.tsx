@@ -1,16 +1,17 @@
 import { Button, Switch } from "antd"
 import { Fragment, useEffect, useState } from "react";
 import { storyboardColumns } from "../data";
-import { Actor, Chapter, usePersistActorsStorage, usePersistChaptersStorage } from "@/stores/story";
+import { Chapter, usePersistChaptersStorage } from "@/stores/story";
 import { v4 as uuid } from "uuid"
 import TextArea from "antd/es/input/TextArea";
+import { Actor, usePersistActorsStorage } from "@/stores/actor";
 
 interface StoryboardTableTRProps {
     idx: number,
     chapter: Chapter,
 }
 
-const emptyChapter: Chapter = { id: "", original: "", sceneDescription: "", sceneDialogues: [], actors: [], state: 1 }
+const emptyChapter: Chapter = { id: 0, original: "", sceneDescription: "", sceneDialogues: [], actors: [], state: 1 }
 const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) => {
 
     const { chapters, removeChapter, updateChapter, addChapter } = usePersistChaptersStorage(state => state)

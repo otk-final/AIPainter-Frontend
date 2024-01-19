@@ -7,7 +7,7 @@ import { useEffect, useState } from "react"
 import { usePersistComfyUIStorage } from "@/stores/comfyui"
 
 const Drawbatch = () => {
-    const [style, setStyle] = useState<string>("默认")
+    const [style, setStyle] = useState<string>("")
     const { chapters } = usePersistChaptersStorage(state => state)
 
     const renderTable = () => {
@@ -34,9 +34,10 @@ const Drawbatch = () => {
         return { label: item.name, value: item.name }
     })
 
-    useEffect(()=>{
-        
-    }, [modeApis])
+    useEffect(() => {
+        if (modeApis.length > 0) setStyle(modeApis[0].name)
+    }, [])
+
     return (
         <div className="drawbatch-wrap scrollbar">
             <div className="drawbatch-header flexR">

@@ -5,8 +5,9 @@ import { CustomTags, OptionalTags, CheckedTags, TagRenderType } from "./tags-ite
 import { TraitsConfig, TraitsOption, traitsConfigs } from "./traits";
 interface TagModalProps {
     isOpen: boolean,
+    index: number
     initTags: TraitsOption[],
-    initPreview?: string
+    initImage?: string
     onClose: () => void
     onConfirm: (image: string, checkedTags: any[]) => void
 }
@@ -48,7 +49,7 @@ const tabs: TabsProps["items"] = [
 
 
 
-const TagModal: React.FC<TagModalProps> = ({ isOpen, initTags, initImage, onClose, onConfirm }) => {
+const TagModal: React.FC<TagModalProps> = ({ isOpen, index, initTags, initImage, onClose, onConfirm }) => {
     const [cur, setCur] = useState("person");
     const [checkedTags, setCheckedTags] = useState<TraitsOption[]>(initTags);
     const [renderType, setRenderType] = useState<TagRenderType>('text')
@@ -100,7 +101,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, initTags, initImage, onClos
 
         //系统可选
         return (
-            <div className="left" style={{ height: "500px", overflow: 'scroll', paddingLeft: '30px', paddingRight: '30px' }}>
+            <div className="left scrollbar" style={{ height: "500px", overflowY: 'scroll' }}>
                 {groups.map((tags: any) => {
                     return <OptionalTags renderType={renderType} handleCheckTag={handleCheckTag} hasTags={checkedTags} tags={tags} key={tags.key} />
                 })}
@@ -135,7 +136,7 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, initTags, initImage, onClos
                     <div className="left">
                         <Tabs items={tabs} onChange={setCur} activeKey={cur} />
                     </div>
-                    <CheckedTags tags={checkedTags} preview={initImage} handleCheckTag={handleCheckTag} handleConfirm={(image) => onConfirm(image, checkedTags)} />
+                    <CheckedTags index={index} tags={checkedTags} image={initImage} handleCheckTag={handleCheckTag} handleConfirm={(image) => onConfirm(image, checkedTags)} />
                 </div>
             </div>
         </Modal>

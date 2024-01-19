@@ -41,25 +41,24 @@ const workspaceFilePath = "env" + path.sep + "comfyui.json"
 const workspaceFileDirectory = BaseDirectory.AppLocalData
 export const usePersistComfyUIStorage = create<ComfyUIStorage>((set, get) => ({
     host: {
-        url: "http://192.168.48.123:8188",
-        websocket: "ws://192.168.48.123:8188/ws",
+        url: "http://127.0.0.1:8188",
+        websocket: "ws://127.0.0.1:8188/ws",
     },
     negativePrompt: "violent",
-    modeApis: [{ name: "默认", path: "" }],
+    modeApis: [],
     load: async () => {
         //创建目录
         await fs.createDir("env", { dir: workspaceFileDirectory, recursive: true })
-
         //加载配置文件
         let exist = await fs.exists(workspaceFilePath, { dir: workspaceFileDirectory, append: true })
         if (!exist) {
+            set({ modeApis: [{ name: "默认", path: "", }] })
             return
         }
-        
         let jsonText = await fs.readTextFile(workspaceFilePath, {
             dir: workspaceFileDirectory
         })
-        set({ ...JSON.parse(jsonText) })
+        set(JSON.parse(jsonText))
     },
     save: async () => {
         let store = get()
@@ -163,7 +162,7 @@ const delay = (ms: number) => {
 
 //执行回调
 export const doComfyUIPromptCallback = async (api: ComfyUIApi, promptId: string) => {
-    console.log("回调业务方")
+
     let idx = center.findIndex(item => item.promptId === promptId)
     if (idx === -1) {
         return
@@ -171,7 +170,7 @@ export const doComfyUIPromptCallback = async (api: ComfyUIApi, promptId: string)
 
     //查询结果
     let fetchCount = 0
-    let respData: any
+    let respData: any = undefined
     while (fetchCount <= 10) {
 
         //查询状态 如果非空对象 则表示完成
@@ -186,7 +185,17 @@ export const doComfyUIPromptCallback = async (api: ComfyUIApi, promptId: string)
 
     //执行 忽略异常
     try {
-        center[idx].handle(promptId, respData)
+        if (!respData || Object.keys(respData).length === 0) {
+            return
+        }
+        console.log("回调业务方:", promptId, respData)
+
+        let hold = center[idx]
+        //防止重复消息
+        if (hold === undefined || hold.promptId !== promptId) {
+            return
+        }
+        hold.handle(promptId, respData)
     } catch (err) {
         console.info(err)
     }
@@ -381,7 +390,6 @@ export interface ImageFileParams {
 //图反推关键词
 export const Image2TextHandle: CompletionPromptParams<ImageFileParams> = (api: ComfyUIApi, script: WorkflowScript, file: ImageFileParams) => {
     script.setInputImage(file.subfolder + "/" + file.filename)
-
     return script.toObject()
 }
 

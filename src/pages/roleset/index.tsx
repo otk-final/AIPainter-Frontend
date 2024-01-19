@@ -1,12 +1,12 @@
-import { Button, Input, message } from 'antd';
+import { Avatar, Button, Input, message } from 'antd';
 import './index.less'
 import { history } from "umi"
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useEffect, useRef, useState } from 'react';
 import TagModal from './components/tags-modal';
-import { Actor, usePersistActorsStorage } from '@/stores/story';
-import { dialog } from '@tauri-apps/api';
+import { dialog, tauri } from '@tauri-apps/api';
 import { Header } from '@/components';
+import { Actor, usePersistActorsStorage } from '@/stores/actor';
 
 
 
@@ -44,6 +44,7 @@ export const RoleItem: React.FC<RoleItemProps> = ({ actor, index }) => {
   return (
     <div className='role-item'>
       <div className='top flexR'>
+        {stateActor.image && <Avatar src={tauri.convertFileSrc(stateActor.image)} size={'large'}></Avatar>}
         <div className='text'>角色{index + 1}</div>
         <DeleteOutlined onClick={handleDel} />
       </div>
@@ -70,9 +71,11 @@ export const RoleItem: React.FC<RoleItemProps> = ({ actor, index }) => {
           </div>
         </div>
       </div>
-      <div className='content-title' style={{ marginTop: '20px', marginBottom: '10px' }}>角色风格</div>
+      <div className='content-title' style={{ marginTop: '20px', marginBottom: '10px' }}>角色配音</div>
       <Button type='default' block className='btn-default-auto' > 添加角色配音</Button>
-      {isOpen && <TagModal isOpen={isOpen}
+      {isOpen && <TagModal
+        isOpen={isOpen}
+        index={index}
         initTags={stateActor.traits}
         initImage={stateActor.image}
         onClose={() => { setOpen(false) }}
@@ -113,7 +116,7 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
       <div className='sub-text'>建议角色设置不要超过2个,如剧本中无固定角色可跳过该步骤。SD在同画面的出现多个角色时，识别能力较差。同画面多人指定角色形象的功能在开发中。</div>
       <div className='roles-wrap flexR'>
         {actors.map((actor, index) => {
-          return <RoleItem actor={actor} index={index} key={actor.id + index} />
+          return <RoleItem actor={actor} index={index} key={actor.id} />
         })}
       </div>
     </div>

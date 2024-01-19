@@ -2,11 +2,12 @@ import { Button, Divider, Input, Modal, Select, Tabs, TabsProps } from "antd"
 import { useState } from "react";
 import "./index.less"
 import { dialog, path } from "@tauri-apps/api";
-import { Actor, ImportType, Script, usePersistActorsStorage, usePersistChaptersStorage, usePersistScriptStorage } from "@/stores/story";
+import { ImportType, Script, usePersistChaptersStorage, usePersistScriptStorage } from "@/stores/story";
 import TextArea from "antd/es/input/TextArea";
 import { v4 as uuid } from "uuid"
 import { GPTAssistantsApi, usePersistGPTStorage } from "@/stores/gpt";
 import { usePersistUserIdentificationStorage } from "@/stores/auth";
+import { Actor, usePersistActorsStorage } from "@/stores/actor";
 
 const importTabItems: TabsProps['items'] = [
     {

@@ -47,6 +47,10 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
     return { label: item.name, value: item.name }
   })
 
+  useEffect(() => {
+    if (modeApis.length > 0) setStyle(modeApis[0].name)
+  }, [])
+
   return (
     <div className="generate-image-wrap scrollbar">
       <div className="generate-header flexR">
