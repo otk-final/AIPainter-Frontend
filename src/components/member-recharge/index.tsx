@@ -78,9 +78,9 @@ const MemberRechargeModule:React.FC<MemberRechargeModuleProps> = ({isOpen, onClo
                     </div>
                 </div>
                 <div className="flexR">
-                    {memberDatas.map((i)=>{
+                    {memberDatas.map((i,idx)=>{
                         return (
-                            <div className={`recharge-item flexC ${cur.price === i.price ? "cur": ""}`} onClick={()=>setCur(i)}>
+                            <div className={`recharge-item flexC ${cur.price === i.price ? "cur" : ""}`} onClick={() => setCur(i)} key={idx}>
                                 <div className="unit">{i.label}</div>
                                 <div className="price-wrap flexR"><span className="unit">¥</span><span className="price">{getPriceInt(i.price)}</span></div>
                                 <div className="per">{(i.price / i.time / 100).toFixed(1)}元/天</div>
