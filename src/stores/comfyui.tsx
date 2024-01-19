@@ -55,7 +55,7 @@ export const usePersistComfyUIStorage = create<ComfyUIStorage>((set, get) => ({
         if (!exist) {
             return
         }
-
+        
         let jsonText = await fs.readTextFile(workspaceFilePath, {
             dir: workspaceFileDirectory
         })

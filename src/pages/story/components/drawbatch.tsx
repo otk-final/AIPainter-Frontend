@@ -3,7 +3,8 @@ import { Select } from "antd"
 import DrawTableTR from "./drawbatch-table-tr"
 import { drawbatchColumns } from "../data"
 import { usePersistChaptersStorage } from "@/stores/story"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { usePersistComfyUIStorage } from "@/stores/comfyui"
 
 const Drawbatch = () => {
     const [style, setStyle] = useState<string>("默认")
@@ -27,6 +28,15 @@ const Drawbatch = () => {
         )
     }
 
+    //模型选择
+    const { modeApis } = usePersistComfyUIStorage(state => state)
+    let styleOptions = modeApis.map(item => {
+        return { label: item.name, value: item.name }
+    })
+
+    useEffect(()=>{
+        
+    }, [modeApis])
     return (
         <div className="drawbatch-wrap scrollbar">
             <div className="drawbatch-header flexR">
@@ -36,12 +46,7 @@ const Drawbatch = () => {
                     style={{ width: '300px' }}
                     value={style}
                     onChange={setStyle}
-                    options={[
-                        { value: 'default', label: '默认' },
-                        { value: 'cartoon', label: '卡通' },
-                        { value: 'national', label: '国风' },
-                        { value: 'nature', label: '写实' },
-                    ]}
+                    options={styleOptions}
                 />
             </div>
             {renderTable()}
