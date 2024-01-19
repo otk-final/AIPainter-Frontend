@@ -1,7 +1,6 @@
 import { fs, path } from "@tauri-apps/api"
 import { BaseDirectory } from "@tauri-apps/api/fs"
 import { create } from "zustand"
-import { v4 as uuid } from "uuid"
 import { GPTAssistantsApi } from "./gpt"
 
 
@@ -16,7 +15,7 @@ export interface Script {
 
 
 export interface Chapter {
-    id: string
+    id: number
     original: string
     actors: string[]
 
@@ -38,7 +37,7 @@ export interface Chapter {
 }
 
 export interface Actor {
-    id: string
+    id: number
     name: string
     alias: string
     style: string
@@ -76,9 +75,6 @@ export interface ScriptStorage {
 
 
 const workspaceFileDirectory = BaseDirectory.AppLocalData
-
-
-
 //剧本
 export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
     pid: undefined,
@@ -116,9 +112,9 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
             let chapterObjects = await gptApi.scriptBoarding(fileId)
             console.info("chapters", chapterObjects)
 
-            chapters = chapterObjects.flatMap(cp => {
+            chapters = chapterObjects.flatMap((cp, idx) => {
                 return {
-                    id: uuid(),
+                    id: idx,
                     original: cp["original"] || "",
                     actors: cp["characters"] || [],
                     sceneDialogues: cp["dialogues"] || [],
@@ -137,9 +133,9 @@ export const usePersistScriptStorage = create<ScriptStorage>((set, get) => ({
             }
 
             let lines = scriptText.split("\n")
-            chapters = lines.filter(line => line !== "").map(line => {
+            chapters = lines.filter(line => line !== "").map((line, idx) => {
                 return {
-                    id: uuid(),
+                    id: idx,
                     original: line.trim(),
                     actors: [] as string[],
                     sceneDialogues: [] as string[]
@@ -168,6 +164,13 @@ export interface ChaptersStorage {
 }
 
 
+
+const saveChapters = async (pid: string, chapters: Chapter[]) => {
+    let chaptersFile = await path.join(pid, "chapters.json")
+    let store = { pid: pid, chapters: chapters }
+    return await fs.writeTextFile(chaptersFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
+}
+
 export const usePersistChaptersStorage = create<ChaptersStorage>((set, get) => ({
     pid: undefined,
     chapters: undefined,
@@ -186,39 +189,57 @@ export const usePersistChaptersStorage = create<ChaptersStorage>((set, get) => (
         set({ ...JSON.parse(chaptersJson) })
     },
     initializeChapters: async (pid: string, chapters: Chapter[]) => {
-        let chaptersFile = await path.join(pid, "chapters.json")
 
-        //初始化文件
+        //状态
         let store = { pid: pid, chapters: chapters }
         set(store)
-        return await fs.writeTextFile(chaptersFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
+
+        //存储文件
+        return saveChapters(pid, chapters)
     },
     addChapter: async (idx: number, chapter: Chapter) => {
-        let stateChapters = [...get().chapters!]
+        let { pid, chapters } = get()
+
+        //状态
+        let stateChapters = [...chapters!]
         stateChapters.splice(idx, 0, chapter)
         set({ chapters: stateChapters })
+
+        //存储文件
+        return saveChapters(pid!, stateChapters)
     },
     updateChapter: async (idx: number, chapter: Chapter) => {
-        let stateChapters = [...get().chapters!]
+
+        let { pid, chapters } = get()
+
+        //状态
+        let stateChapters = [...chapters!]
         stateChapters[idx] = chapter
         set({ chapters: stateChapters })
+
+        //存储文件
+        return saveChapters(pid!, stateChapters)
     },
     removeChapter: async (idx: number) => {
-        let stateChapters = [...get().chapters!]
+        let { pid, chapters } = get()
+
+        //状态
+        let stateChapters = [...chapters!]
         stateChapters.splice(idx, 1)
         set({ chapters: stateChapters })
+
+        //存储文件
+        return saveChapters(pid!, stateChapters)
     },
     saveChapters: async () => {
         let store = get()
         let chaptersFile = await path.join(store.pid as string, "chapters.json")
         return await fs.writeTextFile(chaptersFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
-    },
-    smartAnalyzing: async (gptApi: GPTAssistantsApi, index: number, script: Script) => {
-        let chapterText = get().chapters![index].original
-        let newChapters = gptApi.chapterBoarding(script.fileId, chapterText)
-        console.info(newChapters)
     }
 }))
+
+
+
 
 
 export interface ActorsStorage {
@@ -229,8 +250,9 @@ export interface ActorsStorage {
     addActor: () => Promise<void>
     updateActor: (idx: number, actor: Actor) => Promise<void>
     removeActor: (idx: number) => Promise<void>
-    saveActors: (actors: Actor[]) => Promise<void>
+    saveActors: () => Promise<void>
 }
+
 
 //剧本角色
 export const usePersistActorsStorage = create<ActorsStorage>((set, get) => ({
@@ -244,37 +266,47 @@ export const usePersistActorsStorage = create<ActorsStorage>((set, get) => ({
         let actorsFile = await path.join(pid, "actors.json")
         let exist = await fs.exists(actorsFile, { dir: workspaceFileDirectory })
         if (!exist) {
-            set({ pid: pid, actors: [{ id: uuid(), name: "角色1", alias: "", style: "", traits: [] }] })
+            set({ pid: pid, actors: [{ id: 1, name: "角色1", alias: "", style: "", traits: [] }] })
             return
         }
         let actorsJson = await fs.readTextFile(actorsFile, { dir: workspaceFileDirectory })
         set({ ...JSON.parse(actorsJson) })
     },
     addActor: async () => {
-        let stateActors = [...get().actors]
-        stateActors.push({ id: uuid(), name: "角色" + (stateActors.length + 1), alias: "", style: "", traits: [] })
+
+        let { actors } = get()
+
+        //状态
+        let stateActors = [...actors!]
+        stateActors.push({ id: stateActors.length + 1, name: "角色" + (stateActors.length + 1), alias: "", style: "", traits: [] })
         set({ actors: stateActors })
+
     },
     updateActor: async (idx: number, actor: Actor) => {
-        let stateActors = [...get().actors]
+
+        let { actors } = get()
+
+        //状态
+        let stateActors = [...actors!]
         stateActors[idx] = actor
         set({ actors: stateActors })
+
     },
     removeActor: async (idx: number) => {
-        let stateActors = [...get().actors]
+        let { actors } = get()
+
+        //状态
+        let stateActors = [...actors!]
         stateActors.splice(idx, 1)
         set({ actors: stateActors })
     },
-    saveActors: async (actors: Actor[]) => {
+    saveActors: async () => {
+        let { pid, actors } = get()
 
-        let { pid } = get()
-        set({ actors: [...actors] })
-
-        //保存
-        let store = get()
-        let actorsFile = await path.join(pid as string, "actors.json")
+        let actorsFile = await path.join(pid!, "actors.json")
+        let store = { pid: pid, actors: actors }
         return await fs.writeTextFile(actorsFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
-    },
+    }
 }))
 
 

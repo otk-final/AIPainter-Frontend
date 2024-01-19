@@ -3,6 +3,7 @@ import { Fragment, useEffect, useState } from "react";
 import { storyboardColumns } from "../data";
 import { Actor, Chapter, usePersistActorsStorage, usePersistChaptersStorage } from "@/stores/story";
 import { v4 as uuid } from "uuid"
+import TextArea from "antd/es/input/TextArea";
 
 interface StoryboardTableTRProps {
     idx: number,
@@ -31,7 +32,6 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) =
     const isActorChecked = (alias: string) => {
         return stateChapter.actors && stateChapter.actors.indexOf(alias) !== -1
     }
-
 
     const renderChinesePrompts = (checkActors: string[]) => {
         return actors.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
@@ -80,6 +80,15 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) =
         )
     }
 
+    const renderEditOriginal = () => {
+        return (
+            <TextArea rows={6} placeholder={"请输入剧本内容"}
+                maxLength={1000} className="text-area-auto"
+                value={stateChapter.original}
+                onChange={(e) => { setChapter({ ...stateChapter, original: e.target.value }) }} />
+        )
+    }
+
 
     return (
         <div className='tr flexR'>
@@ -87,7 +96,7 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) =
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
-                        {i.key === 'original' ? stateChapter.original : null}
+                        {i.key === 'original' ? renderEditOriginal() : null}
                         {i.key === 'scene' ? stateChapter.sceneDescription : null}
                         {i.key === 'actors' ? renderActors() : null}
                         {i.key === 'prompts' ? stateChapter.actorsPrompt?.cn : null}

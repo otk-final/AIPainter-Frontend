@@ -25,7 +25,6 @@ export const RoleItem: React.FC<RoleItemProps> = ({ actor, index }) => {
 
   const isMountRef = useRef(true)
   useEffect(() => {
-    console.info("useEffect", index, stateActor)
     if (isMountRef.current) {
       isMountRef.current = false
       return
@@ -89,12 +88,13 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
 
   //当前项目配置
   let { actors, load, addActor, saveActors } = usePersistActorsStorage(state => state)
-  load(pid)
-  
-  const saveActorsHandle = async () => {
-    saveActors(actors).then(() => { message.success("保存成功") }).finally(() => { history.back() })
-  }
+  useEffect(() => {
+    load(pid)
+  }, [pid])
 
+  const saveActorsHandle = async () => {
+    saveActors().then(() => { message.success("保存成功") }).finally(() => { history.back() })
+  }
 
   const renderHeaderRight = () => {
     return (

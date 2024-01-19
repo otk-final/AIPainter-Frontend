@@ -164,7 +164,7 @@ const delay = (ms: number) => {
 //执行回调
 export const doComfyUIPromptCallback = async (api: ComfyUIApi, promptId: string) => {
     console.log("回调业务方")
-    let idx = center.findIndex(item => item.promptId == promptId)
+    let idx = center.findIndex(item => item.promptId === promptId)
     if (idx === -1) {
         return
     }
@@ -217,9 +217,7 @@ export class ComfyUIApi {
         //websocket  只保持一个链接
         let ws = new WebSocket(host.websocket + "?client_id=" + clientId)
         ws.onopen = this.wsOpen
-        ws.onmessage = (message: MessageEvent) => {
-            this.wsReceived(message)
-        }
+        ws.onmessage = (message: MessageEvent) => this.wsReceived(message)
         ws.onclose = this.wsClose
     }
 
@@ -238,10 +236,9 @@ export class ComfyUIApi {
 
         //server
         let { type, data } = JSON.parse(message.data) as ComfyUIPromptEvent
-        if (type === "progress") {
-            let isCompleted = data.value && data.max && (data.value as string === data.max as string) && data.prompt_id
+        if (type === "progress" && this.isCompleted(data)) {
             //通知业务
-            if (isCompleted) doComfyUIPromptCallback(this, data.prompt_id)
+            doComfyUIPromptCallback(this, data.prompt_id)
         } else {
             console.info('message.other', message.data)
         }

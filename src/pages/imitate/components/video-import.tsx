@@ -40,10 +40,11 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
                 marginTop: "350px"
             }
         })
-        startCollectFrames().then(() => { 
+        startCollectFrames().then(() => {
+            //更新数据
+
             handleChangeTab("generateImages");
-            message.destroy()
-        }).catch(()=> {
+        }).finally(() => {
             message.destroy();
         })
     }

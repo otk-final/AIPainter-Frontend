@@ -6,7 +6,6 @@ import { ImtateFrame, usePersistImtateFramesStorage } from "@/stores/frame";
 import { tauri } from "@tauri-apps/api";
 import { HistoryImageModule } from "@/components"
 import { Image2TextHandle, Text2ImageHandle, WorkflowScript, registerComfyUIPromptCallback, usePersistComfyUIStorage } from "@/stores/comfyui";
-import { v4 as uuid } from "uuid"
 import { usePersistUserIdentificationStorage } from "@/stores/auth";
 
 interface GenerateImagesTRProps {
@@ -18,20 +17,11 @@ interface GenerateImagesTRProps {
 const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame }) => {
     const [isOpenHistory, setIsOpenHistory] = useState(false);
     const [stateFrame, setFrame] = useState<ImtateFrame>({ ...frame })
-    const { frames, removeFrame, updateFrame, saveOutputFrameFile } = usePersistImtateFramesStorage(state => state)
+    const { pid, frames, removeFrame, updateFrame, saveOutputFrameFile } = usePersistImtateFramesStorage(state => state)
     useEffect(() => {
         updateFrame(index, stateFrame)
     }, [index, stateFrame])
 
-    const handleGenerateImage = async () => {
-        let randIdx = Math.floor(Math.random() * frames.length)
-        let randPath = frames[randIdx].path
-
-        let imageHistroy = stateFrame.drawImageHistory ? [...stateFrame.drawImageHistory!] : []
-        imageHistroy.push(randPath)
-
-        setFrame({ ...stateFrame, drawImage: randPath, drawImageHistory: imageHistroy })
-    }
 
 
     //comfyui
@@ -43,19 +33,18 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
     const handleImage2Text = async () => {
 
         message.loading("反推关键词...", 0)
-        let filename = uuid()
-        let comfyuiApi = comfyui.buildApi(clientId)
 
+        let filename = stateFrame.name
+        let comfyuiApi = comfyui.buildApi(clientId)
         //上传文件
         await comfyuiApi.upload(clientId, stateFrame.path, filename)
 
         //提交任务
         let ws = new WorkflowScript(await comfyui.loadReverseApi())
-        let job = await comfyuiApi.prompt(ws, { subfolder: clientId, filename: filename }, Image2TextHandle)
+        let job = await comfyuiApi.prompt(ws, { subfolder: clientId + "/" + pid, filename: filename }, Image2TextHandle)
 
         //关键词所在的节点数
         let step = ws.getWD14TaggerStep()
-
         const callback = async (promptId: string, respData: any) => {
 
             //定位结果
@@ -69,218 +58,11 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
     }
 
 
-
-    let mockData = {
-        "68af50ed-d8f9-4e89-84b2-537cbb8f2568": {
-            "prompt": [
-                1,
-                "68af50ed-d8f9-4e89-84b2-537cbb8f2568",
-                {
-                    "3": {
-                        "inputs": {
-                            "seed": 715154751274101,
-                            "steps": 20,
-                            "cfg": 8,
-                            "sampler_name": "euler_ancestral",
-                            "scheduler": "normal",
-                            "denoise": 1,
-                            "model": [
-                                "10",
-                                0
-                            ],
-                            "positive": [
-                                "6",
-                                0
-                            ],
-                            "negative": [
-                                "7",
-                                0
-                            ],
-                            "latent_image": [
-                                "10",
-                                1
-                            ]
-                        },
-                        "class_type": "KSampler",
-                        "_meta": {
-                            "title": "KSampler"
-                        }
-                    },
-                    "4": {
-                        "inputs": {
-                            "ckpt_name": "AnythingV5Ink_ink.safetensors"
-                        },
-                        "class_type": "CheckpointLoaderSimple",
-                        "_meta": {
-                            "title": "Load Checkpoint"
-                        }
-                    },
-                    "6": {
-                        "inputs": {
-                            "text": "1girl, long_hair, looking_at_viewer, black_hair, brown_eyes, jewelry, sitting, closed_mouth, earrings, solo_focus, bracelet, cup, blurry_background, head_rest, chinese_text",
-                            "clip": [
-                                "4",
-                                1
-                            ]
-                        },
-                        "class_type": "CLIPTextEncode",
-                        "_meta": {
-                            "title": "CLIP Text Encode (Prompt)"
-                        }
-                    },
-                    "7": {
-                        "inputs": {
-                            "text": "violent",
-                            "clip": [
-                                "4",
-                                1
-                            ]
-                        },
-                        "class_type": "CLIPTextEncode",
-                        "_meta": {
-                            "title": "CLIP Text Encode (Prompt)"
-                        }
-                    },
-                    "8": {
-                        "inputs": {
-                            "samples": [
-                                "3",
-                                0
-                            ],
-                            "vae": [
-                                "16",
-                                0
-                            ]
-                        },
-                        "class_type": "VAEDecode",
-                        "_meta": {
-                            "title": "VAE Decode"
-                        }
-                    },
-                    "9": {
-                        "inputs": {
-                            "filename_prefix": "ComfyUI",
-                            "images": [
-                                "8",
-                                0
-                            ]
-                        },
-                        "class_type": "SaveImage",
-                        "_meta": {
-                            "title": "Save Image"
-                        }
-                    },
-                    "10": {
-                        "inputs": {
-                            "batch_size": 1,
-                            "model": [
-                                "4",
-                                0
-                            ],
-                            "reference": [
-                                "14",
-                                0
-                            ]
-                        },
-                        "class_type": "ReferenceOnlySimple",
-                        "_meta": {
-                            "title": "ReferenceOnlySimple"
-                        }
-                    },
-                    "11": {
-                        "inputs": {
-                            "image": "output_image6.png",
-                            "upload": "image"
-                        },
-                        "class_type": "LoadImage",
-                        "_meta": {
-                            "title": "Load Image"
-                        }
-                    },
-                    "13": {
-                        "inputs": {
-                            "upscale_method": "nearest-exact",
-                            "width": 512,
-                            "height": 512,
-                            "crop": "disabled",
-                            "image": [
-                                "11",
-                                0
-                            ]
-                        },
-                        "class_type": "ImageScale",
-                        "_meta": {
-                            "title": "Upscale Image"
-                        }
-                    },
-                    "14": {
-                        "inputs": {
-                            "pixels": [
-                                "13",
-                                0
-                            ],
-                            "vae": [
-                                "16",
-                                0
-                            ]
-                        },
-                        "class_type": "VAEEncode",
-                        "_meta": {
-                            "title": "VAE Encode"
-                        }
-                    },
-                    "16": {
-                        "inputs": {
-                            "vae_name": "kl-f8-anime2.ckpt"
-                        },
-                        "class_type": "VAELoader",
-                        "_meta": {
-                            "title": "Load VAE"
-                        }
-                    }
-                },
-                {},
-                [
-                    "9"
-                ]
-            ],
-            "outputs": {
-                "9": {
-                    "images": [
-                        {
-                            "filename": "ComfyUI_00391_.png",
-                            "subfolder": "",
-                            "type": "output"
-                        },
-                        {
-                            "filename": "ComfyUI_00392_.png",
-                            "subfolder": "",
-                            "type": "output"
-                        }
-                    ]
-                }
-            },
-            "status": {
-                "status_str": "success",
-                "completed": true,
-                "messages": [
-                    [
-                        "execution_start",
-                        {
-                            "prompt_id": "68af50ed-d8f9-4e89-84b2-537cbb8f2568"
-                        }
-                    ],
-                    [
-                        "execution_cached",
-                        {
-                            "nodes": [],
-                            "prompt_id": "68af50ed-d8f9-4e89-84b2-537cbb8f2568"
-                        }
-                    ]
-                ]
-            }
-        }
+    const handleImage2TextCatch = () => {
+        handleImage2Text().catch(err => { message.destroy(); message.error(err.message) })
     }
+
+
 
     const handleImage2Image = async () => {
         if (!style) {
@@ -299,14 +81,13 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
         const callback = async (promptId: string, respData: any) => {
             //回调消息不及时 定时查询
             console.info("status", respData)
-            
+
             //下载文件
             let images = respData[promptId]!.outputs![step].images! as { filename: string, subfolder: string, type: string }[]
             images.forEach(async (item) => {
 
                 //下载，保存
                 let fileBuffer = await comfyuiApi.download(item.subfolder, item.filename)
-                debugger
                 let filePath = await saveOutputFrameFile(index, item.filename, fileBuffer)
 
                 //更新状态
@@ -323,7 +104,9 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
         registerComfyUIPromptCallback({ jobId: stateFrame.path, promptId: job.prompt_id, handle: callback })
     }
 
-
+    const handleImage2ImageCatch = () => {
+        handleImage2Image().catch(err => { message.destroy(); message.error(err.message) })
+    }
 
 
 
@@ -375,8 +158,8 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
     const renderOperate = () => {
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleImage2Image}>生成图片</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleImage2Text}>反推关键词</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleImage2ImageCatch}>生成图片</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleImage2TextCatch}>反推关键词</Button>
             </Fragment>
         )
     }

@@ -4,6 +4,9 @@ import { create } from "zustand";
 
 
 
+const delay = (ms: number) => {
+    return new Promise(resolve => { setTimeout(resolve, ms) });
+}
 
 export interface ImtateStorage {
     pid: string | undefined
@@ -79,17 +82,41 @@ export const usePersistImtateStorage = create<ImtateStorage>((set, get) => ({
         let output = await cmd.execute()
         console.info(output.stderr)
         console.info(output.stdout)
-        //生成文件
 
+        await delay(1000)
+
+        //生成frames.json
+        let frameImageFiles = await fs.readDir(framesDir, {
+            dir: workspaceFileDirectory,
+            recursive: false
+        })
+        let imtateFrames = frameImageFiles.map(file => {
+            let seq = file.name?.substring(0, file.name.lastIndexOf("."))
+            return {
+                id: Number.parseInt(seq!),
+                name: file.name,
+                path: file.path,
+                drawImageHistory: []
+            } as ImtateFrame
+        })
+        //sort
+        imtateFrames.sort((a, b) => a.id - b.id)
+
+        //保存帧文件
+        let frameFile = await path.join(pid as string, "frames.json")
+        await fs.writeTextFile(frameFile, JSON.stringify({ pid: pid, frames: imtateFrames }, null, '\t'), { dir: workspaceFileDirectory, append: false })
+
+
+
+        //保存脚本文件
         let store = get()
         let imtateFile = await path.join(store.pid as string, "imtate.json")
         return await fs.writeTextFile(imtateFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
     }
 }))
 
-
 export interface ImtateFrame {
-    idx: number
+    id: number
     name: string,
     path: string,
     drawPrompt?: string
@@ -121,30 +148,7 @@ export const usePersistImtateFramesStorage = create<ImtateFramesStorage>((set, g
         let exist = await fs.exists(scriptFile, { dir: workspaceFileDirectory, append: true })
         if (!exist) {
             //读取文件夹下数据
-            let frameDir = await path.join(pid, "frames")
-            exist = await fs.exists(frameDir, {
-                dir: workspaceFileDirectory,
-            })
-            if (!exist) {
-                set({ pid: pid, frames: [] })
-                return
-            }
-            let frameImageFiles = await fs.readDir(frameDir, {
-                dir: workspaceFileDirectory,
-                recursive: false
-            })
-            let imtateFrames = frameImageFiles.map(file => {
-                let seq = file.name?.substring(0, file.name.lastIndexOf("."))
-                return {
-                    idx: Number.parseInt(seq!),
-                    name: file.name,
-                    path: file.path,
-                    drawImageHistory: []
-                } as ImtateFrame
-            })
-            //sort
-            imtateFrames.sort((a, b) => a.idx - b.idx)
-            set({ pid: pid, frames: imtateFrames })
+            set({ pid: pid, frames: [] })
             return
         }
         let scriptJson = await fs.readTextFile(scriptFile, { dir: workspaceFileDirectory })
@@ -152,22 +156,32 @@ export const usePersistImtateFramesStorage = create<ImtateFramesStorage>((set, g
     },
     //更新
     updateFrame: async (idx: number, frame: ImtateFrame) => {
-        let { frames } = get()
+        let { pid, frames } = get()
 
+        //更新状态
         let stateFrames = [...frames]
         stateFrames[idx] = frame
         set({ frames: stateFrames })
-    },
 
-    removeFrame: async (idx: number) => {
-        let stateframes = [...get().frames!]
-        stateframes.splice(idx, 1)
-        set({ frames: stateframes })
+        //同步更新文件
+        let imtateFile = await path.join(pid as string, "frames.json")
+        return await fs.writeTextFile(imtateFile, JSON.stringify(get(), null, '\t'), { dir: workspaceFileDirectory, append: false })
     },
-    saveFrames: async () => {
-        let store = get()
-        let imtateFile = await path.join(store.pid as string, "frames.json")
-        return await fs.writeTextFile(imtateFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
+    removeFrame: async (idx: number) => {
+        // let { pid, frames } = get()
+
+
+        let stateFrames = [...get().frames!]
+        stateFrames.splice(idx, 1)
+        set({ frames: stateFrames })
+
+        //更新状态
+
+
+        // 同步更新文件
+        // let imtateFile = await path.join(pid as string, "frames.json")
+        // return await fs.writeTextFile(imtateFile, JSON.stringify(get(), null, '\t'), { dir: workspaceFileDirectory, append: false })
+
     },
     saveOutputFrameFile: async (idx: number, fileName: string, fileBuffer: ArrayBuffer) => {
         let { pid } = get()

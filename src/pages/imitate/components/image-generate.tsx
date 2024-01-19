@@ -16,9 +16,10 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
 
   const [style, setStyle] = useState<string>("")
   const { frames } = usePersistImtateFramesStorage(state => state)
-  const framesLoadHanlde = usePersistImtateFramesStorage(state => state.load)
+  const framesLoadHandle = usePersistImtateFramesStorage(state => state.load)
+
   useEffect(() => {
-    framesLoadHanlde(pid)
+    framesLoadHandle(pid)
   }, [pid])
 
 
@@ -32,7 +33,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
         </div>
         {
           frames && frames.map((item, index) => {
-            return (<GenerateImagesTR key={index} frame={item} index={index} style={style} />)
+            return (<GenerateImagesTR key={item.id} frame={item} index={index} style={style} />)
           })
         }
       </div>

@@ -66,7 +66,7 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
             return {
                 id: uuid(),
                 name: an,
-                alias: "",
+                alias: an,
                 style: "",
                 traits: []
             } as Actor
