@@ -3,24 +3,33 @@ import React, { useEffect, useState } from 'react'
 import ReactPlayer from 'react-player';
 import { dialog, tauri } from '@tauri-apps/api';
 import { ImitateTabType } from '../index';
-import { usePersistImtateStorage } from '@/stores/frame';
 import VideoPlayerModal from './video-player';
-import { getTime } from '@/utils';
+import { useKeyFrameRepository, useSimulateRepository } from '@/repository/simulate';
 
 interface VideoImportProps {
     handleChangeTab: (key: ImitateTabType) => void,
 }
 
 const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
+
     const [videoPlayURL, setVideoPlayURL] = useState<string>()
     const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
-    const { videoPath, videoPayload, importVideo, startCollectFrames } = usePersistImtateStorage(state => state)
 
-
+    const simulateRepo = useSimulateRepository(state => state)
+    const KeyFrameRepo = useKeyFrameRepository(state => state)
     useEffect(() => {
-        if (videoPath) setVideoPlayURL(tauri.convertFileSrc(videoPath!))
-        //获取时长
-    }, [videoPath])
+        const unsub = useSimulateRepository.subscribe(
+            (state) => state.videoPath,
+            (state, pre) => {
+                console.info("sub", state, pre)
+                if (state) setVideoPlayURL(tauri.convertFileSrc(state!))
+            },
+            { fireImmediately: true }
+        )
+        return unsub
+    }, [])
+
+
 
     const handleImported = async () => {
         let selected = await dialog.open({
@@ -29,24 +38,39 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
         if (!selected) {
             return
         }
-        return importVideo(selected as string)
+        return simulateRepo.handleImportVideo(selected as string)
     }
 
     const handleCollectFrames = async () => {
         message.loading({
-            content: '正在抽帧..',
+            content: '正在抽取关键帧..',
             duration: 0,
             style: {
                 marginTop: "350px"
             }
         })
-        startCollectFrames().then(() => {
-            //更新数据
 
-            handleChangeTab("generateImages");
-        }).finally(() => {
-            message.destroy();
+        //抽帧，导入，切换tab
+        let keyFrames = await simulateRepo.handleCollectFrames()
+        await KeyFrameRepo.initializationKeyFrames(keyFrames)
+        handleChangeTab("frames");
+
+        message.destroy()
+    }
+
+    const handleCollectAudio = async () => {
+        message.loading({
+            content: '正在导出音频..',
+            duration: 0,
+            style: {
+                marginTop: "350px"
+            }
         })
+
+        await simulateRepo.handleCollectAudio()
+        handleChangeTab("audio");
+
+        message.destroy()
     }
 
     const renderVoice = () => {
@@ -57,23 +81,24 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
                     height="200px"
                     style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '6px' }}
                 />
-                {videoPayload && <div className='time'>{getTime(videoPayload.streams[0].duration_ts)}</div>}
-                <div className='video-name'>{videoPath?.split('/').pop()}</div>
+                {/* {payload && <div className='time'>{getTime(payload.streams[0].duration_ts)}</div>}
+                <div className='video-name'>{videoPath?.split('/').pop()}</div> */}
             </div>
         )
     }
 
 
     return (
-        
-            <div className="generate-image-wrap scrollbar">
+
+        <div className="generate-image-wrap scrollbar">
             <div className='flexR'>
                 <div>请导入视频：</div>
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported} >导入</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!videoPath} onClick={handleCollectFrames}>开始抽帧</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!videoPlayURL} onClick={handleCollectFrames}>开始抽帧</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!videoPlayURL} onClick={handleCollectAudio}>导出音频</Button>
             </div>
 
-            {videoPath ? renderVoice() : null}
+            {simulateRepo.videoPath ? renderVoice() : null}
             {isVideoPlayerOpen && <VideoPlayerModal videoPlayURL={videoPlayURL!} isOpen={isVideoPlayerOpen} onClose={() => setIsVideoPlayerOpen(false)} />}
         </div>
     );

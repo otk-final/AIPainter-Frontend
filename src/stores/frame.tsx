@@ -12,11 +12,13 @@ export interface ImtateStorage {
     pid: string | undefined
     videoPath?: string | undefined
     videoPayload?: any
+    audioPath?: string | undefined
     isRunning: boolean
     quit: () => Promise<void>
     load: (pid: string) => Promise<void>
     importVideo: (videoPath: string) => Promise<void>
     startCollectFrames: () => Promise<void>
+    startExportAudio: () => Promise<string>
 }
 
 const workspaceFileDirectory = BaseDirectory.AppLocalData
@@ -44,7 +46,7 @@ export const usePersistImtateStorage = create<ImtateStorage>((set, get) => ({
         let cmd = shell.Command.sidecar('bin/ffprobe', [
             "-v", "quiet",
             "-show_streams",
-            "-select_streams", "0",
+            "-select_streams", "0", //视频
             "-output_format", "json",
             "-i", videoPath
         ])
@@ -63,7 +65,6 @@ export const usePersistImtateStorage = create<ImtateStorage>((set, get) => ({
         if (isRunning) {
             throw new Error("isRunning")
         }
-
         //删除原目录下所有文件
         let framesDir = await path.join(pid!, "frames")
         await fs.createDir(framesDir, { dir: workspaceFileDirectory, recursive: true })
@@ -112,6 +113,31 @@ export const usePersistImtateStorage = create<ImtateStorage>((set, get) => ({
         let store = get()
         let imtateFile = await path.join(store.pid as string, "imtate.json")
         return await fs.writeTextFile(imtateFile, JSON.stringify(store, null, '\t'), { dir: workspaceFileDirectory, append: false })
+    },
+    startExportAudio: async () => {
+        let { pid, isRunning, videoPath } = get()
+        if (isRunning) {
+            throw new Error("isRunning")
+        }
+
+        //导出音频
+        let audioPath = await path.join(await path.appLocalDataDir(), pid!, "audio.mp3")
+        let cmd = shell.Command.sidecar("bin/ffmpeg", [
+            "-i", videoPath!,
+            "-ar", "44100",  //采样率: 22050, 441000, 48000
+            "-ac", "2",      //声道数
+            "-b:a", "128k",  //音频格式
+            "-f", "mp3",
+            audioPath
+        ])
+        let output = await cmd.execute()
+        console.info(output.stderr)
+        console.info(output.stdout)
+
+
+
+        await delay(1000)
+        return audioPath
     }
 }))
 
@@ -168,19 +194,18 @@ export const usePersistImtateFramesStorage = create<ImtateFramesStorage>((set, g
         return await fs.writeTextFile(imtateFile, JSON.stringify(get(), null, '\t'), { dir: workspaceFileDirectory, append: false })
     },
     removeFrame: async (idx: number) => {
-        // let { pid, frames } = get()
+        let { pid, frames } = get()
 
 
-        let stateFrames = [...get().frames!]
+        //更新状态
+        let stateFrames = [...frames]
         stateFrames.splice(idx, 1)
         set({ frames: stateFrames })
 
-        //更新状态
-
 
         // 同步更新文件
-        // let imtateFile = await path.join(pid as string, "frames.json")
-        // return await fs.writeTextFile(imtateFile, JSON.stringify(get(), null, '\t'), { dir: workspaceFileDirectory, append: false })
+        let imtateFile = await path.join(pid as string, "frames.json")
+        return await fs.writeTextFile(imtateFile, JSON.stringify(get(), null, '\t'), { dir: workspaceFileDirectory, append: false })
 
     },
     saveOutputFrameFile: async (idx: number, fileName: string, fileBuffer: ArrayBuffer) => {

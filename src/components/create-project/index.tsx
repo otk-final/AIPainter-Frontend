@@ -2,8 +2,9 @@ import { Button, Input, message, Modal } from "antd"
 import { useState } from "react";
 import { history } from 'umi'
 import "./index.less"
-import { usePersistWorkspaces } from "@/stores/project";
+import { v4 as uuid } from "uuid"
 import { ProjectType } from "@/pages/index";
+import { Project, useProjectRepository } from "@/repository/workspace";
 
 interface ProjectProps {
     isOpen: boolean,
@@ -13,17 +14,20 @@ interface ProjectProps {
 
 export const ProjectModal: React.FC<ProjectProps> = ({ isOpen, onClose, type }) => {
     const [name, setName] = useState("")
-    const { create } = usePersistWorkspaces(state => state)
+    const { appendItem, reactived } = useProjectRepository(state => state)
 
-    const handleCreate = () => {
+    const handleCreate = async () => {
         if (!name) {
             return message.error("请输入小说别名");
         }
-        if(type === 'story') {
-            create("story", name).then((id) => { history.push("/story/" + id) })
-        }else {
-            create("imitate", name).then((id) => { history.push("/imitate/" + id) })
+
+        let newProject = { id: uuid(), name, type: type } as Project
+        if (type === 'story') {
+            await appendItem(newProject).finally(() => { history.push("/story/" + newProject.id) })
+        } else {
+            await appendItem(newProject).finally(() => { history.push("/imitate/" + newProject.id) })
         }
+        reactived(true)
     }
 
     return (

@@ -2,35 +2,40 @@ import { Button, message, Tabs, TabsProps } from 'antd';
 import React, { useEffect, useState } from 'react'
 import './index.less'
 import { history, useParams } from "umi"
-import { usePersistImtateFramesStorage, usePersistImtateStorage } from '@/stores/frame';
 import VideoImportTab from './components/video-import';
 import ImageGenerateTab from './components/image-generate';
-import { usePersistComfyUIStorage } from '@/stores/comfyui';
 import { Header } from '@/components';
+import { AudioExportTab } from './components/audio-export';
+import { useKeyFrameRepository, useSimulateRepository } from '@/repository/simulate';
 
-export type ImitateTabType = "exportFrames" | "generateImages"
+export type ImitateTabType = "import" | "frames" | "audio"
 const imitateTabs: TabsProps["items"] = [
   {
-    key: "exportFrames",
+    key: "import",
     label: "视频抽帧",
   },
   {
-    key: "generateImages",
+    key: "frames",
     label: "图生图",
+  },
+  {
+    key: "audio",
+    label: "音频同轨",
   },
 ];
 
 const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
-  const [currentTab, setCurrentTab] = useState<ImitateTabType>("exportFrames");
-  const [tabs, setTabs] = useState(imitateTabs)
-  const { frames } = usePersistImtateFramesStorage(state => state);
-  const imtateLoadHandle = usePersistImtateStorage(state => state.load)
-
+  const [currentTab, setCurrentTab] = useState<ImitateTabType>("import");
+  const [tabs,] = useState(imitateTabs)
+  
+  const simulateLoader = useSimulateRepository(state => state.load)
+  const keyFreamLoader = useKeyFrameRepository(state => state.load)
 
   //加载配置项
   useEffect(() => {
-    //加载当前工作需要的所有页面数据
-    imtateLoadHandle(pid)
+    //加载数据
+    simulateLoader(pid)
+    keyFreamLoader(pid)
   }, [pid])
 
 
@@ -47,12 +52,7 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   }
 
 
-  const imtateQuitHanlde = usePersistImtateStorage(state => state.quit)
-  const framesQuitHanlde = usePersistImtateFramesStorage(state => state.quit)
-
   const handleQuit = () => {
-    imtateQuitHanlde()
-    framesQuitHanlde()
     history.back()
   }
 
@@ -61,17 +61,17 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   }
 
   const renderHeaderRight = () => {
-    return currentTab === "exportFrames" ? null :
+    return currentTab === "audio" ? null :
       <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!frames || frames.length === 0} onClick={handleDraft}> 导出剪映草稿</Button>
   }
 
 
-
   return (
     <div className="imitate-wrap">
-      <Header onQuit={handleQuit} renderLeft={renderHeaderLeft()} renderRight={renderHeaderRight()} />
-      {currentTab === "exportFrames" ? < VideoImportTab handleChangeTab={setCurrentTab} /> : null}
-      {currentTab === 'generateImages' ? <ImageGenerateTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
+      <Header onQuit={(handleQuit)} renderLeft={renderHeaderLeft()} renderRight={renderHeaderRight()} />
+      {currentTab === "import" ? < VideoImportTab handleChangeTab={setCurrentTab} /> : null}
+      {currentTab === 'frames' ? <ImageGenerateTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
+      {currentTab === 'audio' ? <AudioExportTab handleChangeTab={setCurrentTab} /> : null}
     </div>
   );
 };

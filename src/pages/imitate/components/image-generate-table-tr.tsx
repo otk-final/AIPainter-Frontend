@@ -7,7 +7,6 @@ import { tauri } from "@tauri-apps/api";
 import { HistoryImageModule } from "@/components"
 import { Image2TextHandle, Text2ImageHandle, WorkflowScript, registerComfyUIPromptCallback, usePersistComfyUIStorage } from "@/stores/comfyui";
 import { usePersistUserIdentificationStorage } from "@/stores/auth";
-import OpenAI from "openai";
 
 interface GenerateImagesTRProps {
     index: number

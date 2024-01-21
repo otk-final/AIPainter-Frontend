@@ -4,9 +4,8 @@ import './index.less'
 import assets from '@/assets'
 import { history } from "umi"
 import { useLogin } from '@/uses';
-import { Project, usePersistWorkspaces } from '@/stores/project';
 import { ProjectModal } from '@/components/create-project';
-import { usePersistComfyUIStorage } from '@/stores/comfyui';
+import { Project, useProjectRepository } from '@/repository/workspace';
 
 
 export type ProjectType = "story" | "imitate" | ""
@@ -71,7 +70,6 @@ const HomePage = () => {
       return message.warning("请先登陆～")
     }
 
-
     if (i?.pageUrl) {
       history.push(i.pageUrl)
     } else if (i.key === "story" || i.key === "imitate") {
@@ -80,21 +78,20 @@ const HomePage = () => {
   }
 
   //加载项目
-  const { projects, load, remove, open } = usePersistWorkspaces(state => state)
-  const comfyLoadHandle = usePersistComfyUIStorage(state => state.load)
-
+  const { items, load, delItem, reactived } = useProjectRepository(state => state)
   useEffect(() => {
-    load()
-    comfyLoadHandle()
+    load('env')
   }, [])
 
+
+
   const handleGoon = (project: Project) => {
-    open(project).finally(() => { history.push(project.type === "story" ? "/story/" + project.id : "/imitate/" + project.id) })
+    history.push(project.type === "story" ? "/story/" + project.id : "/imitate/" + project.id)
   }
 
-  const handleDel = (item: Project) => {
+  const handleDel = (idx: number, item: Project) => {
     Modal.confirm({
-      title: '确认删除',
+      title: '确认删除：' + item.name,
       okText: '确认',
       cancelText: '取消',
       footer: (_, { OkBtn, CancelBtn }) => (
@@ -103,8 +100,9 @@ const HomePage = () => {
           <OkBtn />
         </div>
       ),
-      onOk: () => {
-        remove(item!.id)
+      onOk: async () => {
+        await delItem(idx)
+        await reactived(true)
       }
     });
   }
@@ -112,7 +110,7 @@ const HomePage = () => {
   const renderMyCreation = () => {
     return (
       <div className="section-create-wrap flexR">
-        {projects.map((item, index) => {
+        {items.map((item, index) => {
           return (
             <div className="home-item-wrap flexR" key={index}>
               <div className="left flexC">
@@ -123,7 +121,7 @@ const HomePage = () => {
               </div>
               <div className="right flexC">
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={() => { handleGoon(item!) }}>继续创作</Button>
-                <Button type="default" className="btn-default-auto btn-default-100" style={{ marginTop: '10px' }} onClick={() => handleDel(item)}>删除</Button>
+                <Button type="default" className="btn-default-auto btn-default-100" style={{ marginTop: '10px' }} onClick={() => handleDel(index, item)}>删除</Button>
               </div>
             </div>
           )
@@ -175,7 +173,7 @@ const HomePage = () => {
 
       <div className="section-title-wrap">我的创作<span>（生成素材特为您保留30天）</span></div>
 
-      {projects.length ? renderMyCreation() : renderMyCreationEmpty()}
+      {items.length ? renderMyCreation() : renderMyCreationEmpty()}
       <ProjectModal isOpen={!!isProjectOpen} onClose={() => setIsProjectOpen("")} type={isProjectOpen} />
     </div>
   );
