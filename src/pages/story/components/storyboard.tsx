@@ -4,7 +4,7 @@ import { storyboardColumns } from '../data';
 import StoryboardTableTR from './storyboard-table-tr'
 import assets from '@/assets';
 import FileImportModal from '../story-import';
-import { useChapterRepository } from '@/repository/story';
+import { useActorRepository, useChapterRepository } from '@/repository/story';
 
 
 interface StoryboardProps {
@@ -14,11 +14,20 @@ interface StoryboardProps {
 const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
     const [isOpen, setOpen] = useState(false);
     const chapterRepo = useChapterRepository(state => state)
+    const actorRepo = useActorRepository(state => state)
     const [hasCompletedCount, setCompletedCount] = useState<number>(0)
 
     useEffect(() => {
         setCompletedCount(chapterRepo.items.filter(item => item.image?.path).length)
+        actorRepo.load(pid)
+
+        //保存当前状态
+        return () => {
+            chapterRepo.sync()
+        }
     }, [pid])
+
+
 
 
     const renderEmpty = () => {
@@ -50,7 +59,7 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
                     </div>
                     {
                         chapterRepo.items.map((item, index) => {
-                            return <StoryboardTableTR key={item.id} idx={index} chapter={item} />
+                            return <StoryboardTableTR key={item.id} idx={index} chapter={item} actors={actorRepo.items} />
                         })
                     }
                 </div>

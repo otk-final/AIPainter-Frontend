@@ -43,7 +43,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
     }
 
     const handleDelKeyFrame = async () => {
-        await keyFreamRepo.delItem(index)
+        await keyFreamRepo.delItem(index,true)
     }
 
 

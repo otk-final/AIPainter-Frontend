@@ -37,7 +37,7 @@ const SettingPage = () => {
   const handleSave = async () => {
 
     if (cur === "paint") {
-      await comfyuiRepo.assignPersistent(paintRef.current!.getComfyUI()).then(() => { message.success("保存成功") }).finally(() => history.back())
+      await comfyuiRepo.reload(paintRef.current!.getComfyUI()).then(() => { message.success("保存成功") }).finally(() => history.back())
     } else {
       //TODO 
     }

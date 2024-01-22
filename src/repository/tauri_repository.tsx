@@ -11,11 +11,11 @@ export type Directory = string
 
 export abstract class BaseRepository<T> {
 
-    setProxy: (T: any) => void
-    getProxy: () => T
+    setHold: (T: any) => void
+    getHold: () => T
     constructor(repo: string, set: (T: any) => void, get: () => T) {
-        this.setProxy = set
-        this.getProxy = get
+        this.setHold = set
+        this.getHold = get
         this.repo = repo
     }
 
@@ -40,7 +40,7 @@ export abstract class BaseRepository<T> {
         //目录是否存在
         if (!await fs.exists(this.repoDir, { dir: this.baseDir() })) {
             let emptyRepo = this.repoEmpty()
-            this.setProxy(emptyRepo)
+            this.setHold(emptyRepo)
             return emptyRepo!
         }
 
@@ -50,7 +50,7 @@ export abstract class BaseRepository<T> {
         //文件是否存在
         if (!await fs.exists(filePath, { dir: this.baseDir() })) {
             let emptyRepo = this.repoEmpty()
-            this.setProxy(emptyRepo)
+            this.setHold(emptyRepo)
             return emptyRepo!
         }
 
@@ -58,42 +58,39 @@ export abstract class BaseRepository<T> {
         let text = await fs.readTextFile(filePath, { dir: this.baseDir(), append: false })
         let thisData = JSON.parse(text) as Partial<T>
 
-        //初始化状态
-        this.assign(thisData)
-    }
-
-    assign = (thisData: Partial<T>) => {
-
         //初始化对象
         Object.assign(this, thisData)
 
         //初始化状态
-        this.setProxy({ ...thisData })
+        this.setHold({ ...thisData })
     }
 
-    assignPersistent = async (thisData: Partial<T>) => {
+
+
+    reload = async (thisData: Partial<T>) => {
 
         //变更对象
         Object.assign(this, thisData)
 
         //变更状态
-        this.setProxy({ ...thisData })
+        this.setHold({ ...thisData })
 
         //保持文件
         await this.save()
     }
 
 
-    assignThis = async () => {
+    //同步状态 + 保存文件
+    sync = async () => {
 
         //变更状态
-        this.setProxy({ ...this })
+        this.setHold({ ...this })
 
         //保存文件
         await this.save()
     }
 
-
+    //保存文件
     save = async () => {
         //创建目录
         await fs.createDir(this.repoDir, { dir: this.baseDir(), recursive: true })
@@ -133,25 +130,29 @@ export abstract class BaseCRUDRepository<Item extends ItemIdentifiable, T> exten
 
     items: Item[] = []
 
-    addItem = async (idx: number, item: Item) => {
+    addItem = async (idx: number, item: Item, temporary?: boolean) => {
         this.items.splice(idx, 0, item)
-        await this.assignThis()
+        this.setHold({ items: this.items })
+        if (!temporary) await this.save()
     }
-    appendItem = async (item: Item) => {
+    appendItem = async (item: Item, persisted?: boolean) => {
         this.items.push(item)
-        await this.assignThis()
+        this.setHold({ items: this.items })
+        if (persisted) await this.save()
     }
-    delItem = async (idx: number) => {
+    delItem = async (idx: number, persisted?: boolean) => {
         this.items.splice(idx, 1)
-        await this.assignThis()
+        this.setHold({ items: this.items })
+        if (persisted) await this.save()
     }
-    updateItem = async (idx: number, item: Item) => {
+    updateItem = async (idx: number, item: Item, persisted?: boolean) => {
         this.items[idx] = item
-        await this.assignThis()
+        this.setHold({ items: this.items })
+        if (persisted) await this.save()
     }
-    modifyItem = async (idx: number, item: any) => {
+    assignItem = async (idx: number, item: any, persisted?: boolean) => {
         Object.assign(this.items[idx], item)
-        await this.assignThis()
+        if (persisted) await this.save()
     }
     incrItemId = () => {
         let lasted = this.items[this.items.length - 1]

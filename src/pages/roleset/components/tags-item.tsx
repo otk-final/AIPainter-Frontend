@@ -178,7 +178,7 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
 
         actorRepo.items[index].traits = tags!
         actorRepo.items[index].image = statePreviewPath
-        await actorRepo.assignThis()
+        await actorRepo.sync()
         
         handleClose()
     }

@@ -3,49 +3,61 @@ import { Fragment, useEffect, useState } from "react";
 import { storyboardColumns } from "../data";
 import TextArea from "antd/es/input/TextArea";
 import { v4 as uuid } from "uuid"
-import { Actor, Chapter, useActorRepository, useChapterRepository } from "@/repository/story";
+import { Actor, Chapter, useChapterRepository } from "@/repository/story";
 
 interface StoryboardTableTRProps {
     idx: number,
     chapter: Chapter,
+    actors: Actor[]
 }
 
 const emptyChapter: Chapter = { id: "", original: "", actors: [] }
 
-const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) => {
-
-    const actorRepo = useActorRepository(state => state)
-    const chapterRepo = useChapterRepository(state => state)
+const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, actors }) => {
 
     //页面级状态
     const [stateChapter, setChapter] = useState<Chapter>({ ...chapter })
 
+    const isActorChecked = (alias: string) => {
+        return stateChapter.actors && stateChapter.actors.indexOf(alias) !== -1
+    }
+
+    const renderChinesePrompts = (checkActors: string[]) => {
+        if (!checkActors || checkActors.length === 0) {
+            return ""
+        }
+        return actors.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
+            return item.traits.map(f => f.label).join(",")
+        }).join(";")
+    }
+
+    const renderEnglishPrompts = (checkActors: string[]) => {
+        if (!checkActors || checkActors.length === 0) {
+            return ""
+        }
+        return actors.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
+            return item.traits.map(f => f.value).join(",")
+        }).join(";")
+    }
+
     useEffect(() => {
         const unsub = useChapterRepository.subscribe(
             (state) => state.items[idx],
-            (state, prev) => {
-                console.info("state change")
-                let stateCopy = { ...state }
-                stateCopy.prompt = {
-                    cn: renderChinesePrompts(stateCopy.actors || []),
-                    en: renderEnglishPrompts(stateCopy.actors || []),
-                }
-                setChapter(stateCopy)
-            },
+            (state, prev) => setChapter(state),
             { fireImmediately: true })
         return unsub
-    }, [idx])
+    }, [idx, chapter])
 
 
+    const chapterRepo = useChapterRepository(state => state)
 
-    const handleAddChapter = () => {
-        chapterRepo.addItem(idx, { ...emptyChapter, id: uuid() })
+    const handleAddChapter = async () => {
+        await chapterRepo.addItem(idx, { ...emptyChapter, id: uuid() })
     }
 
-    const handleDelChapter = () => {
-        chapterRepo.delItem(idx)
+    const handleDelChapter = async () => {
+        await chapterRepo.delItem(idx, true)
     }
-
 
     const renderNumber = () => {
         return (
@@ -58,23 +70,8 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) =
         )
     }
 
-    const isActorChecked = (alias: string) => {
-        return stateChapter.actors && stateChapter.actors.indexOf(alias) !== -1
-    }
 
-    const renderChinesePrompts = (checkActors: string[]) => {
-        return actorRepo.items.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
-            return item.traits.map(f => f.label).join(",")
-        }).join(";")
-    }
-
-    const renderEnglishPrompts = (checkActors: string[]) => {
-        return actorRepo.items.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
-            return item.traits.map(f => f.value).join(",")
-        }).join(";")
-    }
-
-    const handleActorChange = (checked: boolean, actor: Actor) => {
+    const handleActorChange = async (checked: boolean, actor: Actor) => {
         let actors = stateChapter.actors ? [...stateChapter.actors] : []
         if (checked) {
             actors.push(actor.alias)
@@ -82,14 +79,14 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) =
             actors = actors.filter(alias => alias !== actor.alias)
         }
 
-        setChapter({ ...stateChapter, actors: actors })
+        await chapterRepo.updateItem(idx, { ...stateChapter, actors: actors },true)
     }
 
 
     const renderActors = () => {
         return (
             <Fragment>
-                {actorRepo.items.map((item, idx) => {
+                {actors.map((item, idx) => {
                     return (
                         <div className="role-wrap flexR" key={idx}>
                             <div>角色{idx + 1}: <span className="">{item.name}</span></div>
@@ -101,13 +98,15 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) =
         )
     }
 
+    const handleEditOriginal = async (e: any) => {
+        await chapterRepo.updateItem(idx, { ...stateChapter, original: e.target.value }, false)
+    }
     const renderEditOriginal = () => {
-
         return (
             <TextArea rows={6} placeholder={"请输入剧本内容"}
                 maxLength={1000} className="text-area-auto"
                 value={stateChapter.original}
-                onChange={(e) => { setChapter({ ...stateChapter, original: e.target.value }) }} />
+                onChange={handleEditOriginal} />
         )
     }
 
@@ -121,7 +120,7 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter }) =
                         {i.key === 'original' ? renderEditOriginal() : null}
                         {i.key === 'scene' ? stateChapter.ai?.scene : null}
                         {i.key === 'actors' ? renderActors() : null}
-                        {i.key === 'prompts' ? stateChapter.prompt?.cn : null}
+                        {i.key === 'prompts' ? renderChinesePrompts(stateChapter.actors) : null}
                     </div>
                 )
             })}

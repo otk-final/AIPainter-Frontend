@@ -23,9 +23,9 @@ export const ProjectModal: React.FC<ProjectProps> = ({ isOpen, onClose, type }) 
 
         let newProject = { id: uuid(), name, type: type } as Project
         if (type === 'story') {
-            await appendItem(newProject).finally(() => { history.push("/story/" + newProject.id) })
+            await appendItem(newProject, true).finally(() => { history.push("/story/" + newProject.id) })
         } else {
-            await appendItem(newProject).finally(() => { history.push("/imitate/" + newProject.id) })
+            await appendItem(newProject, true).finally(() => { history.push("/imitate/" + newProject.id) })
         }
     }
 

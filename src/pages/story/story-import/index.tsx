@@ -67,12 +67,13 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
         } else {
             chapters = await scriptRepo.boardWithLine(importType, scriptPath, scriptInput)
         }
-        await scriptRepo.assignThis()
+        await scriptRepo.sync()
 
         await chapterRepo.initialization(chapters)
         //过滤出所有角色信息
-        const actorNames = Array.from(new Set(chapters.flatMap(item => item.actors)));
-        const actors = actorNames.map((an) => {
+
+        const actorNames = Array.from(new Set(chapters.flatMap(item => item.actors || [])));
+        const newActors = actorNames.map((an) => {
             return {
                 id: uuid(),
                 name: an,
@@ -81,7 +82,10 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
                 traits: []
             } as Actor
         })
-        await actorRepo.initialization(actors)
+        //合并已配置角色
+        if (newActors && newActors.length > 0) {
+            await actorRepo.mergeActors(newActors)
+        }
 
         setLoading(false)
         onClose()

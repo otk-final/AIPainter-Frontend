@@ -29,7 +29,7 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) 
     if (!ok) {
       return
     }
-    await actorRepo.delItem(index)
+    await actorRepo.delItem(index,true)
   }
 
   useMemo(() => {
@@ -88,13 +88,13 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
     comfyuiRepo.load("env")
 
     //保存
-    return () => { actorRepo.assignThis() }
+    return () => { actorRepo.sync() }
   }, [pid])
 
 
   const addActorHandle = async () => {
     let no = actorRepo.items.length + 1
-    await actorRepo.appendItem({ id: uuid(), name: "角色" + no, alias: "别名" + no, traits: [], style: "", image: "" })
+    await actorRepo.appendItem({ id: uuid(), name: "角色" + no, alias: "别名" + no, traits: [], style: "", image: "" }, true)
   }
 
 

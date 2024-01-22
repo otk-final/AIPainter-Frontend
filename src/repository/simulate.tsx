@@ -47,7 +47,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         this.payload = JSON.parse(output.stdout)
 
         //save
-        this.assignThis()
+        this.sync()
     }
     //抽帧关键帧
     handleCollectFrames = async () => {
@@ -152,7 +152,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     handleEditPrompt = async (index: number, prompt: string) => {
         this.items[index].image.prompt = prompt
         //save
-        this.assignThis()
+        this.sync()
     }
 
     //反推关键词
@@ -176,7 +176,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
             if (reversePrompts) frame.image.prompt = reversePrompts.join(",")
 
             //save
-            this.assignThis()
+            this.sync()
         }
         //监听任务
         registerComfyUIPromptCallback({ jobId: "", promptId: job.prompt_id, handle: callback })
@@ -210,7 +210,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
             })
 
             //save
-            this.assignThis()
+            this.sync()
         }
 
         //监听任务

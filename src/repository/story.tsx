@@ -138,7 +138,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
     //初始化
     initialization = async (chapters: Chapter[]) => {
         this.items = [...chapters]
-        this.assignThis()
+        this.sync()
     }
 
     //提取关键词
@@ -178,7 +178,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
                 }
             })
             //save
-            this.assignThis()
+            this.sync()
         }
 
         //监听任务
@@ -222,9 +222,9 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
     }
 
     //初始化
-    initialization = async (actors: Actor[]) => {
-        this.items = [...actors]
-        this.assignThis()
+    mergeActors = async (newActors: Actor[]) => {
+        this.items.push(...newActors)
+        this.sync()
     }
 
     //生成图片
@@ -232,7 +232,6 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
 
         // this.items[index]
         let prompt = traits.map(item => item.value).join(",")
-        debugger
         //api
         let api = comyuiRepo.newClient()
         let text = await comyuiRepo.buildModePrompt(comyuiRepo.items[0].name)

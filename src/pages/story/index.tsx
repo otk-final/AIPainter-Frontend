@@ -17,7 +17,6 @@ type ActionTabType = "storyboard" | "drawbatch" | "videogeneration"
 const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
 
   const [cur, setCur] = useState<ActionTabType>("storyboard");
-  const [statePid, setPid] = useState<string>(pid)
   const [tabs, setTabs] = useState(createTabs)
 
   //状态
@@ -32,13 +31,13 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
 
     //加载当前工作需要的所有页面数据
     const initializeContext = async () => {
-      await scriptRepo.load(statePid)
-      await actorsRepo.load(statePid)
-      await chaptersRepo.load(statePid)
+      await scriptRepo.load(pid)
+      await actorsRepo.load(pid)
+      await chaptersRepo.load(pid)
     }
     initializeContext().catch(err => message.error(err))
 
-  }, [statePid])
+  }, [pid])
 
 
   //根据脚本判断可操作步骤
@@ -59,7 +58,7 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
       return (
         <div className='flexR'>
           {/* <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setIsEnergyRechargeOpen(true)}>充值能量</Button> */}
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => { history.push('/roleset/' + statePid) }} >设置角色</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => { history.push('/roleset/' + pid) }} >设置角色</Button>
           <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setCur("drawbatch")} disabled={!chaptersRepo.items || chaptersRepo.items?.length === 0}>下一步</Button>
         </div>
       )

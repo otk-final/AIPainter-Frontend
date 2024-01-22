@@ -104,7 +104,7 @@ const HomePage = () => {
         </div>
       ),
       onOk: async () => {
-        await projectRepo.delItem(idx)
+        await projectRepo.delItem(idx,true)
       }
     });
   }
