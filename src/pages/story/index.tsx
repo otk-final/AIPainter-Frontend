@@ -6,7 +6,6 @@ import { history, useParams } from "umi"
 import Storyboard from './components/storyboard';
 import Drawbatch from './components/drawbatch';
 import Videogeneration from './components/videogeneration'
-import { usePersistChaptersStorage, usePersistScriptStorage } from '@/stores/story';
 import { Header } from '@/components';
 import { useActorRepository, useChapterRepository, useScriptRepository } from '@/repository/story';
 
@@ -91,22 +90,10 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
     }
   }
 
-  const saveAllHandle = () => {
-
-  }
-
-  const scriptQuitHandle = usePersistScriptStorage(state => state.quit)
-  const chaptersQuitHandle = usePersistChaptersStorage(state => state.quit)
-
-  const handleQuit = () => {
-    scriptQuitHandle()
-    chaptersQuitHandle()
-    history.back()
-  }
 
   return (
     <div className="create-wrap">
-      <Header onQuit={handleQuit}
+      <Header
         renderLeft={<Tabs defaultActiveKey="paint" activeKey={cur} items={tabs} onChange={(key) => setCur(key as ActionTabType)} />}
         renderRight={customButtons()}
       />

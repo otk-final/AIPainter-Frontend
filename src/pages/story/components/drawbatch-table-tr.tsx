@@ -2,31 +2,41 @@ import { Button, Image, message } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import { Fragment, useEffect, useState } from "react";
 import { drawbatchColumns } from "../data";
-import { Chapter, usePersistChaptersStorage } from "@/stores/story";
 import { tauri } from "@tauri-apps/api";
 import { HistoryImageModule } from "@/components";
-import { Text2ImageHandle, WorkflowScript, registerComfyUIPromptCallback, usePersistComfyUIStorage } from "@/stores/comfyui";
-import { usePersistUserIdentificationStorage } from "@/stores/auth";
+import { Actor, Chapter, useChapterRepository } from "@/repository/story";
+import { useComfyUIRepository } from "@/repository/comfyui";
 
 interface ChapterTableTRProps {
     idx: number,
     style: string
     chapter: Chapter,
+    actors: Actor[]
 }
 
 
-const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, style, chapter }) => {
+const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, style, actors, chapter }) => {
 
     const [isOpenHistory, setIsOpenHistory] = useState(false);
-    const { pid, updateChapter, saveOutputFrameFile } = usePersistChaptersStorage(state => state)
-    const [stateChapter, setChapter] = useState<Chapter>(chapter)
+    const chapterRepo = useChapterRepository(state => state)
+    const [stateChapter, setChapter] = useState<Chapter>({ ...chapter })
     useEffect(() => {
+        const unsub = useChapterRepository.subscribe(
+            (state) => state.items[idx],
+            (state, prev) => setChapter(state),
+            { fireImmediately: true }
+        )
+        return unsub
+    }, [idx])
 
-        //当前绘画页面，ai关键词默认取英文
-        if (!stateChapter.drawPrompt) stateChapter.drawPrompt = stateChapter.actorsPrompt?.en
-
-        updateChapter(idx, stateChapter)
-    }, [stateChapter])
+    const renderEnglishPrompts = (checkActors: string[]) => {
+        if (!checkActors || checkActors.length === 0) {
+            return ""
+        }
+        return actors.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
+            return item.traits.map(f => f.value).join(",")
+        }).join(";")
+    }
 
     const renderNumber = () => {
         return (
@@ -36,21 +46,24 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, style, chapter }) => 
         )
     }
 
+    const handleEditPrompt = async (e: any) => {
+        await chapterRepo.updateItem(idx, { ...stateChapter, prompt: e.target.value }, false)
+    }
 
     const renderEditPrompts = () => {
         return (
             <TextArea rows={6} placeholder={"请输入画面描述词"}
                 maxLength={1000} className="text-area-auto"
-                value={stateChapter.drawPrompt}
-                onChange={(e) => { setChapter({ ...stateChapter, drawPrompt: e.target.value }) }} />
+                value={stateChapter.prompt?.en}
+                onChange={handleEditPrompt} />
         )
     }
 
     const renderImage = () => {
-        if (!stateChapter.drawImage) {
+        if (!stateChapter.image?.path) {
             return <div>待生成</div>
         }
-        let imageUrl = tauri.convertFileSrc(stateChapter.drawImage)
+        let imageUrl = tauri.convertFileSrc(stateChapter.image?.path)
         return (
             <div>
                 <Image src={imageUrl} preview={false} />
@@ -58,27 +71,14 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, style, chapter }) => 
         )
     }
 
-
-    //重绘制
-    const handleRedraw = async () => {
-
-        let path = "/Users/hxy/Desktop/图片/5af16a7e7a434_610.jpg"
-        let imageHistroy = stateChapter.drawImageHistory ? [...stateChapter.drawImageHistory!] : []
-        imageHistroy.push(path)
-
-        setChapter({ ...stateChapter, drawImage: path, drawImageHistory: imageHistroy })
-
-    }
-
-
     const renderImageHistory = () => {
-        if (!stateChapter.drawImageHistory) {
+        if (!stateChapter.image?.history) {
             return <div>待生成</div>
         }
         return (
             <div className="flexR" style={{ flexWrap: "wrap", justifyContent: "flex-start", width: '100%' }}
                 onClick={() => setIsOpenHistory(true)}>
-                {stateChapter?.drawImageHistory?.map((p, idx) => {
+                {stateChapter.image?.history?.map((p, idx) => {
                     return <Image src={tauri.convertFileSrc(p)} className="drawbath-image size-s" preview={false} key={idx} />
                 })}
             </div>
@@ -86,10 +86,9 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, style, chapter }) => 
     }
 
     //comfyui
-    const comfyui = usePersistComfyUIStorage(state => state)
-    const { clientId } = usePersistUserIdentificationStorage(state => state)
+    const comfyuiRepo = useComfyUIRepository(state => state)
 
-    const handleImage2Image = async () => {
+    const handleText2Image = async () => {
         if (!style) {
             await message.warning("请选择图片风格")
             return
@@ -97,48 +96,26 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, style, chapter }) => 
         message.loading("图片生成中...", 30 * 1000, () => {
             console.info("xxx")
         })
-        let comfyuiApi = comfyui.buildApi(clientId)
-
-        //根据当前风格选择脚本 提交当前关键词，和默认反向关键词
-        let ws = new WorkflowScript(await comfyui.loadModeApi(style))
-        let job = await comfyuiApi.prompt(ws, { positive: stateChapter.drawPrompt!, negative: comfyui.negativePrompt! }, Text2ImageHandle)
-        let step = ws.getOutputImageStep()
-
-
-        const callback = async (promptId: string, respData: any) => {
-            //回调消息不及时 定时查询
-            console.info("status", respData)
-
-            //下载文件
-            let images = respData[promptId]!.outputs![step].images! as { filename: string, subfolder: string, type: string }[]
-            images.forEach(async (item) => {
-
-                //下载，保存
-                let fileBuffer = await comfyuiApi.download(item.subfolder, item.filename)
-                let filePath = await saveOutputFrameFile(idx, item.filename, fileBuffer)
-
-                //更新状态
-                stateChapter.drawImageHistory.push(filePath)
-                stateChapter.drawImage = filePath
-
-                setChapter({ ...stateChapter })
-            })
-            message.destroy()
-        }
-        //监听任务
-        registerComfyUIPromptCallback({ jobId: pid!, promptId: job.prompt_id, handle: callback })
+        await chapterRepo.handleGenerateImage(idx, style, comfyuiRepo)
     }
 
-    const handleImage2ImageCatch = () => {
-        handleImage2Image().catch(err => { message.destroy(); message.error(err.message) })
+    const handleImageScale = async () => {
+        if (!style) {
+            await message.warning("请选择图片风格")
+            return
+        }
+        message.loading("图片生成中...", 30 * 1000, () => {
+            console.info("xxx")
+        })
+        await chapterRepo.handleGenerateImage(idx, style, comfyuiRepo)
     }
 
 
     const renderOperate = () => {
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleImage2ImageCatch}>重绘本镜</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateChapter.drawImageHistory}>高清放大</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleText2Image}>重绘本镜</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateChapter.image?.path} onClick={handleImageScale}>高清放大</Button>
             </Fragment>
         )
     }
@@ -159,7 +136,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, style, chapter }) => 
             })}
             <HistoryImageModule
                 isOpen={isOpenHistory} onClose={() => setIsOpenHistory(false)}
-                paths={stateChapter.drawImageHistory || []} defaultPath={stateChapter.drawImage || ""}
+                paths={stateChapter.image?.history || []} defaultPath={stateChapter.image?.path || ""}
                 onChangeNewImage={(v) => setChapter(res => {
                     return { ...res, drawImage: v }
                 })} />

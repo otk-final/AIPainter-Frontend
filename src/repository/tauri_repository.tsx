@@ -91,7 +91,7 @@ export abstract class BaseRepository<T> {
     }
 
     //保存文件
-    save = async () => {
+    protected save = async () => {
         //创建目录
         await fs.createDir(this.repoDir, { dir: this.baseDir(), recursive: true })
         let filePath = this.repoDir + "/" + this.repo

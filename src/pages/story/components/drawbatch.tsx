@@ -1,14 +1,12 @@
-import { QuestionCircleOutlined } from "@ant-design/icons"
-import { Select } from "antd"
 import DrawTableTR from "./drawbatch-table-tr"
 import { drawbatchColumns } from "../data"
-import { usePersistChaptersStorage } from "@/stores/story"
-import { useEffect, useState } from "react"
-import { usePersistComfyUIStorage } from "@/stores/comfyui"
+import { useState } from "react"
+import { useChapterRepository } from "@/repository/story"
+import { ComyUIModeSelect } from "@/components/mode-select"
 
 const Drawbatch = () => {
-    const [style, setStyle] = useState<string>("")
-    const { chapters } = usePersistChaptersStorage(state => state)
+    const [mode, setOption] = useState<string>("")
+    const chapterRepo = useChapterRepository(state => state)
 
     const renderTable = () => {
         return (
@@ -19,8 +17,8 @@ const Drawbatch = () => {
                     })}
                 </div>
                 {
-                    chapters && chapters?.map((chapter, index) => {
-                        return (<DrawTableTR key={chapter.id} idx={index} chapter={chapter} style={style} />
+                    chapterRepo.items.map((chapter, index) => {
+                        return (<DrawTableTR key={chapter.id} idx={index} chapter={chapter} style={mode} />
                         )
                     })
                 }
@@ -28,28 +26,10 @@ const Drawbatch = () => {
         )
     }
 
-    //模型选择
-    const { modeApis } = usePersistComfyUIStorage(state => state)
-    let styleOptions = modeApis.map(item => {
-        return { label: item.name, value: item.name }
-    })
-
-    useEffect(() => {
-        if (modeApis.length > 0) setStyle(modeApis[0].name)
-    }, [])
 
     return (
         <div className="drawbatch-wrap scrollbar">
-            <div className="drawbatch-header flexR">
-                <div className="lable">风格选择 <QuestionCircleOutlined /></div>
-                <Select
-                    className={`select-auto`}
-                    style={{ width: '300px' }}
-                    value={style}
-                    onChange={setStyle}
-                    options={styleOptions}
-                />
-            </div>
+            <ComyUIModeSelect mode={mode} onChange={setOption}></ComyUIModeSelect>
             {renderTable()}
         </div>
     )

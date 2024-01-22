@@ -23,15 +23,13 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
         const unsub = useKeyFrameRepository.subscribe(
             (state) => state.items[index],
             (state, pre) => state && setFrame(state),
-            {
-                fireImmediately: true
-            })
+            { fireImmediately: true })
         return unsub
     }, [index])
 
 
     const handleEditPrompt = async (e: any) => {
-        await keyFreamRepo.handleEditPrompt(index, e.target.value)
+        await keyFreamRepo.updateItem(index, { ...stateFrame, prompt: e.target.value }, false)
     }
 
     const handleImage2TextCatch = async () => {
@@ -43,7 +41,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
     }
 
     const handleDelKeyFrame = async () => {
-        await keyFreamRepo.delItem(index,true)
+        await keyFreamRepo.delItem(index, true)
     }
 
 
@@ -61,7 +59,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
         return (
             <TextArea rows={7} placeholder={"请输入关键词"}
                 maxLength={1000} className="text-area-auto"
-                value={stateFrame.image?.prompt}
+                value={stateFrame.prompt}
                 onChange={handleEditPrompt} />
         )
     }

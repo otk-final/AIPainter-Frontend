@@ -1,5 +1,5 @@
 import assets from "@/assets";
-import { Modal, Tabs, TabsProps } from "antd"
+import { Tabs, TabsProps } from "antd"
 import { useEffect, useMemo, useState } from "react";
 import { CustomTags, OptionalTags, CheckedTags, TagRenderType } from "./tags-item";
 import { TraitsConfig, TraitsOption, traitsConfigs } from "./traits";

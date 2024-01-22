@@ -1,13 +1,9 @@
 import GenerateImagesTR from "./image-generate-table-tr"
 import { generateImagesColumns } from "../data"
 import { ImitateTabType } from ".."
-import { usePersistImtateFramesStorage } from "@/stores/frame"
 import { useEffect, useState } from "react"
-import { QuestionCircleOutlined } from "@ant-design/icons"
-import { Select } from "antd"
-import { usePersistComfyUIStorage } from "@/stores/comfyui"
 import { useKeyFrameRepository } from "@/repository/simulate"
-import { useComfyUIRepository } from "@/repository/comfyui"
+import { ComyUIModeSelect } from "@/components/mode-select"
 
 interface ImageGenerateProps {
   pid: string,
@@ -18,21 +14,14 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
 
 
   const keyFreamsRepo = useKeyFrameRepository(state => state)
-  const comfyuiRepo = useComfyUIRepository(state => state)
 
-  const [style, setOption] = useState<string>("")
-  const [styleOptions, setOptions] = useState<any[]>([])
+  const [mode, setOption] = useState<string>("")
 
   useEffect(() => {
 
     keyFreamsRepo.load(pid)
 
-    //模型
-    let styleOptions = comfyuiRepo.items.map(item => {
-      return { label: item.name.split(".")[0], value: item.name }
-    })
-    setOptions(styleOptions)
-    if (styleOptions.length > 0) setOption(styleOptions[0].value)
+    return () => { keyFreamsRepo.sync() }
   }, [pid])
 
 
@@ -46,7 +35,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
         </div>
         {
           keyFreamsRepo.items.map((item, index) => {
-            return (<GenerateImagesTR key={item.id} frame={item} index={index} style={style} />)
+            return (<GenerateImagesTR key={item.id} frame={item} index={index} style={mode} />)
           })
         }
       </div>
@@ -55,16 +44,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
 
   return (
     <div className="generate-image-wrap scrollbar">
-      <div className="generate-header flexR">
-        <div className="lable">风格选择 <QuestionCircleOutlined /></div>
-        <Select
-          className={`select-auto`}
-          style={{ width: '300px' }}
-          value={style}
-          onChange={setOption}
-          options={styleOptions}
-        />
-      </div>
+      <ComyUIModeSelect mode={mode} onChange={setOption}></ComyUIModeSelect>
       {renderTable()}
     </div>
   )

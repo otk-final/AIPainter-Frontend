@@ -31,14 +31,7 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
         }).join(";")
     }
 
-    const renderEnglishPrompts = (checkActors: string[]) => {
-        if (!checkActors || checkActors.length === 0) {
-            return ""
-        }
-        return actors.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
-            return item.traits.map(f => f.value).join(",")
-        }).join(";")
-    }
+
 
     useEffect(() => {
         const unsub = useChapterRepository.subscribe(

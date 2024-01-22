@@ -123,8 +123,8 @@ export interface KeyFrame extends ItemIdentifiable {
     id: number
     name: string,
     path: string,
+    prompt?: string,
     image: {
-        prompt?: string,
         path?: string
         history: string[]
     }
@@ -149,12 +149,6 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         await fs.writeTextFile(framesJsonPath, JSON.stringify(this, null, '\t'), { dir: this.baseDir(), append: false })
     }
 
-    handleEditPrompt = async (index: number, prompt: string) => {
-        this.items[index].image.prompt = prompt
-        //save
-        this.sync()
-    }
-
     //反推关键词
     handleReversePrompt = async (index: number, comyuiRepo: ComfyUIRepository) => {
         let frame = this.items[index]
@@ -173,7 +167,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         const callback = async (promptId: string, respData: any) => {
             //定位结果
             let reversePrompts = respData[promptId]!.outputs![step]!.tags! as string[]
-            if (reversePrompts) frame.image.prompt = reversePrompts.join(",")
+            if (reversePrompts) frame.prompt = reversePrompts.join(",")
 
             //save
             this.sync()
@@ -192,7 +186,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let script = new WFScript(text)
 
         //add prompt task
-        let job = await api.prompt(script, { positive: frame.image.prompt || comyuiRepo.positivePrompt, negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
+        let job = await api.prompt(script, { positive: frame.prompt || comyuiRepo.positivePrompt, negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
 
         //获取 当前流程中 输出图片节点位置
         let step = script.getOutputImageStep()
