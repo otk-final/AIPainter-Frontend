@@ -1,10 +1,11 @@
 import { Button, Tabs, TabsProps, message } from 'antd';
-import React, { useEffect, useState } from 'react'
+import React, { createRef, useEffect, useRef, useState } from 'react'
 import './index.less'
-import PaintSetting from './components/paint-setting';
+import PaintSetting, { PaintSettingRef } from './components/paint-setting';
 import BasicSetting from './components/basic-setting';
 import { usePersistComfyUIStorage } from '@/stores/comfyui';
 import { Header } from '@/components';
+import { useComfyUIRepository } from '@/repository/comfyui';
 
 type setTabType = "paint" | "translate" | "basic"
 
@@ -25,18 +26,21 @@ export const setTabItems: TabsProps['items'] = [
 
 const SettingPage = () => {
   const [cur, setCur] = useState<setTabType>("paint");
-
   const onChange = (key: string) => {
     setCur(key as setTabType);
   };
 
-  const { save, load } = usePersistComfyUIStorage(state => state)
-  useEffect(() => {
-    load()
-  }, [])
+  const comfyuiRepo = useComfyUIRepository(state => state)
+
+  const paintRef = createRef<PaintSettingRef>()
 
   const handleSave = async () => {
-    save().then(() => { message.success("保存成功") }).finally(() => history.back())
+
+    if (cur === "paint") {
+      await comfyuiRepo.assignPersistent(paintRef.current!.getComfyUI()).then(() => { message.success("保存成功") }).finally(() => history.back())
+    } else {
+      //TODO 
+    }
   }
 
 
@@ -46,7 +50,7 @@ const SettingPage = () => {
         renderLeft={<Tabs defaultActiveKey="paint" items={setTabItems} onChange={onChange} />}
         renderRight={<Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleSave}>保存设置</Button>}
       />
-      {cur === 'paint' ? <PaintSetting /> : null}
+      {cur === 'paint' ? <PaintSetting ref={paintRef} name="" /> : null}
       {cur === "basic" ? <BasicSetting /> : null}
     </div>
   );

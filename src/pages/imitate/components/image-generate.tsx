@@ -6,6 +6,8 @@ import { useEffect, useState } from "react"
 import { QuestionCircleOutlined } from "@ant-design/icons"
 import { Select } from "antd"
 import { usePersistComfyUIStorage } from "@/stores/comfyui"
+import { useKeyFrameRepository } from "@/repository/simulate"
+import { useComfyUIRepository } from "@/repository/comfyui"
 
 interface ImageGenerateProps {
   pid: string,
@@ -14,12 +16,23 @@ interface ImageGenerateProps {
 
 const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
 
-  const [style, setStyle] = useState<string>("")
-  const { frames } = usePersistImtateFramesStorage(state => state)
-  const framesLoadHandle = usePersistImtateFramesStorage(state => state.load)
+
+  const keyFreamsRepo = useKeyFrameRepository(state => state)
+  const comfyuiRepo = useComfyUIRepository(state => state)
+
+  const [style, setOption] = useState<string>("")
+  const [styleOptions, setOptions] = useState<any[]>([])
 
   useEffect(() => {
-    framesLoadHandle(pid)
+
+    keyFreamsRepo.load(pid)
+
+    //模型
+    let styleOptions = comfyuiRepo.items.map(item => {
+      return { label: item.name.split(".")[0], value: item.name }
+    })
+    setOptions(styleOptions)
+    if (styleOptions.length > 0) setOption(styleOptions[0].value)
   }, [pid])
 
 
@@ -32,24 +45,13 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
           })}
         </div>
         {
-          frames && frames.map((item, index) => {
+          keyFreamsRepo.items.map((item, index) => {
             return (<GenerateImagesTR key={item.id} frame={item} index={index} style={style} />)
           })
         }
       </div>
     )
   }
-
-
-  //模型选择
-  const { modeApis } = usePersistComfyUIStorage(state => state)
-  let styleOptions = modeApis.map(item => {
-    return { label: item.name, value: item.name }
-  })
-
-  useEffect(() => {
-    if (modeApis.length > 0) setStyle(modeApis[0].name)
-  }, [])
 
   return (
     <div className="generate-image-wrap scrollbar">
@@ -59,7 +61,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
           className={`select-auto`}
           style={{ width: '300px' }}
           value={style}
-          onChange={setStyle}
+          onChange={setOption}
           options={styleOptions}
         />
       </div>

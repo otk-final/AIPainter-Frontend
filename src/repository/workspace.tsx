@@ -13,10 +13,6 @@ export interface Project {
 }
 
 export class ProjectRepository extends BaseCRUDRepository<Project, ProjectRepository> {
-    
-    repoInitialization(thisData: ProjectRepository):void {
-        this.items = thisData.items
-    }
 
     repoEmpty(): ProjectRepository {
         return this

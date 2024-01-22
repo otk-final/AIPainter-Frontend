@@ -7,15 +7,18 @@ import { fs } from "@tauri-apps/api";
 
 let _baseApi: ComfyUIApi | undefined = undefined
 
+export interface ComfyUIConfiguration {
+    host: ComfyUIHost
+    reverseWF?: ComfyUIWorkflow
+    items: ComfyUIWorkflow[]
+    positivePrompt: string
+    negativePrompt: string
+}
+
+
 //ComfyUI 配置
-export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, ComfyUIRepository> {
-    repoInitialization(thisData: ComfyUIRepository): void {
-        this.host = thisData.host
-        this.reverseWF = thisData.reverseWF
-        this.positivePrompt = thisData.positivePrompt
-        this.negativePrompt = thisData.negativePrompt
-        this.items = thisData.items
-    }
+export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, ComfyUIRepository> implements ComfyUIConfiguration {
+
 
     repoEmpty(): ComfyUIRepository {
         return this
@@ -29,13 +32,12 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
     positivePrompt: string = ""
     negativePrompt: string = ""
 
-    newClient() {
+    newClient = () => {
         if (_baseApi) {
             return _baseApi
         }
-
         //缓存链接
-        _baseApi = new ComfyUIApi("", this.host)
+        _baseApi = new ComfyUIApi("hxy", this.host)
         return _baseApi
     }
 

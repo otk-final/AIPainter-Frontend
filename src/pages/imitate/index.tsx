@@ -5,8 +5,8 @@ import { history, useParams } from "umi"
 import VideoImportTab from './components/video-import';
 import ImageGenerateTab from './components/image-generate';
 import { Header } from '@/components';
-import { AudioExportTab } from './components/audio-export';
 import { useKeyFrameRepository, useSimulateRepository } from '@/repository/simulate';
+import { useComfyUIRepository } from '@/repository/comfyui';
 
 export type ImitateTabType = "import" | "frames" | "audio"
 const imitateTabs: TabsProps["items"] = [
@@ -27,15 +27,17 @@ const imitateTabs: TabsProps["items"] = [
 const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   const [currentTab, setCurrentTab] = useState<ImitateTabType>("import");
   const [tabs,] = useState(imitateTabs)
-  
+
   const simulateLoader = useSimulateRepository(state => state.load)
   const keyFreamLoader = useKeyFrameRepository(state => state.load)
+  const comfyuiLoader = useComfyUIRepository(state => state.load)
 
   //加载配置项
   useEffect(() => {
     //加载数据
     simulateLoader(pid)
     keyFreamLoader(pid)
+    comfyuiLoader("env")
   }, [pid])
 
 
@@ -71,7 +73,7 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
       <Header onQuit={(handleQuit)} renderLeft={renderHeaderLeft()} renderRight={renderHeaderRight()} />
       {currentTab === "import" ? < VideoImportTab handleChangeTab={setCurrentTab} /> : null}
       {currentTab === 'frames' ? <ImageGenerateTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
-      {currentTab === 'audio' ? <AudioExportTab handleChangeTab={setCurrentTab} /> : null}
+      {/* {currentTab === 'audio' ? <AudioExportTab handleChangeTab={setCurrentTab} /> : null} */}
     </div>
   );
 };

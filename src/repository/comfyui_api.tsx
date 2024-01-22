@@ -145,7 +145,6 @@ export class ComfyUIApi {
     //post prompt
     async prompt<T>(script: WFScript, params: T, handle: CompletionPromptParams<T>): Promise<ComfyUIPromptTask> {
         let prompt = handle(this, script, params)
-        console.info("submit prompt", params, prompt)
         //提交任务
         return await this.api.post("/prompt", { clientId: this.clientId, prompt: prompt }).then(resp => resp.data)
     }

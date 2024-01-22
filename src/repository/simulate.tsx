@@ -18,13 +18,6 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         return this
     }
 
-    repoInitialization(thisData: SimulateRepository): void {
-        this.videoPath = thisData.videoPath
-        this.payload = thisData.payload
-        this.audioPath = thisData.audioPath
-        this.audioText = thisData.audioText
-    }
-
     // 导入视频地址
     videoPath?: string
 
@@ -54,7 +47,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         this.payload = JSON.parse(output.stdout)
 
         //save
-        this.reactived(true)
+        this.assignThis()
     }
     //抽帧关键帧
     handleCollectFrames = async () => {
@@ -88,6 +81,10 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
                 id: Number.parseInt(seq!),
                 name: file.name,
                 path: file.path,
+                image: {
+                    prompt: "",
+                    history: []
+                }
             } as KeyFrame
         }).sort((a, b) => a.id - b.id)
     }
@@ -122,7 +119,6 @@ export const useSimulateRepository = create<SimulateRepository>()(subscribeWithS
 
 
 
-
 export interface KeyFrame {
     id: number
     name: string,
@@ -140,8 +136,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         this.items = thisData.items
     }
 
-    repoEmpty(dir: string): KeyFrameRepository {
-        console.info(dir)
+    repoEmpty(): KeyFrameRepository {
         return this
     }
 
@@ -154,30 +149,34 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         await fs.writeTextFile(framesJsonPath, JSON.stringify(this, null, '\t'), { dir: this.baseDir(), append: false })
     }
 
+    handleEditPrompt = async (index: number, prompt: string) => {
+        this.items[index].image.prompt = prompt
+        //save
+        this.assignThis()
+    }
 
     //反推关键词
     handleReversePrompt = async (index: number, comyuiRepo: ComfyUIRepository) => {
         let frame = this.items[index]
 
         let api = comyuiRepo.newClient()
-        let text = comyuiRepo.buildReversePrompt()
+        let text = await comyuiRepo.buildReversePrompt()
         let script = new WFScript(text)
 
         //上传文件
-        await api.upload("", frame.path, frame.name)
+        await api.upload("hxy", frame.path, frame.name)
 
         //提交任务
-        let ws = new WFScript(script)
-        let job = await api.prompt(ws, { subfolder: "", filename: frame.name }, Image2TextHandle)
-
+        let job = await api.prompt(script, { subfolder: "hxy", filename: frame.name }, Image2TextHandle)
         //关键词所在的节点数
-        let step = ws.getWD14TaggerStep()
+        let step = script.getWD14TaggerStep()
         const callback = async (promptId: string, respData: any) => {
             //定位结果
             let reversePrompts = respData[promptId]!.outputs![step]!.tags! as string[]
             if (reversePrompts) frame.image.prompt = reversePrompts.join(",")
 
-            this.reactived(true)
+            //save
+            this.assignThis()
         }
         //监听任务
         registerComfyUIPromptCallback({ jobId: "", promptId: job.prompt_id, handle: callback })
@@ -189,7 +188,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         //comyui api
         let api = comyuiRepo.newClient()
-        let text = comyuiRepo.buildModePrompt(style)
+        let text = await comyuiRepo.buildModePrompt(style)
         let script = new WFScript(text)
 
         //add prompt task
@@ -197,6 +196,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         //获取 当前流程中 输出图片节点位置
         let step = script.getOutputImageStep()
+        let that = this
         const callback = async (promptId: string, respData: any) => {
 
             //下载文件
@@ -209,7 +209,9 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
                 frame.image.history.push(filePath)
                 frame.image.path = filePath
             })
-            this.reactived(true)
+
+            //save
+            that.assignThis()
         }
 
         //监听任务

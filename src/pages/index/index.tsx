@@ -6,6 +6,7 @@ import { history } from "umi"
 import { useLogin } from '@/uses';
 import { ProjectModal } from '@/components/create-project';
 import { Project, useProjectRepository } from '@/repository/workspace';
+import { useComfyUIRepository } from '@/repository/comfyui';
 
 
 export type ProjectType = "story" | "imitate" | ""
@@ -78,9 +79,11 @@ const HomePage = () => {
   }
 
   //加载项目
-  const { items, load, delItem, reactived } = useProjectRepository(state => state)
+  const projectRepo = useProjectRepository(state => state)
+  const comfyUIRepo = useComfyUIRepository(state => state)
   useEffect(() => {
-    load('env')
+    projectRepo.load('env')
+    comfyUIRepo.load("env")
   }, [])
 
 
@@ -101,8 +104,8 @@ const HomePage = () => {
         </div>
       ),
       onOk: async () => {
-        await delItem(idx)
-        await reactived(true)
+        await projectRepo.delItem(idx)
+        await projectRepo.reactived(true)
       }
     });
   }
@@ -110,7 +113,7 @@ const HomePage = () => {
   const renderMyCreation = () => {
     return (
       <div className="section-create-wrap flexR">
-        {items.map((item, index) => {
+        {projectRepo.items.map((item, index) => {
           return (
             <div className="home-item-wrap flexR" key={index}>
               <div className="left flexC">
@@ -173,7 +176,7 @@ const HomePage = () => {
 
       <div className="section-title-wrap">我的创作<span>（生成素材特为您保留30天）</span></div>
 
-      {items.length ? renderMyCreation() : renderMyCreationEmpty()}
+      {projectRepo.items.length ? renderMyCreation() : renderMyCreationEmpty()}
       <ProjectModal isOpen={!!isProjectOpen} onClose={() => setIsProjectOpen("")} type={isProjectOpen} />
     </div>
   );

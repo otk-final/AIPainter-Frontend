@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "aip",
-    "version": "0.0.4"
+    "version": "0.0.5"
   },
   "tauri": {
     "updater": {
@@ -87,7 +87,7 @@
         "decorations": true,
         "fullscreen": false,
         "resizable": true,
-        "title": "AI 新版本 0.0.4",
+        "title": "AI 新版本 0.0.5",
         "center": true,
         "width": 1700,
         "height": 1000

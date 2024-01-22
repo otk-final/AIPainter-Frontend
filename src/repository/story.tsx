@@ -20,7 +20,7 @@ export interface Script {
 
 //剧本
 export class ScriptRepository extends BaseRepository<ScriptRepository> {
-    
+
     repoInitialization(thisData: ScriptRepository): void {
         this.fileId = thisData.fileId
         this.path = thisData.path
@@ -129,10 +129,6 @@ export interface Chapter {
 
 export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterRepository> {
 
-    repoInitialization(thisData: ChapterRepository): void {
-        this.items = thisData.items
-    }
-
     repoEmpty(): ChapterRepository {
         this.items = []
         return this
@@ -179,7 +175,8 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
                 chapter.image.history.push(filePath)
                 chapter.image.path = filePath
             })
-            this.reactived(true)
+            //save
+            this.assignThis()
         }
 
         //监听任务
