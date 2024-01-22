@@ -99,6 +99,9 @@ export abstract class BaseRepository<T> {
         await fs.createDir(this.repoDir, { dir: this.baseDir(), recursive: true })
         let filePath = this.repoDir + "/" + this.repo
 
+        console.info('write script', filePath)
+
+
         // save file
         await fs.writeFile(filePath, JSON.stringify(this, null, "\t"), { dir: this.baseDir(), append: false })
     }
@@ -144,6 +147,10 @@ export abstract class BaseCRUDRepository<Item extends ItemIdentifiable, T> exten
     }
     updateItem = async (idx: number, item: Item) => {
         this.items[idx] = item
+        await this.assignThis()
+    }
+    modifyItem = async (idx: number, item: any) => {
+        Object.assign(this.items[idx], item)
         await this.assignThis()
     }
     incrItemId = () => {

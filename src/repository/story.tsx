@@ -5,6 +5,7 @@ import { GPTAssistantsApi } from "./gpt"
 import { fs, path } from "@tauri-apps/api"
 import { Text2ImageHandle, WFScript, registerComfyUIPromptCallback } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
+import { v4 as uuid } from "uuid"
 
 export type ImportType = "input" | "file"
 
@@ -55,7 +56,7 @@ export class ScriptRepository extends BaseRepository<ScriptRepository> {
         let chapterObjects = await gptApi.scriptBoarding(this.fileId)
         return chapterObjects.flatMap((message, idx) => {
             return {
-                id: idx,
+                id: uuid(),
                 original: message["original"] || "",
                 ai: {
                     actors: message["characters"] || [],
@@ -85,7 +86,7 @@ export class ScriptRepository extends BaseRepository<ScriptRepository> {
         let lines = scriptText.split("\n")
         return lines.filter(line => line !== "").map((line, idx) => {
             return {
-                id: idx,
+                id: uuid(),
                 original: line.trim(),
                 image: {
                     history: [] as string[]
@@ -105,16 +106,16 @@ export const useScriptRepository = create<ScriptRepository>()(subscribeWithSelec
 
 
 export interface Chapter extends ItemIdentifiable {
-    id: number
+    id: string
     original: string
     actors: string[]
-    ai: {
+    ai?: {
         dialogues: string[],
         scene?: string
         actors: string[]
         description?: string
     }
-    image: {
+    image?: {
         style?: string
         prompt?: string
         path?: string
@@ -137,10 +138,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
     //初始化
     initialization = async (chapters: Chapter[]) => {
         this.items = [...chapters]
-
-        //写入文件
-        let chaptersJsonPath = await path.join(this.repoDir, "chapters.json")
-        await fs.writeTextFile(chaptersJsonPath, JSON.stringify(this, null, '\t'), { dir: this.baseDir(), append: false })
+        this.assignThis()
     }
 
     //提取关键词
@@ -172,8 +170,12 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
                 let fileBuffer = await api.download(imageItem.subfolder, imageItem.filename)
                 let filePath = await this.saveImage("outputs", imageItem.filename, fileBuffer)
 
-                chapter.image.history.push(filePath)
-                chapter.image.path = filePath
+                let history = chapter.image?.history || []
+                history.push(filePath)
+                chapter.image = {
+                    path: filePath,
+                    history: history
+                }
             })
             //save
             this.assignThis()
@@ -217,6 +219,12 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
     repoEmpty(): ActorRepository {
         this.items = [{ id: 0, name: "角色1", alias: "角色1", style: "", traits: [] }]
         return this
+    }
+
+    //初始化
+    initialization = async (actors: Actor[]) => {
+        this.items = [...actors]
+        this.assignThis()
     }
 
     //生成图片

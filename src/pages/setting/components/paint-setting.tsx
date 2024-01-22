@@ -50,7 +50,7 @@ const PaintSetting = forwardRef<PaintSettingRef, PaintSettingProps>((props, ref)
     }
 
     const handleAppendMode = async () => {
-        stateComfyui.items.push({ name: "", path: "" })
+        stateComfyui.items.push({ id: 0, name: "", path: "" })
         setComfyui({ ...stateComfyui, items: stateComfyui.items })
     }
 
@@ -64,7 +64,7 @@ const PaintSetting = forwardRef<PaintSettingRef, PaintSettingProps>((props, ref)
             return
         }
         let selectedPath = selected as string
-        setComfyui({ ...stateComfyui, reverseWF: { name: await path.basename(selectedPath), path: selectedPath } })
+        setComfyui({ ...stateComfyui, reverseWF: { id: 0, name: await path.basename(selectedPath), path: selectedPath } })
     }
 
     return (

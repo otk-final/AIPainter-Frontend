@@ -172,14 +172,14 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
         await actorRepo.handleGenerateImage(tags, comfyuiRepo, setPreviewPath)
     }
 
-    
+
     //保存数据
     const handleConfirm = async () => {
 
         actorRepo.items[index].traits = tags!
         actorRepo.items[index].image = statePreviewPath
-
         await actorRepo.assignThis()
+        
         handleClose()
     }
 

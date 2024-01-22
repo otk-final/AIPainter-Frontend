@@ -24,6 +24,7 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
   const scriptRepo = useScriptRepository(state => state)
   const actorsRepo = useActorRepository(state => state)
   const chaptersRepo = useChapterRepository(state => state)
+  
 
 
   //加载配置项

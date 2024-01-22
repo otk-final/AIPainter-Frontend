@@ -1,11 +1,10 @@
 import { Button } from 'antd';
-import React, { useState } from 'react'
-import { QuestionCircleOutlined } from '@ant-design/icons';
+import React, { useEffect, useState } from 'react'
 import { storyboardColumns } from '../data';
 import StoryboardTableTR from './storyboard-table-tr'
 import assets from '@/assets';
-import { usePersistChaptersStorage } from '@/stores/story';
 import FileImportModal from '../story-import';
+import { useChapterRepository } from '@/repository/story';
 
 
 interface StoryboardProps {
@@ -13,15 +12,21 @@ interface StoryboardProps {
 }
 
 const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
-    const [fileImportOpen, setFileImportOpen] = useState(false);
-    const { chapters } = usePersistChaptersStorage(state => state)
+    const [isOpen, setOpen] = useState(false);
+    const chapterRepo = useChapterRepository(state => state)
+    const [hasCompletedCount, setCompletedCount] = useState<number>(0)
+
+    useEffect(() => {
+        setCompletedCount(chapterRepo.items.filter(item => item.image?.path).length)
+    }, [pid])
+
 
     const renderEmpty = () => {
         return (
             <div className='empty flexC'>
                 <img src={assets.emptyC} className='empty-img' />
                 <div className='empty-text'>故事分镜列表为空， 请导入脚本文件</div>
-                <div className='import-btn' onClick={() => setFileImportOpen(true)}>导入脚本文件</div>
+                <div className='import-btn' onClick={() => setOpen(true)}>导入脚本文件</div>
                 <div className='sub-text'>请上传故事分镜脚本文件，并完成基于镜头画面的描述词编辑。<span>新手可参考：剧本教学文档</span></div>
             </div>
         )
@@ -32,10 +37,10 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
             <div>
                 <div className='script-header flexR'>
                     <div className='flexR'>
-                        <Button type='default' className='btn-default-auto btn-default-150 l-p' onClick={() => setFileImportOpen(true)}>导入脚本文件</Button>
+                        <Button type='default' className='btn-default-auto btn-default-150 l-p' onClick={() => setOpen(true)}>导入脚本文件</Button>
                         <Button type='primary' className='btn-primary-auto btn-primary-108'>推理关键词</Button>
                     </div>
-                    <div className='text flexR'>已完成分镜: 1/{chapters?.length}</div>
+                    <div className='text flexR'>已完成分镜: {hasCompletedCount}/{chapterRepo.items.length}</div>
                 </div>
                 <div className='script-table-wrap'>
                     <div className='th flexR'>
@@ -44,8 +49,8 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
                         })}
                     </div>
                     {
-                        chapters!.map((item, index) => {
-                            return <StoryboardTableTR key={item.id + index} idx={index} chapter={item} />
+                        chapterRepo.items.map((item, index) => {
+                            return <StoryboardTableTR key={item.id} idx={index} chapter={item} />
                         })
                     }
                 </div>
@@ -55,8 +60,8 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
 
     return (
         <div className="storyboard-wrap scrollbar">
-            {chapters ? renderChapterList() : renderEmpty()}
-            <FileImportModal isOpen={fileImportOpen} onClose={() => setFileImportOpen(false)} />
+            {chapterRepo.items ? renderChapterList() : renderEmpty()}
+            <FileImportModal isOpen={isOpen} onClose={() => setOpen(false)} />
         </div>
     );
 };

@@ -1,8 +1,8 @@
 import axios, { Axios } from "axios"
 import { fs } from "@tauri-apps/api"
-import { delay } from "./tauri_repository"
+import { ItemIdentifiable, delay } from "./tauri_repository"
 
-export interface ComfyUIWorkflow {
+export interface ComfyUIWorkflow extends ItemIdentifiable {
     name: string
     path: string
 }

@@ -1,15 +1,14 @@
 import { Avatar, Button, Input, Modal, message } from 'antd';
 import './index.less'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import React, { useEffect, useState } from 'react';
-import TagModal from './components/tags-modal';
+import React, { useEffect, useMemo, useState } from 'react';
 import { dialog, tauri } from '@tauri-apps/api';
 import { history, useParams } from "umi"
 import { Header } from '@/components';
 import { Actor, useActorRepository } from '@/repository/story';
 import { useComfyUIRepository } from '@/repository/comfyui';
 import TagModalContent from './components/tags-modal';
-
+import { v4 as uuid } from "uuid"
 
 
 
@@ -32,6 +31,11 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) 
     }
     await actorRepo.delItem(index)
   }
+
+  useMemo(() => {
+    actorRepo.items[index].name = stateActor.name
+    actorRepo.items[index].alias = stateActor.alias
+  }, [stateActor])
 
 
   return (
@@ -77,16 +81,22 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
   let actorRepo = useActorRepository(state => state)
   let comfyuiRepo = useComfyUIRepository(state => state)
 
+
   useEffect(() => {
+
     actorRepo.load(pid)
     comfyuiRepo.load("env")
+
+    //保存
+    return () => { actorRepo.assignThis() }
   }, [pid])
 
 
-  const addActorHandle = () => {
+  const addActorHandle = async () => {
     let no = actorRepo.items.length + 1
-    actorRepo.appendItem({ id: actorRepo.incrItemId(), name: "角色" + no, alias: "别名" + no, traits: [], style: "", image: "" })
+    await actorRepo.appendItem({ id: uuid(), name: "角色" + no, alias: "别名" + no, traits: [], style: "", image: "" })
   }
+
 
   const renderHeaderRight = () => {
     return (
@@ -99,6 +109,7 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
   const [isOpen, setOpen] = useState<boolean>(false)
   const [displayActor, setDisplayActor] = useState<Actor>();
   const [displayIndex, setDisplayIndex] = useState<number>(0);
+
   const handleEdit = (index: number, actor: Actor) => {
     setDisplayIndex(index)
     setDisplayActor(actor)
