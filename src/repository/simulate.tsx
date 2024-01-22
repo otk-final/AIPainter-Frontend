@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { BaseCRUDRepository, BaseRepository, Directory, ItemIdentifiable, delay } from "./tauri_repository"
+import { BaseCRUDRepository, BaseRepository, ItemIdentifiable, delay } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
 import { fs, path, shell } from "@tauri-apps/api"
 import { Image2TextHandle, Text2ImageHandle, WFScript, registerComfyUIPromptCallback } from "./comfyui_api"

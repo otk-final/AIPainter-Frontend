@@ -37,7 +37,7 @@ export class GPTAssistantsApi extends BaseRepository<GPTAssistantsApi> {
     }
 
 
-    private loopRetrieveMessages = async (api: OpenAI, threadId: string, runId: string) => {
+    private blockingRetrieveMessages = async (api: OpenAI, threadId: string, runId: string) => {
         // 轮询获取消息  批量推理
         let runmessages: OpenAI.Beta.Threads.ThreadMessage[] = []
         let fetchCount = 0
@@ -112,7 +112,7 @@ export class GPTAssistantsApi extends BaseRepository<GPTAssistantsApi> {
         this.runId = threadRun.id
 
         //数组
-        return await this.loopRetrieveMessages(this.api, threadRun.thread_id, threadRun.id)
+        return await this.blockingRetrieveMessages(this.api, threadRun.thread_id, threadRun.id)
     }
 
     //角色收集
@@ -136,7 +136,7 @@ export class GPTAssistantsApi extends BaseRepository<GPTAssistantsApi> {
         this.runId = runable.id
 
         //检索响应
-        return this.loopRetrieveMessages(this.api, this.runId, this.runId)
+        return this.blockingRetrieveMessages(this.api, this.runId, this.runId)
     }
 
     //章节独立分镜分析
@@ -167,7 +167,7 @@ export class GPTAssistantsApi extends BaseRepository<GPTAssistantsApi> {
         this.runId = runable.id
 
         //检索响应
-        return this.loopRetrieveMessages(this.api, this.threadId!, this.runId)
+        return this.blockingRetrieveMessages(this.api, this.threadId!, this.runId)
     }
 }
 
