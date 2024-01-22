@@ -1,9 +1,9 @@
 import { create } from "zustand"
-import { BaseCRUDRepository, Directory } from "./tauri_repository"
+import { BaseCRUDRepository, ItemIdentifiable } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
 
 
-export interface Project {
+export interface Project extends ItemIdentifiable {
     id: string
     name: string,
     type: string,

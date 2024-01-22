@@ -8,23 +8,22 @@ import Drawbatch from './components/drawbatch';
 import Videogeneration from './components/videogeneration'
 import { usePersistChaptersStorage, usePersistScriptStorage } from '@/stores/story';
 import { Header } from '@/components';
-import { usePersistActorsStorage } from '@/stores/actor';
+import { useActorRepository, useChapterRepository, useScriptRepository } from '@/repository/story';
 
 type ActionTabType = "storyboard" | "drawbatch" | "videogeneration"
 
 
 
 const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
+
   const [cur, setCur] = useState<ActionTabType>("storyboard");
+  const [statePid, setPid] = useState<string>(pid)
   const [tabs, setTabs] = useState(createTabs)
 
   //状态
-  const scriptLoadHandle = usePersistScriptStorage(state => state.load)
-  const actorsLoadHandle = usePersistActorsStorage(state => state.load)
-  const chaptersLoadHandle = usePersistChaptersStorage(state => state.load)
-  const chapters = usePersistChaptersStorage(state => state.chapters)
-
-
+  const scriptRepo = useScriptRepository(state => state)
+  const actorsRepo = useActorRepository(state => state)
+  const chaptersRepo = useChapterRepository(state => state)
 
 
   //加载配置项
@@ -32,25 +31,25 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
 
     //加载当前工作需要的所有页面数据
     const initializeContext = async () => {
-      await actorsLoadHandle(pid)
-      await scriptLoadHandle(pid)
-      await chaptersLoadHandle(pid)
+      await scriptRepo.load(statePid)
+      await actorsRepo.load(statePid)
+      await chaptersRepo.load(statePid)
     }
     initializeContext().catch(err => message.error(err))
 
-  }, [pid])
+  }, [statePid])
 
 
   //根据脚本判断可操作步骤
   useEffect(() => {
     //can change tabs
-    if (chapters && chapters.length > 0) {
+    if (chaptersRepo.items && chaptersRepo.items.length > 0) {
       let newRes = tabs?.map((i) => {
         return { ...i, disabled: false }
       })
       setTabs(newRes)
     }
-  }, [chapters])
+  }, [chaptersRepo.items])
 
 
 
@@ -59,8 +58,8 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
       return (
         <div className='flexR'>
           {/* <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setIsEnergyRechargeOpen(true)}>充值能量</Button> */}
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => { history.push('/roleset/' + pid) }} >设置角色</Button>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setCur("drawbatch")} disabled={!chapters || chapters?.length === 0}>下一步</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => { history.push('/roleset/' + statePid) }} >设置角色</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setCur("drawbatch")} disabled={!chaptersRepo.items || chaptersRepo.items?.length === 0}>下一步</Button>
         </div>
       )
     } else if (cur === 'drawbatch') {

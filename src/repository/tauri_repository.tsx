@@ -121,7 +121,12 @@ export const delay = (ms: number) => {
     return new Promise(resolve => { setTimeout(resolve, ms) });
 }
 
-export abstract class BaseCRUDRepository<Item, T> extends BaseRepository<T> {
+export interface ItemIdentifiable {
+    id: any
+}
+
+
+export abstract class BaseCRUDRepository<Item extends ItemIdentifiable, T> extends BaseRepository<T> {
 
     items: Item[] = []
 
@@ -140,6 +145,10 @@ export abstract class BaseCRUDRepository<Item, T> extends BaseRepository<T> {
     updateItem = async (idx: number, item: Item) => {
         this.items[idx] = item
         await this.assignThis()
+    }
+    incrItemId = () => {
+        let lasted = this.items[this.items.length - 1]
+        return lasted.id + 1
     }
 }
 

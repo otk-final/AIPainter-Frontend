@@ -1,5 +1,5 @@
 import { subscribeWithSelector } from "zustand/middleware"
-import { BaseCRUDRepository, BaseRepository, Directory } from "./tauri_repository"
+import { BaseCRUDRepository, BaseRepository, Directory, ItemIdentifiable } from "./tauri_repository"
 import { create } from "zustand"
 import { GPTAssistantsApi } from "./gpt"
 import { fs, path } from "@tauri-apps/api"
@@ -104,7 +104,7 @@ export const useScriptRepository = create<ScriptRepository>()(subscribeWithSelec
 
 
 
-export interface Chapter {
+export interface Chapter extends ItemIdentifiable {
     id: number
     original: string
     actors: string[]
@@ -187,7 +187,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
 export const useChapterRepository = create<ChapterRepository>()(subscribeWithSelector((set, get) => new ChapterRepository("chapters.json", set, get)))
 
 
-export interface Actor {
+export interface Actor extends ItemIdentifiable {
     id: number
     name: string
     alias: string
@@ -213,24 +213,21 @@ export interface TraitsOption {
 
 
 export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> {
-    repoInitialization(thisData: ActorRepository): void {
-        this.items = thisData.items
-    }
+
     repoEmpty(): ActorRepository {
         this.items = [{ id: 0, name: "角色1", alias: "角色1", style: "", traits: [] }]
         return this
     }
 
     //生成图片
-    handleGenerateImage = async (index: number, traits: TraitsOption[], comyuiRepo: ComfyUIRepository) => {
+    handleGenerateImage = async (traits: TraitsOption[], comyuiRepo: ComfyUIRepository, tempCallBack: (filepath: string) => void) => {
 
         // this.items[index]
-        let itemActor = this.items[index]
         let prompt = traits.map(item => item.value).join(",")
-
+        debugger
         //api
         let api = comyuiRepo.newClient()
-        let text = comyuiRepo.buildReversePrompt()
+        let text = await comyuiRepo.buildModePrompt(comyuiRepo.items[0].name)
         let script = new WFScript(text)
 
         //add prompt task
@@ -245,8 +242,9 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
             //下载，保存
             let fileBuffer = await api.download(imageItem.subfolder, imageItem.filename)
             let filePath = await this.saveImage("outputs", imageItem.filename, fileBuffer)
+
             //更新状态
-            itemActor.image = filePath
+            tempCallBack(filePath)
         }
 
         //监听任务

@@ -1,45 +1,38 @@
-import { Avatar, Button, Input, message } from 'antd';
+import { Avatar, Button, Input, Modal, message } from 'antd';
 import './index.less'
-import { history } from "umi"
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TagModal from './components/tags-modal';
 import { dialog, tauri } from '@tauri-apps/api';
+import { history, useParams } from "umi"
 import { Header } from '@/components';
-import { Actor, usePersistActorsStorage } from '@/stores/actor';
+import { Actor, useActorRepository } from '@/repository/story';
+import { useComfyUIRepository } from '@/repository/comfyui';
+import TagModalContent from './components/tags-modal';
 
 
 
 
 interface RoleItemProps {
-  actor: Actor,
   index: number,
+  actor: Actor,
+  handleEdit: (index: number, actor: Actor) => void
 }
 
-export const RoleItem: React.FC<RoleItemProps> = ({ actor, index }) => {
+export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) => {
 
-  console.info("init actor", index, actor)
-  const [isOpen, setOpen] = useState(false);
-  const [stateActor, setActor] = useState<Actor>(actor)
-  const { updateActor, removeActor } = usePersistActorsStorage(state => state)
+  const [stateActor, setActor] = useState<Actor>({ ...actor })
+  const actorRepo = useActorRepository(state => state)
 
-  const isMountRef = useRef(true)
-  useEffect(() => {
-    if (isMountRef.current) {
-      isMountRef.current = false
-      return
-    }
-    updateActor(index, stateActor)
-  }, [stateActor])
-
-
+  //删除
   const handleDel = async () => {
     let ok = await dialog.ask("确认删除角色?", { title: "删除角色?", type: "warning" })
     if (!ok) {
       return
     }
-    await removeActor(index)
+    await actorRepo.delItem(index)
   }
+
 
   return (
     <div className='role-item'>
@@ -65,7 +58,7 @@ export const RoleItem: React.FC<RoleItemProps> = ({ actor, index }) => {
           <div className='RB flexR'>
             <div className='content-title'>角色描述</div>
           </div>
-          <div className='flexC role-tags-wrap' onClick={() => setOpen(true)}>
+          <div className='flexC role-tags-wrap' onClick={() => handleEdit(index, { ...stateActor })}>
             <PlusOutlined className="add-icon" />
             <div>请选择角色行的描述标签</div>
           </div>
@@ -73,16 +66,6 @@ export const RoleItem: React.FC<RoleItemProps> = ({ actor, index }) => {
       </div>
       <div className='content-title' style={{ marginTop: '20px', marginBottom: '10px' }}>角色配音</div>
       <Button type='default' block className='btn-default-auto' > 添加角色配音</Button>
-      {isOpen && <TagModal
-        isOpen={isOpen}
-        index={index}
-        initTags={stateActor.traits}
-        initImage={stateActor.image}
-        onClose={() => { setOpen(false) }}
-        onConfirm={(image, traits) => {
-          setActor({ ...stateActor, image: image, traits: traits })
-          setOpen(false)
-        }} />}
     </div>
   )
 }
@@ -91,36 +74,65 @@ export const RoleItem: React.FC<RoleItemProps> = ({ actor, index }) => {
 const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
 
   //当前项目配置
-  let { actors, load, addActor, saveActors } = usePersistActorsStorage(state => state)
+  let actorRepo = useActorRepository(state => state)
+  let comfyuiRepo = useComfyUIRepository(state => state)
+
   useEffect(() => {
-    load(pid)
+    actorRepo.load(pid)
+    comfyuiRepo.load("env")
   }, [pid])
 
-  const saveActorsHandle = async () => {
-    saveActors().then(() => { message.success("保存成功") }).finally(() => { history.back() })
+
+  const addActorHandle = () => {
+    let no = actorRepo.items.length + 1
+    actorRepo.appendItem({ id: actorRepo.incrItemId(), name: "角色" + no, alias: "别名" + no, traits: [], style: "", image: "" })
   }
 
   const renderHeaderRight = () => {
     return (
       <div className='flexR'>
-        <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={addActor}>新增角色</Button>
-        <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={saveActorsHandle}>保存</Button>
+        <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={addActorHandle}>新增角色</Button>
       </div>
     )
+  }
+
+  const [isOpen, setOpen] = useState<boolean>(false)
+  const [displayActor, setDisplayActor] = useState<Actor>();
+  const [displayIndex, setDisplayIndex] = useState<number>(0);
+  const handleEdit = (index: number, actor: Actor) => {
+    setDisplayIndex(index)
+    setDisplayActor(actor)
+    setOpen(true)
   }
 
 
   return (
     <div className="roleset-wrap">
+
       <Header renderRight={renderHeaderRight()} />
       <div className='sub-text'>建议角色设置不要超过2个,如剧本中无固定角色可跳过该步骤。SD在同画面的出现多个角色时，识别能力较差。同画面多人指定角色形象的功能在开发中。</div>
       <div className='roles-wrap flexR'>
-        {actors.map((actor, index) => {
-          return <RoleItem actor={actor} index={index} key={actor.id} />
+        {actorRepo.items.map((actor, index) => {
+          return <RoleItem actor={actor} index={index} key={actor.id} handleEdit={handleEdit} />
         })}
       </div>
+      <Modal title="提示词生成器"
+        open={isOpen}
+        onCancel={() => setOpen(false)}
+        footer={null}
+        width={1160}
+        className="home-login-modal role-tags-modal"
+      >
+        {displayActor && <TagModalContent index={displayIndex} actor={displayActor} handleClose={() => setOpen(false)}></TagModalContent>}
+      </Modal>
     </div>
   );
 }
 
-export default RoleSetPage
+
+const RoleProjectPage: React.FC = () => {
+  const params = useParams()
+  return <RoleSetPage pid={params.pid as string} />
+}
+
+export default RoleProjectPage

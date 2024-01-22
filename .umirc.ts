@@ -9,7 +9,7 @@ export default defineConfig({
     { path: "/setting", component: "@/pages/setting/index" },
     { path: "/story/:pid", component: "@/pages/story/index" },
     { path: "/imitate/:pid", component: "@/pages/imitate/index" },
-    { path: "roleset/:pid", component: "@/pages/roleset/index"},
+    { path: "/roleset/:pid", component: "@/pages/roleset/index"},
     { path: "/tiktok", component: "@/pages/tiktok/index"}
   ],
   npmClient: 'yarn',

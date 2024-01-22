@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { BaseCRUDRepository, BaseRepository, Directory, delay } from "./tauri_repository"
+import { BaseCRUDRepository, BaseRepository, Directory, ItemIdentifiable, delay } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
 import { fs, path, shell } from "@tauri-apps/api"
 import { Image2TextHandle, Text2ImageHandle, WFScript, registerComfyUIPromptCallback } from "./comfyui_api"
@@ -119,7 +119,7 @@ export const useSimulateRepository = create<SimulateRepository>()(subscribeWithS
 
 
 
-export interface KeyFrame {
+export interface KeyFrame extends ItemIdentifiable {
     id: number
     name: string,
     path: string,
@@ -196,7 +196,6 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         //获取 当前流程中 输出图片节点位置
         let step = script.getOutputImageStep()
-        let that = this
         const callback = async (promptId: string, respData: any) => {
 
             //下载文件
@@ -206,12 +205,12 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
                 let fileBuffer = await api.download(imageItem.subfolder, imageItem.filename)
                 let filePath = await this.saveImage("outputs", imageItem.filename, fileBuffer)
 
-                frame.image.history.push(filePath)
                 frame.image.path = filePath
+                frame.image.history.push(filePath)
             })
 
             //save
-            that.assignThis()
+            this.assignThis()
         }
 
         //监听任务

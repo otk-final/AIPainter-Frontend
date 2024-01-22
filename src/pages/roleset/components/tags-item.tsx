@@ -3,9 +3,8 @@ import { Button, Input, message } from "antd"
 import { useEffect, useState } from "react"
 import { TraitsConfig, TraitsOption } from "./traits"
 import { tauri } from "@tauri-apps/api"
-import { Text2ImageHandle, WorkflowScript, registerComfyUIPromptCallback, usePersistComfyUIStorage } from "@/stores/comfyui"
-import { usePersistUserIdentificationStorage } from "@/stores/auth"
-import { usePersistActorsStorage } from "@/stores/actor"
+import { useComfyUIRepository } from "@/repository/comfyui"
+import { useActorRepository } from "@/repository/story"
 
 export type TagRenderType = "text" | "image"
 export type TagLangType = "en" | "cn"
@@ -144,92 +143,54 @@ interface CheckedTagsProps {
     tags?: TraitsOption[]
     image?: string
     handleCheckTag: (checked: boolean, item: any) => void
-    handleConfirm: (preview: string) => void
+    handleClose: () => void
 }
 
 
-export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, handleCheckTag, handleConfirm }) => {
+export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, handleCheckTag, handleClose }) => {
+
     const [lang, setLang] = useState<TagLangType>("cn");
     const handleRemoveTag = (tag: any) => {
         handleCheckTag(false, tag)
     }
 
     const [isPreview, setPreview] = useState<boolean>(false)
-    const [statePreviewPath, setPreviewPath] = useState<string>(image!)
-    const [statePreviewURL, setPreviewURL] = useState<string>("")
+    const [statePreviewPath, setPreviewPath] = useState<string>("")
+    const comfyuiRepo = useComfyUIRepository(state => state)
+    const actorRepo = useActorRepository(state => state)
 
-
-    const comfyui = usePersistComfyUIStorage(state => state)
-    const { saveActorImage } = usePersistActorsStorage(state => state)
-    const { clientId } = usePersistUserIdentificationStorage(state => state)
-
-    const handlePreview = () => {
-        setPreview(!isPreview)
-    }
 
     //生成图片
-    const handlePreviewGenerate = () => {
-
-        setPreview(true)
-    }
-
-    const { modeApis } = usePersistComfyUIStorage(state => state)
-
-    const handleImage2Image = async () => {
+    const handleText2Image = async () => {
         if (!tags || tags.length === 0) {
             message.error("至少选择一个标签")
             return
         }
-
         message.loading("图片生成中...", 30 * 1000, () => {
             console.info("xxx")
         })
-        let comfyuiApi = comfyui.buildApi(clientId)
-        let positivePrompt = tags.map(item => item.value).join(",")
-
-        //根据当前风格选择脚本 提交当前关键词，和默认反向关键词
-        let ws = new WorkflowScript(await comfyui.loadModeApi(modeApis[0].name))
-        let job = await comfyuiApi.prompt(ws, { positive: positivePrompt, negative: comfyui.negativePrompt! }, Text2ImageHandle)
-        let step = ws.getOutputImageStep()
-
-        const callback = async (promptId: string, respData: any) => {
-            //回调消息不及时 定时查询
-            console.info("status", respData)
-
-            //下载文件
-            let images = respData[promptId]!.outputs![step].images! as { filename: string, subfolder: string, type: string }[]
-            images.forEach(async (item) => {
-
-                //下载，保存
-                let fileBuffer = await comfyuiApi.download(item.subfolder, item.filename)
-                let filePath = await saveActorImage(index, item.filename, fileBuffer)
-
-                //更新状态
-                setPreviewPath(filePath)
-                setPreviewURL(tauri.convertFileSrc(filePath))
-                setPreview(true)
-            })
-            message.destroy()
-        }
-        //监听任务
-        registerComfyUIPromptCallback({ jobId: clientId, promptId: job.prompt_id, handle: callback })
+        await actorRepo.handleGenerateImage(tags, comfyuiRepo, setPreviewPath)
     }
 
-    const handleImage2ImageCatch = () => {
-        handleImage2Image().catch(err => { message.destroy(); message.error(err.message) })
+    
+    //保存数据
+    const handleConfirm = async () => {
+
+        actorRepo.items[index].traits = tags!
+        actorRepo.items[index].image = statePreviewPath
+
+        await actorRepo.assignThis()
+        handleClose()
     }
-
-
 
 
     return (
         <div className="right flexC">
             <div className="has-tags">
-
                 {
                     isPreview &&
                     <div className="content flexR">
-                        <img src={statePreviewURL} width={'100%'}></img>
+                        <img src={tauri.convertFileSrc(statePreviewPath)} width={'100%'}></img>
                     </div>
                 }
                 {
@@ -246,11 +207,11 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
                         <div className={`choose-item ${lang === 'cn' ? "cur" : ''}`} onClick={() => setLang('cn')}>中</div>
                         <div className={`choose-item ${lang === 'en' ? "cur" : ''}`} onClick={() => setLang('en')}>En</div>
                     </div>
-                    {statePreviewPath && <div className="clean" onClick={handlePreview}>预览</div>}
+                    {statePreviewPath && <div className="clean" onClick={() => setPreview(!isPreview)}>预览</div>}
                 </div>
                 <div className="flexR" style={{ justifyContent: 'space-between' }}>
-                    <Button type="primary" block className="btn-primary-auto" style={{ width: '180px' }} onClick={handleImage2ImageCatch} >生成</Button>
-                    <Button type="primary" block className="btn-primary-auto" style={{ width: '180px' }} onClick={() => { handleConfirm(statePreviewPath) }}>保存</Button>
+                    <Button type="primary" block className="btn-primary-auto" style={{ width: '180px' }} onClick={handleText2Image} >生成</Button>
+                    <Button type="primary" block className="btn-primary-auto" style={{ width: '180px' }} onClick={handleConfirm}>保存</Button>
                 </div>
             </div>
         </div>

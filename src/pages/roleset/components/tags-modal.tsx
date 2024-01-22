@@ -1,15 +1,14 @@
 import assets from "@/assets";
 import { Modal, Tabs, TabsProps } from "antd"
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CustomTags, OptionalTags, CheckedTags, TagRenderType } from "./tags-item";
 import { TraitsConfig, TraitsOption, traitsConfigs } from "./traits";
-interface TagModalProps {
-    isOpen: boolean,
+import { Actor, useActorRepository } from "@/repository/story";
+
+interface TagModalContentProps {
     index: number
-    initTags: TraitsOption[],
-    initImage?: string
-    onClose: () => void
-    onConfirm: (image: string, checkedTags: any[]) => void
+    actor: Actor
+    handleClose: () => void
 }
 
 const tabs: TabsProps["items"] = [
@@ -49,10 +48,12 @@ const tabs: TabsProps["items"] = [
 
 
 
-const TagModal: React.FC<TagModalProps> = ({ isOpen, index, initTags, initImage, onClose, onConfirm }) => {
+const TagModalContent: React.FC<TagModalContentProps> = ({ index, actor, handleClose }) => {
+
     const [cur, setCur] = useState("person");
-    const [checkedTags, setCheckedTags] = useState<TraitsOption[]>(initTags);
+    const [checkedTags, setCheckedTags] = useState<TraitsOption[]>([]);
     const [renderType, setRenderType] = useState<TagRenderType>('text')
+
 
 
     const handleCheckTag = (check: boolean, tag: any) => {
@@ -73,9 +74,6 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, index, initTags, initImage,
             setCheckedTags(tags.filter((item: any) => item.key !== tag.key))
         }
     }
-
-
-
 
     const renderOptionalTags = (tabKey: string) => {
 
@@ -108,8 +106,6 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, index, initTags, initImage,
             </div>
         )
     }
-
-
     useMemo(() => {
         tabs.forEach((tab: any) => {
             tab.children = renderOptionalTags(tab.key)
@@ -117,33 +113,37 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, index, initTags, initImage,
     }, [renderType, checkedTags])
 
 
+
+    useEffect(() => {
+        const unsub = useActorRepository.subscribe(
+            (state) => state.items[index],
+            (state, prev) => {
+                console.info("actor state", state)
+                if (state) setCheckedTags(state.traits)
+            }, { fireImmediately: true })
+        return unsub
+    }, [index])
+
+
     return (
-        <Modal title="提示词生成器"
-            open={isOpen}
-            onCancel={onClose}
-            footer={null}
-            width={1160}
-            className="home-login-modal role-tags-modal"
-        >
-            <div className={`role-tags-wrap flexC`}>
-                <div className="choose-wrap flexR" style={{ marginBottom: '20px' }}>
-                    <div className={`choose-item ${renderType === 'text' ? "cur" : ''}`} onClick={() => setRenderType('text')}>文字</div>
-                    <div className={`choose-item flexR ${renderType === 'image' ? "cur" : ''}`} onClick={() => setRenderType('image')}>
-                        图片
-                        <img src={assets.vip} className="vip-img" /> </div>
-                </div>
-                <div className="flexR" style={{ alignItems: "stretch" }}>
-                    <div className="left">
-                        <Tabs items={tabs} onChange={setCur} activeKey={cur} />
-                    </div>
-                    <CheckedTags index={index} tags={checkedTags} image={initImage} handleCheckTag={handleCheckTag} handleConfirm={(image) => onConfirm(image, checkedTags)} />
-                </div>
+        <div className={`role-tags-wrap flexC`}>
+            <div className="choose-wrap flexR" style={{ marginBottom: '20px' }}>
+                <div className={`choose-item ${renderType === 'text' ? "cur" : ''}`} onClick={() => setRenderType('text')}>文字</div>
+                <div className={`choose-item flexR ${renderType === 'image' ? "cur" : ''}`} onClick={() => setRenderType('image')}>
+                    图片
+                    <img src={assets.vip} className="vip-img" /> </div>
             </div>
-        </Modal>
+            <div className="flexR" style={{ alignItems: "stretch" }}>
+                <div className="left">
+                    <Tabs items={tabs} onChange={setCur} activeKey={cur} />
+                </div>
+                <CheckedTags index={index} tags={checkedTags} image={actor.image} handleCheckTag={handleCheckTag} handleClose={handleClose} />
+            </div>
+        </div>
     )
 }
 
 
 
-export default TagModal
+export default TagModalContent
 

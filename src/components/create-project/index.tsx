@@ -14,7 +14,7 @@ interface ProjectProps {
 
 export const ProjectModal: React.FC<ProjectProps> = ({ isOpen, onClose, type }) => {
     const [name, setName] = useState("")
-    const { appendItem, reactived } = useProjectRepository(state => state)
+    const { appendItem } = useProjectRepository(state => state)
 
     const handleCreate = async () => {
         if (!name) {
@@ -27,7 +27,6 @@ export const ProjectModal: React.FC<ProjectProps> = ({ isOpen, onClose, type }) 
         } else {
             await appendItem(newProject).finally(() => { history.push("/imitate/" + newProject.id) })
         }
-        reactived(true)
     }
 
     return (
