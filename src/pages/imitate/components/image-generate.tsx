@@ -14,15 +14,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
 
 
   const keyFreamsRepo = useKeyFrameRepository(state => state)
-
   const [mode, setOption] = useState<string>("")
-
-  useEffect(() => {
-
-    keyFreamsRepo.load(pid)
-
-    return () => { keyFreamsRepo.sync() }
-  }, [pid])
 
 
   const renderTable = () => {

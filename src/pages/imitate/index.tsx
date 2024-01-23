@@ -7,7 +7,10 @@ import ImageGenerateTab from './components/image-generate';
 import { Header } from '@/components';
 import { useKeyFrameRepository, useSimulateRepository } from '@/repository/simulate';
 import { useComfyUIRepository } from '@/repository/comfyui';
-import { SRTMixingTab } from './components/srt-mixing';
+import SRTMixingTab from './components/srt-mixing';
+import { dialog, fs } from '@tauri-apps/api';
+import { BaseDirectory } from '@tauri-apps/api/fs';
+import { useSRTFrameRepository } from '@/repository/srt';
 
 export type ImitateTabType = "import" | "frames" | "audio"
 const imitateTabs: TabsProps["items"] = [
@@ -29,16 +32,24 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   const [currentTab, setCurrentTab] = useState<ImitateTabType>("import");
   const [tabs,] = useState(imitateTabs)
 
-  const simulateLoader = useSimulateRepository(state => state.load)
-  const keyFreamLoader = useKeyFrameRepository(state => state.load)
-  const comfyuiLoader = useComfyUIRepository(state => state.load)
+  const simulateRepo = useSimulateRepository(state => state)
+  const keyFreamRepo = useKeyFrameRepository(state => state)
+  const srtFreamRepo = useSRTFrameRepository(state => state)
+  const comfyuiRepo = useComfyUIRepository(state => state)
 
   //加载配置项
   useEffect(() => {
     //加载数据
-    simulateLoader(pid)
-    keyFreamLoader(pid)
-    comfyuiLoader("env")
+    simulateRepo.load(pid)
+    keyFreamRepo.load(pid)
+    srtFreamRepo.load(pid)
+    comfyuiRepo.load("env")
+
+    return () => {
+      simulateRepo.sync()
+      keyFreamRepo.sync()
+      srtFreamRepo.sync()
+    }
   }, [pid])
 
 
@@ -63,17 +74,8 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
     return <Tabs defaultActiveKey={currentTab} activeKey={currentTab} items={tabs} onChange={(key) => setCurrentTab(key as ImitateTabType)} />
   }
 
-  const renderHeaderRight = () => {
 
-    if (currentTab === "audio"){
-      return (
-        <div className='flexR'>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" >导入SRT字幕文件</Button>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" >一键改写</Button>
-        </div>
-      )
-    }
-    
+  const renderHeaderRight = () => {
     return <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!frames || frames.length === 0} onClick={handleDraft}> 导出剪映草稿</Button>
   }
 
@@ -83,7 +85,7 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
       <Header onQuit={(handleQuit)} renderLeft={renderHeaderLeft()} renderRight={renderHeaderRight()} />
       {currentTab === "import" ? < VideoImportTab handleChangeTab={setCurrentTab} /> : null}
       {currentTab === 'frames' ? <ImageGenerateTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
-      {currentTab === 'audio' ? <SRTMixingTab handleChangeTab={setCurrentTab} /> : null}
+      {currentTab === 'audio' ? <SRTMixingTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
     </div>
   );
 };

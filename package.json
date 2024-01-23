@@ -22,6 +22,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "openai": "^4.24.7",
     "react-player": "^2.14.1",
+    "react-virtualized": "^9.22.5",
     "umi": "^4.0.90",
     "uuid": "^9.0.1",
     "zustand": "^4.4.7"
@@ -30,6 +31,7 @@
     "@tauri-apps/cli": "^1.5.8",
     "@types/react": "^18.0.33",
     "@types/react-dom": "^18.0.11",
+    "@types/react-virtualized": "^9.21.29",
     "@umijs/lint": "^4.0.90",
     "eslint": "^8.56.0",
     "stylelint": "^16.1.0",

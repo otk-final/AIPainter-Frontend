@@ -3,7 +3,7 @@ export const generateImagesColumns = [
     title: "编号",
     key: "number",
     space: 1,
-  },{
+  }, {
     title: "原始图片",
     key: "path",
     space: 4,
@@ -29,6 +29,35 @@ export const generateImagesColumns = [
     space: 2,
   }
 ]
+
+
+export const srtMixingColumns = [
+  {
+    title: "编号",
+    key: "number",
+    space: 1,
+  }, {
+    title: "镜头图片",
+    key: "images",
+    space: 4,
+  },
+  {
+    title: "字幕",
+    key: "content",
+    space: 3,
+  },
+  {
+    title: "新字幕",
+    key: "rewrite",
+    space: 3,
+  },
+  {
+    title: "操作",
+    key: "operate",
+    space: 2,
+  }
+]
+
 
 
 export const generateImagesColumnsData = [

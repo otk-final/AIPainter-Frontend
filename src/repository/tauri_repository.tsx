@@ -150,6 +150,9 @@ export abstract class BaseCRUDRepository<Item extends ItemIdentifiable, T> exten
         this.setHold({ items: this.items })
         if (persisted) await this.save()
     }
+    lazyUpdateItem = async (idx: number, item: Item) => {
+        this.items[idx] = item
+    }
     assignItem = async (idx: number, item: any, persisted?: boolean) => {
         Object.assign(this.items[idx], item)
         if (persisted) await this.save()
