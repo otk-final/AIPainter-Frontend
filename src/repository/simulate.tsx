@@ -52,7 +52,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     //抽帧关键帧
     handleCollectFrames = async () => {
 
-        //存储目录
+        //临时存储目录
         let framesDir = await path.join(this.repoDir, "frames")
         await fs.createDir(framesDir, { dir: this.baseDir(), recursive: true })
 
@@ -62,7 +62,8 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         //抽帧 关键帧
         let cmd = shell.Command.sidecar("bin/ffmpeg", [
             "-i", this.videoPath!,
-            "-vf", 'select=eq(pict_type\\,I)',
+            // "-vf", 'select=eq(pict_type\\,I)',
+            "-vf", 'fps=1/1',
             "-vsync", "vfr",
             "-qscale:v", "10",
             "-f", "image2",
@@ -73,9 +74,9 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         console.info(output.stdout)
         await delay(1000)
 
-        //导出所有关键帧
+        //导出所有关键帧(秒)
         let frameImageFiles = await fs.readDir(framesDir, { dir: this.baseDir(), recursive: false })
-        return frameImageFiles.map(file => {
+        let tempKeyFrames = frameImageFiles.map(file => {
             let seq = file.name?.substring(0, file.name.lastIndexOf("."))
             return {
                 id: Number.parseInt(seq!),
@@ -87,6 +88,65 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
                 }
             } as KeyFrame
         }).sort((a, b) => a.id - b.id)
+
+        //导出所有关键帧(秒)
+        return this.ssimFramesCollect(tempKeyFrames)
+    }
+
+    ssimFramesCollect = async (frames: KeyFrame[]) => {
+        const ssimNextCompare = (srcIndex: number, output: string) => {
+            let diffs = output.split("\n").filter(item => item).map(line => {
+                let result = line.split("\t")
+                return {
+                    score: parseFloat(result[0].trim()),
+                    target: result[1].trim()
+                }
+            })
+            //比较阈值 > 0.7 则不一致，并返回下次待比较的图片index
+            let matchIndex = diffs.findIndex((item) => item.score >= 0.65)
+            if (matchIndex === -1) {
+                return matchIndex
+            }
+            return srcIndex + matchIndex + 1
+        }
+
+        //比对相识度 默认从第一张图片开始
+        let diffs = [frames[0]]
+        let index = 0
+        while (index < frames.length) {
+
+            //提高对比效率，和下10张图片做对比
+            let src = frames[index].path
+            let dests = frames.slice(index + 1, index + 10).map(item => item.path)
+            if (dests.length === 0) {
+                break
+            }
+
+            //执行命令对比
+            let cmd = shell.Command.sidecar("bin/dssim", [src, ...dests])
+            let output = await cmd.execute()
+            console.info(output.stderr)
+            console.info(output.stdout)
+            let nextIndex = ssimNextCompare(index, output.stdout)
+
+            //均相似，则移动到目标尾部，继续比对
+            if (nextIndex === -1) {
+                index = index + dests.length
+                continue
+            }
+            console.info("有效图片", frames[nextIndex].path)
+            //有效图片
+            diffs.push(frames[nextIndex])
+            //从该张图片重新开始
+            index = nextIndex
+        }
+
+        //新建目录
+        // let framesDir = await path.join(this.repoDir, "frames")
+        // await fs.createDir(framesDir, { dir: this.baseDir(), recursive: true })
+
+
+        return diffs
     }
 
     //抽取音频
@@ -143,10 +203,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     //初始化
     initializationKeyFrames = async (frames: KeyFrame[]) => {
         this.items = [...frames]
-
-        //写入文件
-        let framesJsonPath = await path.join(this.repoDir, "frames.json")
-        await fs.writeTextFile(framesJsonPath, JSON.stringify(this, null, '\t'), { dir: this.baseDir(), append: false })
+        this.sync()
     }
 
     //反推关键词

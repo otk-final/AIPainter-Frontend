@@ -97,7 +97,7 @@ export class ScriptRepository extends BaseRepository<ScriptRepository> {
 
     //其他角色信息
     handleCollectActors = async () => {
-
+        
     }
 
 }

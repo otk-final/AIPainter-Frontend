@@ -103,8 +103,13 @@ export class SRTFrameRepository extends BaseCRUDRepository<SRTFrame, SRTFrameRep
     }
 
     //重写台词
-    handleRewriteContent = async (index: number, gptApi: GPTAssistantsApi) => {
+    aiRewriteContent = async (index: number, gptApi: GPTAssistantsApi) => {
+        let rewrite = await gptApi.rewritePrompt(this.items[index].content)
+        this.items[index].rewrite = rewrite
+        this.sync()
+    }
 
+    batchRewriteContent = async () => {
     }
 }
 

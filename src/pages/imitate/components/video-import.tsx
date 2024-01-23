@@ -43,6 +43,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
         return simulateRepo.handleImportVideo(selected as string)
     }
 
+
     const handleCollectFrames = async () => {
         message.loading({
             content: '正在抽取关键帧..',
@@ -54,6 +55,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
 
         //抽帧，导入，切换tab
         let keyFrames = await simulateRepo.handleCollectFrames()
+        debugger
         await KeyFrameRepo.initializationKeyFrames(keyFrames)
         handleChangeTab("frames");
 
@@ -74,6 +76,21 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
 
         message.destroy()
     }
+
+    const handleDiffKeyFrameCollect = async () => {
+        message.loading({
+            content: '关键字去重..',
+            duration: 0,
+            style: {
+                marginTop: "350px"
+            }
+        })
+
+        await simulateRepo.ssimFramesCollect(KeyFrameRepo.items)
+
+        message.destroy()
+    }
+
 
     const renderVoice = () => {
         return (
@@ -98,6 +115,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported} >导入</Button>
                 <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!videoPlayURL} onClick={handleCollectFrames}>开始抽帧</Button>
                 <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!videoPlayURL} onClick={handleCollectAudio}>导出音频</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!videoPlayURL} onClick={handleDiffKeyFrameCollect}>去重关键帧</Button>
             </div>
 
             {simulateRepo.videoPath ? renderVoice() : null}

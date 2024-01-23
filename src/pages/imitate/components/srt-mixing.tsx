@@ -1,15 +1,13 @@
-import { generateImagesColumns, srtMixingColumns } from "../data"
+import { srtMixingColumns } from "../data"
 import { ImitateTabType } from ".."
-import { useEffect, useState } from "react"
 import SRTMixingTR from "./srt-mixing-table-tr"
 import { useSRTFrameRepository } from "@/repository/srt"
-import { Header } from "@/components"
 import { dialog } from "@tauri-apps/api"
 import { useKeyFrameRepository } from "@/repository/simulate"
 
-import { AutoSizer, List, ListRowProps } from 'react-virtualized';
 import 'react-virtualized/styles.css'; // 导入样式文件
 import { Button } from "antd"
+import React from "react"
 
 interface SRTMixingProps {
     pid: string,
@@ -19,8 +17,6 @@ interface SRTMixingProps {
 const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
     const srtFreamsRepo = useSRTFrameRepository(state => state)
     const keyFreamsRepo = useKeyFrameRepository(state => state)
-
-
 
 
     const handleImportSRTFile = async () => {
@@ -41,10 +37,12 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
         <div className="generate-image-wrap scrollbar">
             <div className='generate-header flexR'>
                 <div className='flexR'>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleSyncKeyFrames}>同步关键帧</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleSyncKeyFrames}>导入关键帧</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleImportSRTFile}>导入SRT字幕文件</Button>
                 </div>
                 <div className='flexR'>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleImportSRTFile}>导入SRT字幕文件</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleImportSRTFile}>导出新字幕文件</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleImportSRTFile}>导出新音频文件</Button>
                     <Button type="primary" className="btn-primary-auto btn-primary-108" >一键改写</Button>
                 </div>
             </div>
@@ -55,7 +53,6 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
                         return <div className='th-td' style={{ flex: `${i.space}` }} key={i.key}>{i.title}</div>
                     })}
                 </div>
-
                 {
                     srtFreamsRepo.items.map((item, index) => {
                         return (<SRTMixingTR key={item.id} frame={item} index={index} />)
@@ -65,6 +62,5 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
         </div>
     )
 }
-
 
 export default SRTMixingTab

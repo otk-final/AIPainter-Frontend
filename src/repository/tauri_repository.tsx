@@ -132,22 +132,22 @@ export abstract class BaseCRUDRepository<Item extends ItemIdentifiable, T> exten
 
     addItem = async (idx: number, item: Item, temporary?: boolean) => {
         this.items.splice(idx, 0, item)
-        this.setHold({ items: this.items })
+        this.setHold({ items: [...this.items]  })
         if (!temporary) await this.save()
     }
     appendItem = async (item: Item, persisted?: boolean) => {
         this.items.push(item)
-        this.setHold({ items: this.items })
+        this.setHold({ items: [...this.items]  })
         if (persisted) await this.save()
     }
     delItem = async (idx: number, persisted?: boolean) => {
         this.items.splice(idx, 1)
-        this.setHold({ items: this.items })
+        this.setHold({ items: [...this.items]  })
         if (persisted) await this.save()
     }
     updateItem = async (idx: number, item: Item, persisted?: boolean) => {
         this.items[idx] = item
-        this.setHold({ items: this.items })
+        this.setHold({ items: [...this.items] })
         if (persisted) await this.save()
     }
     lazyUpdateItem = async (idx: number, item: Item) => {
