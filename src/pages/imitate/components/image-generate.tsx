@@ -4,6 +4,7 @@ import { ImitateTabType } from ".."
 import { useEffect, useState } from "react"
 import { useKeyFrameRepository } from "@/repository/simulate"
 import { ComyUIModeSelect } from "@/components/mode-select"
+import { Button, InputNumber } from "antd"
 
 interface ImageGenerateProps {
   pid: string,
@@ -36,7 +37,19 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
 
   return (
     <div className="generate-image-wrap scrollbar">
-      <ComyUIModeSelect mode={mode} onChange={setOption}></ComyUIModeSelect>
+
+      <div className='generate-header flexR'>
+        <div className='flexR'>
+          <ComyUIModeSelect mode={mode} onChange={setOption}></ComyUIModeSelect>
+        </div>
+        <div className='flexR'>
+          <div className='flexR'>批量开始起点 <InputNumber controls={false} style={{ width: "54px", marginLeft: '10px', marginRight: '10px' }} className="inputnumber-auto" placeholder='1' defaultValue={1} /> 镜</div>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" >批量生图</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" >批量反推关键词</Button>
+        </div>
+      </div>
+
+      
       {renderTable()}
     </div>
   )

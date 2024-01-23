@@ -8,15 +8,13 @@ import { Header } from '@/components';
 import { useKeyFrameRepository, useSimulateRepository } from '@/repository/simulate';
 import { useComfyUIRepository } from '@/repository/comfyui';
 import SRTMixingTab from './components/srt-mixing';
-import { dialog, fs } from '@tauri-apps/api';
-import { BaseDirectory } from '@tauri-apps/api/fs';
 import { useSRTFrameRepository } from '@/repository/srt';
 
 export type ImitateTabType = "import" | "frames" | "audio"
 const imitateTabs: TabsProps["items"] = [
   {
     key: "import",
-    label: "视频抽帧",
+    label: "视频导入",
   },
   {
     key: "frames",

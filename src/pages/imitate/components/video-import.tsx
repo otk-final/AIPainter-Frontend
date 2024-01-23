@@ -1,4 +1,4 @@
-import { Button, message } from 'antd';
+import { Button, Modal, message } from 'antd';
 import React, { useEffect, useState } from 'react'
 import ReactPlayer from 'react-player';
 import { dialog, tauri } from '@tauri-apps/api';
@@ -55,7 +55,6 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
 
         //抽帧，导入，切换tab
         let keyFrames = await simulateRepo.handleCollectFrames()
-        debugger
         await KeyFrameRepo.initializationKeyFrames(keyFrames)
         handleChangeTab("frames");
 
@@ -63,6 +62,12 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
     }
 
     const handleCollectAudio = async () => {
+
+        let savePath = await dialog.save({ title: "导出字幕文件", filters: [{ extensions: ["srt"], name: "Sub title" }] })
+        if (!savePath) {
+            return
+        }
+
         message.loading({
             content: '正在导出音频..',
             duration: 0,
@@ -71,24 +76,23 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
             }
         })
 
-        await simulateRepo.handleCollectAudio()
-        handleChangeTab("audio");
-
-        message.destroy()
+        await simulateRepo.handleCollectAudio(savePath).finally(() => message.destroy())
     }
 
-    const handleDiffKeyFrameCollect = async () => {
+    const handleExportSRTFile = async () => {
+        let savePath = await dialog.save({ title: "导出字幕文件", filters: [{ extensions: ["srt"], name: "Sub title" }] })
+        if (!savePath){
+            return 
+        }
+
         message.loading({
-            content: '关键字去重..',
+            content: '正在导出字幕..',
             duration: 0,
             style: {
                 marginTop: "350px"
             }
         })
-
-        await simulateRepo.ssimFramesCollect(KeyFrameRepo.items)
-
-        message.destroy()
+        await simulateRepo.handleCollectSrtFile(savePath).finally(() => message.destroy())
     }
 
 
@@ -113,9 +117,9 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
             <div className='flexR'>
                 <div>请导入视频：</div>
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported} >导入</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!videoPlayURL} onClick={handleCollectFrames}>开始抽帧</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!videoPlayURL} onClick={handleCollectFrames}>抽帧关键帧</Button>
                 <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!videoPlayURL} onClick={handleCollectAudio}>导出音频</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!videoPlayURL} onClick={handleDiffKeyFrameCollect}>去重关键帧</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!videoPlayURL} onClick={handleExportSRTFile}>导出字幕</Button>
             </div>
 
             {simulateRepo.videoPath ? renderVoice() : null}

@@ -150,29 +150,30 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     }
 
     //抽取音频
-    handleCollectAudio = async () => {
+    handleCollectAudio = async (savePath: string) => {
 
         //导出音频
-        let audioPath = await path.join(await path.appLocalDataDir(), this.repoDir, "audio.mp3")
         let cmd = shell.Command.sidecar("bin/ffmpeg", [
             "-i", this.videoPath!,
             "-vn",
             "-ab", "128k",  //音频格式
             "-f", "mp3",
-            audioPath
+            savePath
         ])
 
         let output = await cmd.execute()
         console.info(output.stderr)
         console.info(output.stdout)
-        this.audioPath = audioPath
-
-        await delay(1000)
+        this.audioPath = savePath
 
         //TODO 生成字幕文件
-
     }
 
+    handleCollectSrtFile = async (savePath: string) => {
+        console.info(savePath)
+        await delay(3000)
+        await fs.writeTextFile(savePath, "xxx", { append: false })
+    }
 
 }
 export const useSimulateRepository = create<SimulateRepository>()(subscribeWithSelector((set, get) => new SimulateRepository("simulate.json", set, get)))

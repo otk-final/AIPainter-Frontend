@@ -24,7 +24,6 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
         if (!selected) {
             return
         }
-        debugger
         await srtFreamsRepo.initialization(selected as string)
     }
 
@@ -41,9 +40,9 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
                     <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleImportSRTFile}>导入SRT字幕文件</Button>
                 </div>
                 <div className='flexR'>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" >一键改写</Button>
                     <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleImportSRTFile}>导出新字幕文件</Button>
                     <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleImportSRTFile}>导出新音频文件</Button>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" >一键改写</Button>
                 </div>
             </div>
 

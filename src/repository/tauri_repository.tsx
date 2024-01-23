@@ -11,9 +11,9 @@ export type Directory = string
 
 export abstract class BaseRepository<T> {
 
-    setHold: (T: any) => void
+    setHold: (T: any, noshallow?: boolean) => void
     getHold: () => T
-    constructor(repo: string, set: (T: any) => void, get: () => T) {
+    constructor(repo: string, set: (T: any, noshallow?: boolean) => void, get: () => T) {
         this.setHold = set
         this.getHold = get
         this.repo = repo
@@ -40,7 +40,7 @@ export abstract class BaseRepository<T> {
         //目录是否存在
         if (!await fs.exists(this.repoDir, { dir: this.baseDir() })) {
             let emptyRepo = this.repoEmpty()
-            this.setHold(emptyRepo)
+            this.setHold(emptyRepo, true)
             return emptyRepo!
         }
 
@@ -50,7 +50,7 @@ export abstract class BaseRepository<T> {
         //文件是否存在
         if (!await fs.exists(filePath, { dir: this.baseDir() })) {
             let emptyRepo = this.repoEmpty()
-            this.setHold(emptyRepo)
+            this.setHold(emptyRepo, true)
             return emptyRepo!
         }
 
@@ -58,7 +58,7 @@ export abstract class BaseRepository<T> {
         let text = await fs.readTextFile(filePath, { dir: this.baseDir(), append: false })
         let thisData = JSON.parse(text) as Partial<T>
 
-        //初始化对象
+        //属性赋值
         Object.assign(this, thisData)
 
         //初始化状态
@@ -132,17 +132,17 @@ export abstract class BaseCRUDRepository<Item extends ItemIdentifiable, T> exten
 
     addItem = async (idx: number, item: Item, temporary?: boolean) => {
         this.items.splice(idx, 0, item)
-        this.setHold({ items: [...this.items]  })
+        this.setHold({ items: [...this.items] })
         if (!temporary) await this.save()
     }
     appendItem = async (item: Item, persisted?: boolean) => {
         this.items.push(item)
-        this.setHold({ items: [...this.items]  })
+        this.setHold({ items: [...this.items] })
         if (persisted) await this.save()
     }
     delItem = async (idx: number, persisted?: boolean) => {
         this.items.splice(idx, 1)
-        this.setHold({ items: [...this.items]  })
+        this.setHold({ items: [...this.items] })
         if (persisted) await this.save()
     }
     updateItem = async (idx: number, item: Item, persisted?: boolean) => {
