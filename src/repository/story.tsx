@@ -30,9 +30,14 @@ export class ScriptRepository extends BaseRepository<ScriptRepository> {
         this.boardType = thisData.boardType
     }
 
-    repoEmpty(): ScriptRepository {
-        return this
+    free() {
+        this.fileId = undefined
+        this.path = undefined
+        this.input = undefined
+        this.importType = undefined
+        this.boardType = undefined
     }
+
 
     fileId?: string
     path?: string
@@ -97,7 +102,7 @@ export class ScriptRepository extends BaseRepository<ScriptRepository> {
 
     //其他角色信息
     handleCollectActors = async () => {
-        
+
     }
 
 }
@@ -129,11 +134,6 @@ export interface Chapter extends ItemIdentifiable {
 
 
 export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterRepository> {
-
-    repoEmpty(): ChapterRepository {
-        this.items = []
-        return this
-    }
 
     //初始化
     initialization = async (chapters: Chapter[]) => {
@@ -216,7 +216,7 @@ export interface TraitsOption {
 
 export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> {
 
-    repoEmpty(): ActorRepository {
+    free(): ActorRepository {
         this.items = [{ id: 0, name: "角色1", alias: "角色1", style: "", traits: [] }]
         return this
     }

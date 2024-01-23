@@ -1,5 +1,5 @@
 import { Button, message, Tabs, TabsProps } from 'antd';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import './index.less'
 import { history, useParams } from "umi"
 import VideoImportTab from './components/video-import';
@@ -35,14 +35,15 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   const srtFreamRepo = useSRTFrameRepository(state => state)
   const comfyuiRepo = useComfyUIRepository(state => state)
 
+
+
   //加载配置项
-  useEffect(() => {
+  useMemo(() => {
     //加载数据
     simulateRepo.load(pid)
     keyFreamRepo.load(pid)
     srtFreamRepo.load(pid)
     comfyuiRepo.load("env")
-
     return () => {
       simulateRepo.sync()
       keyFreamRepo.sync()
@@ -81,7 +82,7 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   return (
     <div className="imitate-wrap">
       <Header onQuit={(handleQuit)} renderLeft={renderHeaderLeft()} renderRight={renderHeaderRight()} />
-      {currentTab === "import" ? < VideoImportTab handleChangeTab={setCurrentTab} /> : null}
+      {currentTab === "import" ? < VideoImportTab pid={pid}  handleChangeTab={setCurrentTab} /> : null}
       {currentTab === 'frames' ? <ImageGenerateTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
       {currentTab === 'audio' ? <SRTMixingTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
     </div>

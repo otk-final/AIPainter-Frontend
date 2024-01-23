@@ -10,12 +10,12 @@ import { ComfyUIRepository } from "./comfyui"
 export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
 
-    repoEmpty(): SimulateRepository {
+    free() {
+        console.info('释放.....')
         this.videoPath = undefined
         this.payload = undefined
         this.audioPath = undefined
         this.audioText = undefined
-        return this
     }
 
     // 导入视频地址
@@ -195,10 +195,6 @@ export interface KeyFrame extends ItemIdentifiable {
 export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRepository> {
     repoInitialization(thisData: KeyFrameRepository): void {
         this.items = thisData.items
-    }
-
-    repoEmpty(): KeyFrameRepository {
-        return this
     }
 
     //初始化

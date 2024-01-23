@@ -7,32 +7,16 @@ import VideoPlayerModal from './video-player';
 import { useKeyFrameRepository, useSimulateRepository } from '@/repository/simulate';
 
 interface VideoImportProps {
+    pid: string
     handleChangeTab: (key: ImitateTabType) => void,
 }
 
-const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
+const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) => {
 
-    const [videoPlayURL, setVideoPlayURL] = useState<string>()
     const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
-
     const simulateRepo = useSimulateRepository(state => state)
     const KeyFrameRepo = useKeyFrameRepository(state => state)
-
-
-    useEffect(() => {
-        const unsub = useSimulateRepository.subscribe(
-            (state) => state.videoPath,
-            (state, pre) => {
-                console.info("sub", state, pre)
-                if (state) setVideoPlayURL(tauri.convertFileSrc(state!))
-            },
-            { fireImmediately: true }
-        )
-        return unsub
-    }, [])
-
-
-
+    
     const handleImported = async () => {
         let selected = await dialog.open({
             title: '选择视频文件'
@@ -81,8 +65,8 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
 
     const handleExportSRTFile = async () => {
         let savePath = await dialog.save({ title: "导出字幕文件", filters: [{ extensions: ["srt"], name: "Sub title" }] })
-        if (!savePath){
-            return 
+        if (!savePath) {
+            return
         }
 
         message.loading({
@@ -96,34 +80,27 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
     }
 
 
-    const renderVoice = () => {
-        return (
-            <div className='video-wrap' onClick={() => setIsVideoPlayerOpen(true)}>
-                <ReactPlayer url={videoPlayURL}
-                    width="200px"
-                    height="200px"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '6px' }}
-                />
-                {/* {payload && <div className='time'>{getTime(payload.streams[0].duration_ts)}</div>}
-                <div className='video-name'>{videoPath?.split('/').pop()}</div> */}
-            </div>
-        )
-    }
-
-
     return (
-
         <div className="generate-image-wrap scrollbar">
             <div className='flexR'>
                 <div>请导入视频：</div>
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported} >导入</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!videoPlayURL} onClick={handleCollectFrames}>抽帧关键帧</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!videoPlayURL} onClick={handleCollectAudio}>导出音频</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!videoPlayURL} onClick={handleExportSRTFile}>导出字幕</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!simulateRepo.videoPath} onClick={handleCollectFrames}>抽帧关键帧</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!simulateRepo.videoPath} onClick={handleCollectAudio}>导出音频</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!simulateRepo.videoPath} onClick={handleExportSRTFile}>导出字幕</Button>
             </div>
 
-            {simulateRepo.videoPath ? renderVoice() : null}
-            {isVideoPlayerOpen && <VideoPlayerModal videoPlayURL={videoPlayURL!} isOpen={isVideoPlayerOpen} onClose={() => setIsVideoPlayerOpen(false)} />}
+            {simulateRepo.videoPath &&
+                <div className='video-wrap' onClick={() => setIsVideoPlayerOpen(true)}>
+                    <ReactPlayer url={tauri.convertFileSrc(simulateRepo.videoPath!)}
+                        width="200px"
+                        height="200px"
+                        style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '6px' }}
+                    />
+                    {/* {payload && <div className='time'>{getTime(payload.streams[0].duration_ts)}</div>}
+                <div className='video-name'>{videoPath?.split('/').pop()}</div> */}
+                </div>}
+            {isVideoPlayerOpen && <VideoPlayerModal videoPath={simulateRepo.videoPath!} isOpen={isVideoPlayerOpen} onClose={() => setIsVideoPlayerOpen(false)} />}
         </div>
     );
 };

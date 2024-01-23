@@ -24,7 +24,7 @@ export abstract class BaseRepository<T> {
     repoDir: Directory = "env"
 
     //目录
-    abstract repoEmpty(): T | undefined
+    protected abstract free(): void
 
     baseDir(): BaseDirectory {
         return BaseDirectory.AppLocalData
@@ -35,13 +35,13 @@ export abstract class BaseRepository<T> {
 
 
     load = async (dir: Directory) => {
-        this.repoDir = dir
+        this.free()
 
+        this.repoDir = dir
         //目录是否存在
         if (!await fs.exists(this.repoDir, { dir: this.baseDir() })) {
-            let emptyRepo = this.repoEmpty()
-            this.setHold(emptyRepo, true)
-            return emptyRepo!
+            this.setHold(this, true)
+            return
         }
 
         let filePath = this.repoDir + "/" + this.repo
@@ -49,15 +49,16 @@ export abstract class BaseRepository<T> {
 
         //文件是否存在
         if (!await fs.exists(filePath, { dir: this.baseDir() })) {
-            let emptyRepo = this.repoEmpty()
-            this.setHold(emptyRepo, true)
-            return emptyRepo!
+            this.setHold(this, true)
+            return
         }
 
         //read file
         let text = await fs.readTextFile(filePath, { dir: this.baseDir(), append: false })
         let thisData = JSON.parse(text) as Partial<T>
 
+
+        console.info(this)
         //属性赋值
         Object.assign(this, thisData)
 
@@ -129,7 +130,9 @@ export interface ItemIdentifiable {
 export abstract class BaseCRUDRepository<Item extends ItemIdentifiable, T> extends BaseRepository<T> {
 
     items: Item[] = []
-
+    free(): void {
+        this.items = []
+    }
     addItem = async (idx: number, item: Item, temporary?: boolean) => {
         this.items.splice(idx, 0, item)
         this.setHold({ items: [...this.items] })

@@ -17,8 +17,8 @@ export class GPTAssistantsApi extends BaseRepository<GPTAssistantsApi> {
         this.runId = thisData.runId
     }
 
-    repoEmpty(): GPTAssistantsApi {
-        return this
+    free() {
+        
     }
 
     host: string = "https://wx.yryz3.com/aipainter-openai/v1"

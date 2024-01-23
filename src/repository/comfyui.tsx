@@ -20,8 +20,8 @@ export interface ComfyUIConfiguration {
 export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, ComfyUIRepository> implements ComfyUIConfiguration {
 
 
-    repoEmpty(): ComfyUIRepository {
-        return this
+    free() {
+
     }
 
     host: ComfyUIHost = {
