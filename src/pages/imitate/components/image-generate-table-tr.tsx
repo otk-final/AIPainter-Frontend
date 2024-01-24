@@ -104,7 +104,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
 
 
     return (
-        <div className='tr flexR'>
+        <div className='tr flexR' style={style} key={key}>
             {generateImagesColumns.map((i, index) => {
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
