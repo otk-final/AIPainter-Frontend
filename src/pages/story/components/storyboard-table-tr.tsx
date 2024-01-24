@@ -8,12 +8,14 @@ import { Actor, Chapter, useChapterRepository } from "@/repository/story";
 interface StoryboardTableTRProps {
     idx: number,
     chapter: Chapter,
-    actors: Actor[]
+    actors: Actor[],
+    style: React.CSSProperties,
+    key: string
 }
 
 const emptyChapter: Chapter = { id: "", original: "", actors: [] }
 
-const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, actors }) => {
+const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, actors, style, key }) => {
 
     //页面级状态
     const [stateChapter, setChapter] = useState<Chapter>({ ...chapter })
@@ -105,7 +107,7 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
 
 
     return (
-        <div className='tr flexR'>
+        <div className='tr flexR' style={style} key={key}>
             {stateChapter && storyboardColumns.map((i, index) => {
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>

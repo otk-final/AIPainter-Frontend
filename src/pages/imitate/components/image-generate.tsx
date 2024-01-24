@@ -33,7 +33,6 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
                 let len = keyFreamsRepo.items.length;
                 console.log("height", height, len);
                 return (
-                  (
                     <List
                       ref="List"
                       height={height}
@@ -42,10 +41,9 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
                       rowRenderer={_rowRenderer}
                       width={width}
                       noRowsRenderer={()=> <div>...</div>}
-                      overscanRowCount={10}
+                      overscanRowCount={20}
                     />
                   )
-                )
               }}
             </AutoSizer>
         </div>

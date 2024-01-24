@@ -9,13 +9,15 @@ import { useComfyUIRepository } from "@/repository/comfyui";
 
 interface ChapterTableTRProps {
     idx: number,
-    style: string
+    mode: string
     chapter: Chapter,
-    actors: Actor[]
+    style: React.CSSProperties,
+    key: string,
+    actors?: Actor[]
 }
 
 
-const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, style, actors, chapter }) => {
+const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, actors, chapter, style, key }) => {
 
     const [isOpenHistory, setIsOpenHistory] = useState(false);
     const chapterRepo = useChapterRepository(state => state)
@@ -89,25 +91,25 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, style, actors, chapte
     const comfyuiRepo = useComfyUIRepository(state => state)
 
     const handleText2Image = async () => {
-        if (!style) {
+        if (!mode) {
             await message.warning("请选择图片风格")
             return
         }
         message.loading("图片生成中...", 30 * 1000, () => {
             console.info("xxx")
         })
-        await chapterRepo.handleGenerateImage(idx, style, comfyuiRepo)
+        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo)
     }
 
     const handleImageScale = async () => {
-        if (!style) {
+        if (!mode) {
             await message.warning("请选择图片风格")
             return
         }
         message.loading("图片生成中...", 30 * 1000, () => {
             console.info("xxx")
         })
-        await chapterRepo.handleGenerateImage(idx, style, comfyuiRepo)
+        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo)
     }
 
 
@@ -121,7 +123,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, style, actors, chapte
     }
 
     return (
-        <div className='tr flexR'>
+        <div className='tr flexR'  style={style} key={key}>
             {stateChapter && drawbatchColumns.map((i, index) => {
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>

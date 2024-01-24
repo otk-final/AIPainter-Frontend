@@ -4,32 +4,50 @@ import { useState } from "react"
 import { useChapterRepository } from "@/repository/story"
 import { ComyUIModeSelect } from "@/components/mode-select"
 import { Button, InputNumber } from "antd"
+import {List, AutoSizer, ListRowProps} from 'react-virtualized';
 
 const Drawbatch = () => {
     const [mode, setOption] = useState<string>("")
     const chapterRepo = useChapterRepository(state => state)
 
+    const _rowRenderer = ({index, key, style}: ListRowProps)=>{
+        const items = chapterRepo.items;
+        return <DrawTableTR key={key} idx={index} chapter={items[index]} style={style} mode={mode}/>
+    }
+
     const renderTable = () => {
         return (
-            <div className='script-table-wrap'>
+            <div className='script-table-wrap' style={{height: 'calc(100% - 60px)', display: "flex", flexDirection: 'column'}}>
                 <div className='th flexR'>
                     {drawbatchColumns.map((i) => {
                         return <div className='th-td' style={{ flex: `${i.space}` }} key={i.key}>{i.title}</div>
                     })}
                 </div>
-                {
-                    chapterRepo.items.map((chapter, index) => {
-                        return (<DrawTableTR key={chapter.id} idx={index} chapter={chapter} style={mode} />
-                        )
-                    })
-                }
+                <div style={{flex: 1}} >
+                    <AutoSizer className='scrollbar'>
+                        {({height, width }) => {
+                            let len = chapterRepo.items.length;
+                            return (
+                                <List
+                                    height={height}
+                                    rowCount={len}
+                                    rowHeight={224}
+                                    rowRenderer={_rowRenderer}
+                                    width={width}
+                                    noRowsRenderer={()=> <div>...</div>}
+                                    overscanRowCount={20}
+                                />
+                            )
+                        }}
+                    </AutoSizer>
+                </div>
             </div>
         )
     }
 
 
     return (
-        <div className="storyboard-wrap scrollbar">
+        <div className="storyboard-wrap">
             <div className='script-header flexR'>
                 <div className='flexR'>
                     <ComyUIModeSelect mode={mode} onChange={setOption}></ComyUIModeSelect>
