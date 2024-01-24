@@ -166,10 +166,12 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
             message.error("至少选择一个标签")
             return
         }
-        message.loading("图片生成中...", 30 * 1000, () => {
-            console.info("xxx")
-        })
-        await actorRepo.handleGenerateImage(tags, comfyuiRepo, setPreviewPath)
+        message.loading("图片生成中...", 30 * 1000)
+
+        await actorRepo.handleGenerateImage(tags, comfyuiRepo, (filepath) => {
+            setPreviewPath(filepath)
+            setPreview(true)
+        }).finally(()=>message.destroy())
     }
 
 
@@ -178,8 +180,9 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
 
         actorRepo.items[index].traits = tags!
         actorRepo.items[index].image = statePreviewPath
-        await actorRepo.sync()
         
+        await actorRepo.sync()
+
         handleClose()
     }
 

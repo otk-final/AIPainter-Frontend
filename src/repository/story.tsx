@@ -216,9 +216,8 @@ export interface TraitsOption {
 
 export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> {
 
-    free(): ActorRepository {
+    override free() {
         this.items = [{ id: 0, name: "角色1", alias: "角色1", style: "", traits: [] }]
-        return this
     }
 
     //初始化
@@ -244,8 +243,13 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
         let step = script.getOutputImageStep()
         const callback = async (promptId: string, respData: any) => {
 
+
+            let images = respData[promptId]!.outputs![step].images
+            let imageItem = images[0] as { filename: string, subfolder: string, type: string }
+
             //下载文件
-            let imageItem = respData[promptId]!.outputs![step].images! as { filename: string, subfolder: string, type: string }[][0]
+            console.info("下载文件", imageItem)
+
             //下载，保存
             let fileBuffer = await api.download(imageItem.subfolder, imageItem.filename)
             let filePath = await this.saveImage("outputs", imageItem.filename, fileBuffer)

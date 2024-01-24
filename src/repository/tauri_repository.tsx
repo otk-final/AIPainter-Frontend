@@ -58,7 +58,6 @@ export abstract class BaseRepository<T> {
         let thisData = JSON.parse(text) as Partial<T>
 
 
-        console.info(this)
         //属性赋值
         Object.assign(this, thisData)
 
@@ -93,15 +92,15 @@ export abstract class BaseRepository<T> {
 
     //保存文件
     protected save = async () => {
+
+        let that = { ...this }
+
         //创建目录
         await fs.createDir(this.repoDir, { dir: this.baseDir(), recursive: true })
         let filePath = this.repoDir + "/" + this.repo
 
-        console.info('write script', filePath)
-
-
         // save file
-        await fs.writeFile(filePath, JSON.stringify(this, null, "\t"), { dir: this.baseDir(), append: false })
+        await fs.writeFile(filePath, JSON.stringify(that, null, "\t"), { dir: this.baseDir(), append: false })
     }
 
     saveImage = async (subfolder: string, filename: string, fileBuffer: ArrayBuffer) => {
@@ -133,6 +132,7 @@ export abstract class BaseCRUDRepository<Item extends ItemIdentifiable, T> exten
     free(): void {
         this.items = []
     }
+
     addItem = async (idx: number, item: Item, temporary?: boolean) => {
         this.items.splice(idx, 0, item)
         this.setHold({ items: [...this.items] })

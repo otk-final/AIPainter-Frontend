@@ -26,6 +26,10 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
         }
         return simulateRepo.handleImportVideo(selected as string)
     }
+    
+    
+
+
 
 
     const handleCollectFrames = async () => {
@@ -47,7 +51,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
 
     const handleCollectAudio = async () => {
 
-        let savePath = await dialog.save({ title: "导出字幕文件", filters: [{ extensions: ["srt"], name: "Sub title" }] })
+        let savePath = await dialog.save({ title: "导出字幕文件", filters: [{ extensions: ["mp3"], name: "音频文件" }] })
         if (!savePath) {
             return
         }
@@ -64,7 +68,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
     }
 
     const handleExportSRTFile = async () => {
-        let savePath = await dialog.save({ title: "导出字幕文件", filters: [{ extensions: ["srt"], name: "Sub title" }] })
+        let savePath = await dialog.save({ title: "导出字幕文件", filters: [{ extensions: ["srt"], name: "SubRip subtitle file" }] })
         if (!savePath) {
             return
         }
