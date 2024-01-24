@@ -22,10 +22,10 @@ export const ComyUIModeSelect: React.FC<StyleSelectProps> = ({ mode, onChange })
         if (styleOptions.length > 0) onChange(styleOptions[0].value)
     }, [])
 
-    return (<div className="generate-header flexR">
+    return (<div className="flexR">
         <div className="lable">风格选择 <QuestionCircleOutlined /><Select
             className={`select-auto`}
-            style={{ width: '300px' }}
+            style={{ width: '300px', marginLeft: '10px' }}
             value={mode}
             onChange={onChange}
             options={styleOptions}

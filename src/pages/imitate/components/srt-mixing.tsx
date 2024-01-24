@@ -51,14 +51,14 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
                     })}
                 </div>
                 <div style={{ flex: 1 }} >
-                    <AutoSizer className='scrollbar'>
+                    <AutoSizer>
                         {({height, width }) => {
                             let len = keyFreamsRepo.items.length;
                             console.log("height", height, len);
                             return (
                                 <List
-                                ref="List"
-                                height={height}
+                                className='autosizer scrollbar'
+                                height={height - 50}
                                 rowCount={len}
                                 rowHeight={184}
                                 rowRenderer={_rowRenderer}

@@ -65,12 +65,13 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
                         })}
                     </div>
                     <div style={{flex: 1}} >
-                        <AutoSizer className='scrollbar'>
+                        <AutoSizer>
                             {({height, width }) => {
                                 let len = chapterRepo.items.length;
                                 return (
                                     <List
-                                        height={height}
+                                        className='autosizer scrollbar'
+                                        height={height - 50}
                                         rowCount={len}
                                         rowHeight={184}
                                         rowRenderer={_rowRenderer}
