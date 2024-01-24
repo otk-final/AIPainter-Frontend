@@ -36,19 +36,25 @@ export const srtMixingColumns = [
     title: "编号",
     key: "number",
     space: 1,
-  }, {
-    title: "镜头图片",
-    key: "images",
-    space: 4,
   },
   {
-    title: "字幕",
-    key: "content",
+    title: "原始图片",
+    key: "srcImage",
+    space: 3,
+  },
+  {
+    title: "原始字幕",
+    key: "srt",
+    space: 3,
+  },
+  {
+    title: "新图片",
+    key: "newImage",
     space: 3,
   },
   {
     title: "新字幕",
-    key: "rewrite",
+    key: "srt_rewrite",
     space: 3,
   },
   {

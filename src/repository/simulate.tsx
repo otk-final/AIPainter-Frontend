@@ -1,9 +1,8 @@
 import { create } from "zustand"
-import { BaseCRUDRepository, BaseRepository, ItemIdentifiable, delay } from "./tauri_repository"
+import { BaseRepository, delay } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
 import { fs, path, shell } from "@tauri-apps/api"
-import { Image2TextHandle, Text2ImageHandle, WFScript, registerComfyUIPromptCallback } from "./comfyui_api"
-import { ComfyUIRepository } from "./comfyui"
+import { KeyFrame } from "./keyframe"
 
 
 //剧本
@@ -177,96 +176,6 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
 }
 export const useSimulateRepository = create<SimulateRepository>()(subscribeWithSelector((set, get) => new SimulateRepository("simulate.json", set, get)))
-
-
-
-export interface KeyFrame extends ItemIdentifiable {
-    id: number
-    name: string,
-    path: string,
-    prompt?: string,
-    image: {
-        path?: string
-        history: string[]
-    }
-}
-
-
-export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRepository> {
-    repoInitialization(thisData: KeyFrameRepository): void {
-        this.items = thisData.items
-    }
-
-    //初始化
-    initializationKeyFrames = async (frames: KeyFrame[]) => {
-        this.items = [...frames]
-        this.sync()
-    }
-
-    //反推关键词
-    handleReversePrompt = async (index: number, comyuiRepo: ComfyUIRepository) => {
-        let frame = this.items[index]
-
-        let api = comyuiRepo.newClient()
-        let text = await comyuiRepo.buildReversePrompt()
-        let script = new WFScript(text)
-
-        //上传文件
-        await api.upload("hxy", frame.path, frame.name)
-
-        //提交任务
-        let job = await api.prompt(script, { subfolder: "hxy", filename: frame.name }, Image2TextHandle)
-        //关键词所在的节点数
-        let step = script.getWD14TaggerStep()
-        const callback = async (promptId: string, respData: any) => {
-            //定位结果
-            let reversePrompts = respData[promptId]!.outputs![step]!.tags! as string[]
-            if (reversePrompts) frame.prompt = reversePrompts.join(",")
-
-            //save
-            this.sync()
-        }
-        //监听任务
-        registerComfyUIPromptCallback({ jobId: "", promptId: job.prompt_id, handle: callback })
-    }
-
-    //生成图片
-    handleGenerateImage = async (index: number, style: string, comyuiRepo: ComfyUIRepository) => {
-        let frame = this.items[index]
-
-        //comyui api
-        let api = comyuiRepo.newClient()
-        let text = await comyuiRepo.buildModePrompt(style)
-        let script = new WFScript(text)
-
-        //add prompt task
-        let job = await api.prompt(script, { positive: frame.prompt || comyuiRepo.positivePrompt, negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
-
-        //获取 当前流程中 输出图片节点位置
-        let step = script.getOutputImageStep()
-        const callback = async (promptId: string, respData: any) => {
-
-            //下载文件
-            let images = respData[promptId]!.outputs![step].images! as { filename: string, subfolder: string, type: string }[]
-            images.forEach(async (imageItem) => {
-                //保存
-                let fileBuffer = await api.download(imageItem.subfolder, imageItem.filename)
-                let filePath = await this.saveImage("outputs", imageItem.filename, fileBuffer)
-
-                frame.image.path = filePath
-                frame.image.history.push(filePath)
-            })
-
-            //save
-            this.sync()
-        }
-
-        //监听任务
-        registerComfyUIPromptCallback({ jobId: "", promptId: job.prompt_id, handle: callback })
-    }
-}
-
-export const useKeyFrameRepository = create<KeyFrameRepository>()(subscribeWithSelector((set, get) => new KeyFrameRepository("frames.json", set, get)))
 
 
 

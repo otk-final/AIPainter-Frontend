@@ -1,8 +1,8 @@
 import { subscribeWithSelector } from "zustand/middleware"
-import { BaseCRUDRepository, BaseRepository, Directory, ItemIdentifiable } from "./tauri_repository"
+import { BaseCRUDRepository, BaseRepository, ItemIdentifiable } from "./tauri_repository"
 import { create } from "zustand"
 import { GPTAssistantsApi } from "./gpt"
-import { fs, path } from "@tauri-apps/api"
+import { fs } from "@tauri-apps/api"
 import { Text2ImageHandle, WFScript, registerComfyUIPromptCallback } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
 import { v4 as uuid } from "uuid"
@@ -164,19 +164,19 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         const callback = async (promptId: string, respData: any) => {
 
             //下载文件
-            let images = respData[promptId]!.outputs![step].images! as { filename: string, subfolder: string, type: string }[]
-            images.forEach(async (imageItem) => {
+            let images = respData[promptId]!.outputs![step].images
+            for (let i = 0; i < images.length; i++) {
+                let imageItem = images[i] as { filename: string, subfolder: string, type: string }
+
                 //保存
                 let fileBuffer = await api.download(imageItem.subfolder, imageItem.filename)
-                let filePath = await this.saveImage("outputs", imageItem.filename, fileBuffer)
+                let filePath = await this.saveImage("outputs", "cp_" + uuid() + ".png", fileBuffer)
 
                 let history = chapter.image?.history || []
                 history.push(filePath)
-                chapter.image = {
-                    path: filePath,
-                    history: history
-                }
-            })
+                chapter.image = { path: filePath, history: history }
+            }
+
             //save
             this.sync()
         }
@@ -252,7 +252,7 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
 
             //下载，保存
             let fileBuffer = await api.download(imageItem.subfolder, imageItem.filename)
-            let filePath = await this.saveImage("outputs", imageItem.filename, fileBuffer)
+            let filePath = await this.saveImage("outputs", "ac_" + uuid() + ".png", fileBuffer)
 
             //更新状态
             tempCallBack(filePath)

@@ -4,7 +4,8 @@ import ReactPlayer from 'react-player';
 import { dialog, tauri } from '@tauri-apps/api';
 import { ImitateTabType } from '../index';
 import VideoPlayerModal from './video-player';
-import { useKeyFrameRepository, useSimulateRepository } from '@/repository/simulate';
+import { useSimulateRepository } from '@/repository/simulate';
+import { useKeyFrameRepository } from '@/repository/keyframe';
 
 interface VideoImportProps {
     pid: string
@@ -43,7 +44,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
 
         //抽帧，导入，切换tab
         let keyFrames = await simulateRepo.handleCollectFrames()
-        await KeyFrameRepo.initializationKeyFrames(keyFrames)
+        await KeyFrameRepo.initialization(keyFrames)
         handleChangeTab("frames");
 
         message.destroy()
