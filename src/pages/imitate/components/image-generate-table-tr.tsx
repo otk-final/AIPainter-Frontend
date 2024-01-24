@@ -8,12 +8,14 @@ import { KeyFrame, useKeyFrameRepository } from "@/repository/keyframe";
 import { useComfyUIRepository } from "@/repository/comfyui";
 
 interface GenerateImagesTRProps {
+    key: string
     index: number
-    style: string
+    mode: string
+    style: React.CSSProperties
     frame: KeyFrame,
 }
 
-const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame }) => {
+const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, mode, frame }) => {
     const [isOpenHistory, setIsOpenHistory] = useState(false);
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
     const keyFreamRepo = useKeyFrameRepository(state => state)
@@ -38,8 +40,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
     }
 
     const handleText2ImageCatch = async () => {
-        message.loading("生成图片...")
-        keyFreamRepo.handleGenerateImage(index, style, comfyUIRepo).catch(err => message.error(err.message)).finally(() => message.destroy())
+        await keyFreamRepo.handleGenerateImage(index, mode, comfyUIRepo).catch(err => message.error(err.message)).finally(() => message.destroy())
     }
 
     const handleDelKeyFrame = async () => {
