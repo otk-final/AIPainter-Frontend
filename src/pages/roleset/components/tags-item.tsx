@@ -155,7 +155,7 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
     }
 
     const [isPreview, setPreview] = useState<boolean>(false)
-    const [statePreviewPath, setPreviewPath] = useState<string>("")
+    const [statePreviewPath, setPreviewPath] = useState<string | undefined>(image)
     const comfyuiRepo = useComfyUIRepository(state => state)
     const actorRepo = useActorRepository(state => state)
 
@@ -171,7 +171,7 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
         await actorRepo.handleGenerateImage(tags, comfyuiRepo, (filepath) => {
             setPreviewPath(filepath)
             setPreview(true)
-        }).finally(()=>message.destroy())
+        }).finally(() => message.destroy())
     }
 
 
@@ -180,7 +180,7 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
 
         actorRepo.items[index].traits = tags!
         actorRepo.items[index].image = statePreviewPath
-        
+
         await actorRepo.sync()
 
         handleClose()
@@ -193,7 +193,7 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
                 {
                     isPreview &&
                     <div className="content flexR">
-                        <img src={tauri.convertFileSrc(statePreviewPath)} width={'100%'}></img>
+                        {statePreviewPath && <img src={tauri.convertFileSrc(statePreviewPath)} width={'100%'}></img>}
                     </div>
                 }
                 {
@@ -210,7 +210,7 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
                         <div className={`choose-item ${lang === 'cn' ? "cur" : ''}`} onClick={() => setLang('cn')}>中</div>
                         <div className={`choose-item ${lang === 'en' ? "cur" : ''}`} onClick={() => setLang('en')}>En</div>
                     </div>
-                    {statePreviewPath && <div className="clean" onClick={() => setPreview(!isPreview)}>预览</div>}
+                    <div className="clean" onClick={() => setPreview(!isPreview)}>预览</div>
                 </div>
                 <div className="flexR" style={{ justifyContent: 'space-between' }}>
                     <Button type="primary" block className="btn-primary-auto" style={{ width: '180px' }} onClick={handleText2Image} >生成</Button>

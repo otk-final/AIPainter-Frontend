@@ -152,8 +152,8 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         let chapter = this.items[index]
 
         //comyui api
-        let api = comyuiRepo.newClient()
-        let text = comyuiRepo.buildModePrompt(style)
+        let api = await comyuiRepo.newClient()
+        let text = await comyuiRepo.buildModePrompt(style)
         let script = new WFScript(text)
 
         //add prompt task
@@ -232,7 +232,7 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
         // this.items[index]
         let prompt = traits.map(item => item.value).join(",")
         //api
-        let api = comyuiRepo.newClient()
+        let api = await comyuiRepo.newClient()
         let text = await comyuiRepo.buildModePrompt(comyuiRepo.items[0].name)
         let script = new WFScript(text)
 
