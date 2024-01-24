@@ -18,13 +18,13 @@ export class GPTAssistantsApi extends BaseRepository<GPTAssistantsApi> {
     }
 
     free() {
-        
+
     }
 
     host: string = "https://wx.yryz3.com/aipainter-openai/v1"
     apiKey: string = "none"
     mode: string = "gpt-4-1106-preview"
-
+    audio_mode = "tts-1"
 
     api: OpenAI
     assistantId: string = "asst_iVUdB5cY5Y4yIq6uW5xdNEdM"
@@ -33,7 +33,7 @@ export class GPTAssistantsApi extends BaseRepository<GPTAssistantsApi> {
     runId?: string
     constructor(repo: string, set: (T: GPTAssistantsApi) => void, get: () => GPTAssistantsApi) {
         super(repo, set, get)
-        this.api = new OpenAI({ baseURL: this.host, apiKey: this.apiKey, dangerouslyAllowBrowser: true, timeout: 60000 })
+        this.api = new OpenAI({ baseURL: this.host, apiKey: this.apiKey, dangerouslyAllowBrowser: true, timeout: 600000 })
     }
 
 
@@ -182,6 +182,18 @@ export class GPTAssistantsApi extends BaseRepository<GPTAssistantsApi> {
             model: this.mode
         })
         return resp.choices[0].message.content!
+    }
+
+    async textToAudio(input: string, voiceType: any): Promise<ArrayBuffer> {
+        debugger
+        let resp = await this.api.audio.speech.create({
+            model: this.audio_mode,
+            input: input,
+            voice: voiceType,
+            response_format: 'mp3',
+            speed: 1
+        })
+        return resp.arrayBuffer()
     }
 }
 

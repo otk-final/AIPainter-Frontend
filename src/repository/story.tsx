@@ -170,7 +170,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
 
                 //保存
                 let fileBuffer = await api.download(imageItem.subfolder, imageItem.filename)
-                let filePath = await this.saveImage("outputs", "cp_" + uuid() + ".png", fileBuffer)
+                let filePath = await this.saveFile("outputs", "cp_" + uuid() + ".png", fileBuffer)
 
                 let history = chapter.image?.history || []
                 history.push(filePath)
@@ -252,7 +252,7 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
 
             //下载，保存
             let fileBuffer = await api.download(imageItem.subfolder, imageItem.filename)
-            let filePath = await this.saveImage("outputs", "ac_" + uuid() + ".png", fileBuffer)
+            let filePath = await this.saveFile("outputs", "ac_" + uuid() + ".png", fileBuffer)
 
             //更新状态
             tempCallBack(filePath)

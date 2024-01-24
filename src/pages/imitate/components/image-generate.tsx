@@ -6,6 +6,7 @@ import { ComyUIModeSelect } from "@/components/mode-select"
 import { List, AutoSizer, ListRowProps } from 'react-virtualized';
 import { Button, InputNumber } from "antd"
 import { useKeyFrameRepository } from "@/repository/keyframe"
+import { hide } from "@tauri-apps/api/app"
 
 interface ImageGenerateProps {
   pid: string,
@@ -21,7 +22,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
 
   const renderTable = () => {
     return (
-      <div className='script-table-wrap' style={{ height: 'calc(100% - 60px)', display: "flex", flexDirection: 'column' }}>
+      <div className='script-table-wrap' style={{ height: 'calc(100% - 60px)', display: "flex", flexDirection: 'column', overflow: 'hidden' }}>
         <div className='th flexR'>
           {generateImagesColumns.map((i) => {
             return <div className='th-td' style={{ flex: `${i.space}` }} key={i.key}>{i.title}</div>
@@ -29,22 +30,22 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
         </div>
         <div style={{ flex: 1 }} >
           <AutoSizer className='scrollbar'>
-              {({height, width }) => {
-                let len = keyFreamsRepo.items.length;
-                console.log("height", height, len);
-                return (
-                    <List
-                      ref="List"
-                      height={height}
-                      rowCount={len}
-                      rowHeight={184}
-                      rowRenderer={_rowRenderer}
-                      width={width}
-                      noRowsRenderer={()=> <div>...</div>}
-                      overscanRowCount={20}
-                    />
-                  )
-              }}
+            {({ height, width }) => {
+              let len = keyFreamsRepo.items.length;
+              console.log("height", height, len);
+              return (
+                <List
+                  ref="List"
+                  height={height}
+                  rowCount={len}
+                  rowHeight={184}
+                  rowRenderer={_rowRenderer}
+                  width={width}
+                  noRowsRenderer={() => <div>...</div>}
+                  overscanRowCount={20}
+                />
+              )
+            }}
           </AutoSizer>
         </div>
       </div>

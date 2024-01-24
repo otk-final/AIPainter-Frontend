@@ -8,10 +8,11 @@ import { KeyFrame, useKeyFrameRepository } from "@/repository/keyframe";
 
 interface SRTMixingTRProps {
     index: number
+    voiceType: string
     frame: KeyFrame,
 }
 
-const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame }) => {
+const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, voiceType, frame }) => {
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
     const srtFreamRepo = useKeyFrameRepository(state => state)
     const gptApi = useGPTAssistantsApi(state => state)
@@ -50,6 +51,10 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame }) => {
         await srtFreamRepo.recognizeContent(index).catch(err => message.error(err.message)).finally(() => message.destroy())
     }
 
+    const handleGenerateAudio = async () => {
+        message.loading("生成音频...")
+        await srtFreamRepo.handleGenerateAudio(index, voiceType, gptApi).catch(err => message.error(err.message)).finally(() => message.destroy())
+    }
 
     const renderNumber = () => {
         return (
@@ -95,7 +100,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame }) => {
             <Fragment>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRecognize}>原字幕识别</Button>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRewriteContent} disabled={!stateFrame.srt}>AI改写</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRewriteContent} disabled={!stateFrame.srt_rewrite}>生成音频</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateAudio} disabled={!stateFrame.srt_rewrite}>生成音频</Button>
             </Fragment>
         )
     }

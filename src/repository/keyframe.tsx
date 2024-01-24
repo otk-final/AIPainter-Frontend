@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { BaseCRUDRepository, ItemIdentifiable } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
-import { tauri } from "@tauri-apps/api"
+import { fs, tauri } from "@tauri-apps/api"
 import { Image2TextHandle, Text2ImageHandle, WFScript, registerComfyUIPromptCallback } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
 import { SRTLine, srtToLines } from "./srt"
@@ -60,6 +60,22 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
             }
         })
         await this.sync()
+    }
+
+    exportSRTFile = async (srtfile: string) => {
+        let strText = this.items.map((item, idx) => {
+            let line =
+                (idx + 1) + "\n"
+                + item.srt_duration?.start + " --> " + item.srt_duration?.end + "\n"
+                + (item.srt_rewrite || '') + "\n"
+            return line
+        }).join("\n")
+
+        await fs.writeTextFile(srtfile, strText, { append: true })
+    }
+
+    exportAudioZip = async (zipfile: string) => {
+
     }
 
 
@@ -136,7 +152,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
                 //保存
                 let fileBuffer = await api.download(imageItem.subfolder, imageItem.filename)
-                let filePath = await this.saveImage("outputs", "kf_" + uuid() + ".png", fileBuffer)
+                let filePath = await this.saveFile("outputs", "kf_" + uuid() + ".png", fileBuffer)
 
                 frame.image.path = filePath
                 frame.image.history.push(filePath)
@@ -148,6 +164,18 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         //监听任务
         registerComfyUIPromptCallback({ jobId: "", promptId: job.prompt_id, handle: callback })
+    }
+
+    handleGenerateAudio = async (index: number, voiceType: string, gtpApi: GPTAssistantsApi) => {
+
+        //生成
+        let buffer = await gtpApi.textToAudio(this.items[index].srt_rewrite!, voiceType)
+        
+        //保存
+        let audioPath = await this.saveFile("audio", "ad_" + uuid() + ".mp3", buffer)
+
+        this.items[index].srt_audio = audioPath
+        this.sync()
     }
 }
 
