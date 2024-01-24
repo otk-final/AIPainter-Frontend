@@ -4,7 +4,7 @@ import { Fragment, useEffect, useState } from "react";
 import { generateImagesColumns } from "../data";
 import { tauri } from "@tauri-apps/api";
 import { HistoryImageModule } from "@/components"
-import { KeyFrame, useKeyFrameRepository } from "@/repository/simulate";
+import { KeyFrame, useKeyFrameRepository } from "@/repository/keyframe";
 import { useComfyUIRepository } from "@/repository/comfyui";
 
 interface GenerateImagesTRProps {
@@ -33,11 +33,13 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
     }
 
     const handleImage2TextCatch = async () => {
-        await keyFreamRepo.handleReversePrompt(index, comfyUIRepo).catch(err => message.error(err.message)).finally(() => message.destroy())
+        message.loading("反推关键词...")
+        keyFreamRepo.handleReversePrompt(index, comfyUIRepo).catch(err => message.error(err.message)).finally(() => message.destroy())
     }
 
     const handleText2ImageCatch = async () => {
-        await keyFreamRepo.handleGenerateImage(index, style, comfyUIRepo).catch(err => message.error(err.message)).finally(() => message.destroy())
+        message.loading("生成图片...")
+        keyFreamRepo.handleGenerateImage(index, style, comfyUIRepo).catch(err => message.error(err.message)).finally(() => message.destroy())
     }
 
     const handleDelKeyFrame = async () => {
@@ -69,7 +71,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
         if (!path) {
             return null
         }
-        return <Image src={tauri.convertFileSrc(path)} className="generate-image" preview={false} />
+        return <Image src={tauri.convertFileSrc(path)} className="generate-image" preview={true} />
     }
 
 
@@ -93,7 +95,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ index, style, frame
     const renderOperate = () => {
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleText2ImageCatch}>生成图片</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleText2ImageCatch} disabled={!stateFrame.prompt}>生成图片</Button>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleImage2TextCatch}>反推关键词</Button>
             </Fragment>
         )

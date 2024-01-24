@@ -67,9 +67,9 @@ const HomePage = () => {
   const { loginState } = useLogin();
 
   const handleBtn = (i: homeDataProps) => {
-    if (!loginState.isLogin) {
-      return message.warning("请先登陆～")
-    }
+    // if (!loginState.isLogin) {
+    //   return message.warning("请先登陆～")
+    // }
 
     if (i?.pageUrl) {
       history.push(i.pageUrl)

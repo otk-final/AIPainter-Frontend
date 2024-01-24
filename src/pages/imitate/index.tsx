@@ -5,10 +5,10 @@ import { history, useParams } from "umi"
 import VideoImportTab from './components/video-import';
 import ImageGenerateTab from './components/image-generate';
 import { Header } from '@/components';
-import { useKeyFrameRepository, useSimulateRepository } from '@/repository/simulate';
+import { useSimulateRepository } from '@/repository/simulate';
 import { useComfyUIRepository } from '@/repository/comfyui';
 import SRTMixingTab from './components/srt-mixing';
-import { useSRTFrameRepository } from '@/repository/srt';
+import { useKeyFrameRepository } from '@/repository/keyframe';
 
 export type ImitateTabType = "import" | "frames" | "audio"
 const imitateTabs: TabsProps["items"] = [
@@ -32,7 +32,6 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
 
   const simulateRepo = useSimulateRepository(state => state)
   const keyFreamRepo = useKeyFrameRepository(state => state)
-  const srtFreamRepo = useSRTFrameRepository(state => state)
   const comfyuiRepo = useComfyUIRepository(state => state)
 
 
@@ -42,12 +41,10 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
     //加载数据
     simulateRepo.load(pid)
     keyFreamRepo.load(pid)
-    srtFreamRepo.load(pid)
     comfyuiRepo.load("env")
     return () => {
       simulateRepo.sync()
       keyFreamRepo.sync()
-      srtFreamRepo.sync()
     }
   }, [pid])
 
@@ -82,7 +79,7 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   return (
     <div className="imitate-wrap">
       <Header onQuit={(handleQuit)} renderLeft={renderHeaderLeft()} renderRight={renderHeaderRight()} />
-      {currentTab === "import" ? < VideoImportTab pid={pid}  handleChangeTab={setCurrentTab} /> : null}
+      {currentTab === "import" ? < VideoImportTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
       {currentTab === 'frames' ? <ImageGenerateTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
       {currentTab === 'audio' ? <SRTMixingTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
     </div>

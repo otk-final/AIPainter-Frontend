@@ -3,23 +3,22 @@ import TextArea from "antd/es/input/TextArea";
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { srtMixingColumns } from "../data";
 import { tauri } from "@tauri-apps/api";
-import { SRTFrame, useSRTFrameRepository } from "@/repository/srt";
 import { useGPTAssistantsApi } from "@/repository/gpt";
+import { KeyFrame, useKeyFrameRepository } from "@/repository/keyframe";
 
 interface SRTMixingTRProps {
     index: number
-    frame: SRTFrame,
+    frame: KeyFrame,
 }
 
 const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame }) => {
-    const [stateFrame, setFrame] = useState<SRTFrame>({ ...frame })
-    const srtFreamRepo = useSRTFrameRepository(state => state)
+    const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
+    const srtFreamRepo = useKeyFrameRepository(state => state)
     const gptApi = useGPTAssistantsApi(state => state)
 
     console.info("渲染：", index)
     useMemo(() => {
-
-        const unsub = useSRTFrameRepository.subscribe(
+        const unsub = useKeyFrameRepository.subscribe(
             (state) => state.items[index],
             (state, pre) => {
                 state && setFrame(state)
@@ -33,14 +32,12 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame }) => {
 
 
     const handleEditContent = async (e: any) => {
-        srtFreamRepo.updateItem(index, { ...stateFrame, content: e.target.value }, false)
+        await srtFreamRepo.updateItem(index, { ...stateFrame, srt: e.target.value }, false)
     }
 
-
-    const handleEditRewrite = useCallback((e: any) => {
-        srtFreamRepo.lazyUpdateItem(index, { ...stateFrame, rewrite: e.target.value })
-    }, [index])
-
+    const handleEditRewrite = async (e: any) => {
+        await srtFreamRepo.updateItem(index, { ...stateFrame, srt_rewrite: e.target.value }, false)
+    }
 
 
     const handleRewriteContent = async () => {
@@ -48,15 +45,20 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame }) => {
         await srtFreamRepo.aiRewriteContent(index, gptApi).catch(err => message.error(err.message)).finally(() => message.destroy())
     }
 
+    const handleRecognize = async () => {
+        message.loading("识别字幕...")
+        await srtFreamRepo.recognizeContent(index).catch(err => message.error(err.message)).finally(() => message.destroy())
+    }
+
 
     const renderNumber = () => {
         return (
             <Fragment>
                 <div className='index'>{index + 1}</div>
-                <Typography.Paragraph style={{ color: 'white' }}>开始:{stateFrame.startTime.text}</Typography.Paragraph>
-                <Typography.Paragraph style={{ color: 'white' }}>结束:{stateFrame.endTime.text}</Typography.Paragraph>
-                <Button type='default' className='btn-default-auto btn-default-98' disabled={index === 0}>向上合并</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' disabled={index === srtFreamRepo.items.length - 1}>向下合并</Button>
+                <div>
+                    <Typography.Paragraph style={{ color: 'white', fontSize: 10 }}>开始:{stateFrame.srt_duration?.start}</Typography.Paragraph>
+                    <Typography.Paragraph style={{ color: 'white', fontSize: 10 }}>结束:{stateFrame.srt_duration?.end}</Typography.Paragraph>
+                </div>
             </Fragment>
         )
     }
@@ -66,7 +68,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame }) => {
         return (
             <TextArea rows={7} placeholder={"请输入台词"}
                 maxLength={1000} className="text-area-auto"
-                value={stateFrame.content}
+                value={stateFrame.srt}
                 onChange={handleEditContent} />
         )
     }
@@ -75,32 +77,25 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame }) => {
         return (
             <TextArea rows={7} placeholder={"请输入改写台词"}
                 maxLength={1000} className="text-area-auto"
-                value={stateFrame.rewrite}
+                value={stateFrame.srt_rewrite}
                 onChange={handleEditRewrite} />
         )
     }
 
 
-
-    const renderImages = () => {
-        if (!stateFrame.images) {
-            return <div>待导入</div>
+    const renderImage = (path?: string) => {
+        if (!path) {
+            return null
         }
-        return (
-            <div className="flexR" style={{ flexWrap: "wrap", justifyContent: "flex-start", width: '100%' }}>
-                {stateFrame.images?.map((p, idx) => {
-                    return <Image src={tauri.convertFileSrc(p.path)} className="generate-image" preview={false} key={idx} />
-                })}
-            </div>
-        )
+        return <Image src={tauri.convertFileSrc(path)} className="generate-image" preview={true} />
     }
-
 
     const renderOperate = () => {
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRewriteContent}>AI改写</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRewriteContent}>动效</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRecognize}>原字幕识别</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRewriteContent} disabled={!stateFrame.srt}>AI改写</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRewriteContent} disabled={!stateFrame.srt_rewrite}>生成音频</Button>
             </Fragment>
         )
     }
@@ -112,9 +107,10 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame }) => {
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
-                        {i.key === 'images' ? renderImages() : null}
-                        {i.key === 'content' ? renderContent() : null}
-                        {i.key === 'rewrite' ? renderRewriteContent() : null}
+                        {i.key === 'srcImage' ? renderImage(stateFrame.path) : null}
+                        {i.key === 'newImage' ? renderImage(stateFrame.image?.path) : null}
+                        {i.key === 'srt' ? renderContent() : null}
+                        {i.key === 'srt_rewrite' ? renderRewriteContent() : null}
                         {i.key === 'operate' ? renderOperate() : null}
                     </div>
                 )

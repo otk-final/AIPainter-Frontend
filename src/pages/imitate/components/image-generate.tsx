@@ -2,9 +2,9 @@ import GenerateImagesTR from "./image-generate-table-tr"
 import { generateImagesColumns } from "../data"
 import { ImitateTabType } from ".."
 import { useEffect, useState } from "react"
-import { useKeyFrameRepository } from "@/repository/simulate"
 import { ComyUIModeSelect } from "@/components/mode-select"
 import { Button, InputNumber } from "antd"
+import { useKeyFrameRepository } from "@/repository/keyframe"
 
 interface ImageGenerateProps {
   pid: string,
