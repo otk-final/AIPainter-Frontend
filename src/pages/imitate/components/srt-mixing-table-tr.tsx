@@ -7,11 +7,13 @@ import { useGPTAssistantsApi } from "@/repository/gpt";
 import { KeyFrame, useKeyFrameRepository } from "@/repository/keyframe";
 
 interface SRTMixingTRProps {
-    index: number
+    key: string,
+    index: number,
     frame: KeyFrame,
+    style: React.CSSProperties
 }
 
-const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame }) => {
+const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) => {
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
     const srtFreamRepo = useKeyFrameRepository(state => state)
     const gptApi = useGPTAssistantsApi(state => state)
@@ -102,7 +104,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame }) => {
 
 
     return (
-        <div className='tr flexR'>
+        <div className='tr flexR' style={style} key={key}>
             {srtMixingColumns.map((i, index) => {
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
