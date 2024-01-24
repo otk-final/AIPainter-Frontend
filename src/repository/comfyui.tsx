@@ -3,7 +3,7 @@ import { BaseCRUDRepository } from "./tauri_repository";
 import { create } from "zustand";
 import { ComfyUIApi, ComfyUIHost, ComfyUIWorkflow } from "./comfyui_api";
 import { fs } from "@tauri-apps/api";
-
+import { v4 as uuid } from "uuid"
 
 let _baseApi: ComfyUIApi | undefined = undefined
 
@@ -16,9 +16,10 @@ export interface ComfyUIConfiguration {
 }
 
 
+
+
 //ComfyUI 配置
 export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, ComfyUIRepository> implements ComfyUIConfiguration {
-
 
     free() {
 
@@ -31,14 +32,23 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
     reverseWF?: ComfyUIWorkflow
     positivePrompt: string = ""
     negativePrompt: string = ""
-
-    newClient = () => {
+    
+    newClient = async () => {
         if (_baseApi) {
             return _baseApi
         }
+
         //缓存链接
-        _baseApi = new ComfyUIApi("hxy", this.host)
+        let newClientId = uuid()
+
+        _baseApi = new ComfyUIApi(newClientId, this.host)
+        await _baseApi.connect(newClientId, this.host)
         return _baseApi
+    }
+
+    destroyClient = () => {
+        if (_baseApi) _baseApi.disconnect()
+        _baseApi = undefined
     }
 
     buildModePrompt = async (mode: string) => {

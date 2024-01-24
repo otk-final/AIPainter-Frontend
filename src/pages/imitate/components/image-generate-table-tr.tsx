@@ -36,11 +36,14 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
 
     const handleImage2TextCatch = async () => {
         message.loading("反推关键词...")
-        keyFreamRepo.handleReversePrompt(index, comfyUIRepo).catch(err => message.error(err.message)).finally(() => message.destroy())
+        await keyFreamRepo.handleReversePrompt(index, comfyUIRepo).catch(err => { message.destroy(); message.error(err.message) })
+        message.destroy()
     }
 
     const handleText2ImageCatch = async () => {
-        await keyFreamRepo.handleGenerateImage(index, mode, comfyUIRepo).catch(err => message.error(err.message)).finally(() => message.destroy())
+        message.loading("生成图片...")
+        await keyFreamRepo.handleGenerateImage(index, mode, comfyUIRepo).catch(err => { message.destroy(); message.error(err.message) })
+        message.destroy()
     }
 
     const handleDelKeyFrame = async () => {

@@ -1,6 +1,8 @@
 import axios, { Axios } from "axios"
-import { fs } from "@tauri-apps/api"
+import { fs, http } from "@tauri-apps/api"
 import { ItemIdentifiable, delay } from "./tauri_repository"
+import WebSocket, { Message } from "tauri-plugin-websocket-api"
+import { Body, Client, ResponseType } from "@tauri-apps/api/http"
 
 export interface ComfyUIWorkflow extends ItemIdentifiable {
     name: string
@@ -47,6 +49,8 @@ export const registerComfyUIPromptCallback = (cb: ComfyUIPromptCallback) => {
 //执行回调
 const doComfyUIPromptCallback = async (api: ComfyUIApi, promptId: string) => {
 
+    console.log("准备回调业务方:", promptId)
+
     let idx = eventCenter.findIndex(item => item.promptId === promptId)
     if (idx === -1) {
         return
@@ -65,14 +69,12 @@ const doComfyUIPromptCallback = async (api: ComfyUIApi, promptId: string) => {
         fetchCount++
     }
 
-
     //执行 忽略异常
     try {
         if (!respData || Object.keys(respData).length === 0) {
             return
         }
         console.log("回调业务方:", promptId, respData)
-
         let hold = eventCenter[idx]
         //防止重复消息
         if (hold === undefined || hold.promptId !== promptId) {
@@ -87,47 +89,43 @@ const doComfyUIPromptCallback = async (api: ComfyUIApi, promptId: string) => {
 }
 
 
-
+const ComfyUIApiTimeout = 60000
 export class ComfyUIApi {
-    api: Axios
+
+    api?: Client
+    wsConn?: WebSocket
+    host: ComfyUIHost
     clientId: string
 
     // storage:
     constructor(clientId: string, host: ComfyUIHost) {
-
         // this.storage = config
         this.clientId = clientId
+        this.host = host
+    }
 
-        //api
-        this.api = axios.create({
-            baseURL: host.url,
-            timeout: -1,
-            withCredentials: false
-        })
+    async connect(clientId: string, host: ComfyUIHost) {
+        this.api = await http.getClient()
 
         //websocket  只保持一个链接
-        let ws = new WebSocket(host.websocket + "?client_id=" + clientId)
-        ws.onopen = this.wsOpen
-        ws.onmessage = (message: MessageEvent) => this.wsReceived(message)
-        ws.onclose = this.wsClose
+        this.wsConn = await WebSocket.connect(host.websocket + "?client_id=" + clientId)
+        this.wsConn.addListener(this.wsReceived)
+        console.info(this.wsConn.id)
     }
 
-    private wsOpen() {
-        console.info('ws opened')
+    async disconnect() {
+        await this.wsConn?.disconnect()
+        await this.api?.drop()
     }
 
-
-    private wsReceived(message: MessageEvent) {
-        console.info('message', message.type, message.data)
-
-        let dataType = typeof message.data
-        if (dataType !== 'string') {
+    private wsReceived = (message: Message) => {
+        if (message.type !== "Text") {
             return
         }
-
         //server
-        let { type, data } = JSON.parse(message.data) as ComfyUIPromptEvent
-        if (type === "progress" && this.isCompleted(data)) {
+        let { type, data } = JSON.parse(message.data as string) as ComfyUIPromptEvent
+        let ok = (data.value !== undefined) && (data.max !== undefined) && (data.value === data.max) && (data.prompt_id !== undefined)
+        if (type === "progress" && ok) {
             //通知业务
             doComfyUIPromptCallback(this, data.prompt_id)
         } else {
@@ -135,24 +133,25 @@ export class ComfyUIApi {
         }
     }
 
-    private isCompleted(data: any): boolean {
-        return data.value && data.max && (data.value as string === data.max as string) && data.prompt_id
-    }
-    private wsClose() {
-        console.info('ws closed')
-    }
-
     //post prompt
     async prompt<T>(script: WFScript, params: T, handle: CompletionPromptParams<T>): Promise<ComfyUIPromptTask> {
         let prompt = handle(this, script, params)
         //提交任务
-        return await this.api.post("/prompt", { clientId: this.clientId, prompt: prompt }).then(resp => resp.data)
+        const response = await this.api!.post(
+            this.host.url + "/prompt",
+            Body.json({
+                clientId: this.clientId, prompt: prompt
+            }),
+            { responseType: ResponseType.JSON, timeout: ComfyUIApiTimeout }
+        );
+        return response.data as ComfyUIPromptTask
     }
 
     //任务状态
     async history(prompt_id: string): Promise<any> {
-        return await this.api.get("/history/" + prompt_id).then(resp => resp.data)
+        return await this.api!.get(this.host.url + "/history/" + prompt_id, { responseType: ResponseType.JSON, timeout: ComfyUIApiTimeout }).then(resp => resp.data)
     }
+
 
     //upload
     async upload(subfolder: string, filePath: string, fileName: string): Promise<any> {
@@ -164,16 +163,21 @@ export class ComfyUIApi {
         formData.append("subfolder", subfolder)
         formData.append("overwrite", 'true')
 
-        return await this.api.post('/upload/image', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
+        return await this.api!.post(this.host.url + '/upload/image', Body.form(formData), {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            responseType: ResponseType.JSON, timeout: ComfyUIApiTimeout
         }).then(resp => resp.data)
     }
 
     //download
     async download(subfolder: string, fileName: any): Promise<ArrayBuffer> {
         //下载网络文件
-        let resp = await this.api.get('/view', { params: { subfolder: subfolder, filename: fileName, type: "output" }, responseType: 'arraybuffer' })
-        return Buffer.from(resp.data)
+        let resp = await this.api!.get(this.host.url + '/view',
+            {
+                query: { subfolder: subfolder, filename: fileName, type: "output" },
+                responseType: ResponseType.Binary
+            })
+        return Buffer.from(resp.data as ArrayBuffer)
     }
 }
 

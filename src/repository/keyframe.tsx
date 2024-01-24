@@ -105,20 +105,19 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     //反推关键词
     handleReversePrompt = async (index: number, comyuiRepo: ComfyUIRepository) => {
         let frame = this.items[index]
-
-        let api = comyuiRepo.newClient()
+        let api = await comyuiRepo.newClient()
         let text = await comyuiRepo.buildReversePrompt()
         let script = new WFScript(text)
 
         //上传文件
-        await api.upload("hxy", frame.path, frame.name)
+        await api.upload(api.clientId, frame.path, frame.name)
 
         //提交任务
         let job = await api.prompt(script, { subfolder: "hxy", filename: frame.name }, Image2TextHandle)
         //关键词所在的节点数
         let step = script.getWD14TaggerStep()
         const callback = async (promptId: string, respData: any) => {
-
+            
             //定位结果
             let reversePrompts = respData[promptId]!.outputs![step]!.tags! as string[]
             if (reversePrompts) frame.prompt = reversePrompts.join(",")
@@ -134,7 +133,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let frame = this.items[index]
 
         //comyui api
-        let api = comyuiRepo.newClient()
+        let api = await comyuiRepo.newClient()
         let text = await comyuiRepo.buildModePrompt(style)
         let script = new WFScript(text)
 
@@ -170,7 +169,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         //生成
         let buffer = await gtpApi.textToAudio(this.items[index].srt_rewrite!, voiceType)
-        
+
         //保存
         let audioPath = await this.saveFile("audio", "ad_" + uuid() + ".mp3", buffer)
 

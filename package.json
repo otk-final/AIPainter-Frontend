@@ -23,6 +23,7 @@
     "openai": "^4.24.7",
     "react-player": "^2.14.1",
     "react-virtualized": "^9.22.5",
+    "tauri-plugin-websocket-api": "github:tauri-apps/tauri-plugin-websocket#v1",
     "tesseract.js": "^5.0.4",
     "umi": "^4.0.90",
     "uuid": "^9.0.1",
