@@ -103,7 +103,7 @@ export abstract class BaseRepository<T> {
         await fs.writeFile(filePath, JSON.stringify(that, null, "\t"), { dir: this.baseDir(), append: false })
     }
 
-    saveImage = async (subfolder: string, filename: string, fileBuffer: ArrayBuffer) => {
+    saveFile = async (subfolder: string, filename: string, fileBuffer: ArrayBuffer) => {
 
         let outputDir = await path.join(this.repoDir as string, subfolder)
         await fs.createDir(outputDir, { dir: this.baseDir(), recursive: true })
