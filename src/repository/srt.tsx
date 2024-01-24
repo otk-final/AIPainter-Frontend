@@ -37,7 +37,7 @@ const toTime = (val: any) => {
     }
 
     let outs = [0, 0, 0, 0]
-    for (var i = 1; i < 5; i++) {
+    for (let i = 1; i < 5; i++) {
         outs[i] = parseInt(parts[i], 10);
         if (isNaN(outs[i])) outs[i] = 0;
     }
@@ -50,23 +50,21 @@ const toTime = (val: any) => {
 
 export class SRTFrameRepository extends BaseCRUDRepository<SRTFrame, SRTFrameRepository> {
 
-    repoEmpty(): SRTFrameRepository | undefined {
+    free(): SRTFrameRepository | undefined {
         return this
     }
 
     initialization = async (srtpath: string) => {
 
-        debugger
         //解析文件
         let srtText = await fs.readTextFile(srtpath)
 
-        debugger
         srtText = srtText.replace(/\r/g, '');
         var regex = /(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})/g;
         let srtLines = srtText.split(regex);
         srtLines.shift();
 
-        for (var i = 0; i < srtLines.length; i += 4) {
+        for (let i = 0; i < srtLines.length; i += 4) {
             this.items.push({
                 id: parseInt(srtLines[i].trim()),
                 startTime: {
@@ -103,8 +101,13 @@ export class SRTFrameRepository extends BaseCRUDRepository<SRTFrame, SRTFrameRep
     }
 
     //重写台词
-    handleRewriteContent = async (index: number, gptApi: GPTAssistantsApi) => {
+    aiRewriteContent = async (index: number, gptApi: GPTAssistantsApi) => {
+        let rewrite = await gptApi.rewritePrompt(this.items[index].content)
+        this.items[index].rewrite = rewrite
+        this.sync()
+    }
 
+    batchRewriteContent = async () => {
     }
 }
 

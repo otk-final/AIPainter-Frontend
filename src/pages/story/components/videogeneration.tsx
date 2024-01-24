@@ -85,7 +85,22 @@ const Videogeneration = ()=>{
         <div className="videogeneration-wrap scrollbar">
             <div className="flexR" style={{justifyContent: "flex-end", marginBottom: '20px'}}>
                 <Button type="default" className="btn-default-auto btn-default-150" >打开视频文件夹</Button>
+                <Button type="default" className="btn-default-auto btn-default-150" >打开图片文件夹</Button>
+                <Select
+                    className={`select-auto`}
+                    style={{ width: '200px', marginLeft: "20px" }}
+                    defaultValue="1"
+                    // onChange={(v) => { }}
+                    options={[
+                        { value: '1', label: '视频生成' },
+                        { value: '2', label: '视频生成sss' },
+                        { value: '3', label: 'sssss' },
+                    ]}
+                />
+                <Button type="primary" className="btn-primary-auto btn-primary-108" >合成视频</Button>
             </div>
+
+
             <div className="section">
                 <div className="title">配音设置</div>
                 <div className="form-wrap flexR">

@@ -11,9 +11,9 @@ export type Directory = string
 
 export abstract class BaseRepository<T> {
 
-    setHold: (T: any) => void
+    setHold: (T: any, noshallow?: boolean) => void
     getHold: () => T
-    constructor(repo: string, set: (T: any) => void, get: () => T) {
+    constructor(repo: string, set: (T: any, noshallow?: boolean) => void, get: () => T) {
         this.setHold = set
         this.getHold = get
         this.repo = repo
@@ -24,7 +24,7 @@ export abstract class BaseRepository<T> {
     repoDir: Directory = "env"
 
     //目录
-    abstract repoEmpty(): T | undefined
+    protected abstract free(): void
 
     baseDir(): BaseDirectory {
         return BaseDirectory.AppLocalData
@@ -35,13 +35,13 @@ export abstract class BaseRepository<T> {
 
 
     load = async (dir: Directory) => {
-        this.repoDir = dir
+        this.free()
 
+        this.repoDir = dir
         //目录是否存在
         if (!await fs.exists(this.repoDir, { dir: this.baseDir() })) {
-            let emptyRepo = this.repoEmpty()
-            this.setHold(emptyRepo)
-            return emptyRepo!
+            this.setHold(this, true)
+            return
         }
 
         let filePath = this.repoDir + "/" + this.repo
@@ -49,16 +49,16 @@ export abstract class BaseRepository<T> {
 
         //文件是否存在
         if (!await fs.exists(filePath, { dir: this.baseDir() })) {
-            let emptyRepo = this.repoEmpty()
-            this.setHold(emptyRepo)
-            return emptyRepo!
+            this.setHold(this, true)
+            return
         }
 
         //read file
         let text = await fs.readTextFile(filePath, { dir: this.baseDir(), append: false })
         let thisData = JSON.parse(text) as Partial<T>
 
-        //初始化对象
+
+        //属性赋值
         Object.assign(this, thisData)
 
         //初始化状态
@@ -92,15 +92,15 @@ export abstract class BaseRepository<T> {
 
     //保存文件
     protected save = async () => {
+
+        let that = { ...this }
+
         //创建目录
         await fs.createDir(this.repoDir, { dir: this.baseDir(), recursive: true })
         let filePath = this.repoDir + "/" + this.repo
 
-        console.info('write script', filePath)
-
-
         // save file
-        await fs.writeFile(filePath, JSON.stringify(this, null, "\t"), { dir: this.baseDir(), append: false })
+        await fs.writeFile(filePath, JSON.stringify(that, null, "\t"), { dir: this.baseDir(), append: false })
     }
 
     saveImage = async (subfolder: string, filename: string, fileBuffer: ArrayBuffer) => {
@@ -129,25 +129,28 @@ export interface ItemIdentifiable {
 export abstract class BaseCRUDRepository<Item extends ItemIdentifiable, T> extends BaseRepository<T> {
 
     items: Item[] = []
+    free(): void {
+        this.items = []
+    }
 
     addItem = async (idx: number, item: Item, temporary?: boolean) => {
         this.items.splice(idx, 0, item)
-        this.setHold({ items: this.items })
+        this.setHold({ items: [...this.items] })
         if (!temporary) await this.save()
     }
     appendItem = async (item: Item, persisted?: boolean) => {
         this.items.push(item)
-        this.setHold({ items: this.items })
+        this.setHold({ items: [...this.items] })
         if (persisted) await this.save()
     }
     delItem = async (idx: number, persisted?: boolean) => {
         this.items.splice(idx, 1)
-        this.setHold({ items: this.items })
+        this.setHold({ items: [...this.items] })
         if (persisted) await this.save()
     }
     updateItem = async (idx: number, item: Item, persisted?: boolean) => {
         this.items[idx] = item
-        this.setHold({ items: this.items })
+        this.setHold({ items: [...this.items] })
         if (persisted) await this.save()
     }
     lazyUpdateItem = async (idx: number, item: Item) => {

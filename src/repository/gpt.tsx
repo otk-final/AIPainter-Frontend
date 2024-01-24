@@ -7,7 +7,7 @@ import { BaseRepository, delay } from "./tauri_repository"
 
 
 export class GPTAssistantsApi extends BaseRepository<GPTAssistantsApi> {
-    
+
     repoInitialization(thisData: GPTAssistantsApi): void {
         this.host = thisData.host
         this.apiKey = thisData.apiKey
@@ -17,8 +17,8 @@ export class GPTAssistantsApi extends BaseRepository<GPTAssistantsApi> {
         this.runId = thisData.runId
     }
 
-    repoEmpty(): GPTAssistantsApi {
-        return this
+    free() {
+        
     }
 
     host: string = "https://wx.yryz3.com/aipainter-openai/v1"
@@ -168,6 +168,20 @@ export class GPTAssistantsApi extends BaseRepository<GPTAssistantsApi> {
 
         //检索响应
         return this.blockingRetrieveMessages(this.api, this.threadId!, this.runId)
+    }
+
+    async rewritePrompt(input: string): Promise<string> {
+        let resp = await this.api.chat.completions.create({
+            messages: [
+                { content: input, role: 'user' },
+                // { content: "Help me rewrite the above content while keeping the language unchanged, with a word count difference of around 10 words, and try to closely align with the original meaning.", role: 'user' }
+                { content: "帮我改写上述内容，保持语种不变，尽量贴合原文意思。", role: 'user' }
+
+            ],
+            stream: false,
+            model: this.mode
+        })
+        return resp.choices[0].message.content!
     }
 }
 

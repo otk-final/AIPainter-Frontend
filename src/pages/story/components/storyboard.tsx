@@ -5,6 +5,7 @@ import StoryboardTableTR from './storyboard-table-tr'
 import assets from '@/assets';
 import FileImportModal from '../story-import';
 import { useActorRepository, useChapterRepository } from '@/repository/story';
+import { history } from 'umi';
 
 
 interface StoryboardProps {
@@ -48,6 +49,7 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
                     <div className='flexR'>
                         <Button type='default' className='btn-default-auto btn-default-150 l-p' onClick={() => setOpen(true)}>导入脚本文件</Button>
                         <Button type='primary' className='btn-primary-auto btn-primary-108'>推理关键词</Button>
+                        <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => { history.push('/roleset/' + pid) }} >设置角色</Button>
                     </div>
                     <div className='text flexR'>已完成分镜: {hasCompletedCount}/{chapterRepo.items.length}</div>
                 </div>

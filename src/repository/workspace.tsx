@@ -14,9 +14,7 @@ export interface Project extends ItemIdentifiable {
 
 export class ProjectRepository extends BaseCRUDRepository<Project, ProjectRepository> {
 
-    repoEmpty(): ProjectRepository {
-        return this
-    }
+
 }
 
 export const useProjectRepository = create<ProjectRepository>()(subscribeWithSelector((set, get) => new ProjectRepository("workspace.json", set, get)))

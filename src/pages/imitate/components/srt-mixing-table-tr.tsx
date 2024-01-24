@@ -1,6 +1,6 @@
-import { Button, Image, Typography, message } from "antd"
+import { Button, Image, Modal, Typography, message } from "antd"
 import TextArea from "antd/es/input/TextArea";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { srtMixingColumns } from "../data";
 import { tauri } from "@tauri-apps/api";
 import { SRTFrame, useSRTFrameRepository } from "@/repository/srt";
@@ -16,18 +16,16 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame }) => {
     const srtFreamRepo = useSRTFrameRepository(state => state)
     const gptApi = useGPTAssistantsApi(state => state)
 
+    console.info("渲染：", index)
     useMemo(() => {
+
         const unsub = useSRTFrameRepository.subscribe(
             (state) => state.items[index],
             (state, pre) => {
-                console.info('is change', state, pre)
                 state && setFrame(state)
             },
             {
-                equalityFn: (a, b) => {
-                    console.info('is change', a, b)
-                    return a != b
-                }, fireImmediately: true
+                fireImmediately: true
             })
         return unsub
     }, [index])
@@ -35,15 +33,19 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame }) => {
 
 
     const handleEditContent = async (e: any) => {
-        await srtFreamRepo.lazyUpdateItem(index, { ...stateFrame, content: e.target.value })
+        srtFreamRepo.updateItem(index, { ...stateFrame, content: e.target.value }, false)
     }
 
-    const handleEditRewrite = async (e: any) => {
-        await srtFreamRepo.lazyUpdateItem(index, { ...stateFrame, rewrite: e.target.value })
-    }
+
+    const handleEditRewrite = useCallback((e: any) => {
+        srtFreamRepo.lazyUpdateItem(index, { ...stateFrame, rewrite: e.target.value })
+    }, [index])
+
+
 
     const handleRewriteContent = async () => {
-        await srtFreamRepo.handleRewriteContent(index, gptApi).catch(err => message.error(err.message)).finally(() => message.destroy())
+        message.loading("ai 改写中...")
+        await srtFreamRepo.aiRewriteContent(index, gptApi).catch(err => message.error(err.message)).finally(() => message.destroy())
     }
 
 
@@ -121,4 +123,4 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame }) => {
     )
 }
 
-export default SRTMixingTR
+export default React.memo(SRTMixingTR)

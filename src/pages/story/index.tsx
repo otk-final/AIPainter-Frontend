@@ -53,41 +53,12 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
 
 
   const customButtons = () => {
-    if (cur === 'storyboard') {
-      return (
-        <div className='flexR'>
-          {/* <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setIsEnergyRechargeOpen(true)}>充值能量</Button> */}
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => { history.push('/roleset/' + pid) }} >设置角色</Button>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setCur("drawbatch")} disabled={!chaptersRepo.items || chaptersRepo.items?.length === 0}>下一步</Button>
-        </div>
-      )
-    } else if (cur === 'drawbatch') {
-      return (
-        <div className='flexR'>
-          <div className='flexR'>绘图起点 <InputNumber controls={false} style={{ width: "54px", marginLeft: '10px', marginRight: '10px' }} className="inputnumber-auto" placeholder='1' defaultValue={1} /> 镜</div>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" >开始绘制</Button>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setCur("videogeneration")}>下一步</Button>
-        </div>
-      )
-    } else {
-      return (
-        <div className='flexR'>
-          <Button type="default" className="btn-default-auto btn-default-150" >打开图片文件夹</Button>
-          <Select
-            className={`select-auto`}
-            style={{ width: '200px', marginLeft: "20px" }}
-            defaultValue="1"
-            // onChange={(v) => { }}
-            options={[
-              { value: '1', label: '视频生成' },
-              { value: '2', label: '视频生成sss' },
-              { value: '3', label: 'sssss' },
-            ]}
-          />
-          <Button type="primary" className="btn-primary-auto btn-primary-108" >合成视频</Button>
-        </div>
-      )
-    }
+
+    return (
+      <div className='flexR'>
+        <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setCur("drawbatch")} disabled={!chaptersRepo.items || chaptersRepo.items?.length === 0}>导出剪映草稿</Button>
+      </div>
+    )
   }
 
 

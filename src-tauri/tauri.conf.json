@@ -35,6 +35,11 @@
             "name": "bin/ffprobe",
             "args": true,
             "sidecar": true
+          },
+          {
+            "name": "bin/dssim",
+            "args": true,
+            "sidecar": true
           }
         ]
       },
@@ -76,7 +81,8 @@
       ],
       "externalBin": [
         "bin/ffmpeg",
-        "bin/ffprobe"
+        "bin/ffprobe",
+        "bin/dssim"
       ]
     },
     "security": {

@@ -1,13 +1,14 @@
+import { tauri } from "@tauri-apps/api";
 import { Modal } from "antd"
 import ReactPlayer from "react-player";
 
 interface VideoPlayerProps {
-    videoPlayURL: string,
+    videoPath: string,
     isOpen: boolean,
     onClose: () => void
 }
 
-const VideoPlayerModal: React.FC<VideoPlayerProps> = ({ videoPlayURL, isOpen, onClose }) => {
+const VideoPlayerModal: React.FC<VideoPlayerProps> = ({ videoPath, isOpen, onClose }) => {
     return (
         <Modal title="视频播放"
             open={isOpen}
@@ -15,7 +16,7 @@ const VideoPlayerModal: React.FC<VideoPlayerProps> = ({ videoPlayURL, isOpen, on
             footer={null}
             width={'50%'}
             className="home-login-modal energy-recharge">
-            <ReactPlayer url={videoPlayURL}
+            <ReactPlayer url={tauri.convertFileSrc(videoPath)}
                 controls
                 width="100%"
             />
