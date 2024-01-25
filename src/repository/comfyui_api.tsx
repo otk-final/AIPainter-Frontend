@@ -158,6 +158,7 @@ export class ComfyUIApi {
 
         //参数 每次上传覆盖文件
         let imageBytes = await fs.readBinaryFile(filePath)
+        
         const formData = new FormData();
         formData.append('image', new Blob([imageBytes.buffer]), fileName);
         formData.append("subfolder", subfolder)
@@ -166,7 +167,9 @@ export class ComfyUIApi {
         return await this.api!.post(this.host.url + '/upload/image', Body.form(formData), {
             headers: { 'Content-Type': 'multipart/form-data' },
             responseType: ResponseType.JSON, timeout: ComfyUIApiTimeout
-        }).then(resp => resp.data)
+        }).then(resp => {
+            return resp.data
+        })
     }
 
     //download

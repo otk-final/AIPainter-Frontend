@@ -39,7 +39,7 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
         }
 
         //缓存链接
-        let newClientId = uuid()
+        let newClientId = "test"
 
         _baseApi = new ComfyUIApi(newClientId, this.host)
         await _baseApi.connect(newClientId, this.host)

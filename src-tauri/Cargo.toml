@@ -14,7 +14,7 @@ tauri-build = { version = "1.5", features = [] }
 
 [dependencies]
 tauri-plugin-websocket = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
-tauri = { version = "1.5", features = [ "http-all", "clipboard-all", "shell-all", "protocol-all", "updater", "dialog-all", "path-all", "fs-all"] }
+tauri = { version = "1.5", features = [ "http-all","http-multipart", "clipboard-all", "shell-all", "protocol-all", "updater", "dialog-all", "path-all", "fs-all"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
