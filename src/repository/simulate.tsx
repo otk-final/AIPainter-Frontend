@@ -62,7 +62,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         let cmd = shell.Command.sidecar("bin/ffmpeg", [
             "-i", this.videoPath!,
             // "-vf", 'select=eq(pict_type\\,I)',
-            "-vf", 'fps=1/1',
+            "-vf", 'fps=1/1,scale=1024:1024',
             "-vsync", "vfr",
             "-qscale:v", "10",
             "-f", "image2",

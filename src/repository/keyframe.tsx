@@ -90,9 +90,24 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     recognizeContent = async (index: number) => {
         let targetPath = this.items[index].path
         let worker = await createWorker('chi_sim')
-        const ret = await worker.recognize(tauri.convertFileSrc(targetPath))
+
+        let imageBytes = await fs.readBinaryFile(targetPath)
+
+
+        //添加矩阵后，效果不好，后期优化
+        // let size = 1024
+        //导出帧均以1024*1024为准，计算有效字幕比例
+        // let rectangle = {
+        //     left: size * 0.1,
+        //     top: size * 0.5,
+        //     width: size * 0.9,
+        //     height: size * 0.5,
+        // }
+
+
+        const ret = await worker.recognize(Buffer.from(imageBytes.buffer), { rectangle: undefined })
         console.log(ret.data);
-        this.items[index].srt = ret.data.text
+        this.items[index].srt = ret.data.text.replaceAll('\n', "").replaceAll(' ', '')
 
         await this.sync()
         await worker.terminate();
@@ -117,7 +132,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         //关键词所在的节点数
         let step = script.getWD14TaggerStep()
         const callback = async (promptId: string, respData: any) => {
-            
+
             //定位结果
             let reversePrompts = respData[promptId]!.outputs![step]!.tags! as string[]
             if (reversePrompts) frame.prompt = reversePrompts.join(",")

@@ -20,7 +20,6 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
     const srtFreamRepo = useKeyFrameRepository(state => state)
     const gptApi = useGPTAssistantsApi(state => state)
 
-    console.info("渲染：", index)
     useMemo(() => {
         const unsub = useKeyFrameRepository.subscribe(
             (state) => state.items[index],
