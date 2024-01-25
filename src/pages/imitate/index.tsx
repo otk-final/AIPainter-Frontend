@@ -1,5 +1,5 @@
-import { Button, message, Tabs, TabsProps } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react'
+import { Button, Modal, Tabs, TabsProps } from 'antd';
+import React, {  useMemo, useState } from 'react'
 import './index.less'
 import { history, useParams } from "umi"
 import VideoImportTab from './components/video-import';
@@ -52,14 +52,13 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
 
   //导出
   const handleDraft = () => {
-    message.loading({
-      content: '导出剪映草稿..',
-      duration: 0,
-      style: {
-        marginTop: "350px"
-      }
+    Modal.info({
+      content: <div style={{color: '#fff'}}>正在导出剪映草稿..</div>,
+      footer: null,
+      mask: true,
+      maskClosable: false,
     })
-    setTimeout(message.destroy, 3000)
+    setTimeout(Modal.destroyAll, 3000)
   }
 
 

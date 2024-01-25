@@ -76,7 +76,7 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
                                         rowHeight={184}
                                         rowRenderer={_rowRenderer}
                                         width={width}
-                                        noRowsRenderer={()=> <div>...</div>}
+                                        noRowsRenderer={()=> <div></div>}
                                         overscanRowCount={20}
                                     />
                                 )

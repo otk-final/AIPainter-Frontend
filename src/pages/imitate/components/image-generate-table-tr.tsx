@@ -1,4 +1,4 @@
-import { Button, Image, message } from "antd"
+import { Button, Image, message, Modal } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import { Fragment, useEffect, useState } from "react";
 import { generateImagesColumns } from "../data";
@@ -35,15 +35,26 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
     }
 
     const handleImage2TextCatch = async () => {
-        message.loading("反推关键词...")
-        await keyFreamRepo.handleReversePrompt(index, comfyUIRepo).catch(err => { message.destroy(); message.error(err.message) })
-        message.destroy()
+        Modal.info({
+            content: <div style={{color: '#fff'}}>反推关键词...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
+        })
+        await keyFreamRepo.handleReversePrompt(index, comfyUIRepo).catch(err => { Modal.destroyAll(); message.error(err.message) })
+        .finally(Modal.destroyAll)
+        
     }
 
     const handleText2ImageCatch = async () => {
-        message.loading("生成图片...")
-        await keyFreamRepo.handleGenerateImage(index, mode, comfyUIRepo).catch(err => { message.destroy(); message.error(err.message) })
-        message.destroy()
+        Modal.info({
+            content: <div style={{color: '#fff'}}>生成图片...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
+        })
+        await keyFreamRepo.handleGenerateImage(index, mode, comfyUIRepo).catch(err => { Modal.destroyAll(); message.error(err.message) })
+        .finally(Modal.destroyAll)
     }
 
     const handleDelKeyFrame = async () => {

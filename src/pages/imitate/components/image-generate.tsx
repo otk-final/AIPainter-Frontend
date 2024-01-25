@@ -39,7 +39,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
                       rowHeight={184}
                       rowRenderer={_rowRenderer}
                       width={width}
-                      noRowsRenderer={()=> <div>...</div>}
+                      noRowsRenderer={()=> <div></div>}
                       overscanRowCount={20}
                     />
                   )

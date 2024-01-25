@@ -1,5 +1,5 @@
 import { CaretDownFilled, CaretUpFilled, CloseOutlined } from "@ant-design/icons"
-import { Button, Input, message } from "antd"
+import { Button, Input, message, Modal } from "antd"
 import { useEffect, useState } from "react"
 import { TraitsConfig, TraitsOption } from "./traits"
 import { tauri } from "@tauri-apps/api"
@@ -166,12 +166,17 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
             message.error("至少选择一个标签")
             return
         }
-        message.loading("图片生成中...", 30 * 1000)
+        Modal.info({
+            content: <div style={{color: '#fff'}}>图片生成中...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
+        })
 
         await actorRepo.handleGenerateImage(tags, comfyuiRepo, (filepath) => {
             setPreviewPath(filepath)
             setPreview(true)
-        }).finally(() => message.destroy())
+        }).finally(Modal.destroyAll)
     }
 
 

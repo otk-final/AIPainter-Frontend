@@ -1,4 +1,4 @@
-import { Button, Image, message } from "antd"
+import { Button, Image, message, Modal } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import { Fragment, useEffect, useState } from "react";
 import { drawbatchColumns } from "../data";
@@ -95,10 +95,15 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, actors, chapter
             await message.warning("请选择图片风格")
             return
         }
-        message.loading("图片生成中...", 30 * 1000, () => {
-            console.info("xxx")
+
+        Modal.info({
+            content: <div style={{color: '#fff'}}>图片生成中...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
         })
-        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo)
+        
+        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo).finally(Modal.destroyAll)
     }
 
     const handleImageScale = async () => {
@@ -106,10 +111,13 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, actors, chapter
             await message.warning("请选择图片风格")
             return
         }
-        message.loading("图片生成中...", 30 * 1000, () => {
-            console.info("xxx")
+        Modal.info({
+            content: <div style={{color: '#fff'}}>图片生成中...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
         })
-        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo)
+        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo).finally(Modal.destroyAll)
     }
 
 

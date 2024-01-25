@@ -1,6 +1,6 @@
 import { Button, Image, Modal, Typography, message } from "antd"
 import TextArea from "antd/es/input/TextArea";
-import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import React, { Fragment, useMemo, useState } from "react";
 import { srtMixingColumns } from "../data";
 import { tauri } from "@tauri-apps/api";
 import { useGPTAssistantsApi } from "@/repository/gpt";
@@ -44,18 +44,33 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
 
 
     const handleRewriteContent = async () => {
-        message.loading("ai 改写中...")
-        await srtFreamRepo.aiRewriteContent(index, gptApi).catch(err => message.error(err.message)).finally(() => message.destroy())
+        Modal.info({
+            content: <div style={{color: '#fff'}}>ai 改写中...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
+        })
+        await srtFreamRepo.aiRewriteContent(index, gptApi).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
     const handleRecognize = async () => {
-        message.loading("识别字幕...")
-        await srtFreamRepo.recognizeContent(index).catch(err => message.error(err.message)).finally(() => message.destroy())
+        Modal.info({
+            content: <div style={{color: '#fff'}}>识别字幕...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
+        })
+        await srtFreamRepo.recognizeContent(index).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
     const handleGenerateAudio = async () => {
-        message.loading("生成音频...")
-        await srtFreamRepo.handleGenerateAudio(index, voiceType, gptApi).catch(err => message.error(err.message)).finally(() => message.destroy())
+        Modal.info({
+            content: <div style={{color: '#fff'}}>生成音频...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
+        })
+        await srtFreamRepo.handleGenerateAudio(index, voiceType, gptApi).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
     const renderNumber = () => {

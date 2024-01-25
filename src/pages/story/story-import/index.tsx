@@ -118,6 +118,7 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
             onCancel={onClose}
             footer={null}
             className="home-login-modal"
+            maskClosable={false}
             width={600}>
 
             <div className="script-import">

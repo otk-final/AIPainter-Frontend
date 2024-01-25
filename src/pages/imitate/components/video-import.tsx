@@ -1,5 +1,5 @@
-import { Button, Modal, message } from 'antd';
-import React, { useEffect, useState } from 'react'
+import { Button, Modal } from 'antd';
+import React, { useState } from 'react'
 import ReactPlayer from 'react-player';
 import { dialog, tauri } from '@tauri-apps/api';
 import { ImitateTabType } from '../index';
@@ -34,20 +34,16 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
 
 
     const handleCollectFrames = async () => {
-        message.loading({
-            content: '正在抽取关键帧..',
-            duration: 0,
-            style: {
-                marginTop: "350px"
-            }
+        Modal.info({
+            content: <div style={{color: '#fff'}}>正在抽取关键帧...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
         })
-
         //抽帧，导入，切换tab
         let keyFrames = await simulateRepo.handleCollectFrames()
-        await KeyFrameRepo.initialization(keyFrames)
+        await KeyFrameRepo.initialization(keyFrames).finally(Modal.destroyAll)
         handleChangeTab("frames");
-
-        message.destroy()
     }
 
     const handleCollectAudio = async () => {
@@ -56,16 +52,14 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
         if (!savePath) {
             return
         }
-
-        message.loading({
-            content: '正在导出音频..',
-            duration: 0,
-            style: {
-                marginTop: "350px"
-            }
+        Modal.info({
+            content: <div style={{color: '#fff'}}>正在导出音频...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
         })
 
-        await simulateRepo.handleCollectAudio(savePath).finally(() => message.destroy())
+        await simulateRepo.handleCollectAudio(savePath).finally(Modal.destroyAll)
     }
 
     const handleExportSRTFile = async () => {
@@ -74,14 +68,13 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
             return
         }
 
-        message.loading({
-            content: '正在导出字幕..',
-            duration: 0,
-            style: {
-                marginTop: "350px"
-            }
+        Modal.info({
+            content: <div style={{color: '#fff'}}>正在导出字幕...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
         })
-        await simulateRepo.handleCollectSrtFile(savePath).finally(() => message.destroy())
+        await simulateRepo.handleCollectSrtFile(savePath).finally(Modal.destroyAll)
     }
 
 

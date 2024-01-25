@@ -88,7 +88,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
                                 rowHeight={184}
                                 rowRenderer={_rowRenderer}
                                 width={width}
-                                noRowsRenderer={()=> <div>...</div>}
+                                noRowsRenderer={()=> <div></div>}
                                 overscanRowCount={20}
                                 />
                             )
