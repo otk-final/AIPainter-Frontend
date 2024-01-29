@@ -152,19 +152,20 @@ export class ComfyUIApi {
         return await this.api!.get(this.host.url + "/history/" + prompt_id, { responseType: ResponseType.JSON, timeout: ComfyUIApiTimeout }).then(resp => resp.data)
     }
 
-
     //upload
     async upload(subfolder: string, filePath: string, fileName: string): Promise<any> {
 
-        //参数 每次上传覆盖文件
-        let imageBytes = await fs.readBinaryFile(filePath)
-        
-        const formData = new FormData();
-        formData.append('image', new Blob([imageBytes.buffer]), fileName);
-        formData.append("subfolder", subfolder)
-        formData.append("overwrite", 'true')
+        let body = Body.form({
+            image: {
+                file: filePath,
+                mime: 'image/png',
+                fileName: fileName
+            },
+            subfolder: subfolder,
+            overwrite: 'true'
+        })
 
-        return await this.api!.post(this.host.url + '/upload/image', Body.form(formData), {
+        return await this.api!.post(this.host.url + '/upload/image', body, {
             headers: { 'Content-Type': 'multipart/form-data' },
             responseType: ResponseType.JSON, timeout: ComfyUIApiTimeout
         }).then(resp => {
