@@ -1,4 +1,4 @@
-import { Button, Modal } from 'antd';
+import { Button, Modal, message } from 'antd';
 import React, { useState } from 'react'
 import ReactPlayer from 'react-player';
 import { dialog, tauri } from '@tauri-apps/api';
@@ -17,7 +17,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
     const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
     const simulateRepo = useSimulateRepository(state => state)
     const KeyFrameRepo = useKeyFrameRepository(state => state)
-    
+
     const handleImported = async () => {
         let selected = await dialog.open({
             title: '选择视频文件'
@@ -27,22 +27,22 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
         }
         return simulateRepo.handleImportVideo(selected as string)
     }
-    
-    
+
+
 
 
 
 
     const handleCollectFrames = async () => {
         Modal.info({
-            content: <div style={{color: '#fff'}}>正在抽取关键帧...</div>,
+            content: <div style={{ color: '#fff' }}>正在抽取关键帧...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
         })
         //抽帧，导入，切换tab
         let keyFrames = await simulateRepo.handleCollectFrames()
-        await KeyFrameRepo.initialization(keyFrames).finally(Modal.destroyAll)
+        await KeyFrameRepo.initialization(keyFrames).catch(err => message.error(err)).finally(Modal.destroyAll)
         handleChangeTab("frames");
     }
 
@@ -53,7 +53,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
             return
         }
         Modal.info({
-            content: <div style={{color: '#fff'}}>正在导出音频...</div>,
+            content: <div style={{ color: '#fff' }}>正在导出音频...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
@@ -69,7 +69,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
         }
 
         Modal.info({
-            content: <div style={{color: '#fff'}}>正在导出字幕...</div>,
+            content: <div style={{ color: '#fff' }}>正在导出字幕...</div>,
             footer: null,
             mask: true,
             maskClosable: false,

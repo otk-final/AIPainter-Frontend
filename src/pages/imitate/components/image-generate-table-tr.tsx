@@ -36,25 +36,22 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
 
     const handleImage2TextCatch = async () => {
         Modal.info({
-            content: <div style={{color: '#fff'}}>反推关键词...</div>,
+            content: <div style={{ color: '#fff' }}>反推关键词...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
         })
-        await keyFreamRepo.handleReversePrompt(index, comfyUIRepo).catch(err => { Modal.destroyAll(); message.error(err.message) })
-        .finally(Modal.destroyAll)
-        
+        await keyFreamRepo.handleReversePrompt(index, comfyUIRepo).catch(err => { message.error(err) }).finally(Modal.destroyAll)
     }
 
     const handleText2ImageCatch = async () => {
         Modal.info({
-            content: <div style={{color: '#fff'}}>生成图片...</div>,
+            content: <div style={{ color: '#fff' }}>生成图片...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
         })
-        await keyFreamRepo.handleGenerateImage(index, mode, comfyUIRepo).catch(err => { Modal.destroyAll(); message.error(err.message) })
-        .finally(Modal.destroyAll)
+        await keyFreamRepo.handleGenerateImage(index, mode, comfyUIRepo).catch(err => { message.error(err) }).finally(Modal.destroyAll)
     }
 
     const handleDelKeyFrame = async () => {

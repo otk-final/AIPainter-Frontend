@@ -9,7 +9,6 @@ import { useSimulateRepository } from '@/repository/simulate';
 import { useComfyUIRepository } from '@/repository/comfyui';
 import SRTMixingTab from './components/srt-mixing';
 import { useKeyFrameRepository } from '@/repository/keyframe';
-import { http } from '@tauri-apps/api';
 
 export type ImitateTabType = "import" | "frames" | "audio"
 const imitateTabs: TabsProps["items"] = [
@@ -35,7 +34,6 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   const keyFreamRepo = useKeyFrameRepository(state => state)
   const comfyuiRepo = useComfyUIRepository(state => state)
 
-  http.getClient
 
   //加载配置项
   useMemo(() => {

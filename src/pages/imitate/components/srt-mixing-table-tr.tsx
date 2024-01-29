@@ -50,7 +50,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
             mask: true,
             maskClosable: false,
         })
-        await srtFreamRepo.aiRewriteContent(index, gptApi).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        await srtFreamRepo.aiRewriteContent(index, gptApi).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
     const handleRecognize = async () => {
@@ -60,7 +60,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
             mask: true,
             maskClosable: false,
         })
-        await srtFreamRepo.recognizeContent(index).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        await srtFreamRepo.recognizeContent(index).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
     const handleGenerateAudio = async () => {
@@ -70,7 +70,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
             mask: true,
             maskClosable: false,
         })
-        await srtFreamRepo.handleGenerateAudio(index, voiceType, gptApi).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        await srtFreamRepo.handleGenerateAudio(index, voiceType, gptApi).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
     const renderNumber = () => {

@@ -1,9 +1,9 @@
-import { Avatar, Button, Input, Modal, message } from 'antd';
+import { Avatar, Button, Input, Modal } from 'antd';
 import './index.less'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { dialog, tauri } from '@tauri-apps/api';
-import { history, useParams } from "umi"
+import { useParams } from "umi"
 import { Header } from '@/components';
 import { Actor, useActorRepository } from '@/repository/story';
 import { useComfyUIRepository } from '@/repository/comfyui';
@@ -90,7 +90,7 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
     comfyuiRepo.load("env")
 
     //保存
-    return () => { debugger; actorRepo.sync() }
+    return () => { actorRepo.sync() }
   }, [pid])
 
 
