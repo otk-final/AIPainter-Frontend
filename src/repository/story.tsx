@@ -190,7 +190,7 @@ export const useChapterRepository = create<ChapterRepository>()(subscribeWithSel
 
 
 export interface Actor extends ItemIdentifiable {
-    id: number
+    id: string
     name: string
     alias: string
     style: string
@@ -217,7 +217,7 @@ export interface TraitsOption {
 export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> {
 
     override free() {
-        this.items = [{ id: 0, name: "角色1", alias: "角色1", style: "", traits: [] }]
+        this.items = [{ id: uuid(), name: "角色1", alias: "角色1", style: "", traits: [] }]
     }
 
     //初始化

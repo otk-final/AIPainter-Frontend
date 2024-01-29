@@ -2,11 +2,10 @@ import { Button, Divider, Input, Modal, Select, Tabs, TabsProps, message } from 
 import { useEffect, useState } from "react";
 import "./index.less"
 import { dialog, path } from "@tauri-apps/api";
-import { ImportType, Script, usePersistChaptersStorage, usePersistScriptStorage } from "@/stores/story";
 import TextArea from "antd/es/input/TextArea";
-import { v4 as uuid } from "uuid"
-import { Actor, BoardType, useActorRepository, useChapterRepository, useScriptRepository } from "@/repository/story";
+import { Actor, BoardType, ImportType, useActorRepository, useChapterRepository, useScriptRepository } from "@/repository/story";
 import { useGPTAssistantsApi } from "@/repository/gpt";
+import { v4 } from "uuid";
 
 const importTabItems: TabsProps['items'] = [
     {
@@ -70,12 +69,12 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
         await scriptRepo.sync()
 
         await chapterRepo.initialization(chapters)
-        
+
         //过滤出所有角色信息
         const actorNames = Array.from(new Set(chapters.flatMap(item => item.actors || [])));
         const newActors = actorNames.map((an) => {
             return {
-                id: uuid(),
+                id: v4(),
                 name: an,
                 alias: an,
                 style: "",
