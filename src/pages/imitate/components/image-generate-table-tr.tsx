@@ -35,13 +35,22 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
     }
 
     const handleImage2TextCatch = async () => {
-        Modal.info({
+        const modal = Modal.info({
             content: <div style={{ color: '#fff' }}>反推关键词...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
-        })
-        await keyFreamRepo.handleReversePrompt(index, comfyUIRepo).catch(err => { message.error(err) }).finally(Modal.destroyAll)
+        });
+        try {
+            await keyFreamRepo.handleReversePrompt(index, comfyUIRepo);
+            modal.destroy();
+        } catch(ex) {
+            modal.destroy();
+            Modal.error({
+                content: <div style={{ color: '#fff' }}>反推关键词 error...</div>,
+                mask: true,
+            });
+        }
     }
 
     const handleText2ImageCatch = async () => {
