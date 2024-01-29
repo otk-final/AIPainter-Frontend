@@ -167,7 +167,7 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
             return
         }
         Modal.info({
-            content: <div style={{color: '#fff'}}>图片生成中...</div>,
+            content: <div style={{ color: '#fff' }}>图片生成中...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
@@ -176,7 +176,7 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
         await actorRepo.handleGenerateImage(tags, comfyuiRepo, (filepath) => {
             setPreviewPath(filepath)
             setPreview(true)
-        }).finally(Modal.destroyAll)
+        }).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
 

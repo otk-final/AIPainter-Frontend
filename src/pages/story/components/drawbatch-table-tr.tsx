@@ -35,7 +35,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, actors, chapter
         if (!checkActors || checkActors.length === 0) {
             return ""
         }
-        return actors.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
+        return actors!.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
             return item.traits.map(f => f.value).join(",")
         }).join(";")
     }
@@ -103,7 +103,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, actors, chapter
             maskClosable: false,
         })
         
-        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo).finally(Modal.destroyAll)
+        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
     const handleImageScale = async () => {
@@ -117,7 +117,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, actors, chapter
             mask: true,
             maskClosable: false,
         })
-        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo).finally(Modal.destroyAll)
+        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
 

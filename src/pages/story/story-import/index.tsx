@@ -1,4 +1,4 @@
-import { Button, Divider, Input, Modal, Select, Tabs, TabsProps } from "antd"
+import { Button, Divider, Input, Modal, Select, Tabs, TabsProps, message } from "antd"
 import { useEffect, useState } from "react";
 import "./index.less"
 import { dialog, path } from "@tauri-apps/api";
@@ -70,8 +70,8 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
         await scriptRepo.sync()
 
         await chapterRepo.initialization(chapters)
+        
         //过滤出所有角色信息
-
         const actorNames = Array.from(new Set(chapters.flatMap(item => item.actors || [])));
         const newActors = actorNames.map((an) => {
             return {
@@ -91,6 +91,9 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
         onClose()
     }
 
+    const handleCatchBoading = async () => {
+        await handleBoading().catch(err => message.error(err))
+    }
 
 
 
@@ -135,7 +138,7 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
                 <Divider />
                 <Tabs defaultActiveKey="file" items={importTabItems} onChange={(key) => setType(key as ImportType)} />
                 {importType === 'file' ? renderFileImport() : renderInputImport()}
-                <Button type="primary" block className="btn-primary-auto" loading={loading} onClick={handleBoading}>开始分镜</Button>
+                <Button type="primary" block className="btn-primary-auto" loading={loading} onClick={handleCatchBoading}>开始分镜</Button>
             </div>
         </Modal>
     )
