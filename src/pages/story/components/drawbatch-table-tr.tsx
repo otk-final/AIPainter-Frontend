@@ -97,12 +97,12 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, actors, chapter
         }
 
         Modal.info({
-            content: <div style={{color: '#fff'}}>图片生成中...</div>,
+            content: <div style={{ color: '#fff' }}>图片生成中...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
         })
-        
+
         await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
@@ -112,7 +112,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, actors, chapter
             return
         }
         Modal.info({
-            content: <div style={{color: '#fff'}}>图片生成中...</div>,
+            content: <div style={{ color: '#fff' }}>图片生成中...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
@@ -130,8 +130,12 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, actors, chapter
         )
     }
 
+    const handleUpdateCurrentImage = async (path: string) => {
+        await chapterRepo.updateItem(idx, { ...stateChapter, image: { ...stateChapter.image!, path: path } }, true)
+    }
+
     return (
-        <div className='tr flexR'  style={style} key={key}>
+        <div className='tr flexR' style={style} key={key}>
             {stateChapter && drawbatchColumns.map((i, index) => {
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
@@ -147,9 +151,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, actors, chapter
             <HistoryImageModule
                 isOpen={isOpenHistory} onClose={() => setIsOpenHistory(false)}
                 paths={stateChapter.image?.history || []} defaultPath={stateChapter.image?.path || ""}
-                onChangeNewImage={(v) => setChapter(res => {
-                    return { ...res, drawImage: v }
-                })} />
+                onChangeNewImage={handleUpdateCurrentImage} />
         </div>
     )
 }
