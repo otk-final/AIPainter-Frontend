@@ -124,11 +124,12 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let text = await comyuiRepo.buildReversePrompt()
         let script = new WFScript(text)
 
+        debugger
         //上传文件
         await api.upload(api.clientId, frame.path, frame.name)
 
         //提交任务
-        let job = await api.prompt(script, { subfolder: "hxy", filename: frame.name }, Image2TextHandle)
+        let job = await api.prompt(script, { subfolder: api.clientId, filename: frame.name }, Image2TextHandle)
         //关键词所在的节点数
         let step = script.getWD14TaggerStep()
         const callback = async (promptId: string, respData: any) => {

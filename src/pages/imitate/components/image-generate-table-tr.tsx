@@ -44,7 +44,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
         try {
             await keyFreamRepo.handleReversePrompt(index, comfyUIRepo);
             modal.destroy();
-        } catch(ex) {
+        } catch (ex) {
             modal.destroy();
             Modal.error({
                 content: <div style={{ color: '#fff' }}>反推关键词 error...</div>,
@@ -123,6 +123,11 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
     }
 
 
+    const handleUpdateCurrentImage = async (path: string) => {
+        await keyFreamRepo.updateItem(index, { ...stateFrame, image: { ...stateFrame.image, path: path } }, true)
+    }
+
+    
     return (
         <div className='tr flexR' style={style} key={key}>
             {generateImagesColumns.map((i, index) => {
@@ -140,9 +145,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
             <HistoryImageModule
                 isOpen={isOpenHistory} onClose={() => setIsOpenHistory(false)}
                 paths={stateFrame.image?.history || []} defaultPath={stateFrame.image?.path || ""}
-                onChangeNewImage={(v) => setFrame(res => {
-                    return { ...res, drawImage: v }
-                })} />
+                onChangeNewImage={handleUpdateCurrentImage} />
         </div>
     )
 }

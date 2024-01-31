@@ -97,6 +97,8 @@ export class ComfyUIApi {
     host: ComfyUIHost
     clientId: string
 
+    current_prompt_id?: string
+
     // storage:
     constructor(clientId: string, host: ComfyUIHost) {
         // this.storage = config
@@ -110,10 +112,11 @@ export class ComfyUIApi {
         //websocket  只保持一个链接
         this.wsConn = await WebSocket.connect(host.websocket + "?client_id=" + clientId)
         this.wsConn.addListener(this.wsReceived)
-        console.info(this.wsConn.id)
+        console.info("websocket has connected", this.wsConn.id)
     }
 
     async disconnect() {
+        console.info('释放 connect')
         await this.wsConn?.disconnect()
         await this.api?.drop()
     }
@@ -122,14 +125,13 @@ export class ComfyUIApi {
         if (message.type !== "Text") {
             return
         }
+        console.info("任务回调：", message.data)
         //server
         let { type, data } = JSON.parse(message.data as string) as ComfyUIPromptEvent
-        let ok = (data.value !== undefined) && (data.max !== undefined) && (data.value === data.max) && (data.prompt_id !== undefined)
+        let ok = (data.value !== undefined) && (data.max !== undefined) && (data.value === data.max)
         if (type === "progress" && ok) {
-            //通知业务
-            doComfyUIPromptCallback(this, data.prompt_id)
-        } else {
-            console.info('message.other', message.data)
+            //通知业务 有的版本不返回任务prompt_id ，取当前临时id
+            doComfyUIPromptCallback(this, data.prompt_id || this.current_prompt_id)
         }
     }
 
@@ -144,7 +146,11 @@ export class ComfyUIApi {
             }),
             { responseType: ResponseType.JSON, timeout: ComfyUIApiTimeout }
         );
-        return response.data as ComfyUIPromptTask
+        let task = response.data as ComfyUIPromptTask
+
+        //缓存当前id,用于回调通知
+        this.current_prompt_id = task.prompt_id
+        return task
     }
 
     //任务状态
