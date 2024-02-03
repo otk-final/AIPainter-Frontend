@@ -99,6 +99,7 @@ export abstract class BaseRepository<T> {
         await fs.createDir(this.repoDir, { dir: this.baseDir(), recursive: true })
         let filePath = this.repoDir + "/" + this.repo
 
+        console.info("save script", filePath)
         // save file
         await fs.writeFile(filePath, JSON.stringify(that, null, "\t"), { dir: this.baseDir(), append: false })
     }

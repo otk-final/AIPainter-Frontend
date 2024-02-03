@@ -1,5 +1,4 @@
-import axios, { Axios } from "axios"
-import { fs, http } from "@tauri-apps/api"
+import { http } from "@tauri-apps/api"
 import { ItemIdentifiable, delay } from "./tauri_repository"
 import WebSocket, { Message } from "tauri-plugin-websocket-api"
 import { Body, Client, ResponseType } from "@tauri-apps/api/http"
@@ -90,10 +89,64 @@ const doComfyUIPromptCallback = async (api: ComfyUIApi, promptId: string) => {
 
 
 const ComfyUIApiTimeout = 60000
+
+
+export class ComfyUIPipe {
+
+    ws?: WebSocket
+    api: ComfyUIApi
+
+    // storage:
+    constructor(api: ComfyUIApi) {
+        this.api = api
+    }
+
+    async connect(clientId: string, host: ComfyUIHost) {
+        if (this.ws) {
+            return
+        }
+
+        //websocket  只保持一个链接 
+        this.ws = await WebSocket.connect(host.websocket + "?client_id=" + clientId, { headers: { 'Authorization': clientId } })
+        this.ws.addListener(this.received)
+        console.info("websocket has connected", this.ws.id)
+    }
+
+    disconnect = async () => {
+        console.info('释放 pipe')
+        // await this.ws?.disconnect()
+        this.ws = undefined
+    }
+
+    private received = async (message: Message) => {
+
+        //关闭事件
+        if (message.type === undefined || message.type === "Close") {
+            await this.disconnect()
+            return
+        }
+
+        //非文本数据，直接过滤
+        if (message.type !== "Text") {
+            return
+        }
+
+        //server
+        let { type, data } = JSON.parse(message.data as string) as ComfyUIPromptEvent
+        let ok = (data.value !== undefined) && (data.max !== undefined) && (data.value === data.max)
+        if (type === "progress" && ok) {
+            //通知业务 有的版本不返回任务prompt_id ，取当前临时id
+            doComfyUIPromptCallback(this.api, data.prompt_id || this.api.current_prompt_id)
+        }
+    }
+}
+
+
+
+
 export class ComfyUIApi {
 
     api?: Client
-    wsConn?: WebSocket
     host: ComfyUIHost
     clientId: string
 
@@ -101,38 +154,17 @@ export class ComfyUIApi {
 
     // storage:
     constructor(clientId: string, host: ComfyUIHost) {
-        // this.storage = config
         this.clientId = clientId
         this.host = host
     }
 
-    async connect(clientId: string, host: ComfyUIHost) {
+    async connect() {
         this.api = await http.getClient()
-
-        //websocket  只保持一个链接
-        this.wsConn = await WebSocket.connect(host.websocket + "?client_id=" + clientId)
-        this.wsConn.addListener(this.wsReceived)
-        console.info("websocket has connected", this.wsConn.id)
     }
 
     async disconnect() {
-        console.info('释放 connect')
-        await this.wsConn?.disconnect()
+        console.info('释放 http')
         await this.api?.drop()
-    }
-
-    private wsReceived = (message: Message) => {
-        if (message.type !== "Text") {
-            return
-        }
-        console.info("任务回调：", message.data)
-        //server
-        let { type, data } = JSON.parse(message.data as string) as ComfyUIPromptEvent
-        let ok = (data.value !== undefined) && (data.max !== undefined) && (data.value === data.max)
-        if (type === "progress" && ok) {
-            //通知业务 有的版本不返回任务prompt_id ，取当前临时id
-            doComfyUIPromptCallback(this, data.prompt_id || this.current_prompt_id)
-        }
     }
 
     //post prompt
@@ -144,7 +176,11 @@ export class ComfyUIApi {
             Body.json({
                 clientId: this.clientId, prompt: prompt
             }),
-            { responseType: ResponseType.JSON, timeout: ComfyUIApiTimeout }
+            {
+                responseType: ResponseType.JSON,
+                timeout: ComfyUIApiTimeout,
+                headers: { 'Authorization': this.clientId }
+            }
         );
         let task = response.data as ComfyUIPromptTask
 
@@ -155,7 +191,14 @@ export class ComfyUIApi {
 
     //任务状态
     async history(prompt_id: string): Promise<any> {
-        return await this.api!.get(this.host.url + "/history/" + prompt_id, { responseType: ResponseType.JSON, timeout: ComfyUIApiTimeout }).then(resp => resp.data)
+        return await this.api!.get(this.host.url + "/history/" + prompt_id,
+            {
+                responseType: ResponseType.JSON,
+                timeout: ComfyUIApiTimeout,
+                headers: {
+                    'Authorization': this.clientId
+                }
+            }).then(resp => resp.data)
     }
 
     //upload
@@ -171,20 +214,29 @@ export class ComfyUIApi {
             overwrite: 'true'
         })
 
-        return await this.api!.post(this.host.url + '/upload/image', body, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-            responseType: ResponseType.JSON, timeout: ComfyUIApiTimeout
-        }).then(resp => {
-            return resp.data
-        })
+        return await this.api!.post(this.host.url + '/upload/image',
+            body,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': this.clientId
+                },
+                responseType: ResponseType.JSON,
+                timeout: ComfyUIApiTimeout
+            }).then(resp => {
+                return resp.data
+            })
     }
 
     //download
-    async download(subfolder: string, fileName: any): Promise<ArrayBuffer> {
+    async download(prompt_id: string, subfolder: string, fileName: any): Promise<ArrayBuffer> {
         //下载网络文件
         let resp = await this.api!.get(this.host.url + '/view',
             {
-                query: { subfolder: subfolder, filename: fileName, type: "output" },
+                headers: {
+                    'Authorization': this.clientId
+                },
+                query: { subfolder: subfolder, filename: fileName, type: "output", prompt_id: prompt_id },
                 responseType: ResponseType.Binary
             })
         return Buffer.from(resp.data as ArrayBuffer)
@@ -296,9 +348,3 @@ export const Text2ImageHandle: CompletionPromptParams<Text2ImageParams> = (api: 
     return script.toObject()
 }
 
-
-//图生图
-export const Image2ImageHandle: CompletionPromptParams<ImageFileParams> = (api: ComfyUIApi, script: WFScript, file: ImageFileParams) => {
-    script.setInputImage(file.subfolder + "/" + file.filename)
-    return script.toObject()
-}

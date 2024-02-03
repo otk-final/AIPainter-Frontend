@@ -1,11 +1,12 @@
 import { subscribeWithSelector } from "zustand/middleware";
 import { BaseCRUDRepository } from "./tauri_repository";
 import { create } from "zustand";
-import { ComfyUIApi, ComfyUIHost, ComfyUIWorkflow } from "./comfyui_api";
+import { ComfyUIApi, ComfyUIHost, ComfyUIPipe, ComfyUIWorkflow } from "./comfyui_api";
 import { fs } from "@tauri-apps/api";
 import { v4 as uuid } from "uuid"
 
 let _baseApi: ComfyUIApi | undefined = undefined
+let _basePipe: ComfyUIPipe | undefined = undefined
 
 export interface ComfyUIConfiguration {
     host: ComfyUIHost
@@ -24,7 +25,6 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
     free() {
 
     }
-
     host: ComfyUIHost = {
         url: "http://127.0.0.1:8188",
         websocket: "ws://127.0.0.1:8188/ws",
@@ -33,22 +33,34 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
     positivePrompt: string = ""
     negativePrompt: string = ""
     
-    newClient = async () => {
-        if (_baseApi) {
-            return _baseApi
-        }
 
-        //缓存链接
+    newClient = async () => {
         let newClientId = "test"
 
-        _baseApi = new ComfyUIApi(newClientId, this.host)
-        await _baseApi.connect(newClientId, this.host)
+        //api
+        if (!_baseApi) {
+            _baseApi = new ComfyUIApi(newClientId, this.host)
+        }
+        await _baseApi.connect()
+
+        //pipe
+        if (!_basePipe) {
+            _basePipe = new ComfyUIPipe(_baseApi)
+        }
+        await _basePipe.connect(newClientId, this.host)
+
         return _baseApi
     }
 
     destroyClient = () => {
-        if (_baseApi) _baseApi.disconnect()
+        if (_baseApi) {
+            _baseApi.disconnect()
+        }
+        if (_basePipe) {
+            _basePipe.disconnect()
+        }
         _baseApi = undefined
+        _basePipe = undefined
     }
 
     buildModePrompt = async (mode: string) => {

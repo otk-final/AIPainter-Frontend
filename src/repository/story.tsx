@@ -169,7 +169,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
                 let imageItem = images[i] as { filename: string, subfolder: string, type: string }
 
                 //保存
-                let fileBuffer = await api.download(imageItem.subfolder, imageItem.filename)
+                let fileBuffer = await api.download(promptId, imageItem.subfolder, imageItem.filename)
                 let filePath = await this.saveFile("outputs", "cp_" + uuid() + ".png", fileBuffer)
 
                 let history = chapter.image?.history || []
@@ -251,7 +251,7 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
             console.info("下载文件", imageItem)
 
             //下载，保存
-            let fileBuffer = await api.download(imageItem.subfolder, imageItem.filename)
+            let fileBuffer = await api.download(promptId, imageItem.subfolder, imageItem.filename)
             let filePath = await this.saveFile("outputs", "ac_" + uuid() + ".png", fileBuffer)
 
             //更新状态

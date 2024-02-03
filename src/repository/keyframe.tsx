@@ -42,7 +42,6 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let srtContent = await srtToLines(srtfile)
         this.items.forEach((k) => {
             let sec = k.id
-            debugger
             //根据当前镜头所在的秒，截取字幕
             let srts = [] as SRTLine[]
             for (let i = 0; i < srtContent.length; i++) {
@@ -124,7 +123,6 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let text = await comyuiRepo.buildReversePrompt()
         let script = new WFScript(text)
 
-        debugger
         //上传文件
         await api.upload(api.clientId, frame.path, frame.name)
 
@@ -166,7 +164,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
                 let imageItem = images[i] as { filename: string, subfolder: string, type: string }
 
                 //保存
-                let fileBuffer = await api.download(imageItem.subfolder, imageItem.filename)
+                let fileBuffer = await api.download(promptId, imageItem.subfolder, imageItem.filename)
                 let filePath = await this.saveFile("outputs", "kf_" + uuid() + ".png", fileBuffer)
 
                 frame.image.path = filePath
