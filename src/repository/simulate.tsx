@@ -4,7 +4,7 @@ import { subscribeWithSelector } from "zustand/middleware"
 import { fs, path, shell } from "@tauri-apps/api"
 import { KeyFrame } from "./keyframe"
 import { TTSApi } from "./tts_api"
-import { SRTLine } from "./srt"
+import { SRTLine, formatTime } from "./srt"
 
 
 //剧本
@@ -62,13 +62,68 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         console.info("提取音频 out", output.stdout)
         this.hasAudio = true
 
-
         //save
         this.sync()
     }
 
+    handleCollectKeyFrame = async (videoPath: string, srtIdx: number, srt: SRTLine, framesDir: string) => {
 
-    
+        let keyFrameName = srt.start_time + "_" + srt.end_time + ".png"
+        console.info('start collect keyframe', keyFrameName)
+        let keyFramePath = await path.join(await this.basePath(), framesDir, keyFrameName)
+
+        //抽帧 关键帧
+        let cmd = shell.Command.sidecar("bin/ffmpeg", [
+            "-i", videoPath,
+            "-ss", formatTime(srt.start_time),
+            "-to", formatTime(srt.end_time),
+            "-vf", 'fps=1/1',
+            "-vsync", "vfr",
+            "-qscale:v", "10",
+            "-update", "1",
+            keyFramePath
+        ])
+
+        let output = await cmd.execute()
+        // console.info(output.stdout)
+        console.info(output.stderr)
+
+        //关键帧信息
+        return {
+            id: srtIdx,
+            name: keyFrameName,
+            path: keyFramePath,
+            image: {
+                prompt: "",
+                history: []
+            },
+            srt: srt.text,
+            srt_duration: {
+                start_time: srt.start_time,
+                end_time: srt.end_time
+            }
+        } as KeyFrame
+    }
+
+    //抽帧关键帧
+    handleCollectFrames2 = async (api: TTSApi) => {
+
+        //临时存储目录
+        let framesDir = await path.join(this.repoDir, "frames")
+        await fs.createDir(framesDir, { dir: this.baseDir(), recursive: true })
+
+        //根据字幕文件抽取关键帧
+        let srtLines = await this.handleRecognitionAudio(api)
+        let videoPath = this.videoPath!
+
+        //循环抽取
+        let keyFrames = []
+        for (let i = 0; i < srtLines.length; i++) {
+            let kf = await this.handleCollectKeyFrame(videoPath, i, srtLines[i], framesDir)
+            keyFrames.push(kf)
+        }
+        return keyFrames as KeyFrame[]
+    }
 
 
     //抽帧关键帧
@@ -174,24 +229,28 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     //识别音频
     handleRecognitionAudio = async (api: TTSApi) => {
 
+        //是否已经识别
+        let audioRecognitionPath = await path.join(await this.basePath(), this.repoDir, "audio.json")
+        if (true) {
+            let audioText = await fs.readTextFile(audioRecognitionPath)
+            return JSON.parse(audioText).utterances as SRTLine[]
+        }
+
         //提取音频
-        if (!this.hasAudio){
+        if (!this.hasAudio) {
             throw new Error("无音频文件")
         }
+
         let audioPath = await path.join(await this.basePath(), this.repoDir, "audio.mp3")
-        
         //在线 生成字幕文件
         let jobResp: any = await api.submitAudio(audioPath)
         this.audioJobId = jobResp.id
         this.sync()
 
-        debugger
         //在线 延迟查询
         await delay(5000)
-        let audioText:any = await api.queryResult(this.audioJobId!)
-        let audioRecognitionPath = await path.join(await this.basePath(), this.repoDir, "audio.json")
+        let audioText: any = await api.queryResult(this.audioJobId!)
 
-        debugger
         //写入文件
         await fs.writeFile(audioRecognitionPath, JSON.stringify(audioText, null, "\t"), { dir: this.baseDir(), append: false })
         this.hasAudioRecognition = true

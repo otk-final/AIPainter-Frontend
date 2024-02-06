@@ -6,6 +6,7 @@ import { ImitateTabType } from '../index';
 import VideoPlayerModal from './video-player';
 import { useSimulateRepository } from '@/repository/simulate';
 import { useKeyFrameRepository } from '@/repository/keyframe';
+import { useTTSRepository } from '@/repository/tts';
 
 interface VideoImportProps {
     pid: string
@@ -17,6 +18,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
     const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
     const simulateRepo = useSimulateRepository(state => state)
     const KeyFrameRepo = useKeyFrameRepository(state => state)
+    const ttsRepo = useTTSRepository(state => state)
 
     const handleImported = async () => {
         let selected = await dialog.open({
@@ -36,7 +38,8 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
             maskClosable: false,
         })
         //抽帧，导入，切换tab
-        let keyFrames = await simulateRepo.handleCollectFrames()
+        let api = await ttsRepo.newClient()
+        let keyFrames = await simulateRepo.handleCollectFrames2(api)
         await KeyFrameRepo.initialization(keyFrames).catch(err => message.error(err)).finally(Modal.destroyAll)
         handleChangeTab("frames");
     }
@@ -54,22 +57,6 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
             maskClosable: false,
         })
 
-        await simulateRepo.handleCollectAudio(savePath).finally(Modal.destroyAll)
-    }
-
-    const handleExportSRTFile = async () => {
-        let savePath = await dialog.save({ title: "导出字幕文件", filters: [{ extensions: ["srt"], name: "SubRip subtitle file" }] })
-        if (!savePath) {
-            return
-        }
-
-        Modal.info({
-            content: <div style={{ color: '#fff' }}>正在导出字幕...</div>,
-            footer: null,
-            mask: true,
-            maskClosable: false,
-        })
-        await simulateRepo.handleCollectSrtFile(savePath).finally(Modal.destroyAll)
     }
 
 
