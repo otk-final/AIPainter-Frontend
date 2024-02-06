@@ -35,8 +35,10 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
 
 
     newClient = async () => {
+        this.destroyClient()
+        
         let newClientId = "test"
-        let authorization = "xxx"
+        let authorization = "test"
         //api
         if (!_baseApi) {
             _baseApi = new ComfyUIApi(this.host, newClientId, authorization)

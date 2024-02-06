@@ -173,9 +173,9 @@ export class ComfyUIApi {
     //post prompt
     async prompt<T>(script: WFScript, params: T, handle: CompletionPromptParams<T>): Promise<ComfyUIPromptTask> {
         let prompt = handle(this, script, params)
+        console.info('提交ComfyUI任务', prompt)
         //提交任务
-        const response = await this.api!.post(
-            this.host.url + "/prompt",
+        const response = await this.api!.post(this.host.url + "/prompt",
             Body.json({
                 clientId: this.clientId, prompt: prompt
             }),
@@ -217,6 +217,7 @@ export class ComfyUIApi {
             overwrite: 'true'
         })
 
+        console.info('上传ComfyUI文件', body)
         return await this.api!.post(this.host.url + '/upload/image',
             body,
             {

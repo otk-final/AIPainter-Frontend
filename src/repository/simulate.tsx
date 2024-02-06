@@ -126,7 +126,8 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     }
 
 
-    //抽帧关键帧
+    //抽帧关键帧 
+    //废弃
     handleCollectFrames = async () => {
 
         //临时存储目录
@@ -170,6 +171,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         return this.ssimFramesCollect(tempKeyFrames)
     }
 
+    //废弃
     ssimFramesCollect = async (frames: KeyFrame[]) => {
         const ssimNextCompare = (srcIndex: number, output: string) => {
             let diffs = output.split("\n").filter(item => item).map(line => {
@@ -231,7 +233,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
         //是否已经识别
         let audioRecognitionPath = await path.join(await this.basePath(), this.repoDir, "audio.json")
-        if (true) {
+        if (this.hasAudioRecognition) {
             let audioText = await fs.readTextFile(audioRecognitionPath)
             return JSON.parse(audioText).utterances as SRTLine[]
         }
@@ -245,8 +247,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         //在线 生成字幕文件
         let jobResp: any = await api.submitAudio(audioPath)
         this.audioJobId = jobResp.id
-        this.sync()
-
+        
         //在线 延迟查询
         await delay(5000)
         let audioText: any = await api.queryResult(this.audioJobId!)
@@ -254,6 +255,8 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         //写入文件
         await fs.writeFile(audioRecognitionPath, JSON.stringify(audioText, null, "\t"), { dir: this.baseDir(), append: false })
         this.hasAudioRecognition = true
+
+        this.sync()
 
         //提取数据
         return audioText.utterances as SRTLine[]

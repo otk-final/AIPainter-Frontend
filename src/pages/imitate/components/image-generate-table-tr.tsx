@@ -44,10 +44,10 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
         try {
             await keyFreamRepo.handleReversePrompt(index, comfyUIRepo);
             modal.destroy();
-        } catch (ex) {
+        } catch (ex:any) {
             modal.destroy();
             Modal.error({
-                content: <div style={{ color: '#fff' }}>反推关键词 error...</div>,
+                content: <div style={{ color: '#fff' }}>反推关键词 {ex}</div>,
                 mask: true,
             });
         }
