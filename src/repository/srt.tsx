@@ -2,21 +2,15 @@ import { fs } from "@tauri-apps/api"
 
 
 export interface SRTLine {
-    id: number
-    startTime: {
-        text: string
-        second: number
-    }
-    endTime: {
-        text: string
-        second: number
-    }
-    content: string
+    id?: number
+    start_time: number
+    end_time: number
+    text: string
 }
 
 
-//转换为秒
-var regex = /(\d+):(\d{2}):(\d{2}),(\d{3})/;
+//转换为毫秒
+let regex = /(\d+):(\d{2}):(\d{2}),(\d{3})/;
 const toTime = (val: any) => {
     let parts = regex.exec(val);
     if (parts === null) {
@@ -29,35 +23,30 @@ const toTime = (val: any) => {
         if (isNaN(outs[i])) outs[i] = 0;
     }
     // hours + minutes + seconds + ms
-    // return parts[1] * 3600000 + parts[2] * 60000 + parts[3] * 1000 + parts[4];
+    return outs[1] * 360000 + outs[2] * 60000 + outs[3] * 1000 + outs[4];
+
     // hours + minutes + seconds
-    return outs[1] * 3600 + outs[2] * 60 + outs[3];
+    // return outs[1] * 3600 + outs[2] * 60 + outs[3];
 }
 
-export const srtToLines = async (srtpath: string) => {
+export const fileConvertLines = async (srtpath: string) => {
 
     //解析文件
     let srtText = await fs.readTextFile(srtpath)
 
     srtText = srtText.replace(/\r/g, '');
-    var regex = /(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})/g;
+    let regex = /(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})/g;
     let srtLines = srtText.split(regex);
     srtLines.shift();
 
-    let srtContent = [] as SRTLine[]
+    let srtContent = []
     for (let i = 0; i < srtLines.length; i += 4) {
         srtContent.push({
             id: parseInt(srtLines[i].trim()),
-            startTime: {
-                text: srtLines[i + 1].trim(),
-                second: toTime(srtLines[i + 1].trim())
-            },
-            endTime: {
-                text: srtLines[i + 2].trim(),
-                second: toTime(srtLines[i + 2].trim())
-            },
-            content: srtLines[i + 3].trim()
+            start_time: toTime(srtLines[i + 1].trim()),
+            end_time: toTime(srtLines[i + 2].trim()),
+            text: srtLines[i + 3].trim()
         } as SRTLine);
     }
-    return srtContent
+    return srtContent as SRTLine[]
 }

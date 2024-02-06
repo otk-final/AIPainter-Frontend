@@ -1,5 +1,5 @@
 import { Button, Modal, Tabs, TabsProps } from 'antd';
-import React, {  useMemo, useState } from 'react'
+import React, {  Fragment, useMemo, useState } from 'react'
 import './index.less'
 import { history, useParams } from "umi"
 import VideoImportTab from './components/video-import';
@@ -70,7 +70,10 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
 
 
   const renderHeaderRight = () => {
-    return <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!frames || frames.length === 0} onClick={handleDraft}> 导出剪映草稿</Button>
+    return <div>
+      <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!frames || frames.length === 0} onClick={handleDraft}> 导出视频</Button>
+      <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!frames || frames.length === 0} onClick={handleDraft}> 导出剪映草稿</Button>
+    </div>
   }
 
 

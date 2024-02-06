@@ -32,14 +32,14 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
     reverseWF?: ComfyUIWorkflow
     positivePrompt: string = ""
     negativePrompt: string = ""
-    
+
 
     newClient = async () => {
         let newClientId = "test"
-
+        let authorization = "xxx"
         //api
         if (!_baseApi) {
-            _baseApi = new ComfyUIApi(newClientId, this.host)
+            _baseApi = new ComfyUIApi(this.host, newClientId, authorization)
         }
         await _baseApi.connect()
 
@@ -47,7 +47,7 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
         if (!_basePipe) {
             _basePipe = new ComfyUIPipe(_baseApi)
         }
-        await _basePipe.connect(newClientId, this.host)
+        await _basePipe.connect(this.host, newClientId, authorization)
 
         return _baseApi
     }

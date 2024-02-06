@@ -3,6 +3,8 @@ import { BaseRepository, delay } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
 import { fs, path, shell } from "@tauri-apps/api"
 import { KeyFrame } from "./keyframe"
+import { TTSApi } from "./tts_api"
+import { SRTLine } from "./srt"
 
 
 //剧本
@@ -29,6 +31,8 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     // 导出音频文字
     audioText?: string
 
+    audioJobId?: string
+
 
     handleImportVideo = async (videoPath: string) => {
         this.videoPath = videoPath
@@ -48,6 +52,8 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         //save
         this.sync()
     }
+
+
     //抽帧关键帧
     handleCollectFrames = async () => {
 
@@ -163,10 +169,32 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         let output = await cmd.execute()
         console.info(output.stderr)
         console.info(output.stdout)
-        this.audioPath = savePath
-
-        //TODO 生成字幕文件
     }
+
+    //识别音频
+    handleRecognitionAudio = async (api: TTSApi) => {
+
+        //提取音频
+        let audioPath = await path.join(await this.basePath(), this.repoDir, "audio.mp3")
+        await this.handleCollectAudio(audioPath)
+
+        //在线 生成字幕文件
+        let jobResp: any = await api.submitAudio(audioPath)
+        this.audioJobId = jobResp.id
+        this.sync()
+
+        //在线 延迟查询
+        await delay(5000)
+        let audioText:any = await api.queryResult(this.audioJobId!)
+        let audioTextPath = await path.join(await this.basePath(), this.repoDir, "audio.json")
+
+        //写入文件
+        await fs.writeFile(audioTextPath, JSON.stringify(audioText, null, "\t"), { dir: this.baseDir(), append: false })
+    
+        //提取数据
+        return audioText.utterances as SRTLine[]
+    }
+
 
     handleCollectSrtFile = async (savePath: string) => {
         console.info(savePath)

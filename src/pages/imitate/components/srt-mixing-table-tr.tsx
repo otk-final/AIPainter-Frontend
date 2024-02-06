@@ -45,7 +45,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
 
     const handleRewriteContent = async () => {
         Modal.info({
-            content: <div style={{color: '#fff'}}>ai 改写中...</div>,
+            content: <div style={{ color: '#fff' }}>ai 改写中...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
@@ -55,7 +55,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
 
     const handleRecognize = async () => {
         Modal.info({
-            content: <div style={{color: '#fff'}}>识别字幕...</div>,
+            content: <div style={{ color: '#fff' }}>识别字幕...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
@@ -65,13 +65,14 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
 
     const handleGenerateAudio = async () => {
         Modal.info({
-            content: <div style={{color: '#fff'}}>生成音频...</div>,
+            content: <div style={{ color: '#fff' }}>生成音频...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
         })
         await srtFreamRepo.handleGenerateAudio(index, voiceType, gptApi).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
+    const handleGenerateVideo = async () => { }
 
     const renderNumber = () => {
         return (
@@ -118,6 +119,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRecognize}>原字幕识别</Button>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRewriteContent} disabled={!stateFrame.srt}>AI改写</Button>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateAudio} disabled={!stateFrame.srt_rewrite}>生成音频</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateVideo} disabled={!stateFrame.srt_rewrite}>生成视频</Button>
             </Fragment>
         )
     }

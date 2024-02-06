@@ -1,10 +1,10 @@
 import { create } from "zustand"
 import { BaseCRUDRepository, ItemIdentifiable } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
-import { fs, tauri } from "@tauri-apps/api"
+import { fs } from "@tauri-apps/api"
 import { Image2TextHandle, Text2ImageHandle, WFScript, registerComfyUIPromptCallback } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
-import { SRTLine, srtToLines } from "./srt"
+import { SRTLine } from "./srt"
 import { GPTAssistantsApi } from "./gpt"
 import { createWorker } from "tesseract.js"
 import { v4 as uuid } from "uuid"
@@ -21,8 +21,8 @@ export interface KeyFrame extends ItemIdentifiable {
     //字幕信息
     srt?: string
     srt_duration?: {
-        start: string
-        end: string
+        start_time: number
+        end_time: number
     }
     srt_rewrite?: string
     srt_audio?: string
@@ -37,25 +37,25 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         this.sync()
     }
 
-    //合并srt字幕文件
-    mergeSRTFile = async (srtfile: string) => {
-        let srtContent = await srtToLines(srtfile)
+    //srt字幕对齐
+    srtAlignment = async (srtLines: SRTLine[]) => {
+        let lines = [...srtLines]
+
         this.items.forEach((k) => {
-            let sec = k.id
+            let millisecond = k.id * 1000
             //根据当前镜头所在的秒，截取字幕
             let srts = [] as SRTLine[]
-            for (let i = 0; i < srtContent.length; i++) {
-                if (srtContent[i].endTime.second > sec) {
-                    srtContent = srtContent.splice(i)
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].end_time > millisecond) {
+                    lines = lines.splice(i)
                     break
                 }
-                srts.push(srtContent[i])
+                srts.push(lines[i])
             }
-
             //合并字幕，并统计时间
             if (srts && srts.length > 0) {
-                k.srt = srts.map(line => line.content).join(",")
-                k.srt_duration = { start: srts[0].startTime.text, end: srts[srts.length - 1].endTime.text }
+                k.srt = srts.map(line => line.text).join(",")
+                k.srt_duration = { start_time: srts[0].start_time, end_time: srts[srts.length - 1].end_time }
             }
         })
         await this.sync()
@@ -65,7 +65,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let strText = this.items.map((item, idx) => {
             let line =
                 (idx + 1) + "\n"
-                + item.srt_duration?.start + " --> " + item.srt_duration?.end + "\n"
+                + item.srt_duration?.start_time + " --> " + item.srt_duration?.end_time + "\n"
                 + (item.srt_rewrite || '') + "\n"
             return line
         }).join("\n")
@@ -74,7 +74,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     }
 
     exportAudioZip = async (zipfile: string) => {
-
+        console.info(zipfile)
     }
 
 

@@ -101,13 +101,13 @@ export class ComfyUIPipe {
         this.api = api
     }
 
-    async connect(clientId: string, host: ComfyUIHost) {
+    async connect(host: ComfyUIHost, clientId: string, authorization: string) {
         if (this.ws) {
             return
         }
 
         //websocket  只保持一个链接 
-        this.ws = await WebSocket.connect(host.websocket + "?client_id=" + clientId, { headers: { 'Authorization': clientId } })
+        this.ws = await WebSocket.connect(host.websocket + "?client_id=" + clientId, { headers: { 'Authorization': authorization } })
         this.ws.addListener(this.received)
         console.info("websocket has connected", this.ws.id)
     }
@@ -149,14 +149,17 @@ export class ComfyUIApi {
     api?: Client
     host: ComfyUIHost
     clientId: string
+    authorization: string
 
     current_prompt_id?: string
 
     // storage:
-    constructor(clientId: string, host: ComfyUIHost) {
-        this.clientId = clientId
+    constructor(host: ComfyUIHost, clientId: string, authorization: string) {
         this.host = host
+        this.clientId = clientId
+        this.authorization = authorization
     }
+
 
     async connect() {
         this.api = await http.getClient()
@@ -179,7 +182,7 @@ export class ComfyUIApi {
             {
                 responseType: ResponseType.JSON,
                 timeout: ComfyUIApiTimeout,
-                headers: { 'Authorization': this.clientId }
+                headers: { 'Authorization': this.authorization }
             }
         );
         let task = response.data as ComfyUIPromptTask
@@ -196,7 +199,7 @@ export class ComfyUIApi {
                 responseType: ResponseType.JSON,
                 timeout: ComfyUIApiTimeout,
                 headers: {
-                    'Authorization': this.clientId
+                    'Authorization': this.authorization
                 }
             }).then(resp => resp.data)
     }
@@ -219,7 +222,7 @@ export class ComfyUIApi {
             {
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    'Authorization': this.clientId
+                    'Authorization': this.authorization
                 },
                 responseType: ResponseType.JSON,
                 timeout: ComfyUIApiTimeout
@@ -234,7 +237,7 @@ export class ComfyUIApi {
         let resp = await this.api!.get(this.host.url + '/view',
             {
                 headers: {
-                    'Authorization': this.clientId
+                    'Authorization': this.authorization
                 },
                 query: { subfolder: subfolder, filename: fileName, type: "output", prompt_id: prompt_id },
                 responseType: ResponseType.Binary

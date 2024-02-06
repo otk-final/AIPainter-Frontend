@@ -5,10 +5,13 @@ import { dialog } from "@tauri-apps/api"
 import { List, AutoSizer, ListRowProps } from 'react-virtualized';
 
 import 'react-virtualized/styles.css'; // 导入样式文件
-import { Button, Select, message } from "antd"
+import { Button, Modal, Select, message } from "antd"
 import React, { useState } from "react"
 import { useKeyFrameRepository } from "@/repository/keyframe";
 import { QuestionCircleOutlined } from "@ant-design/icons";
+import { fileConvertLines } from "@/repository/srt";
+import { useSimulateRepository } from "@/repository/simulate";
+import { useTTSRepository } from "@/repository/tts";
 
 interface SRTMixingProps {
     pid: string,
@@ -19,6 +22,8 @@ const voiceTypeOptions = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
 
 const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
     const keyFreamsRepo = useKeyFrameRepository(state => state)
+    const simulateRepo = useSimulateRepository(state=>state)
+    const ttsRepo =  useTTSRepository(state=>state)
     const [voiceType, setOption] = useState<string>("shimmer")
 
     const handleImportSRTFile = async () => {
@@ -26,8 +31,27 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
         if (!selected) {
             return
         }
-        await keyFreamsRepo.mergeSRTFile(selected as string)
+
+        let srtLines = await fileConvertLines(selected as string)
+        await keyFreamsRepo.srtAlignment(srtLines)
     }
+
+    const handleRecognitionSRT =async () => {
+        Modal.info({
+            content: <div style={{ color: '#fff' }}>识别字幕...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
+        })
+
+        //在线识别
+        let api = await ttsRepo.newClient()
+        let srtLines = await simulateRepo.handleRecognitionAudio(api)
+        
+        //对齐
+        await keyFreamsRepo.srtAlignment(srtLines).catch(err => message.error(err)).finally(Modal.destroyAll)
+    }
+
 
     const handleExportSRTFile = async () => {
         let selected = await dialog.save({ title: "保存文件", filters: [{ name: "SRT文件", extensions: ["srt"] }] })
@@ -61,7 +85,8 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
                         options={voiceTypeOptions.map((item) => { return { label: item, value: item } })}
                     />
                     </div>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleImportSRTFile}>导入SRT字幕文件</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleImportSRTFile}>导入字幕</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleRecognitionSRT}>智能识别字幕</Button>
                 </div>
                 <div className='flexR'>
                     <Button type="primary" className="btn-primary-auto btn-primary-108" >一键改写</Button>
