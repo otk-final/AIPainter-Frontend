@@ -28,11 +28,6 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
         return simulateRepo.handleImportVideo(selected as string)
     }
 
-
-
-
-
-
     const handleCollectFrames = async () => {
         Modal.info({
             content: <div style={{ color: '#fff' }}>正在抽取关键帧...</div>,
@@ -85,7 +80,6 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported} >导入</Button>
                 <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!simulateRepo.videoPath} onClick={handleCollectFrames}>抽帧关键帧</Button>
                 <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!simulateRepo.videoPath} onClick={handleCollectAudio}>导出音频</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!simulateRepo.videoPath} onClick={handleExportSRTFile}>导出字幕</Button>
             </div>
 
             {simulateRepo.videoPath &&

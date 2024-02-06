@@ -9,6 +9,11 @@ export interface SRTLine {
 }
 
 
+
+
+
+
+
 //转换为毫秒
 let regex = /(\d+):(\d{2}):(\d{2}),(\d{3})/;
 const toTime = (val: any) => {

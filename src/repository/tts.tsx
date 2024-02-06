@@ -19,7 +19,7 @@ export class TTSRepository extends BaseRepository<TTSRepository> implements TTSC
     }
     appId = "9413902475"
     host =  "https://openspeech.bytedance.com"
-    authorization =  "9gyYDsIV-NcEcsbsmErHWK39T9Uvb8Bf"
+    authorization =  "Bearer;9gyYDsIV-NcEcsbsmErHWK39T9Uvb8Bf"
 
     newClient = async () => {
         //api
@@ -29,7 +29,7 @@ export class TTSRepository extends BaseRepository<TTSRepository> implements TTSC
         await _baseApi.connect()
         return _baseApi
     }
-    
+
 
     destroyClient = () => {
         if (_baseApi) {

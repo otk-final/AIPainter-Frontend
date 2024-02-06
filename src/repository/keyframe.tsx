@@ -29,6 +29,32 @@ export interface KeyFrame extends ItemIdentifiable {
 }
 
 
+const formatTime = (ms: number) => {
+    // 将毫秒数转换为秒数
+    let seconds = Math.floor(ms / 1000);
+    // 计算小时
+    let hours = Math.floor(seconds / 3600);
+    seconds %= 3600;
+    // 计算分钟
+    let minutes = Math.floor(seconds / 60);
+    // 计算剩余秒数
+    seconds %= 60;
+    // 计算剩余毫秒数
+    let milliseconds = ms % 1000;
+
+    // 补零函数，确保时间格式为两位数
+    const pad = (n: number) => {
+        return n < 10 ? '0' + n : n;
+    }
+    // 补零函数，确保毫秒格式为三位数
+    const pad3 = (n: number) => {
+        return n < 100 ? '0' + (n < 10 ? '0' + n : n) : n;
+    }
+    // 将小时、分钟、秒、毫秒格式化为字符串
+    let timeString = pad(hours) + ':' + pad(minutes) + ':' + pad(seconds) + '.' + pad3(milliseconds);
+    return timeString;
+}
+
 export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRepository> {
 
     //初始化
@@ -65,7 +91,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let strText = this.items.map((item, idx) => {
             let line =
                 (idx + 1) + "\n"
-                + item.srt_duration?.start_time + " --> " + item.srt_duration?.end_time + "\n"
+                + formatTime(item.srt_duration!.start_time) + " --> " + formatTime(item.srt_duration!.end_time) + "\n"
                 + (item.srt_rewrite || '') + "\n"
             return line
         }).join("\n")

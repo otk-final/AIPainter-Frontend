@@ -24,7 +24,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
         const unsub = useKeyFrameRepository.subscribe(
             (state) => state.items[index],
             (state, pre) => {
-                state && setFrame(state)
+                if (state)  setFrame(state)
             },
             {
                 fireImmediately: true
@@ -79,8 +79,8 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
             <Fragment>
                 <div className='index'>{index + 1}</div>
                 <div>
-                    <Typography.Paragraph style={{ color: 'white', fontSize: 10 }}>开始:{stateFrame.srt_duration?.start}</Typography.Paragraph>
-                    <Typography.Paragraph style={{ color: 'white', fontSize: 10 }}>结束:{stateFrame.srt_duration?.end}</Typography.Paragraph>
+                    <Typography.Paragraph style={{ color: 'white', fontSize: 10 }}>开始:{stateFrame.srt_duration?.start_time}</Typography.Paragraph>
+                    <Typography.Paragraph style={{ color: 'white', fontSize: 10 }}>结束:{stateFrame.srt_duration?.end_time}</Typography.Paragraph>
                 </div>
             </Fragment>
         )

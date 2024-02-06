@@ -15,8 +15,6 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         console.info('释放.....')
         this.videoPath = undefined
         this.payload = undefined
-        this.audioPath = undefined
-        this.audioText = undefined
     }
 
     // 导入视频地址
@@ -26,10 +24,10 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     payload?: any
 
     // 导出音频信息
-    audioPath?: string
+    hasAudio: boolean = false
 
     // 导出音频文字
-    audioText?: string
+    hasAudioRecognition: boolean = false
 
     audioJobId?: string
 
@@ -38,6 +36,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         this.videoPath = videoPath
 
         //视频信息
+
         //解析视频参数
         let cmd = shell.Command.sidecar('bin/ffprobe', [
             "-v", "quiet",
@@ -49,9 +48,27 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         let output = await cmd.execute();
         this.payload = JSON.parse(output.stdout)
 
+        //导出音频
+        let audioPath = await path.join(await this.basePath(), this.repoDir, "audio.mp3")
+        cmd = shell.Command.sidecar("bin/ffmpeg", [
+            "-i", videoPath,
+            "-vn",
+            "-ab", "128k",  //音频格式
+            "-f", "mp3",
+            audioPath
+        ])
+        output = await cmd.execute()
+        console.info("提取音频 err", output.stderr)
+        console.info("提取音频 out", output.stdout)
+        this.hasAudio = true
+
+
         //save
         this.sync()
     }
+
+
+    
 
 
     //抽帧关键帧
@@ -150,47 +167,35 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         // let framesDir = await path.join(this.repoDir, "frames")
         // await fs.createDir(framesDir, { dir: this.baseDir(), recursive: true })
 
-
         return diffs
     }
 
-    //抽取音频
-    handleCollectAudio = async (savePath: string) => {
-
-        //导出音频
-        let cmd = shell.Command.sidecar("bin/ffmpeg", [
-            "-i", this.videoPath!,
-            "-vn",
-            "-ab", "128k",  //音频格式
-            "-f", "mp3",
-            savePath
-        ])
-
-        let output = await cmd.execute()
-        console.info(output.stderr)
-        console.info(output.stdout)
-    }
 
     //识别音频
     handleRecognitionAudio = async (api: TTSApi) => {
 
         //提取音频
+        if (!this.hasAudio){
+            throw new Error("无音频文件")
+        }
         let audioPath = await path.join(await this.basePath(), this.repoDir, "audio.mp3")
-        await this.handleCollectAudio(audioPath)
-
+        
         //在线 生成字幕文件
         let jobResp: any = await api.submitAudio(audioPath)
         this.audioJobId = jobResp.id
         this.sync()
 
+        debugger
         //在线 延迟查询
         await delay(5000)
         let audioText:any = await api.queryResult(this.audioJobId!)
-        let audioTextPath = await path.join(await this.basePath(), this.repoDir, "audio.json")
+        let audioRecognitionPath = await path.join(await this.basePath(), this.repoDir, "audio.json")
 
+        debugger
         //写入文件
-        await fs.writeFile(audioTextPath, JSON.stringify(audioText, null, "\t"), { dir: this.baseDir(), append: false })
-    
+        await fs.writeFile(audioRecognitionPath, JSON.stringify(audioText, null, "\t"), { dir: this.baseDir(), append: false })
+        this.hasAudioRecognition = true
+
         //提取数据
         return audioText.utterances as SRTLine[]
     }
