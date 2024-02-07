@@ -1,7 +1,7 @@
 import GenerateImagesTR from "./image-generate-table-tr"
 import { generateImagesColumns } from "../data"
 import { ImitateTabType } from ".."
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { ComyUIModeSelect } from "@/components/mode-select"
 import { List, AutoSizer, ListRowProps } from 'react-virtualized';
 import { Button, InputNumber } from "antd"
@@ -12,12 +12,22 @@ interface ImageGenerateProps {
   handleChangeTab: (key: ImitateTabType) => void,
 }
 
-const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
-
+const ImageGenerateTab: React.FC<ImageGenerateProps> = ({  }) => {
 
   const keyFreamsRepo = useKeyFrameRepository(state => state)
   const [mode, setOption] = useState<string>("")
 
+
+
+  const _rowRenderer = ({ index, key, style }: ListRowProps) => {
+    const items = keyFreamsRepo.items;
+    return <GenerateImagesTR key={key}
+      frame={items[index]}
+      index={index}
+      style={style}
+      mode={mode}
+    />
+  }
 
   const renderTable = () => {
     return (
@@ -29,36 +39,25 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
         </div>
         <div style={{ flex: 1 }} >
           <AutoSizer>
-              {({height, width }) => {
-                let len = keyFreamsRepo.items.length;
-                return (
-                    <List
-                      className='autosizer scrollbar'
-                      height={height - 50}
-                      rowCount={len}
-                      rowHeight={184}
-                      rowRenderer={_rowRenderer}
-                      width={width}
-                      noRowsRenderer={()=> <div></div>}
-                      overscanRowCount={20}
-                    />
-                  )
-              }}
+            {({ height, width }) => {
+              let len = keyFreamsRepo.items.length;
+              return (
+                <List
+                  className='autosizer scrollbar'
+                  height={height - 50}
+                  rowCount={len}
+                  rowHeight={184}
+                  rowRenderer={_rowRenderer}
+                  width={width}
+                  noRowsRenderer={() => <div></div>}
+                  overscanRowCount={20}
+                />
+              )
+            }}
           </AutoSizer>
         </div>
       </div>
     )
-  }
-
-
-  const _rowRenderer = ({ index, key, style }: ListRowProps) => {
-    const items = keyFreamsRepo.items;
-    return <GenerateImagesTR key={key}
-      frame={items[index]}
-      index={index}
-      style={style}
-      mode={mode}
-    />
   }
 
 

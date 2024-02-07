@@ -1,8 +1,8 @@
-import { Button, Select, Tabs, InputNumber, message } from 'antd';
+import { Button, Tabs, message } from 'antd';
 import React, { useEffect, useState } from 'react'
 import './index.less'
 import { createTabs } from './data'
-import { history, useParams } from "umi"
+import { useParams } from "umi"
 import Storyboard from './components/storyboard';
 import Drawbatch from './components/drawbatch';
 import Videogeneration from './components/videogeneration'
@@ -22,7 +22,7 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
   const scriptRepo = useScriptRepository(state => state)
   const actorsRepo = useActorRepository(state => state)
   const chaptersRepo = useChapterRepository(state => state)
-  
+
 
 
   //加载配置项

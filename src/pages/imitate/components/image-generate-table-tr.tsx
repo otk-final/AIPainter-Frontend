@@ -22,7 +22,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
     useEffect(() => {
         const unsub = useKeyFrameRepository.subscribe(
             (state) => state.items[index],
-            async (state, pre) => state && setFrame(state),
+            async (state) => state && setFrame(state),
             { fireImmediately: true })
         return unsub
     }, [index])

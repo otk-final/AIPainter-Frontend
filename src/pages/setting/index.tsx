@@ -1,9 +1,8 @@
 import { Button, Tabs, TabsProps, message } from 'antd';
-import React, { createRef, useEffect, useRef, useState } from 'react'
+import React, { createRef, useState } from 'react'
 import './index.less'
 import PaintSetting, { PaintSettingRef } from './components/paint-setting';
 import BasicSetting from './components/basic-setting';
-import { usePersistComfyUIStorage } from '@/stores/comfyui';
 import { Header } from '@/components';
 import { useComfyUIRepository } from '@/repository/comfyui';
 

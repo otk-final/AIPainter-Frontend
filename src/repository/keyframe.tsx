@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { BaseCRUDRepository, ItemIdentifiable, delay } from "./tauri_repository"
+import { BaseCRUDRepository, ItemIdentifiable } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
 import { fs, path, shell } from "@tauri-apps/api"
 import { Image2TextHandle, Text2ImageHandle, WFScript, registerComfyUIPromptCallback } from "./comfyui_api"
@@ -232,7 +232,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         console.info(output.stderr)
         console.info(output.stdout)
 
-        
+
         this.items[index].video_path = videoPath
         this.sync()
         return videoPath

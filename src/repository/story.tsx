@@ -59,7 +59,7 @@ export class ScriptRepository extends BaseRepository<ScriptRepository> {
 
         //添加任务
         let chapterObjects = await gptApi.scriptBoarding(this.fileId)
-        return chapterObjects.flatMap((message, idx) => {
+        return chapterObjects.flatMap((message) => {
             return {
                 id: uuid(),
                 original: message["original"] || "",
@@ -89,7 +89,7 @@ export class ScriptRepository extends BaseRepository<ScriptRepository> {
         }
 
         let lines = scriptText.split("\n")
-        return lines.filter(line => line !== "").map((line, idx) => {
+        return lines.filter(line => line !== "").map((line) => {
             return {
                 id: uuid(),
                 original: line.trim(),

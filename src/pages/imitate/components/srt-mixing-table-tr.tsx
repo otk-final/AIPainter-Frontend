@@ -25,10 +25,12 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
     const ttsRepo = useTTSRepository(state => state)
     const gptApi = useGPTAssistantsApi(state => state)
 
+    console.info(voiceType)
+
     useMemo(() => {
         const unsub = useKeyFrameRepository.subscribe(
             (state) => state.items[index],
-            async (state, pre) => {
+            async (state) => {
                 if (state) setFrame(state)
             },
             {
@@ -45,6 +47,15 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
 
     const handleEditRewrite = async (e: any) => {
         await keyFreamRepo.updateItem(index, { ...stateFrame, srt_rewrite: e.target.value }, false)
+    }
+
+
+    const [isOpen, setOpen] = useState<boolean>(false)
+    const [playerUrl, setPlayerUrl] = useState<string | undefined>()
+
+    const hanldePlayer = async (path: string) => {
+        setOpen(true)
+        setPlayerUrl(await keyFreamRepo.absulotePath(path))
     }
 
 
@@ -87,7 +98,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
         let path = await keyFreamRepo.handleGenerateAudio(index, option, ttsApi).catch(err => message.error(err)).finally(Modal.destroyAll)
 
         //播放
-        hanldePlayer(path)
+        hanldePlayer(path as string)
 
     }
     const handleGenerateVideo = async () => {
@@ -100,7 +111,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
         })
         let path = await keyFreamRepo.handleGenerateVideo(index).catch(err => message.error(err)).finally(Modal.destroyAll)
 
-        hanldePlayer(path)
+        hanldePlayer(path as string)
     }
 
     const renderNumber = () => {
@@ -131,14 +142,6 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
                 value={stateFrame.srt_rewrite}
                 onChange={handleEditRewrite} />
         )
-    }
-
-    const [isOpen, setOpen] = useState<boolean>(false)
-    const [playerUrl, setPlayerUrl] = useState<string | undefined>()
-
-    const hanldePlayer = async (path: string) => {
-        setOpen(true)
-        setPlayerUrl(await keyFreamRepo.absulotePath(path))
     }
 
     const renderOperate = () => {

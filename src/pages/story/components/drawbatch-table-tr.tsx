@@ -1,8 +1,7 @@
-import { Button, Image, message, Modal } from "antd"
+import { Button, message, Modal } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import { Fragment, useEffect, useState } from "react";
 import { drawbatchColumns } from "../data";
-import { tauri } from "@tauri-apps/api";
 import { Actor, Chapter, useChapterRepository } from "@/repository/story";
 import { useComfyUIRepository } from "@/repository/comfyui";
 import { AssetHistoryImages, AssetImage, ModalHistoryImages } from "@/components/history-image";
@@ -17,28 +16,27 @@ interface ChapterTableTRProps {
 }
 
 
-const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, actors, chapter, style, key }) => {
+const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, style, key }) => {
 
-    const [isOpenHistory, setIsOpenHistory] = useState(false);
     const chapterRepo = useChapterRepository(state => state)
     const [stateChapter, setChapter] = useState<Chapter>({ ...chapter })
     useEffect(() => {
         const unsub = useChapterRepository.subscribe(
             (state) => state.items[idx],
-            (state, prev) => setChapter(state),
+            (state,) => state && setChapter(state),
             { fireImmediately: true }
         )
         return unsub
     }, [idx])
 
-    const renderEnglishPrompts = (checkActors: string[]) => {
-        if (!checkActors || checkActors.length === 0) {
-            return ""
-        }
-        return actors!.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
-            return item.traits.map(f => f.value).join(",")
-        }).join(";")
-    }
+    // const renderEnglishPrompts = (checkActors: string[]) => {
+    //     if (!checkActors || checkActors.length === 0) {
+    //         return ""
+    //     }
+    //     return actors!.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
+    //         return item.traits.map(f => f.value).join(",")
+    //     }).join(";")
+    // }
 
     const renderNumber = () => {
         return (
@@ -58,32 +56,6 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, actors, chapter
                 maxLength={1000} className="text-area-auto"
                 value={stateChapter.prompt?.en}
                 onChange={handleEditPrompt} />
-        )
-    }
-
-    const renderImage = () => {
-        if (!stateChapter.image?.path) {
-            return <div>待生成</div>
-        }
-        let imageUrl = tauri.convertFileSrc(stateChapter.image?.path)
-        return (
-            <div>
-                <Image src={imageUrl} preview={false} />
-            </div>
-        )
-    }
-
-    const renderImageHistory = () => {
-        if (!stateChapter.image?.history) {
-            return <div>待生成</div>
-        }
-        return (
-            <div className="flexR" style={{ flexWrap: "wrap", justifyContent: "flex-start", width: '100%' }}
-                onClick={() => setIsOpenHistory(true)}>
-                {stateChapter.image?.history?.map((p, idx) => {
-                    return <Image src={tauri.convertFileSrc(p)} className="drawbath-image size-s" preview={false} key={idx} />
-                })}
-            </div>
         )
     }
 

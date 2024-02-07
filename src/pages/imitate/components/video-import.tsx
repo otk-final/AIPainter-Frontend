@@ -13,7 +13,7 @@ interface VideoImportProps {
     handleChangeTab: (key: ImitateTabType) => void,
 }
 
-const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) => {
+const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
 
     const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
     const simulateRepo = useSimulateRepository(state => state)

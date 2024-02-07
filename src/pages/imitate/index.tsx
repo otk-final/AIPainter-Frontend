@@ -1,5 +1,5 @@
 import { Button, Modal, Tabs, TabsProps } from 'antd';
-import React, {  Fragment, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import './index.less'
 import { history, useParams } from "umi"
 import VideoImportTab from './components/video-import';
@@ -51,7 +51,7 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   //导出
   const handleDraft = () => {
     Modal.info({
-      content: <div style={{color: '#fff'}}>正在导出剪映草稿..</div>,
+      content: <div style={{ color: '#fff' }}>正在导出剪映草稿..</div>,
       footer: null,
       mask: true,
       maskClosable: false,
@@ -78,7 +78,7 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
 
 
   return (
-    <div className="imitate-wrap">
+    <div className="table-wrap">
       <Header onQuit={(handleQuit)} renderLeft={renderHeaderLeft()} renderRight={renderHeaderRight()} />
       {currentTab === "import" ? < VideoImportTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
       {currentTab === 'frames' ? <ImageGenerateTab pid={pid} handleChangeTab={setCurrentTab} /> : null}

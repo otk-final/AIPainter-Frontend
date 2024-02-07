@@ -20,7 +20,7 @@ interface SRTMixingProps {
 
 const voiceTypeOptions = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
 
-const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
+const SRTMixingTab: React.FC<SRTMixingProps> = ({  }) => {
     const keyFreamsRepo = useKeyFrameRepository(state => state)
     const simulateRepo = useSimulateRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)

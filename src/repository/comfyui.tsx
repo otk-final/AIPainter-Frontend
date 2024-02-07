@@ -3,7 +3,6 @@ import { BaseCRUDRepository } from "./tauri_repository";
 import { create } from "zustand";
 import { ComfyUIApi, ComfyUIHost, ComfyUIPipe, ComfyUIWorkflow } from "./comfyui_api";
 import { fs } from "@tauri-apps/api";
-import { v4 as uuid } from "uuid"
 
 let _baseApi: ComfyUIApi | undefined = undefined
 let _basePipe: ComfyUIPipe | undefined = undefined
@@ -36,7 +35,7 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
 
     newClient = async () => {
         this.destroyClient()
-        
+
         let newClientId = "test"
         let authorization = "test"
         //api
