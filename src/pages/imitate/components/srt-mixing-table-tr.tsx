@@ -5,6 +5,8 @@ import { srtMixingColumns } from "../data";
 import { tauri } from "@tauri-apps/api";
 import { useGPTAssistantsApi } from "@/repository/gpt";
 import { KeyFrame, useKeyFrameRepository } from "@/repository/keyframe";
+import { useTTSRepository } from "@/repository/tts";
+import { CameraFilled, SoundFilled } from "@ant-design/icons";
 
 interface SRTMixingTRProps {
     voiceType: string
@@ -18,13 +20,14 @@ interface SRTMixingTRProps {
 const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key, style }) => {
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
     const srtFreamRepo = useKeyFrameRepository(state => state)
+    const ttsRepo = useTTSRepository(state => state)
     const gptApi = useGPTAssistantsApi(state => state)
 
     useMemo(() => {
         const unsub = useKeyFrameRepository.subscribe(
             (state) => state.items[index],
-            (state, pre) => {
-                if (state)  setFrame(state)
+            async (state, pre) => {
+                if (state) setFrame(state)
             },
             {
                 fireImmediately: true
@@ -70,9 +73,27 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
             mask: true,
             maskClosable: false,
         })
-        await srtFreamRepo.handleGenerateAudio(index, voiceType, gptApi).catch(err => message.error(err)).finally(Modal.destroyAll)
+
+        let option = {
+            "encoding": "mp3",
+            "voice_type": "BV437_streaming",
+            "emotion": "angry",
+            "language": "cn"
+        }
+
+        let ttsApi = await ttsRepo.newClient()
+        await srtFreamRepo.handleGenerateAudio(index, option, ttsApi).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
-    const handleGenerateVideo = async () => { }
+    const handleGenerateVideo = async () => {
+
+        Modal.info({
+            content: <div style={{ color: '#fff' }}>合成视频...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
+        })
+        await srtFreamRepo.handleGenerateVideo(index).catch(err => message.error(err)).finally(Modal.destroyAll)
+    }
 
     const renderNumber = () => {
         return (
@@ -118,8 +139,8 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
             <Fragment>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRecognize}>原字幕识别</Button>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRewriteContent} disabled={!stateFrame.srt}>AI改写</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateAudio} disabled={!stateFrame.srt_rewrite}>生成音频</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateVideo} disabled={!stateFrame.srt_rewrite}>生成视频</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateAudio} disabled={!stateFrame.srt_rewrite} icon={<SoundFilled />}>生成音频</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateVideo} disabled={!stateFrame.srt_rewrite} icon={<CameraFilled />}>生成视频</Button>
             </Fragment>
         )
     }

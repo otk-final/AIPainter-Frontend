@@ -1,5 +1,5 @@
 import { Button, Input } from 'antd';
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react'
+import React, { forwardRef, useImperativeHandle, useState } from 'react'
 import TextArea from 'antd/es/input/TextArea';
 import { DeleteFilled, PlusOutlined, } from '@ant-design/icons';
 import { dialog, path } from '@tauri-apps/api';

@@ -17,7 +17,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
 
     const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
     const simulateRepo = useSimulateRepository(state => state)
-    const KeyFrameRepo = useKeyFrameRepository(state => state)
+    const keyFrameRepo = useKeyFrameRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
 
     const handleImported = async () => {
@@ -39,8 +39,8 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
         })
         //抽帧，导入，切换tab
         let api = await ttsRepo.newClient()
-        let keyFrames = await simulateRepo.handleCollectFrames2(api)
-        await KeyFrameRepo.initialization(keyFrames).catch(err => message.error(err)).finally(Modal.destroyAll)
+        let keyFrames = await simulateRepo.handleCollectFrames(api)
+        await keyFrameRepo.initialization(keyFrames).catch(err => message.error(err)).finally(Modal.destroyAll)
         handleChangeTab("frames");
     }
 

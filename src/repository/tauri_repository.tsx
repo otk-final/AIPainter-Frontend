@@ -106,15 +106,21 @@ export abstract class BaseRepository<T> {
 
     saveFile = async (subfolder: string, filename: string, fileBuffer: ArrayBuffer) => {
 
+        //目录
         let outputDir = await path.join(this.repoDir as string, subfolder)
         await fs.createDir(outputDir, { dir: this.baseDir(), recursive: true })
 
-        //保存图片
-        let newImagePath = await path.join(outputDir, filename)
-        await fs.writeBinaryFile(newImagePath, fileBuffer, { dir: this.baseDir(), append: false })
+        //文件
+        let newFilePath = await path.join(outputDir, filename)
+        await fs.writeBinaryFile(newFilePath, fileBuffer, { dir: this.baseDir(), append: false })
 
-        //返回全路径
-        return await path.join(await path.appLocalDataDir(), newImagePath)
+        //返回相对路径
+        return subfolder + "/" + filename
+    }
+
+
+    absulotePath = async (assetPath: string) => {
+        return await path.join(await this.basePath(), this.repoDir, assetPath)
     }
 }
 

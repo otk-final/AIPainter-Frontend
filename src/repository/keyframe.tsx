@@ -1,13 +1,14 @@
 import { create } from "zustand"
-import { BaseCRUDRepository, ItemIdentifiable } from "./tauri_repository"
+import { BaseCRUDRepository, ItemIdentifiable, delay } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
-import { fs } from "@tauri-apps/api"
+import { fs, path, shell } from "@tauri-apps/api"
 import { Image2TextHandle, Text2ImageHandle, WFScript, registerComfyUIPromptCallback } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
 import { SRTLine, formatTime } from "./srt"
 import { GPTAssistantsApi } from "./gpt"
 import { createWorker } from "tesseract.js"
 import { v4 as uuid } from "uuid"
+import { AudioOption, TTSApi } from "./tts_api"
 
 export interface KeyFrame extends ItemIdentifiable {
     id: number
@@ -18,14 +19,24 @@ export interface KeyFrame extends ItemIdentifiable {
         path?: string
         history: string[]
     }
-    //字幕信息
+    //原字幕信息
     srt?: string
     srt_duration?: {
         start_time: number
         end_time: number
     }
+
+    //字幕改写信息
     srt_rewrite?: string
-    srt_audio?: string
+    srt_rewrite_duration?: {
+        start_time: number
+        end_time: number
+    }
+    srt_rewrite_audio_path?: string
+    srt_rewrite_audio_duration?: number
+
+    //生成视频
+    video_path?: string
 }
 
 
@@ -63,7 +74,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         await this.sync()
     }
 
-    exportSRTFile = async (srtfile: string) => {
+    srtExport = async (srtfile: string) => {
         let strText = this.items.map((item, idx) => {
             let line =
                 (idx + 1) + "\n"
@@ -75,11 +86,6 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         await fs.writeTextFile(srtfile, strText, { append: true })
     }
 
-    exportAudioZip = async (zipfile: string) => {
-        console.info(zipfile)
-    }
-
-
     //重写台词
     aiRewriteContent = async (index: number, gptApi: GPTAssistantsApi) => {
         let rewrite = await gptApi.rewritePrompt(this.items[index].srt!)
@@ -90,9 +96,9 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     //识别图片字幕
     recognizeContent = async (index: number) => {
         let targetPath = this.items[index].path
-        let worker = await createWorker('chi_sim')
 
-        let imageBytes = await fs.readBinaryFile(targetPath)
+        let worker = await createWorker('chi_sim')
+        let imageBytes = await fs.readBinaryFile(await this.absulotePath(targetPath))
 
 
         //添加矩阵后，效果不好，后期优化
@@ -107,7 +113,6 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
 
         const ret = await worker.recognize(Buffer.from(imageBytes.buffer), { rectangle: undefined })
-        console.log(ret.data);
         this.items[index].srt = ret.data.text.replaceAll('\n', "").replaceAll(' ', '')
 
         await this.sync()
@@ -126,7 +131,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let script = new WFScript(text)
 
         //上传文件
-        await api.upload(api.clientId, frame.path, frame.name)
+        await api.upload(api.clientId, await this.absulotePath(frame.path), frame.name)
 
         //提交任务
         let job = await api.prompt(script, { subfolder: api.clientId, filename: frame.name }, Image2TextHandle)
@@ -167,7 +172,8 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
                 //保存
                 let fileBuffer = await api.download(promptId, imageItem.subfolder, imageItem.filename)
-                let filePath = await this.saveFile("outputs", "kf_" + uuid() + ".png", fileBuffer)
+                let fileName = frame.name + "_" + uuid() + ".png"
+                let filePath = await this.saveFile("outputs", fileName, fileBuffer)
 
                 frame.image.path = filePath
                 frame.image.history.push(filePath)
@@ -181,16 +187,53 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         registerComfyUIPromptCallback({ jobId: "", promptId: job.prompt_id, handle: callback })
     }
 
-    handleGenerateAudio = async (index: number, voiceType: string, gtpApi: GPTAssistantsApi) => {
+    handleGenerateAudio = async (index: number, audio: AudioOption, api: TTSApi) => {
 
-        //生成
-        let buffer = await gtpApi.textToAudio(this.items[index].srt_rewrite!, voiceType)
+        let item = this.items[index]
+        //生成音频
+        let resp = await api.translate(item.srt_rewrite!, audio)
 
-        //保存
-        let audioPath = await this.saveFile("audio", "ad_" + uuid() + ".mp3", buffer)
+        //保存文件
+        let audioName = item.name + "_" + uuid() + ".mp3"
+        let audioPath = await this.saveFile("audio", audioName, resp.data)
 
-        this.items[index].srt_audio = audioPath
+        this.items[index].srt_rewrite_audio_duration = resp.duration
+        this.items[index].srt_rewrite_audio_path = audioPath
+
         this.sync()
+        return audioPath
+    }
+
+    handleGenerateVideo = async (index: number) => {
+        let item = this.items[index]
+
+        //临时存储目录
+        let videoDir = await path.join(this.repoDir, "videos")
+        await fs.createDir(videoDir, { dir: this.baseDir(), recursive: true })
+
+        //视频路径
+        let videoPath = "videos/" + item.name + "_" + uuid() + ".mp4"
+        let assetPath = await this.absulotePath(videoPath)
+
+        //字幕文件，音频 合成视频
+        let cmd = shell.Command.sidecar("bin/ffmpeg", [
+            "-loop", "1",
+            "-i", await this.absulotePath(item.image.path!),         //图片
+            "-i", await this.absulotePath(item.srt_rewrite_audio_path!),  //音频
+            "-c:v", 'libx264',
+            "-tune", "stillimage",
+            "-vf", '"format=yuv420p"',      //兼容大部分播放器
+            "-r", "5",                      //默认1秒5帧
+            "-shortest",
+            assetPath                       //视频
+        ])
+
+        let output = await cmd.execute()
+        console.info(output.stderr)
+        console.info(output.stdout)
+
+        delay(500)
+        return videoPath
     }
 }
 

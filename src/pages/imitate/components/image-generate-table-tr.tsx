@@ -1,6 +1,6 @@
 import { Button, Image, message, Modal } from "antd"
 import TextArea from "antd/es/input/TextArea";
-import { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { generateImagesColumns } from "../data";
 import { tauri } from "@tauri-apps/api";
 import { HistoryImageModule } from "@/components"
@@ -24,7 +24,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
     useEffect(() => {
         const unsub = useKeyFrameRepository.subscribe(
             (state) => state.items[index],
-            (state, pre) => state && setFrame(state),
+            async (state, pre) => state && setFrame(state),
             { fireImmediately: true })
         return unsub
     }, [index])
@@ -44,7 +44,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
         try {
             await keyFreamRepo.handleReversePrompt(index, comfyUIRepo);
             modal.destroy();
-        } catch (ex:any) {
+        } catch (ex: any) {
             modal.destroy();
             Modal.error({
                 content: <div style={{ color: '#fff' }}>反推关键词 {ex}</div>,
@@ -127,16 +127,16 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
         await keyFreamRepo.updateItem(index, { ...stateFrame, image: { ...stateFrame.image, path: path } }, true)
     }
 
-    
+
     return (
         <div className='tr flexR' style={style} key={key}>
             {generateImagesColumns.map((i, index) => {
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
-                        {i.key === 'path' ? renderImage(stateFrame.path) : null}
+                        {i.key === 'path' && <AssetImage path={stateFrame.path} />}
                         {i.key === 'drawPrompt' ? renderPrompt() : null}
-                        {i.key === 'drawImage' ? renderImage(stateFrame.image?.path) : null}
+                        {i.key === 'drawImage' && <AssetImage path={stateFrame.image?.path} />}
                         {i.key === 'drawImageHistory' ? renderImageHistory() : null}
                         {i.key === 'operate' ? renderOperate() : null}
                     </div>
@@ -149,5 +149,25 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
         </div>
     )
 }
+
+const AssetImage: React.FC<{ path?: string }> = ({ path }) => {
+    // const AssetImage = (path?: string) => {
+
+    const [url, setUrl] = useState<string | undefined>(path)
+    const keyFreamRepo = useKeyFrameRepository(state => state)
+
+    const render = async (path: string) => {
+        setUrl(tauri.convertFileSrc(await keyFreamRepo.absulotePath(path)))
+    }
+    useEffect(() => {
+        if (path) render(path)
+    }, [path])
+
+    if (url) {
+        return <Image src={url} className="generate-image" preview={true} />
+    }
+    return <Fragment />
+}
+
 
 export default GenerateImagesTR

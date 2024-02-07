@@ -1,5 +1,21 @@
 import { fs, http } from "@tauri-apps/api"
 import { Body, Client } from "@tauri-apps/api/http"
+import { v4 as uuid } from "uuid"
+
+//音频参数
+export interface AudioOption {
+    encoding: string
+    voice_type: string
+    emotion: string
+    language: string
+}
+
+export interface AudioData {
+    data: Uint8Array
+    duration: number
+}
+
+
 
 export class TTSApi {
 
@@ -23,6 +39,38 @@ export class TTSApi {
         await this.api?.drop()
     }
 
+    //转换为音频
+    translate = async (srtText: string, option: AudioOption) => {
+        let params = {
+            app: {
+                appid: this.appId,
+                token: "access_token",
+                cluster: "volcano_tts",
+            },
+            user: {
+                uid: uuid()
+            },
+            audio: option,
+            request: {
+                reqid: uuid(),
+                text: srtText,
+                text_type: "plain",
+                operation: "query",
+            }
+        }
+
+        let resp: any = await this.api?.post(this.host + "/api/v1/tts", Body.json(params), {
+            headers: {
+                'Content-Type': 'audio/*',
+                'Authorization': this.authorization
+            }
+        }).then(resp => resp.data)
+        console.info("resp", resp)
+        return {
+            data: Uint8Array.from(atob(resp.data), c => c.charCodeAt(0)),
+            duration: resp.addition.duration
+        } as AudioData
+    }
 
     //提交音频
     submitAudio = async (audioPath: string) => {
@@ -30,11 +78,11 @@ export class TTSApi {
         //基础参数
         let baseRawQuery = "appid=" + this.appId + "&words_per_line=20&max_lines=2"
         return await this.api?.post(this.host + "/api/v1/vc/submit?" + baseRawQuery, Body.bytes(bytes), {
-            headers: { 
-                'Content-Type': 'audio/*', 
+            headers: {
+                'Content-Type': 'audio/*',
                 'Authorization': this.authorization
             }
-        }).then(resp=>resp.data)
+        }).then(resp => resp.data)
     }
 
     //查询结果

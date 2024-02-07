@@ -22,8 +22,8 @@ const voiceTypeOptions = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
 
 const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
     const keyFreamsRepo = useKeyFrameRepository(state => state)
-    const simulateRepo = useSimulateRepository(state=>state)
-    const ttsRepo =  useTTSRepository(state=>state)
+    const simulateRepo = useSimulateRepository(state => state)
+    const ttsRepo = useTTSRepository(state => state)
     const [voiceType, setOption] = useState<string>("shimmer")
 
     const handleImportSRTFile = async () => {
@@ -36,7 +36,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
         await keyFreamsRepo.srtAlignment(srtLines)
     }
 
-    const handleRecognitionSRT =async () => {
+    const handleRecognitionSRT = async () => {
         Modal.info({
             content: <div style={{ color: '#fff' }}>识别字幕...</div>,
             footer: null,
@@ -47,7 +47,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
         //在线识别
         let api = await ttsRepo.newClient()
         let srtLines = await simulateRepo.handleRecognitionAudio(api)
-        
+
         //对齐
         await keyFreamsRepo.srtAlignment(srtLines).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
@@ -58,7 +58,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
         if (!selected) {
             return
         }
-        await keyFreamsRepo.exportSRTFile(selected as string).finally(() => { message.success("导出成功") })
+        await keyFreamsRepo.srtExport(selected as string).finally(() => { message.success("导出成功") })
     }
 
     const handleExportAudioZip = async () => {
@@ -66,7 +66,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
         if (!selected) {
             return
         }
-        await keyFreamsRepo.exportSRTFile(selected as string).finally(() => { message.success("导出成功") })
+        await keyFreamsRepo.srtExport(selected as string).finally(() => { message.success("导出成功") })
     }
     const _rowRenderer = ({ index, key, style }: ListRowProps) => {
         const items = keyFreamsRepo.items;
@@ -103,18 +103,18 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
                 </div>
                 <div style={{ flex: 1 }} >
                     <AutoSizer>
-                        {({height, width }) => {
+                        {({ height, width }) => {
                             let len = keyFreamsRepo.items.length;
                             return (
                                 <List
-                                className='autosizer scrollbar'
-                                height={height - 50}
-                                rowCount={len}
-                                rowHeight={184}
-                                rowRenderer={_rowRenderer}
-                                width={width}
-                                noRowsRenderer={()=> <div></div>}
-                                overscanRowCount={20}
+                                    className='autosizer scrollbar'
+                                    height={height - 50}
+                                    rowCount={len}
+                                    rowHeight={184}
+                                    rowRenderer={_rowRenderer}
+                                    width={width}
+                                    noRowsRenderer={() => <div></div>}
+                                    overscanRowCount={20}
                                 />
                             )
                         }}
