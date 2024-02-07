@@ -3,9 +3,9 @@ import TextArea from "antd/es/input/TextArea";
 import { Fragment, useEffect, useState } from "react";
 import { drawbatchColumns } from "../data";
 import { tauri } from "@tauri-apps/api";
-import { HistoryImageModule } from "@/components";
 import { Actor, Chapter, useChapterRepository } from "@/repository/story";
 import { useComfyUIRepository } from "@/repository/comfyui";
+import { AssetHistoryImages, AssetImage, ModalHistoryImages } from "@/components/history-image";
 
 interface ChapterTableTRProps {
     idx: number,
@@ -133,7 +133,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, actors, chapter
     const handleUpdateCurrentImage = async (path: string) => {
         await chapterRepo.updateItem(idx, { ...stateChapter, image: { ...stateChapter.image!, path: path } }, true)
     }
-
+    const [isOpen, setOpen] = useState(false)
     return (
         <div className='tr flexR' style={style} key={key}>
             {stateChapter && drawbatchColumns.map((i, index) => {
@@ -142,16 +142,13 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, actors, chapter
                         {i.key === 'number' ? renderNumber() : null}
                         {i.key === 'original' ? stateChapter.original : null}
                         {i.key === 'drawPrompt' ? renderEditPrompts() : null}
-                        {i.key === 'drawImage' ? renderImage() : null}
-                        {i.key === 'drawImageHistory' ? renderImageHistory() : null}
+                        {i.key === 'drawImage' && <AssetImage path={stateChapter.image?.path} repo={chapterRepo} />}
+                        {i.key === 'drawImageHistory' && <AssetHistoryImages setOpen={setOpen} path={stateChapter.image?.path} history={stateChapter.image?.history || []} repo={chapterRepo} />}
                         {i.key === 'operate' ? renderOperate() : null}
                     </div>
                 )
             })}
-            <HistoryImageModule
-                isOpen={isOpenHistory} onClose={() => setIsOpenHistory(false)}
-                paths={stateChapter.image?.history || []} defaultPath={stateChapter.image?.path || ""}
-                onChangeNewImage={handleUpdateCurrentImage} />
+            <ModalHistoryImages isOpen={isOpen} setOpen={setOpen} path={stateChapter.image?.path} history={stateChapter.image?.history || []} repo={chapterRepo} onChange={handleUpdateCurrentImage} />
         </div>
     )
 }

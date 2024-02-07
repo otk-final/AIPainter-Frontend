@@ -172,7 +172,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
                 //保存
                 let fileBuffer = await api.download(promptId, imageItem.subfolder, imageItem.filename)
-                let fileName = frame.name + "_" + uuid() + ".png"
+                let fileName = frame.id + "-" + uuid() + ".png"
                 let filePath = await this.saveFile("outputs", fileName, fileBuffer)
 
                 frame.image.path = filePath
@@ -194,7 +194,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let resp = await api.translate(item.srt_rewrite!, audio)
 
         //保存文件
-        let audioName = item.name + "_" + uuid() + ".mp3"
+        let audioName = item.id + "-" + uuid() + ".mp3"
         let audioPath = await this.saveFile("audio", audioName, resp.data)
 
         this.items[index].srt_rewrite_audio_duration = resp.duration
@@ -212,7 +212,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         await fs.createDir(videoDir, { dir: this.baseDir(), recursive: true })
 
         //视频路径
-        let videoPath = "videos/" + item.name + "_" + uuid() + ".mp4"
+        let videoPath = "videos/" + item.id + "-" + uuid() + ".mp4"
         let assetPath = await this.absulotePath(videoPath)
 
         //字幕文件，音频 合成视频
@@ -222,7 +222,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
             "-i", await this.absulotePath(item.srt_rewrite_audio_path!),  //音频
             "-c:v", 'libx264',
             "-tune", "stillimage",
-            "-vf", '"format=yuv420p"',      //兼容大部分播放器
+            "-vf", 'format=yuv420p',      //兼容大部分播放器
             "-r", "5",                      //默认1秒5帧
             "-shortest",
             assetPath                       //视频
@@ -232,7 +232,9 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         console.info(output.stderr)
         console.info(output.stdout)
 
-        delay(500)
+        
+        this.items[index].video_path = videoPath
+        this.sync()
         return videoPath
     }
 }

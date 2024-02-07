@@ -47,11 +47,9 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
         //在线识别
         let api = await ttsRepo.newClient()
         let srtLines = await simulateRepo.handleRecognitionAudio(api)
-
         //对齐
         await keyFreamsRepo.srtAlignment(srtLines).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
-
 
     const handleExportSRTFile = async () => {
         let selected = await dialog.save({ title: "保存文件", filters: [{ name: "SRT文件", extensions: ["srt"] }] })
@@ -66,8 +64,9 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
         if (!selected) {
             return
         }
-        await keyFreamsRepo.srtExport(selected as string).finally(() => { message.success("导出成功") })
+        // await keyFreamsRepo.srtExport(selected as string).finally(() => { message.success("导出成功") })
     }
+
     const _rowRenderer = ({ index, key, style }: ListRowProps) => {
         const items = keyFreamsRepo.items;
         return <SRTMixingTR key={key} frame={items[index]} voiceType={voiceType} style={style} index={index} />

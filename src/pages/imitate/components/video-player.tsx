@@ -17,6 +17,7 @@ const VideoPlayerModal: React.FC<VideoPlayerProps> = ({ videoPath, isOpen, onClo
             width={'50%'}
             className="home-login-modal energy-recharge">
             <ReactPlayer url={tauri.convertFileSrc(videoPath)}
+                playing
                 controls
                 width="100%"
             />

@@ -50,12 +50,12 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
         if (!savePath) {
             return
         }
-        Modal.info({
-            content: <div style={{ color: '#fff' }}>正在导出音频...</div>,
-            footer: null,
-            mask: true,
-            maskClosable: false,
-        })
+        // Modal.info({
+        //     content: <div style={{ color: '#fff' }}>正在导出音频...</div>,
+        //     footer: null,
+        //     mask: true,
+        //     maskClosable: false,
+        // })
 
     }
 

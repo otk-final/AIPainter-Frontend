@@ -1,15 +1,16 @@
 import { fs, path } from "@tauri-apps/api"
 import { BaseDirectory } from "@tauri-apps/api/fs"
-import { create } from "zustand"
-import { subscribeWithSelector } from "zustand/middleware";
 
 
 export type Directory = string
 
 
+export interface TauriRepo {
+    absulotePath: (assetPath: string) => Promise<string>
+}
 
 
-export abstract class BaseRepository<T> {
+export abstract class BaseRepository<T> implements TauriRepo {
 
     setHold: (T: any, noshallow?: boolean) => void
     getHold: () => T

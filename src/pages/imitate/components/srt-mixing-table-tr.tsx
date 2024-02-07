@@ -1,12 +1,14 @@
-import { Button, Image, Modal, Typography, message } from "antd"
+import { Button, Modal, Typography, message } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import React, { Fragment, useMemo, useState } from "react";
 import { srtMixingColumns } from "../data";
-import { tauri } from "@tauri-apps/api";
 import { useGPTAssistantsApi } from "@/repository/gpt";
 import { KeyFrame, useKeyFrameRepository } from "@/repository/keyframe";
 import { useTTSRepository } from "@/repository/tts";
 import { CameraFilled, SoundFilled } from "@ant-design/icons";
+import { AssetImage } from "@/components/history-image";
+import ButtonGroup from "antd/es/button/button-group";
+import VideoPlayerModal from "./video-player";
 
 interface SRTMixingTRProps {
     voiceType: string
@@ -19,7 +21,7 @@ interface SRTMixingTRProps {
 
 const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key, style }) => {
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
-    const srtFreamRepo = useKeyFrameRepository(state => state)
+    const keyFreamRepo = useKeyFrameRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
     const gptApi = useGPTAssistantsApi(state => state)
 
@@ -38,22 +40,22 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
 
 
     const handleEditContent = async (e: any) => {
-        await srtFreamRepo.updateItem(index, { ...stateFrame, srt: e.target.value }, false)
+        await keyFreamRepo.updateItem(index, { ...stateFrame, srt: e.target.value }, false)
     }
 
     const handleEditRewrite = async (e: any) => {
-        await srtFreamRepo.updateItem(index, { ...stateFrame, srt_rewrite: e.target.value }, false)
+        await keyFreamRepo.updateItem(index, { ...stateFrame, srt_rewrite: e.target.value }, false)
     }
 
 
     const handleRewriteContent = async () => {
         Modal.info({
-            content: <div style={{ color: '#fff' }}>ai 改写中...</div>,
+            content: <div style={{ color: '#fff' }}>GPT改写中...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
         })
-        await srtFreamRepo.aiRewriteContent(index, gptApi).catch(err => message.error(err)).finally(Modal.destroyAll)
+        await keyFreamRepo.aiRewriteContent(index, gptApi).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
     const handleRecognize = async () => {
@@ -63,7 +65,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
             mask: true,
             maskClosable: false,
         })
-        await srtFreamRepo.recognizeContent(index).catch(err => message.error(err)).finally(Modal.destroyAll)
+        await keyFreamRepo.recognizeContent(index).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
     const handleGenerateAudio = async () => {
@@ -82,7 +84,11 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
         }
 
         let ttsApi = await ttsRepo.newClient()
-        await srtFreamRepo.handleGenerateAudio(index, option, ttsApi).catch(err => message.error(err)).finally(Modal.destroyAll)
+        let path = await keyFreamRepo.handleGenerateAudio(index, option, ttsApi).catch(err => message.error(err)).finally(Modal.destroyAll)
+
+        //播放
+        hanldePlayer(path)
+
     }
     const handleGenerateVideo = async () => {
 
@@ -92,7 +98,9 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
             mask: true,
             maskClosable: false,
         })
-        await srtFreamRepo.handleGenerateVideo(index).catch(err => message.error(err)).finally(Modal.destroyAll)
+        let path = await keyFreamRepo.handleGenerateVideo(index).catch(err => message.error(err)).finally(Modal.destroyAll)
+
+        hanldePlayer(path)
     }
 
     const renderNumber = () => {
@@ -106,7 +114,6 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
             </Fragment>
         )
     }
-
 
     const renderContent = () => {
         return (
@@ -126,12 +133,12 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
         )
     }
 
+    const [isOpen, setOpen] = useState<boolean>(false)
+    const [playerUrl, setPlayerUrl] = useState<string | undefined>()
 
-    const renderImage = (path?: string) => {
-        if (!path) {
-            return null
-        }
-        return <Image src={tauri.convertFileSrc(path)} className="generate-image" preview={true} />
+    const hanldePlayer = async (path: string) => {
+        setOpen(true)
+        setPlayerUrl(await keyFreamRepo.absulotePath(path))
     }
 
     const renderOperate = () => {
@@ -139,8 +146,14 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
             <Fragment>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRecognize}>原字幕识别</Button>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRewriteContent} disabled={!stateFrame.srt}>AI改写</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateAudio} disabled={!stateFrame.srt_rewrite} icon={<SoundFilled />}>生成音频</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateVideo} disabled={!stateFrame.srt_rewrite} icon={<CameraFilled />}>生成视频</Button>
+                <ButtonGroup>
+                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateAudio} disabled={!stateFrame.srt_rewrite}>生成音频</Button>
+                    <Button type='default' className='btn-default-auto btn-default-98' onClick={() => hanldePlayer(stateFrame.srt_rewrite_audio_path!)} disabled={!stateFrame.srt_rewrite_audio_path} icon={<SoundFilled />}>播放</Button>
+                </ButtonGroup>
+                <ButtonGroup>
+                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateVideo} disabled={!(stateFrame.srt_rewrite_audio_path && stateFrame.image.path)}>生成视频</Button>
+                    <Button type='default' className='btn-default-auto btn-default-98' onClick={() => hanldePlayer(stateFrame.video_path!)} disabled={!stateFrame.video_path} icon={<CameraFilled />}>播放</Button>
+                </ButtonGroup>
             </Fragment>
         )
     }
@@ -152,14 +165,15 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
-                        {i.key === 'srcImage' ? renderImage(stateFrame.path) : null}
-                        {i.key === 'newImage' ? renderImage(stateFrame.image?.path) : null}
+                        {i.key === 'srcImage' && <AssetImage path={stateFrame.path} repo={keyFreamRepo} />}
+                        {i.key === 'newImage' && <AssetImage path={stateFrame.image.path} repo={keyFreamRepo} />}
                         {i.key === 'srt' ? renderContent() : null}
                         {i.key === 'srt_rewrite' ? renderRewriteContent() : null}
                         {i.key === 'operate' ? renderOperate() : null}
                     </div>
                 )
             })}
+            {(isOpen && playerUrl) && <VideoPlayerModal videoPath={playerUrl} isOpen={isOpen} onClose={() => setOpen(false)} />}
         </div>
     )
 }

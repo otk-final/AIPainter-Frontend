@@ -1,11 +1,10 @@
-import { Button, Image, message, Modal } from "antd"
+import { Button, message, Modal } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import React, { Fragment, useEffect, useState } from "react";
 import { generateImagesColumns } from "../data";
-import { tauri } from "@tauri-apps/api";
-import { HistoryImageModule } from "@/components"
 import { KeyFrame, useKeyFrameRepository } from "@/repository/keyframe";
 import { useComfyUIRepository } from "@/repository/comfyui";
+import { AssetHistoryImages, AssetImage, ModalHistoryImages } from "@/components/history-image";
 
 interface GenerateImagesTRProps {
     key: string
@@ -16,7 +15,6 @@ interface GenerateImagesTRProps {
 }
 
 const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, mode, frame }) => {
-    const [isOpenHistory, setIsOpenHistory] = useState(false);
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
     const keyFreamRepo = useKeyFrameRepository(state => state)
     const comfyUIRepo = useComfyUIRepository(state => state)
@@ -88,31 +86,6 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
     }
 
 
-    const renderImage = (path?: string) => {
-        if (!path) {
-            return null
-        }
-        return <Image src={tauri.convertFileSrc(path)} className="generate-image" preview={true} />
-    }
-
-
-    const renderImageHistory = () => {
-        if (!stateFrame.image?.history.length) {
-            return <div>待生成</div>
-        }
-        return (
-            <div className="flexR"
-                style={{ flexWrap: "wrap", justifyContent: "flex-start", width: '100%' }}
-                onClick={() => setIsOpenHistory(true)}
-            >
-                {stateFrame.image?.history.map((p, idx) => {
-                    return <Image src={tauri.convertFileSrc(p)} className="generate-image size-s" preview={false} key={idx} />
-                })}
-            </div>
-        )
-    }
-
-
     const renderOperate = () => {
         return (
             <Fragment>
@@ -127,47 +100,24 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
         await keyFreamRepo.updateItem(index, { ...stateFrame, image: { ...stateFrame.image, path: path } }, true)
     }
 
-
+    const [isOpen, setOpen] = useState(false)
     return (
         <div className='tr flexR' style={style} key={key}>
             {generateImagesColumns.map((i, index) => {
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
-                        {i.key === 'path' && <AssetImage path={stateFrame.path} />}
+                        {i.key === 'path' && <AssetImage path={stateFrame.path} repo={keyFreamRepo} />}
                         {i.key === 'drawPrompt' ? renderPrompt() : null}
-                        {i.key === 'drawImage' && <AssetImage path={stateFrame.image?.path} />}
-                        {i.key === 'drawImageHistory' ? renderImageHistory() : null}
+                        {i.key === 'drawImage' && <AssetImage path={stateFrame.image?.path} repo={keyFreamRepo} />}
+                        {i.key === 'drawImageHistory' && <AssetHistoryImages setOpen={setOpen} path={stateFrame.image?.path} history={stateFrame.image?.history} repo={keyFreamRepo} />}
                         {i.key === 'operate' ? renderOperate() : null}
                     </div>
                 )
             })}
-            <HistoryImageModule
-                isOpen={isOpenHistory} onClose={() => setIsOpenHistory(false)}
-                paths={stateFrame.image?.history || []} defaultPath={stateFrame.image?.path || ""}
-                onChangeNewImage={handleUpdateCurrentImage} />
+            <ModalHistoryImages isOpen={isOpen} setOpen={setOpen} path={stateFrame.image?.path} history={stateFrame.image?.history} repo={keyFreamRepo} onChange={handleUpdateCurrentImage} />
         </div>
     )
 }
-
-const AssetImage: React.FC<{ path?: string }> = ({ path }) => {
-    // const AssetImage = (path?: string) => {
-
-    const [url, setUrl] = useState<string | undefined>(path)
-    const keyFreamRepo = useKeyFrameRepository(state => state)
-
-    const render = async (path: string) => {
-        setUrl(tauri.convertFileSrc(await keyFreamRepo.absulotePath(path)))
-    }
-    useEffect(() => {
-        if (path) render(path)
-    }, [path])
-
-    if (url) {
-        return <Image src={url} className="generate-image" preview={true} />
-    }
-    return <Fragment />
-}
-
 
 export default GenerateImagesTR
