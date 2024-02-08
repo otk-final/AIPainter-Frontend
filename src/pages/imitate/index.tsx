@@ -1,4 +1,4 @@
-import { Button, Modal, Tabs, TabsProps } from 'antd';
+import { Button, Modal, Tabs, TabsProps, message } from 'antd';
 import React, { useMemo, useState } from 'react'
 import './index.less'
 import { history, useParams } from "umi"
@@ -9,6 +9,7 @@ import { useSimulateRepository } from '@/repository/simulate';
 import { useComfyUIRepository } from '@/repository/comfyui';
 import SRTMixingTab from './components/srt-mixing';
 import { useKeyFrameRepository } from '@/repository/keyframe';
+import { dialog } from '@tauri-apps/api';
 
 export type ImitateTabType = "import" | "frames" | "audio"
 const imitateTabs: TabsProps["items"] = [
@@ -47,9 +48,23 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
     }
   }, [pid])
 
+  const handleExport = async () => {
+
+    let selected = await dialog.save({ title: "保存文件", filters: [{ name: "视频文件", extensions: ["mp4"] }] })
+    if (!selected) {
+      return
+    }
+    Modal.info({
+      content: <div style={{ color: '#fff' }}>正在导出视频..</div>,
+      footer: null,
+      mask: true,
+      maskClosable: false,
+    })
+    await keyFreamRepo.handleConcatVideo(selected as string).catch(err => message.error(err)).finally(Modal.destroyAll)
+  }
 
   //导出
-  const handleDraft = () => {
+  const handleJYDraft = async () => {
     Modal.info({
       content: <div style={{ color: '#fff' }}>正在导出剪映草稿..</div>,
       footer: null,
@@ -71,8 +86,8 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
 
   const renderHeaderRight = () => {
     return <div>
-      <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!frames || frames.length === 0} onClick={handleDraft}> 导出视频</Button>
-      <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!frames || frames.length === 0} onClick={handleDraft}> 导出剪映草稿</Button>
+      <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!keyFreamRepo.items || keyFreamRepo.items.length === 0} onClick={handleExport}> 导出视频</Button>
+      <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!keyFreamRepo.items || keyFreamRepo.items.length === 0} onClick={handleJYDraft}> 导出剪映草稿</Button>
     </div>
   }
 

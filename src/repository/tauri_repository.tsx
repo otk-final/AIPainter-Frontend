@@ -37,10 +37,12 @@ export abstract class BaseRepository<T> implements TauriRepo {
 
     load = async (dir: Directory) => {
         this.free()
-
+        
         this.repoDir = dir
         //目录是否存在
         if (!await fs.exists(this.repoDir, { dir: this.baseDir() })) {
+            //创建空项目
+            await fs.createDir(this.repoDir, { dir: this.baseDir(), recursive: true })
             this.setHold(this, true)
             return
         }

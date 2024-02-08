@@ -15,6 +15,9 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         console.info('释放.....')
         this.videoPath = undefined
         this.payload = undefined
+        this.audioPath = undefined
+        this.audioRecognition = false
+        this.audioRecognitionJobId = undefined
     }
 
     // 导入视频地址
@@ -29,7 +32,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     // 导出音频文字
     audioRecognition: boolean = false
 
-    audioJobId?: string
+    audioRecognitionJobId?: string
 
 
     handleImportVideo = async (videoPath: string) => {
@@ -45,11 +48,17 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
             "-output_format", "json",
             "-i", videoPath
         ])
+
         let output = await cmd.execute();
         this.payload = JSON.parse(output.stdout)
 
-        //导出音频
         let audioPath = await this.absulotePath("audio.mp3")
+        //删除原始音频
+        if (await fs.exists(this.repoDir + "/audio.mp3", { dir: this.baseDir() })) {
+            await fs.removeFile(this.repoDir + "/audio.mp3", { dir: this.baseDir() })
+        }
+
+        //导出音频
         cmd = shell.Command.sidecar("bin/ffmpeg", [
             "-i", videoPath,
             "-vn",
@@ -65,6 +74,11 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
         //save
         this.sync()
+    }
+
+    handleExportVideo = async (savePath: string) => {
+        let audioPath = await this.absulotePath("audio.mp3")
+        await fs.copyFile(audioPath, savePath, { append: false })
     }
 
     handleCollectKeyFrame = async (videoPath: string, srtIdx: number, srt: SRTLine) => {
@@ -143,11 +157,11 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         let audioPath = await this.absulotePath("audio.mp3")
         //在线 生成字幕文件
         let jobResp: any = await api.submitAudio(audioPath)
-        this.audioJobId = jobResp.id
+        this.audioRecognitionJobId = jobResp.id
 
         //在线 延迟查询
         await delay(5000)
-        let audioText: any = await api.queryResult(this.audioJobId!)
+        let audioText: any = await api.queryResult(this.audioRecognitionJobId!)
 
         //写入文件
         await fs.writeFile(audioRecognitionPath, JSON.stringify(audioText, null, "\t"), { dir: this.baseDir(), append: false })

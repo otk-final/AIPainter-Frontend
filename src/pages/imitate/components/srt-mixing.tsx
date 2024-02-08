@@ -5,26 +5,26 @@ import { dialog } from "@tauri-apps/api"
 import { List, AutoSizer, ListRowProps } from 'react-virtualized';
 
 import 'react-virtualized/styles.css'; // 导入样式文件
-import { Button, Modal, Select, message } from "antd"
+import { Button, Modal, message } from "antd"
 import React, { useState } from "react"
 import { useKeyFrameRepository } from "@/repository/keyframe";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { fileConvertLines } from "@/repository/srt";
 import { useSimulateRepository } from "@/repository/simulate";
 import { useTTSRepository } from "@/repository/tts";
+import TTSVoiceSelect from "@/components/voice-select";
+import { AudioOption } from "@/repository/tts_api";
 
 interface SRTMixingProps {
     pid: string,
     handleChangeTab: (key: ImitateTabType) => void,
 }
 
-const voiceTypeOptions = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
 
-const SRTMixingTab: React.FC<SRTMixingProps> = ({  }) => {
+const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
     const keyFreamsRepo = useKeyFrameRepository(state => state)
     const simulateRepo = useSimulateRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
-    const [voiceType, setOption] = useState<string>("shimmer")
 
     const handleImportSRTFile = async () => {
         let selected = await dialog.open({ title: "选择字幕文件", multiple: false, filters: [{ name: "SRT文件", extensions: ["srt"] }] })
@@ -67,22 +67,19 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({  }) => {
         // await keyFreamsRepo.srtExport(selected as string).finally(() => { message.success("导出成功") })
     }
 
+    const [audioOption, setAudioOption] = useState<AudioOption>()
+
     const _rowRenderer = ({ index, key, style }: ListRowProps) => {
         const items = keyFreamsRepo.items;
-        return <SRTMixingTR key={key} frame={items[index]} voiceType={voiceType} style={style} index={index} />
+        return <SRTMixingTR key={key} frame={items[index]} geAudioOption={() => audioOption} style={style} index={index} />
     }
 
     return (
         <div className="generate-image-wrap">
             <div className='generate-header flexR'>
                 <div className='flexR'>
-                    <div className="lable">声音 <QuestionCircleOutlined /><Select
-                        className={`select-auto`}
-                        style={{ width: '300px' }}
-                        value={voiceType}
-                        onChange={setOption}
-                        options={voiceTypeOptions.map((item) => { return { label: item, value: item } })}
-                    />
+                    <div className="lable">声音 <QuestionCircleOutlined />
+                        <TTSVoiceSelect onChange={setAudioOption} />
                     </div>
                     <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleImportSRTFile}>导入字幕</Button>
                     <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleRecognitionSRT}>智能识别字幕</Button>

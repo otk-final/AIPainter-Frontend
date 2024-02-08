@@ -22,6 +22,9 @@ export const ProjectModal: React.FC<ProjectProps> = ({ isOpen, onClose, type }) 
         }
 
         let newProject = { id: uuid(), name, type: type } as Project
+
+        //创建目录
+
         if (type === 'story') {
             await appendItem(newProject, true).finally(() => { history.push("/story/" + newProject.id) })
         } else {

@@ -75,16 +75,28 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     }
 
     srtExport = async (srtfile: string) => {
-        let strText = this.items.map((item, idx) => {
+        let lines = this.items.map((item, idx) => {
+            return {
+                id: idx + 1,
+                start_time: item.srt_duration!.start_time,
+                end_time: item.srt_duration!.end_time,
+                text: item.srt_rewrite || ''
+            } as SRTLine
+        })
+        await this.srtToFile(lines, srtfile)
+    }
+
+    srtToFile = async (lines: SRTLine[], srtfile: string) => {
+        let strText = lines.map((item, idx) => {
             let line =
                 (idx + 1) + "\n"
-                + formatTime(item.srt_duration!.start_time) + " --> " + formatTime(item.srt_duration!.end_time) + "\n"
-                + (item.srt_rewrite || '') + "\n"
+                + formatTime(item.start_time) + " --> " + formatTime(item.end_time) + "\n"
+                + (item.text || '') + "\n"
             return line
         }).join("\n")
-
-        await fs.writeTextFile(srtfile, strText, { append: true })
+        await fs.writeTextFile(srtfile, strText, { append: false })
     }
+
 
     //重写台词
     aiRewriteContent = async (index: number, gptApi: GPTAssistantsApi) => {
@@ -236,6 +248,71 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         this.items[index].video_path = videoPath
         this.sync()
         return videoPath
+    }
+
+    handleConcatVideo = async (savePath: string) => {
+        //选择已经生成视频的item
+
+        let srtLines = [] as SRTLine[]
+        let concats = [] as string[]
+
+        let validItems = this.items.filter(item => item.video_path)
+        for (let i = 0; i < validItems.length; i++) {
+            let item = validItems[i]
+
+            //获取上一个字幕时间
+            let last = srtLines.length > 0 ? srtLines[srtLines.length - 1] : { id: 0, start_time: 0, end_time: 0 }
+            srtLines.push({
+                id: i + 1,
+                start_time: last.end_time,
+                end_time: Number(last.end_time) + Number(item.srt_rewrite_audio_duration!),
+                text: item.srt_rewrite!
+            })
+            let vp = await this.absulotePath(item.video_path!)
+            let vpText = "file " + "'" + vp + "'"
+            concats.push(vpText)
+        }
+        if (concats.length === 0) {
+            throw new Error("无有效视频")
+        }
+
+        //生成字幕文件
+        let srtPath = await this.absulotePath("video.srt")
+        await this.srtToFile(srtLines, srtPath)
+
+        //生成合并文件
+        let concatsPath = await this.absulotePath("video.concats")
+        await fs.writeTextFile(concatsPath, concats.join("\n"), { append: false })
+
+
+        let tempVideoPath = await this.absulotePath("video-" + uuid() + ".mp4")
+        //1合成视频
+        let cmd = shell.Command.sidecar("bin/ffmpeg", [
+            "-f", "concat",
+            "-safe", "0",
+            "-i", concatsPath,      //目标视频
+            "-c", "copy",
+            tempVideoPath           //视频
+        ])
+        let output = await cmd.execute()
+        console.info(output.stderr)
+        console.info(output.stdout)
+
+        //2导入字幕 
+        cmd = shell.Command.sidecar("bin/ffmpeg", [
+            "-i", tempVideoPath,    //目标视频
+            "-i", srtPath,          //目标字幕
+            "-c", "copy",
+            "-c:s", "mov_text",
+            "-metadata:s:s:0",
+            "language=chi_eng",
+            savePath                //视频
+        ])
+        output = await cmd.execute()
+        console.info(output.stderr)
+        console.info(output.stdout)
+        
+        return savePath
     }
 }
 

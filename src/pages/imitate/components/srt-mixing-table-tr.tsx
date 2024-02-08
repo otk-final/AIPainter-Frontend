@@ -9,9 +9,10 @@ import { CameraFilled, SoundFilled } from "@ant-design/icons";
 import { AssetImage } from "@/components/history-image";
 import ButtonGroup from "antd/es/button/button-group";
 import VideoPlayerModal from "./video-player";
+import { AudioOption } from "@/repository/tts_api";
 
 interface SRTMixingTRProps {
-    voiceType: string
+    geAudioOption: () => AudioOption | undefined
     key: string,
     index: number,
     frame: KeyFrame,
@@ -19,13 +20,12 @@ interface SRTMixingTRProps {
 }
 
 
-const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key, style }) => {
+const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, geAudioOption, key, style }) => {
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
     const keyFreamRepo = useKeyFrameRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
     const gptApi = useGPTAssistantsApi(state => state)
 
-    console.info(voiceType)
 
     useMemo(() => {
         const unsub = useKeyFrameRepository.subscribe(
@@ -80,20 +80,16 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, voiceType, key,
     }
 
     const handleGenerateAudio = async () => {
+        let option = geAudioOption()
+        if (!option) {
+            return message.error("选择声音")
+        }
         Modal.info({
             content: <div style={{ color: '#fff' }}>生成音频...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
         })
-
-        let option = {
-            "encoding": "mp3",
-            "voice_type": "BV437_streaming",
-            "emotion": "angry",
-            "language": "cn"
-        }
-
         let ttsApi = await ttsRepo.newClient()
         let path = await keyFreamRepo.handleGenerateAudio(index, option, ttsApi).catch(err => message.error(err)).finally(Modal.destroyAll)
 

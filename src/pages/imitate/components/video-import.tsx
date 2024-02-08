@@ -27,7 +27,13 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
         if (!selected) {
             return
         }
-        return simulateRepo.handleImportVideo(selected as string)
+        Modal.info({
+            content: <div style={{ color: '#fff' }}>正在导入视频提取音频...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
+        })
+        await simulateRepo.handleImportVideo(selected as string).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
     const handleCollectFrames = async () => {
@@ -40,23 +46,16 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
         //抽帧，导入，切换tab
         let api = await ttsRepo.newClient()
         let keyFrames = await simulateRepo.handleCollectFrames(api)
-        await keyFrameRepo.initialization(keyFrames).catch(err => message.error(err)).finally(Modal.destroyAll)
-        handleChangeTab("frames");
+        await keyFrameRepo.initialization(keyFrames).then(() => { handleChangeTab("frames") }).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
     const handleCollectAudio = async () => {
 
-        let savePath = await dialog.save({ title: "导出字幕文件", filters: [{ extensions: ["mp3"], name: "音频文件" }] })
+        let savePath = await dialog.save({ title: "导出音频文件", filters: [{ extensions: ["mp3"], name: "音频文件" }] })
         if (!savePath) {
             return
         }
-        // Modal.info({
-        //     content: <div style={{ color: '#fff' }}>正在导出音频...</div>,
-        //     footer: null,
-        //     mask: true,
-        //     maskClosable: false,
-        // })
-
+        await simulateRepo.handleExportVideo(savePath).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
 

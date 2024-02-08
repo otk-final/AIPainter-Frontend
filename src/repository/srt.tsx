@@ -78,6 +78,6 @@ export const formatTime = (ms: number) => {
         return n < 100 ? '0' + (n < 10 ? '0' + n : n) : n;
     }
     // 将小时、分钟、秒、毫秒格式化为字符串
-    let timeString = pad(hours) + ':' + pad(minutes) + ':' + pad(seconds) + '.' + pad3(milliseconds);
+    let timeString = pad(hours) + ':' + pad(minutes) + ':' + pad(seconds) + ',' + pad3(milliseconds);
     return timeString;
 }

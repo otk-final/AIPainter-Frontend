@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Carousel, Image, message, Modal } from 'antd';
+import { Button, Carousel, Image, Modal } from 'antd';
 import './index.less'
 import assets from '@/assets'
 import { history } from "umi"
@@ -64,7 +64,7 @@ const carouselData = [
 
 const HomePage = () => {
   const [isProjectOpen, setIsProjectOpen] = useState<ProjectType>("");
-  const { loginState } = useLogin();
+  // const { loginState } = useLogin();
 
   const handleBtn = (i: homeDataProps) => {
     // if (!loginState.isLogin) {
