@@ -90,8 +90,8 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         //抽帧 关键帧
         let cmd = shell.Command.sidecar("bin/ffmpeg", [
             "-i", videoPath,
-            "-ss", formatTime(srt.start_time),
-            "-to", formatTime(srt.end_time),
+            "-ss", formatTime(srt.start_time, "."),
+            "-to", formatTime(srt.end_time, "."),
             "-vf", 'fps=1/1',
             "-vsync", "vfr",
             "-qscale:v", "10",

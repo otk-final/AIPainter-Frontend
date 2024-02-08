@@ -90,7 +90,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let strText = lines.map((item, idx) => {
             let line =
                 (idx + 1) + "\n"
-                + formatTime(item.start_time) + " --> " + formatTime(item.end_time) + "\n"
+                + formatTime(item.start_time, ",") + " --> " + formatTime(item.end_time, ",") + "\n"
                 + (item.text || '') + "\n"
             return line
         }).join("\n")
@@ -311,7 +311,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         output = await cmd.execute()
         console.info(output.stderr)
         console.info(output.stdout)
-        
+
         return savePath
     }
 }

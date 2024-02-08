@@ -56,7 +56,7 @@ export const fileConvertLines = async (srtpath: string) => {
     return srtContent as SRTLine[]
 }
 
-export const formatTime = (ms: number) => {
+export const formatTime = (ms: number, sep: string) => {
     // 将毫秒数转换为秒数
     let seconds = Math.floor(ms / 1000);
     // 计算小时
@@ -78,6 +78,6 @@ export const formatTime = (ms: number) => {
         return n < 100 ? '0' + (n < 10 ? '0' + n : n) : n;
     }
     // 将小时、分钟、秒、毫秒格式化为字符串
-    let timeString = pad(hours) + ':' + pad(minutes) + ':' + pad(seconds) + ',' + pad3(milliseconds);
+    let timeString = pad(hours) + ':' + pad(minutes) + ':' + pad(seconds) + sep + pad3(milliseconds);
     return timeString;
 }
