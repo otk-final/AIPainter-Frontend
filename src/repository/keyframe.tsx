@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { BaseCRUDRepository, ItemIdentifiable } from "./tauri_repository"
+import { BaseCRUDRepository, ItemIdentifiable, delay } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
 import { fs, path, shell } from "@tauri-apps/api"
 import { Image2TextHandle, Text2ImageHandle, WFScript, registerComfyUIPromptCallback } from "./comfyui_api"
@@ -298,6 +298,8 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         console.info(output.stderr)
         console.info(output.stdout)
 
+        await delay(2000)
+        
         //2导入字幕 
         cmd = shell.Command.sidecar("bin/ffmpeg", [
             "-i", tempVideoPath,    //目标视频
