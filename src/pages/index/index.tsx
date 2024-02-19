@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Button, Carousel, Image, Modal } from 'antd';
 import './index.less'
 import assets from '@/assets'
@@ -64,7 +64,16 @@ const carouselData = [
 
 const HomePage = () => {
   const [isProjectOpen, setIsProjectOpen] = useState<ProjectType>("");
-  // const { loginState } = useLogin();
+  const bannerRef = useRef(null);
+  let [bannerW, setBannerW] = useState(0);
+
+  useLayoutEffect(() => {
+    setBannerW(bannerRef.current.offsetWidth);
+  }, []);
+
+  window.addEventListener('resize', function() {
+    setBannerW(bannerRef.current.offsetWidth);
+  })
 
   const handleBtn = (i: homeDataProps) => {
     // if (!loginState.isLogin) {
@@ -147,8 +156,8 @@ const HomePage = () => {
       <Carousel className="carousel-wrap" autoplay>
         {carouselData.map((i, index) => {
           return (
-            <div key={index}>
-              <Image src={i.url} width="100%" height={300} preview={false} />
+            <div key={index} ref={bannerRef}>
+              <Image  src={i.url} width="100%"  height={bannerW/9 * 1.8} preview={false} />
             </div>
           )
         })}
