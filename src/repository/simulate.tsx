@@ -1,11 +1,32 @@
 import { create } from "zustand"
 import { BaseRepository, delay } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
-import { fs, path, shell } from "@tauri-apps/api"
+import { fs, path, shell, tauri } from "@tauri-apps/api"
 import { KeyFrame } from "./keyframe"
 import { TTSApi } from "./tts_api"
 import { SRTLine, formatTime } from "./srt"
 
+interface KeyFrameJob {
+    idx: number,
+    name: string,
+    
+    //参数
+    input: string,
+    ss:string
+    to:string
+    output: string,
+
+    // 字幕信息
+    srt: string,
+    srt_start_time: number,
+    srt_end_time: number,
+}
+
+interface KeyFrameJobResult {
+    item: KeyFrameJob
+    outputs?: string
+    errors?: string
+}
 
 //剧本
 export class SimulateRepository extends BaseRepository<SimulateRepository> {
@@ -81,6 +102,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         await fs.copyFile(audioPath, savePath, { append: false })
     }
 
+    
     handleCollectKeyFrame = async (videoPath: string, srtIdx: number, srt: SRTLine) => {
 
         let name = srtIdx + ".png"
@@ -100,7 +122,6 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         ])
 
         let output = await cmd.execute()
-        // console.info(output.stdout)
         console.info(output.stderr)
 
         //关键帧信息
@@ -120,6 +141,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         } as KeyFrame
     }
 
+
     //抽帧关键帧
     handleCollectFrames = async (api: TTSApi) => {
 
@@ -130,21 +152,64 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         //根据字幕文件抽取关键帧
         let srtLines = await this.handleRecognitionAudio(api)
 
-        //循环抽取
-        let keyFrames = []
+
+        //关键帧参数
+        let frames = [] as KeyFrameJob[]
         for (let i = 0; i < srtLines.length; i++) {
-            let kf = await this.handleCollectKeyFrame(this.videoPath!, i, srtLines[i])
-            keyFrames.push(kf)
+            let name = i + ".png"
+            let output_path = await this.absulotePath("/frames/" + name)
+            frames.push({
+                idx: i,
+                name: name,
+
+                //参数
+                input: this.videoPath!,
+                ss: formatTime(srtLines[i].start_time, "."),
+                to: formatTime(srtLines[i].end_time, "."),
+                output: output_path,
+
+                //字幕
+                srt: srtLines[i].text,
+                srt_start_time: srtLines[i].start_time,
+                srt_end_time: srtLines[i].end_time
+            } as KeyFrameJob)
         }
-        return keyFrames as KeyFrame[]
+
+        //并发执行
+        let results: KeyFrameJobResult[] = await tauri.invoke('key_frame_collect', { videoPath: this.videoPath!, frames: frames })
+
+        //转换关键帧对象
+        return results.map((job: KeyFrameJobResult) => {
+            let item = job.item
+            return {
+                id: item.idx,
+                name: item.name,
+                path: "/frames/" + item.name,
+                image: {
+                    prompt: "",
+                    history: []
+                },
+                srt: item.srt,
+                srt_duration: {
+                    start_time: item.srt_start_time,
+                    end_time: item.srt_end_time
+                }
+            } as KeyFrame
+        })
     }
 
     //识别音频
     handleRecognitionAudio = async (api: TTSApi) => {
 
+        // let frames = [
+        //     // { idx: 0, start_time: 10, end_time: 900 },
+        //     { idx: 1, start_time: 900, end_time: 1700 }]
+
+        // return frames
+
         //是否已经识别
         let audioRecognitionPath = await this.absulotePath("audio.json")
-        if (this.audioRecognition) {
+        if (true) {
             let audioText = await fs.readTextFile(audioRecognitionPath)
             return JSON.parse(audioText).utterances as SRTLine[]
         }

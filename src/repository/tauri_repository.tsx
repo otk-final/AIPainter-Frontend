@@ -24,19 +24,21 @@ export abstract class BaseRepository<T> implements TauriRepo {
 
     repoDir: Directory = "env"
 
-    //目录
+    
     protected abstract free(): void
 
+    //基础目录
     baseDir(): BaseDirectory {
-        return BaseDirectory.AppLocalData
+        return BaseDirectory.Resource
     }
     basePath = async () => {
-        return await path.appLocalDataDir()
+        return await path.resourceDir()
     }
-
 
     load = async (dir: Directory) => {
         this.free()
+
+        console.info('runtime dir', await this.basePath())
         
         this.repoDir = dir
         //目录是否存在
