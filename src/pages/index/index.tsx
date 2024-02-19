@@ -71,9 +71,15 @@ const HomePage = () => {
     setBannerW(bannerRef.current.offsetWidth);
   }, []);
 
-  window.addEventListener('resize', function() {
-    setBannerW(bannerRef.current.offsetWidth);
-  })
+  useEffect(()=>{
+    window.addEventListener('resize', function() {
+      if(bannerRef.current) {
+        setBannerW(bannerRef.current.offsetWidth);
+      }
+    })
+  },[])
+
+ 
 
   const handleBtn = (i: homeDataProps) => {
     // if (!loginState.isLogin) {
