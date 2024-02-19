@@ -23,7 +23,7 @@ const BasicSetting:React.FC = ()=>{
                 <div className='setting-title'>剪映草稿存放目录</div>
                 <div className='basic-subText'>剪映草稿存放目录文件夹存储位置 <span>更改项目素材文件夹的存储位置， 将影响己创建的小说项目的图片、视频等素材的使用，请详慎操作</span> </div>
                 <div className="flexR">
-                    <Input size="large" disabled placeholder="http://127.0.0.1:7860/"  className='input-s '/>
+                    <Input size="large" disabled placeholder="http://127.0.0.1:7860/"  className='input-s ' style={{width: '900px'}}/>
                     <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleChangePosition}>更改存储位蛋</Button>
                 </div>
             </div>
