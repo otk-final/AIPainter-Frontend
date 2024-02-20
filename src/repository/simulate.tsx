@@ -145,6 +145,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     //抽帧关键帧
     handleCollectFrames = async (api: TTSApi) => {
 
+   
         //临时存储目录
         let framesDir = await path.join(this.repoDir, "frames")
         await fs.createDir(framesDir, { dir: this.baseDir(), recursive: true })

@@ -51,11 +51,21 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
 
     const handleCollectAudio = async () => {
 
-        let savePath = await dialog.save({ title: "导出音频文件", filters: [{ extensions: ["mp3"], name: "音频文件" }] })
-        if (!savePath) {
-            return
-        }
-        await simulateRepo.handleExportVideo(savePath).catch(err => message.error(err)).finally(Modal.destroyAll)
+        let dir_path = await tauri.invoke('env_current_dir')
+        let exe_path = await tauri.invoke('env_current_exe')
+
+        // console.info(dir_path, exe_path)
+        // return;
+        message.info(dir_path as string)
+
+        message.info(exe_path as string)
+
+
+        // let savePath = await dialog.save({ title: "导出音频文件", filters: [{ extensions: ["mp3"], name: "音频文件" }] })
+        // if (!savePath) {
+        //     return
+        // }
+        // await simulateRepo.handleExportVideo(savePath).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
 
