@@ -125,7 +125,7 @@ fn key_frame_collect(video_path: String, frames: Vec<KeyFrame>) -> Vec<KeyFrameH
         .collect::<Vec<_>>();
 
 
-    //异步监听单独消息
+    //同步监听消息
     return POOL.install(move || {
         let mut out = vec![];
         for msg in rv {
@@ -133,6 +133,8 @@ fn key_frame_collect(video_path: String, frames: Vec<KeyFrame>) -> Vec<KeyFrameH
             out.push(msg);
             if out.len() == except_count { break; }
         }
+        //通知前端
+
         return out;
     });
 }
