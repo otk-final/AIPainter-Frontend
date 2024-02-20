@@ -114,6 +114,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         console.info(this.videoPath, framesPath)
         //抽帧 关键帧
         let cmd = shell.Command.sidecar("bin/ffmpeg", [
+            "-y",
             "-i", this.videoPath!,
             // "-vf", 'select=eq(pict_type\\,I)',
             "-vf", 'fps=1/1',

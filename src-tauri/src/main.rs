@@ -7,7 +7,6 @@ use lazy_static::lazy_static;
 use rayon::ThreadPool;
 use serde::{Deserialize, Serialize};
 use std::env;
-use std::fs;
 use std::path::PathBuf;
 use std::sync::mpsc::{channel, Sender};
 use tauri::api::process::{Command, CommandEvent};
@@ -95,8 +94,7 @@ fn key_frame_handle(tx: Sender<KeyFrameHandleOutput>, item: KeyFrame) -> KeyFram
             item,
             outputs: outputs.join(""),
             errors: errors.join(""),
-        })
-            .unwrap()
+        }).unwrap();
     };
 
     //同步
@@ -113,6 +111,7 @@ fn key_frame_handle(tx: Sender<KeyFrameHandleOutput>, item: KeyFrame) -> KeyFram
 //并发处理关键帧
 #[tauri::command]
 fn key_frame_collect(video_path: String, frames: Vec<KeyFrame>) -> Vec<KeyFrameHandleOutput> {
+    let except_count = frames.len();
     let (tx, rv) = channel::<KeyFrameHandleOutput>();
 
     //分发任务
@@ -121,18 +120,21 @@ fn key_frame_collect(video_path: String, frames: Vec<KeyFrame>) -> Vec<KeyFrameH
         .map(|item| {
             let _tx = tx.clone();
             //独立线程
-            POOL.install(move || key_frame_handle(_tx, item))
+            POOL.spawn(move || { key_frame_handle(_tx, item); })
         })
         .collect::<Vec<_>>();
 
-    //异步监听单独消息
-    POOL.spawn(move || {
-        for msg in rv {
-            println!("完成：{}", msg.item.output)
-        }
-    });
 
-    tasks
+    //异步监听单独消息
+    return POOL.install(move || {
+        let mut out = vec![];
+        for msg in rv {
+            println!("完成：{}", msg.item.output);
+            out.push(msg);
+            if out.len() == except_count { break; }
+        }
+        return out;
+    });
 }
 
 #[tauri::command]
@@ -147,10 +149,10 @@ fn env_current_exe() -> PathBuf {
 
 
 fn main() {
-    // let k1 = KeyFrame { input: "/Users/hxy/Desktop/test.mp4".to_string(), idx: 0, start_time: "00:00:00.080".to_string(), end_time: "00:00:00.720".to_string(), output: "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/08b02959-3522-4577-8e08-b716ffe82c13/frames/0.png".to_string() };
-    // let k2 = KeyFrame { input: "/Users/hxy/Desktop/test.mp4".to_string(), idx: 1, start_time: "00:00:00.720".to_string(), end_time: "00:00:01.680".to_string(), output: "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/08b02959-3522-4577-8e08-b716ffe82c13/frames/1.png".to_string() };
-    // let k3 = KeyFrame { input: "/Users/hxy/Desktop/test.mp4".to_string(), idx: 2, start_time: "00:00:00.720".to_string(), end_time: "00:00:01.680".to_string(), output: "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/08b02959-3522-4577-8e08-b716ffe82c13/frames/2.png".to_string() };
-    // let k4 = KeyFrame { input: "/Users/hxy/Desktop/test.mp4".to_string(), idx: 3, start_time: "00:00:00.720".to_string(), end_time: "00:00:01.680".to_string(), output: "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/08b02959-3522-4577-8e08-b716ffe82c13/frames/3.png".to_string() };
+    // let k1 = KeyFrame { input: "/Users/hxy/Desktop/test.mp4".to_string(), idx: 0, ss: "00:00:00.080".to_string(), to: "00:00:00.720".to_string(), output: "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/08b02959-3522-4577-8e08-b716ffe82c13/frames/0.png".to_string(), srt: "".to_string(), srt_start_time: 0, name: "".to_string(), srt_end_time: 0 };
+    // let k2 = KeyFrame { input: "/Users/hxy/Desktop/test.mp4".to_string(), idx: 1, ss: "00:00:00.720".to_string(), to: "00:00:01.680".to_string(), output: "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/08b02959-3522-4577-8e08-b716ffe82c13/frames/1.png".to_string(), srt: "".to_string(), srt_start_time: 0, name: "".to_string(), srt_end_time: 0 };
+    // let k3 = KeyFrame { input: "/Users/hxy/Desktop/test.mp4".to_string(), idx: 2, ss: "00:00:00.720".to_string(), to: "00:00:01.680".to_string(), output: "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/08b02959-3522-4577-8e08-b716ffe82c13/frames/2.png".to_string(), srt: "".to_string(), srt_start_time: 0, name: "".to_string(), srt_end_time: 0 };
+    // let k4 = KeyFrame { input: "/Users/hxy/Desktop/test.mp4".to_string(), idx: 3, ss: "00:00:00.720".to_string(), to: "00:00:01.680".to_string(), output: "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/08b02959-3522-4577-8e08-b716ffe82c13/frames/3.png".to_string(), srt: "".to_string(), srt_start_time: 0, name: "".to_string(), srt_end_time: 0 };
     //
     // let outputs = key_frame_collect("".to_string(), vec![k1, k2, k3, k4]);
     // println!("{:?}", outputs);
