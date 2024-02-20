@@ -1,4 +1,4 @@
-import { fs, path } from "@tauri-apps/api"
+import { fs, path, } from "@tauri-apps/api"
 import { BaseDirectory } from "@tauri-apps/api/fs"
 
 
@@ -24,7 +24,6 @@ export abstract class BaseRepository<T> implements TauriRepo {
 
     repoDir: Directory = "env"
 
-    
     protected abstract free(): void
 
     //基础目录
@@ -32,14 +31,16 @@ export abstract class BaseRepository<T> implements TauriRepo {
         return BaseDirectory.Resource
     }
     basePath = async () => {
-        return await path.resourceDir()
+        let base_path = await path.resourceDir()
+        //兼容 windows 路径 \\?\
+        return base_path.replace("\\\\?\\", "")
     }
-
+    
     load = async (dir: Directory) => {
         this.free()
 
         console.info('runtime dir', await this.basePath())
-        
+
         this.repoDir = dir
         //目录是否存在
         if (!await fs.exists(this.repoDir, { dir: this.baseDir() })) {
@@ -49,7 +50,8 @@ export abstract class BaseRepository<T> implements TauriRepo {
             return
         }
 
-        let filePath = this.repoDir + "/" + this.repo
+
+        let filePath = this.repoDir + path.sep + this.repo
         console.info('load script', filePath)
 
         //文件是否存在
@@ -102,7 +104,7 @@ export abstract class BaseRepository<T> implements TauriRepo {
 
         //创建目录
         await fs.createDir(this.repoDir, { dir: this.baseDir(), recursive: true })
-        let filePath = this.repoDir + "/" + this.repo
+        let filePath = this.repoDir + path.sep + this.repo
 
         console.info("save script", filePath)
         // save file
@@ -120,7 +122,7 @@ export abstract class BaseRepository<T> implements TauriRepo {
         await fs.writeBinaryFile(newFilePath, fileBuffer, { dir: this.baseDir(), append: false })
 
         //返回相对路径
-        return subfolder + "/" + filename
+        return subfolder + path.sep + filename
     }
 
 

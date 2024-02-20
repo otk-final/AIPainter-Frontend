@@ -53,6 +53,9 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
 
         let dir_path = await tauri.invoke('env_current_dir')
         let exe_path = await tauri.invoke('env_current_exe')
+        
+        let base_path = await keyFrameRepo.basePath()
+        message.info(base_path as string)
 
         // console.info(dir_path, exe_path)
         // return;

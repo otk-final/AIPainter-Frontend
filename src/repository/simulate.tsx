@@ -9,11 +9,11 @@ import { SRTLine, formatTime } from "./srt"
 interface KeyFrameJob {
     idx: number,
     name: string,
-    
+
     //参数
     input: string,
-    ss:string
-    to:string
+    ss: string
+    to: string
     output: string,
 
     // 字幕信息
@@ -75,8 +75,8 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
         let audioPath = await this.absulotePath("audio.mp3")
         //删除原始音频
-        if (await fs.exists(this.repoDir + "/audio.mp3", { dir: this.baseDir() })) {
-            await fs.removeFile(this.repoDir + "/audio.mp3", { dir: this.baseDir() })
+        if (await fs.exists(this.repoDir + path.sep + "audio.mp3", { dir: this.baseDir() })) {
+            await fs.removeFile(this.repoDir + path.sep + "audio.mp3", { dir: this.baseDir() })
         }
 
         //导出音频
@@ -102,12 +102,12 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         await fs.copyFile(audioPath, savePath, { append: false })
     }
 
-    
+
     handleCollectKeyFrame = async (videoPath: string, srtIdx: number, srt: SRTLine) => {
 
         let name = srtIdx + ".png"
-        let path = "/frames/" + name
-        let absulotePath = await this.absulotePath(path)
+        let output_name = "frames" + path.sep + name
+        let absulotePath = await this.absulotePath(output_name)
 
         //抽帧 关键帧
         let cmd = shell.Command.sidecar("bin/ffmpeg", [
@@ -128,7 +128,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         return {
             id: srtIdx,
             name: name,
-            path: path,
+            path: output_name,
             image: {
                 prompt: "",
                 history: []
@@ -145,7 +145,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     //抽帧关键帧
     handleCollectFrames = async (api: TTSApi) => {
 
-   
+
         //临时存储目录
         let framesDir = await path.join(this.repoDir, "frames")
         await fs.createDir(framesDir, { dir: this.baseDir(), recursive: true })
@@ -185,7 +185,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
             return {
                 id: item.idx,
                 name: item.name,
-                path: "/frames/" + item.name,
+                path: "frames" + path.sep + item.name,
                 image: {
                     prompt: "",
                     history: []
