@@ -78,9 +78,9 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let lines = this.items.map((item, idx) => {
             return {
                 id: idx + 1,
-                start_time: item.srt_duration!.start_time,
-                end_time: item.srt_duration!.end_time,
-                text: item.srt_rewrite || ''
+                start_time: item.srt_duration?.start_time,
+                end_time: item.srt_duration?.end_time,
+                text: item.srt_rewrite || item.srt || ''
             } as SRTLine
         })
         await this.srtToFile(lines, srtfile)

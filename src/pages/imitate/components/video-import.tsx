@@ -5,13 +5,14 @@ import { dialog, tauri } from '@tauri-apps/api';
 import { ImitateTabType } from '../index';
 import VideoPlayerModal from './video-player';
 import { useSimulateRepository } from '@/repository/simulate';
-import { useKeyFrameRepository } from '@/repository/keyframe';
+import { KeyFrame, useKeyFrameRepository } from '@/repository/keyframe';
 import { useTTSRepository } from '@/repository/tts';
 
 interface VideoImportProps {
     pid: string
     handleChangeTab: (key: ImitateTabType) => void,
 }
+type CollectFrameType = "srt" | "fps"
 
 const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
 
@@ -36,7 +37,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
         await simulateRepo.handleImportVideo(selected as string).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
-    const handleCollectFrames = async () => {
+    const handleCollectFrames = async (type: CollectFrameType) => {
         Modal.info({
             content: <div style={{ color: '#fff' }}>正在抽取关键帧...</div>,
             footer: null,
@@ -44,31 +45,25 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
             maskClosable: false,
         })
         //抽帧，导入，切换tab
-        let api = await ttsRepo.newClient()
-        let keyFrames = await simulateRepo.handleCollectFrames(api)
+        let keyFrames = [] as KeyFrame[]
+        if (type === "fps"){
+            //按秒
+            keyFrames = await simulateRepo.handleCollectFramesWithFps()
+        }else if (type === "srt"){
+            //按音频
+            let api = await ttsRepo.newClient()
+            keyFrames = await simulateRepo.handleCollectFrames(api)
+        }
+
         await keyFrameRepo.initialization(keyFrames).then(() => { handleChangeTab("frames") }).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
     const handleCollectAudio = async () => {
-
-        let dir_path = await tauri.invoke('env_current_dir')
-        let exe_path = await tauri.invoke('env_current_exe')
-        
-        let base_path = await keyFrameRepo.basePath()
-        message.info(base_path as string)
-
-        // console.info(dir_path, exe_path)
-        // return;
-        message.info(dir_path as string)
-
-        message.info(exe_path as string)
-
-
-        // let savePath = await dialog.save({ title: "导出音频文件", filters: [{ extensions: ["mp3"], name: "音频文件" }] })
-        // if (!savePath) {
-        //     return
-        // }
-        // await simulateRepo.handleExportVideo(savePath).catch(err => message.error(err)).finally(Modal.destroyAll)
+        let savePath = await dialog.save({ title: "导出音频文件", filters: [{ extensions: ["mp3"], name: "音频文件" }] })
+        if (!savePath) {
+            return
+        }
+        await simulateRepo.handleExportVideo(savePath).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
 
@@ -77,7 +72,8 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ handleChangeTab }) => {
             <div className='flexR'>
                 <div>请导入视频：</div>
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported} >导入</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!simulateRepo.videoPath} onClick={handleCollectFrames}>抽帧关键帧</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '130px' }} disabled={!simulateRepo.videoPath} onClick={()=>{handleCollectFrames("fps")}}>抽帧关键帧(秒)</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '130px' }} disabled={!simulateRepo.videoPath} onClick={() => { handleCollectFrames("srt") }}>抽帧关键帧(字幕)</Button>
                 <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!simulateRepo.videoPath} onClick={handleCollectAudio}>导出音频</Button>
             </div>
 
