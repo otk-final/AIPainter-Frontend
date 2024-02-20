@@ -273,7 +273,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
                 srt_end_time: srtLines[i].end_time
             } as KeyFrameJob)
         }
-
+        
         //并发执行
         let results: KeyFrameJobResult[] = await tauri.invoke('key_frame_collect', { videoPath: this.videoPath!, frames: frames })
 

@@ -8,20 +8,34 @@ use rayon::ThreadPool;
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::path::PathBuf;
-use std::sync::mpsc::{channel, Sender};
+use std::sync::{Arc, Mutex};
+use std::sync::mpsc::{channel, Receiver, Sender};
 use tauri::api::process::{Command, CommandEvent};
+use tauri::{Error, Manager, Window};
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
 lazy_static! {
+
     static ref POOL: ThreadPool = rayon::ThreadPoolBuilder::new()
         .num_threads(5)
         .build()
         .unwrap();
+
+    // static ref KEY_FRAME_COLLECT_CHANNEL:JSChannel<KeyFrameHandleProcess> = {
+    //     let (tx,rx) = channel::<KeyFrameHandleProcess>();
+    //     JSChannel::<KeyFrameHandleProcess>{sender:Arc::new(Mutex::new(tx)),receiver:Arc::new(Mutex::new(rx))}
+    // };
 }
+
+pub struct JSChannel<T: Serialize + Clone> {
+    pub sender: Arc<Mutex<Sender<T>>>,
+    pub receiver: Arc<Mutex<Receiver<T>>>,
+}
+
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct KeyFrame {
-    idx: u32,
+    idx: usize,
     name: String,
 
     //参数
@@ -42,6 +56,14 @@ pub struct KeyFrameHandleOutput {
     outputs: String,
     errors: String,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct KeyFrameHandleProcess {
+    except: usize,
+    completed: usize,
+    current: KeyFrame,
+}
+
 
 fn key_frame_handle(tx: Sender<KeyFrameHandleOutput>, item: KeyFrame) -> KeyFrameHandleOutput {
     let input: &str = item.input.as_str();
@@ -110,7 +132,7 @@ fn key_frame_handle(tx: Sender<KeyFrameHandleOutput>, item: KeyFrame) -> KeyFram
 
 //并发处理关键帧
 #[tauri::command]
-fn key_frame_collect(video_path: String, frames: Vec<KeyFrame>) -> Vec<KeyFrameHandleOutput> {
+async fn key_frame_collect(window: Window, _video_path: String, frames: Vec<KeyFrame>) -> Result<Vec<KeyFrameHandleOutput>, Error> {
     let except_count = frames.len();
     let (tx, rv) = channel::<KeyFrameHandleOutput>();
 
@@ -124,19 +146,21 @@ fn key_frame_collect(video_path: String, frames: Vec<KeyFrame>) -> Vec<KeyFrameH
         })
         .collect::<Vec<_>>();
 
+    //主线程同步监听消息
+    let mut out = vec![];
+    for msg in rv {
+        println!("完成：{}", msg.item.output);
+        out.push(msg.clone());
 
-    //同步监听消息
-    return POOL.install(move || {
-        let mut out = vec![];
-        for msg in rv {
-            println!("完成：{}", msg.item.output);
-            out.push(msg);
-            if out.len() == except_count { break; }
-        }
-        //通知前端
+        //通知前端进度
+        window.emit("key_frame_collect_process", KeyFrameHandleProcess { except: except_count, completed: out.len(), current: msg.item.clone() }).expect("send err");
 
-        return out;
-    });
+        //所有任务完成退出
+        if out.len() == except_count { break; }
+    }
+
+    //通知前端
+    Ok(out)
 }
 
 #[tauri::command]
@@ -148,7 +172,6 @@ fn env_current_dir() -> PathBuf {
 fn env_current_exe() -> PathBuf {
     env::current_exe().unwrap()
 }
-
 
 fn main() {
     // let k1 = KeyFrame { input: "/Users/hxy/Desktop/test.mp4".to_string(), idx: 0, ss: "00:00:00.080".to_string(), to: "00:00:00.720".to_string(), output: "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/08b02959-3522-4577-8e08-b716ffe82c13/frames/0.png".to_string(), srt: "".to_string(), srt_start_time: 0, name: "".to_string(), srt_end_time: 0 };
