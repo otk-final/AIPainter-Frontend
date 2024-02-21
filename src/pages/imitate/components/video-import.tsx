@@ -115,7 +115,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
                     secondConfirm ? (
                         <div className='content'>
                             <CloseOutlined className='close' onClick={()=>setSecondConfirm(false)}/>
-                            <div className='title'>确认取消吗？</div>
+                            <div className='title'>确认要终止任务吗？</div>
                             <div className='btn-wrap flexR'>
                                 <Button type="default" className="btn-default-auto btn-default-100" style={{ width: '130px' }} onClick={()=> {setIsModalText(""); setSecondConfirm(false)}} >确认</Button>
                                 <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '130px' }} onClick={() => setSecondConfirm(false)}>取消</Button>
