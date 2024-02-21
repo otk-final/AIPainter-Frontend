@@ -8,6 +8,7 @@ import { useSimulateRepository } from '@/repository/simulate';
 import { KeyFrame, useKeyFrameRepository } from '@/repository/keyframe';
 import { useTTSRepository } from '@/repository/tts';
 import { UnlistenFn } from '@tauri-apps/api/event';
+import { CloseOutlined } from '@ant-design/icons';
 
 interface VideoImportProps {
     pid: string
@@ -43,9 +44,9 @@ const HandleCollectFramesProcess: React.FC<{ pid: string }> = ({ pid }) => {
     }, [pid])
 
     if (!stateProccess) {
-        return <div style={{ color: '#fff' }}>正在抽取关键帧...</div>
+        return <div className='title'>正在抽取关键帧...</div>
     }
-    return <div style={{ color: '#fff' }}>正在抽取关键帧...<Progress percent={Math.floor((stateProccess.completed / stateProccess.except) * 100)} status="active" showInfo/></div>
+    return <div  className='title'>正在抽取关键帧...<Progress percent={Math.floor((stateProccess.completed / stateProccess.except) * 100)} status="active" showInfo/></div>
 }
 
 
@@ -53,9 +54,11 @@ const HandleCollectFramesProcess: React.FC<{ pid: string }> = ({ pid }) => {
 const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) => {
 
     const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
+    const [secondConfirm, setSecondConfirm] = useState(false)
     const simulateRepo = useSimulateRepository(state => state)
     const keyFrameRepo = useKeyFrameRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
+    const [isModalText, setIsModalText] = useState("");
 
 
     const handleImported = async () => {
@@ -65,23 +68,18 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
         if (!selected) {
             return
         }
-        Modal.info({
-            content: <div style={{ color: '#fff' }}>正在导入视频提取音频...</div>,
-            footer: null,
-            mask: true,
-            maskClosable: false,
-        })
-        await simulateRepo.handleImportVideo(selected as string).catch(err => message.error(err)).finally(Modal.destroyAll)
+        setIsModalText("正在导入视频提取音频...")
+        await simulateRepo.handleImportVideo(selected as string).catch(err => message.error(err))
+        .finally(()=>{
+            setIsModalText("")
+            }
+        )
     }
 
 
     const handleCollectFrames = async (type: CollectFrameType) => {
-        Modal.info({
-            content: <HandleCollectFramesProcess pid={pid} />,
-            footer: null,
-            mask: true,
-            maskClosable: false,
-        })
+        setIsModalText("正在抽取关键帧...")
+
         //抽帧，导入，切换tab
         let keyFrames = [] as KeyFrame[]
         if (type === "fps") {
@@ -92,7 +90,10 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
             let api = await ttsRepo.newClient()
             keyFrames = await simulateRepo.handleCollectFrames(api)
         }
-        await keyFrameRepo.initialization(keyFrames).then(() => { handleChangeTab("frames") }).catch(err => message.error(err)).finally(Modal.destroyAll)
+        await keyFrameRepo.initialization(keyFrames).then(() => { handleChangeTab("frames") }).catch(err => message.error(err))
+        .finally(()=>{
+            setIsModalText("")
+        })
     }
 
     const handleCollectAudio = async () => {
@@ -103,9 +104,32 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
         await simulateRepo.handleExportVideo(savePath).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
+    const renderModal = ()=>{
+        return (
+            <div className='auto-modal'>
+                {!secondConfirm ? <div className='content'>
+                    <CloseOutlined className='close' onClick={()=>setSecondConfirm(true)}/>
+                    <HandleCollectFramesProcess pid={pid} />
+                </div> : null}
+                {
+                    secondConfirm ? (
+                        <div className='content'>
+                            <CloseOutlined className='close' onClick={()=>setSecondConfirm(false)}/>
+                            <div className='title'>确认取消吗？</div>
+                            <div className='btn-wrap flexR'>
+                                <Button type="default" className="btn-default-auto btn-default-100" style={{ width: '130px' }} onClick={()=> {setIsModalText(""); setSecondConfirm(false)}} >确认</Button>
+                                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '130px' }} onClick={() => setSecondConfirm(false)}>取消</Button>
+                            </div>
+                        </div>
+                    ): null
+                }
+            </div>
+        )
+    }
+
 
     return (
-        <div className="generate-image-wrap scrollbar">
+        <div className="generate-image-wrap">
             <div className='flexR'>
                 <div>请导入视频：</div>
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported} >导入</Button>
@@ -125,6 +149,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
                 <div className='video-name'>{videoPath?.split('/').pop()}</div> */}
                 </div>}
             {isVideoPlayerOpen && <VideoPlayerModal videoPath={simulateRepo.videoPath!} isOpen={isVideoPlayerOpen} onClose={() => setIsVideoPlayerOpen(false)} />}
+            {isModalText ?  renderModal() : null}
         </div>
     );
 };

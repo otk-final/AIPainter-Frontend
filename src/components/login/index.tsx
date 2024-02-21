@@ -54,7 +54,7 @@ const LoginModule:React.FC<LoginModuleProps> = ({isOpen, onClose})=> {
             return message.error('请填写验证码');
         }
 
-        if(phone && verify && checked) {
+        if(phone && verify) {
             let res = {
                 isLogin: true, 
                 nickName: "用户001",
@@ -88,7 +88,7 @@ const LoginModule:React.FC<LoginModuleProps> = ({isOpen, onClose})=> {
             <Input size="large" placeholder="请输入邀请码(可为空）"  />
 
             {/* <Radio className="agreement-wrap flexR" onChange={(v)=> setChecked(v.target.checked)}><div className="label">我已阅读并同意 <span>《用户协议》</span></div></Radio> */}
-            <Button type="primary" className="btn-primary-auto" block onClick={handleSumbit}> 确定 </Button>
+            <Button type="primary" className="btn-primary-auto" block onClick={handleSumbit} style={{marginTop: '30px'}}> 确定 </Button>
         </Modal>
     )
 }

@@ -34,7 +34,11 @@
     & .generate-image-wrap {
         padding: 0 30px;
         height: calc(100% - 78px);
-        overflow: scroll;
+        // overflow: scroll;
+        &::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
 
         & .generate-header {
 
@@ -173,5 +177,46 @@
         color: @m-font-color;
         line-height: 38px;
         padding: 0;
+    }
+}
+
+.auto-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0, 0.4);
+    z-index: 999;
+
+    & .content {
+        width: 600px;
+        height: 300px;
+        background-color: @bg-modal;
+        border-radius: 8px;
+        font-size: 16px;
+        color: @m-font-color;
+        text-align: center;
+        margin: 10% auto;
+        position: relative;
+
+        & .close {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            font-size: 20px;
+            color: @m-font-color;
+        }
+
+        & .title {
+            padding-top: 100px;
+        }
+
+        & .btn-wrap {
+            margin: 50px auto;
+            justify-content: center;
+        }
     }
 }
