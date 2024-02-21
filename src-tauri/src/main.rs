@@ -167,6 +167,11 @@ async fn key_frame_collect(window: Window, _video_path: String, frames: Vec<KeyF
         if out.len() == except_count { break; }
     }
 
+    //排序
+    out.sort_by(|i,j|{
+        i.item.idx.cmp(&j.item.idx)
+    });
+
     //通知前端
     Ok(out)
 }
