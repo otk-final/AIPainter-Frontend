@@ -17,7 +17,7 @@ use tauri::{Error, Manager, Window};
 lazy_static! {
 
     static ref POOL: ThreadPool = rayon::ThreadPoolBuilder::new()
-        .num_threads(5)
+        .num_threads(20)
         .build()
         .unwrap();
 
@@ -72,7 +72,7 @@ fn key_frame_handle(tx: Sender<KeyFrameHandleOutput>, item: KeyFrame) -> KeyFram
     let output: &str = item.output.as_str();
 
     let args = [
-        "-y", "-i", input, "-ss", ss, "-to", to, "-f", "image2", "-vframes", "1",
+        "-y", "-ss", ss, "-i", input, "-to", to, "-f", "image2", "-vframes", "1",
         output,
         // "-vf",
         // "fps=1/1",
@@ -97,6 +97,8 @@ fn key_frame_handle(tx: Sender<KeyFrameHandleOutput>, item: KeyFrame) -> KeyFram
         child.pid().to_string(),
         item.output
     );
+
+
     let _item = item.clone();
 
     let run = async move {
@@ -110,6 +112,10 @@ fn key_frame_handle(tx: Sender<KeyFrameHandleOutput>, item: KeyFrame) -> KeyFram
                 errors.push(line)
             }
         }
+
+        //退出子进程
+        child.kill().unwrap();
+
         // println!("命令执行完成：{}", item.output);
         //通知
         tx.send(KeyFrameHandleOutput {
@@ -118,6 +124,7 @@ fn key_frame_handle(tx: Sender<KeyFrameHandleOutput>, item: KeyFrame) -> KeyFram
             errors: errors.join(""),
         }).unwrap();
     };
+
 
     //同步
     // tauri::async_runtime::spawn(run);
@@ -145,6 +152,7 @@ async fn key_frame_collect(window: Window, _video_path: String, frames: Vec<KeyF
             POOL.spawn(move || { key_frame_handle(_tx, item); })
         })
         .collect::<Vec<_>>();
+
 
     //主线程同步监听消息
     let mut out = vec![];

@@ -1,5 +1,5 @@
 import { Button, Modal, Progress, message } from 'antd';
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ReactPlayer from 'react-player';
 import { dialog, event, tauri } from '@tauri-apps/api';
 import { ImitateTabType } from '../index';
@@ -22,7 +22,7 @@ interface CollectFrameProcess {
     current: any
 }
 
-const HandleCollectFramesProcess: React.FC<{ pid: string }> = ({ pid }) => {
+const HandleCollectFramesProcess: React.FC<{ pid: string, title: string }> = ({ pid, title }) => {
 
     //状态
     const [stateProccess, setProccess] = useState<CollectFrameProcess | undefined>()
@@ -44,9 +44,9 @@ const HandleCollectFramesProcess: React.FC<{ pid: string }> = ({ pid }) => {
     }, [pid])
 
     if (!stateProccess) {
-        return <div className='title'>正在抽取关键帧...</div>
+        return <div className='title'>{title}</div>
     }
-    return <div  className='title'>正在抽取关键帧...<Progress percent={Math.floor((stateProccess.completed / stateProccess.except) * 100)} status="active" showInfo/></div>
+    return <div className='title'>{title}<Progress percent={Math.floor((stateProccess.completed / stateProccess.except) * 100)} status="active" showInfo/></div>
 }
 
 
@@ -104,12 +104,13 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
         await simulateRepo.handleExportVideo(savePath).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
+    
     const renderModal = ()=>{
         return (
             <div className='auto-modal'>
                 {!secondConfirm ? <div className='content'>
                     <CloseOutlined className='close' onClick={()=>setSecondConfirm(true)}/>
-                    <HandleCollectFramesProcess pid={pid} />
+                    <HandleCollectFramesProcess pid={pid} title={isModalText} />
                 </div> : null}
                 {
                     secondConfirm ? (
