@@ -1,0 +1,23 @@
+{
+    "create_time": 0,
+    "duration": 0,
+    "extra_info": "2月23日.srt",
+    "file_Path": "C:/Users/Administrator/Desktop/2月23日/2月23日.srt",
+    "height": 0,
+    "id": "187DE115-0459-4405-9AB3-565E296EF1E2",
+    "import_time": 1708701556,
+    "import_time_ms": -1,
+    "item_source": 1,
+    "md5": "",
+    "metetype": "none",
+    "roughcut_time_range": {
+        "duration": -1,
+        "start": -1
+    },
+    "sub_time_range": {
+        "duration": -1,
+        "start": -1
+    },
+    "type": 2,
+    "width": 0
+}

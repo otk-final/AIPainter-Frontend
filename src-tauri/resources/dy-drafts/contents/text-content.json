@@ -1,0 +1,30 @@
+{
+    "styles": [
+        {
+            "fill": {
+                "alpha": 1,
+                "content": {
+                    "render_type": "solid",
+                    "solid": {
+                        "alpha": 1,
+                        "color": [
+                            1,
+                            1,
+                            1
+                        ]
+                    }
+                }
+            },
+            "font": {
+                "id": "",
+                "path": "D:/JianyingPro/5.3.0.11154/Resources/Font/SystemFont/zh-hans.ttf"
+            },
+            "range": [
+                0,
+                6
+            ],
+            "size": 5
+        }
+    ],
+    "text": "一分都不能少"
+}

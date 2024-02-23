@@ -1,0 +1,23 @@
+{
+    "create_time": 1708699906,
+    "duration": 2400000,
+    "extra_info": "0-345d3741-f6c9-4316-a15d-c0b83aeb6258.mp4",
+    "file_Path": "D:/AI/3133800e-7b31-444b-a5b3-4ab4a5edc37f/videos/0-345d3741-f6c9-4316-a15d-c0b83aeb6258.mp4",
+    "height": 512,
+    "id": "ca222484-d946-425c-9c99-adcaf2f97cc1",
+    "import_time": 1708700095,
+    "import_time_ms": 1708700094676439,
+    "item_source": 1,
+    "md5": "",
+    "metetype": "video",
+    "roughcut_time_range": {
+        "duration": 2400000,
+        "start": 0
+    },
+    "sub_time_range": {
+        "duration": -1,
+        "start": -1
+    },
+    "type": 0,
+    "width": 512
+}
