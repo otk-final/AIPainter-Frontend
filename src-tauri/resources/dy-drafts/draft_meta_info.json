@@ -1,0 +1,159 @@
+{
+    "cloud_package_completed_time": "",
+    "draft_cloud_capcut_purchase_info": "",
+    "draft_cloud_last_action_download": false,
+    "draft_cloud_materials": [],
+    "draft_cloud_purchase_info": "",
+    "draft_cloud_template_id": "",
+    "draft_cloud_tutorial_info": "",
+    "draft_cloud_videocut_purchase_info": "",
+    "draft_cover": "draft_cover.jpg",
+    "draft_deeplink_url": "",
+    "draft_enterprise_info": {
+        "draft_enterprise_extra": "",
+        "draft_enterprise_id": "",
+        "draft_enterprise_name": "",
+        "enterprise_material": []
+    },
+    "draft_fold_path": "D:/JianyingPro Drafts/2月23日",
+    "draft_id": "9593EF8D-AC4D-4ba8-AC0A-227F1B619BC6",
+    "draft_is_ai_packaging_used": false,
+    "draft_is_ai_shorts": false,
+    "draft_is_article_video_draft": false,
+    "draft_is_from_deeplink": "false",
+    "draft_is_invisible": false,
+    "draft_materials": [
+        {
+            "type": 0,
+            "value": [
+                {
+                    "create_time": 1708699906,
+                    "duration": 2400000,
+                    "extra_info": "0-345d3741-f6c9-4316-a15d-c0b83aeb6258.mp4",
+                    "file_Path": "D:/AI/3133800e-7b31-444b-a5b3-4ab4a5edc37f/videos/0-345d3741-f6c9-4316-a15d-c0b83aeb6258.mp4",
+                    "height": 512,
+                    "id": "ca222484-d946-425c-9c99-adcaf2f97cc1",
+                    "import_time": 1708700095,
+                    "import_time_ms": 1708700094676439,
+                    "item_source": 1,
+                    "md5": "",
+                    "metetype": "video",
+                    "roughcut_time_range": {
+                        "duration": 2400000,
+                        "start": 0
+                    },
+                    "sub_time_range": {
+                        "duration": -1,
+                        "start": -1
+                    },
+                    "type": 0,
+                    "width": 512
+                },
+                {
+                    "create_time": 1708699941,
+                    "duration": 2800000,
+                    "extra_info": "11-b2f7518e-cc71-470b-8b97-c3a0f35e361d.mp4",
+                    "file_Path": "D:/AI/3133800e-7b31-444b-a5b3-4ab4a5edc37f/videos/11-b2f7518e-cc71-470b-8b97-c3a0f35e361d.mp4",
+                    "height": 512,
+                    "id": "f4da3268-c4dc-4778-9c0c-8e5e9eb359d8",
+                    "import_time": 1708700096,
+                    "import_time_ms": 1708700094677913,
+                    "item_source": 1,
+                    "md5": "",
+                    "metetype": "video",
+                    "roughcut_time_range": {
+                        "duration": 2800000,
+                        "start": 0
+                    },
+                    "sub_time_range": {
+                        "duration": -1,
+                        "start": -1
+                    },
+                    "type": 0,
+                    "width": 512
+                },
+                {
+                    "create_time": 1708699964,
+                    "duration": 3800000,
+                    "extra_info": "51-6505289d-a192-4559-bf2d-d19b3a414ce5.mp4",
+                    "file_Path": "D:/AI/3133800e-7b31-444b-a5b3-4ab4a5edc37f/videos/51-6505289d-a192-4559-bf2d-d19b3a414ce5.mp4",
+                    "height": 512,
+                    "id": "c56e88d3-9598-4609-b32e-dc7a0f96b8b9",
+                    "import_time": 1708700097,
+                    "import_time_ms": 1708700094678537,
+                    "item_source": 1,
+                    "md5": "",
+                    "metetype": "video",
+                    "roughcut_time_range": {
+                        "duration": 3800000,
+                        "start": 0
+                    },
+                    "sub_time_range": {
+                        "duration": -1,
+                        "start": -1
+                    },
+                    "type": 0,
+                    "width": 512
+                }
+            ]
+        },
+        {
+            "type": 1,
+            "value": []
+        },
+        {
+            "type": 2,
+            "value": [
+                {
+                    "create_time": 0,
+                    "duration": 0,
+                    "extra_info": "2月23日.srt",
+                    "file_Path": "C:/Users/Administrator/Desktop/2月23日/2月23日.srt",
+                    "height": 0,
+                    "id": "187DE115-0459-4405-9AB3-565E296EF1E2",
+                    "import_time": 1708701556,
+                    "import_time_ms": -1,
+                    "item_source": 1,
+                    "md5": "",
+                    "metetype": "none",
+                    "roughcut_time_range": {
+                        "duration": -1,
+                        "start": -1
+                    },
+                    "sub_time_range": {
+                        "duration": -1,
+                        "start": -1
+                    },
+                    "type": 2,
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "type": 3,
+            "value": []
+        },
+        {
+            "type": 6,
+            "value": []
+        },
+        {
+            "type": 7,
+            "value": []
+        }
+    ],
+    "draft_materials_copied_info": [],
+    "draft_name": "2月23日",
+    "draft_new_version": "",
+    "draft_removable_storage_device": "D:",
+    "draft_root_path": "D:\\JianyingPro Drafts",
+    "draft_segment_extra_info": [],
+    "draft_timeline_materials_size_": 283310,
+    "draft_type": "",
+    "tm_draft_cloud_completed": "",
+    "tm_draft_cloud_modified": 0,
+    "tm_draft_create": 1708700078652095,
+    "tm_draft_modified": 1708701576160067,
+    "tm_draft_removed": 0,
+    "tm_duration": 9000000
+}
