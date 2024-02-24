@@ -93,6 +93,9 @@
         "bin/ffmpeg",
         "bin/ffprobe",
         "bin/dssim"
+      ],
+      "resources":[
+        "resources/**"
       ]
     },
     "security": {

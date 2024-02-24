@@ -75,12 +75,13 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
         let audioPath = await this.absulotePath("audio.mp3")
         //删除原始音频
-        if (await fs.exists(this.repoDir + path.sep + "audio.mp3", { dir: this.baseDir() })) {
-            await fs.removeFile(this.repoDir + path.sep + "audio.mp3", { dir: this.baseDir() })
-        }
+        //if (await fs.exists(this.repoDir + path.sep + "audio.mp3", { dir: this.baseDir() })) {
+        //    await fs.removeFile(this.repoDir + path.sep + "audio.mp3", { dir: this.baseDir() })
+        //}
 
         //导出音频
         cmd = shell.Command.sidecar("bin/ffmpeg", [
+            "-y",
             "-i", videoPath,
             "-vn",
             "-ab", "128k",  //音频格式

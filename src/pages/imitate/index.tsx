@@ -65,13 +65,21 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
 
   //导出
   const handleJYDraft = async () => {
+
+    let selected = await dialog.open({directory:true,title:"剪映草稿目录"})
+    if (!selected) {
+      return
+    }
+    
+
     Modal.info({
       content: <div style={{ color: '#fff' }}>正在导出剪映草稿..</div>,
       footer: null,
       mask: true,
       maskClosable: false,
     })
-    setTimeout(Modal.destroyAll, 3000)
+
+    await keyFreamRepo.handleConcatJYDraft(selected as string).catch(err => message.error(err)).finally(Modal.destroyAll)
   }
 
 

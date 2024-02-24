@@ -316,6 +316,32 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         return savePath
     }
+
+    //导出剪映草稿
+    handleConcatJYDraft = async (saveDir:string)=>{
+        let draft_name = await path.basename(saveDir)
+        console.info("draft_name", draft_name)
+
+
+        //将每个关键帧生成音频，视频，字幕
+
+
+
+        
+        //素材模版
+        let meta_template_path = await path.resolveResource("resources/jy_drafts/draft_meta_info.json")
+        let meta_template = JSON.parse(await fs.readTextFile(meta_template_path))
+        console.info(meta_template)
+        
+
+
+
+
+        //内容模版
+        let content_template_path = await path.resolveResource("resources/jy_drafts/draft_content.json")
+        let content_template = JSON.parse(await fs.readTextFile(content_template_path))
+        console.info(content_template)
+    }
 }
 
 export const useKeyFrameRepository = create<KeyFrameRepository>()(subscribeWithSelector((set, get) => new KeyFrameRepository("frames.json", set, get)))

@@ -73,16 +73,7 @@ fn key_frame_handle(tx: Sender<KeyFrameHandleOutput>, item: KeyFrame) -> KeyFram
 
     let args = [
         "-y", "-ss", ss, "-i", input, "-to", to, "-f", "image2", "-vframes", "1",
-        output,
-        // "-vf",
-        // "fps=1/1",
-        // "-vsync",
-        // "vfr",
-        // "-qscale:v",
-        // "10",
-        // "-update",
-        // "1",
-        // output,
+        output
     ];
 
     // 创建命令
