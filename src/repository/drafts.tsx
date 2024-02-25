@@ -38,7 +38,9 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
     let root_meta: any = await loadJYDraftTemplate("resources/jy_drafts/draft_meta_info.json")
 
     //累计时长 转换微秒
-    let total_duration = items.map(item => item.duration * 1000).reduce((p, c) => p + c)
+    items.forEach(e => e.duration = e.duration * 1000)
+    let total_duration = items.map(item => item.duration).reduce((p, c) => p + c)
+
     /**
      * 
      * draft_meta_info.json
