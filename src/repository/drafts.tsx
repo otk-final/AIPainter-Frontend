@@ -39,7 +39,7 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
 
     //累计时长 转换微秒
     //items.forEach(e => e.duration = e.duration * 1000)
-    let total_duration = items.map(item => item.duration).reduce((p, c) => p + c)
+    let total_duration = items.map(item => item.duration * 1000).reduce((p, c) => p + c)
 
     /**
      * 
@@ -56,15 +56,15 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
         let template = {
             ...material_video_template,
             id: uuid(),
-            duration: kf.duration,
+            duration: kf.duration * 1000,
             file_Path: kf.video_path,
             extra_info: await path.basename(kf.video_path),
             roughcut_time_range: {
-                duration: kf.duration,
+                duration: kf.duration * 1000,
                 start: 0
             },
             import_time: now_time_s,
-            import_time_ms:now_time_ms
+            import_time_ms: now_time_ms
         }
         video_templates.push(template)
     }
