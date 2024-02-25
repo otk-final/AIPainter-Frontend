@@ -26,6 +26,12 @@ export interface KeyFragment {
 //导出剪映草稿
 export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[], srtpath: string) => {
 
+    let now = new Date();
+    let now_time = now.getTime()
+    let now_time_s = Math.floor(now_time / 1000)
+    let now_time_ms = now_time * 1000
+
+
     //草稿名称 = 目录名称
     let draft_name = await path.basename(draft_dir)
     //素材模版
@@ -54,23 +60,27 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
             roughcut_time_range: {
                 duration: kf.duration,
                 start: 0
-            }
+            },
+            import_time: now_time_s,
+            import_time_ms:now_time_ms
         }
         video_templates.push(template)
     }
-
 
     //字幕
     let material_srt_template: any = await loadJYDraftTemplate("resources/jy_drafts/materials/srt.json")
     material_srt_template.extra_info = await path.basename(srtpath)
     material_srt_template.file_Path = srtpath
-    material_srt_template.id=uuid()
+    material_srt_template.id = uuid()
+    material_srt_template.import_time = now_time_s
+    material_srt_template.import_time_ms = -1
+
 
     //素材
     root_meta.draft_materials = [
         { type: 0, value: video_templates },
         { type: 1, value: [] },
-        { type: 2, value: [{...material_srt_template}] },
+        { type: 2, value: [{ ...material_srt_template }] },
         { type: 3, value: [] },
         { type: 6, value: [] },
         { type: 7, value: [] },
@@ -81,9 +91,10 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
     root_meta.draft_id = uuid()
     root_meta.draft_name = draft_name
     root_meta.draft_root_path = ""
-    root_meta.draft_removable_storage_device=""
+    root_meta.draft_removable_storage_device = ""
     root_meta.tm_duration = total_duration
-
+    root_meta.tm_draft_create = now_time_ms
+    root_meta.tm_draft_modified = now_time_ms
     /**
      * 写入文件
      */
