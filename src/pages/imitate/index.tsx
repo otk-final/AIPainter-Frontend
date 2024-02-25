@@ -66,11 +66,11 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   //导出
   const handleJYDraft = async () => {
 
-    let selected = await dialog.open({directory:true,title:"剪映草稿目录"})
+    let selected = await dialog.open({ directory: true, title: "剪映草稿目录", recursive: true })
     if (!selected) {
       return
     }
-    
+
 
     Modal.info({
       content: <div style={{ color: '#fff' }}>正在导出剪映草稿..</div>,

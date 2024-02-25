@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { BaseCRUDRepository, ItemIdentifiable, delay } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
-import { fs, path, shell } from "@tauri-apps/api"
+import { fs, path, shell, tauri } from "@tauri-apps/api"
 import { Image2TextHandle, Text2ImageHandle, WFScript, registerComfyUIPromptCallback } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
 import { SRTLine, formatTime } from "./srt"
@@ -9,36 +9,44 @@ import { GPTAssistantsApi } from "./gpt"
 import { createWorker } from "tesseract.js"
 import { v4 as uuid } from "uuid"
 import { AudioOption, TTSApi } from "./tts_api"
+import { JYMetaDraftExport, KeyFragment } from "./drafts"
 
 export interface KeyFrame extends ItemIdentifiable {
     id: number
     name: string,
+
+    //关键帧 + 所处视频
     path: string,
+
+
     prompt?: string,
     image: {
         path?: string
         history: string[]
     }
+
+
     //原字幕信息
     srt?: string
-    srt_duration?: {
-        start_time: number
-        end_time: number
-    }
+    srt_duration?: number
+    srt_audio_path?: string
+    srt_video_path?: string
+
 
     //字幕改写信息
     srt_rewrite?: string
-    srt_rewrite_duration?: {
-        start_time: number
-        end_time: number
-    }
+    srt_rewrite_duration?: number
     srt_rewrite_audio_path?: string
-    srt_rewrite_audio_duration?: number
-
-    //生成视频
-    video_path?: string
+    srt_rewrite_video_path?: string
 }
 
+
+interface KeyVideoGenerateJob {
+    idx: number,
+    image_path: string,
+    audio_path: string,
+    output: string,
+}
 
 
 
@@ -50,44 +58,20 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         this.sync()
     }
 
-    //srt字幕对齐
-    srtAlignment = async (srtLines: SRTLine[]) => {
-        let lines = [...srtLines]
-
-        this.items.forEach((k) => {
-            let millisecond = k.id * 1000
-            //根据当前镜头所在的秒，截取字幕
-            let srts = [] as SRTLine[]
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].end_time > millisecond) {
-                    lines = lines.splice(i)
-                    break
-                }
-                srts.push(lines[i])
-            }
-            //合并字幕，并统计时间
-            if (srts && srts.length > 0) {
-                k.srt = srts.map(line => line.text).join(",")
-                k.srt_duration = { start_time: srts[0].start_time, end_time: srts[srts.length - 1].end_time }
-            }
-        })
-        await this.sync()
-    }
-
-    srtExport = async (srtfile: string) => {
-        let lines = this.items.map((item, idx) => {
-            return {
-                id: idx + 1,
-                start_time: item.srt_duration?.start_time,
-                end_time: item.srt_duration?.end_time,
-                text: item.srt_rewrite || item.srt || ''
+    //字幕导出
+    srtExport = async (srtfile: string, fragments: KeyFragment[]) => {
+        let srts = []
+        for (let i = 0; i < fragments.length; i++) {
+            let item = fragments[i]
+            let srt = {
+                id: srts.length + 1,
+                start_time: srts.length === 0 ? 0 : srts[srts.length - 1].end_time,
+                end_time: srts.length === 0 ? item.duration : srts[srts.length - 1].start_time + item.duration,
+                text: item.srt
             } as SRTLine
-        })
-        await this.srtToFile(lines, srtfile)
-    }
-
-    srtToFile = async (lines: SRTLine[], srtfile: string) => {
-        let strText = lines.map((item, idx) => {
+            srts.push(srt)
+        }
+        let strText = srts.map((item, idx) => {
             let line =
                 (idx + 1) + "\n"
                 + formatTime(item.start_time, ",") + " --> " + formatTime(item.end_time, ",") + "\n"
@@ -97,9 +81,8 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         await fs.writeTextFile(srtfile, strText, { append: false })
     }
 
-
     //重写台词
-    aiRewriteContent = async (index: number, gptApi: GPTAssistantsApi) => {
+    handleRewriteContent = async (index: number, gptApi: GPTAssistantsApi) => {
         let rewrite = await gptApi.rewritePrompt(this.items[index].srt!)
         this.items[index].srt_rewrite = rewrite
         await this.sync()
@@ -129,10 +112,6 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         await this.sync()
         await worker.terminate();
-    }
-
-    batchRewriteContent = async () => {
-
     }
 
     //反推关键词
@@ -199,23 +178,26 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         registerComfyUIPromptCallback({ jobId: "", promptId: job.prompt_id, handle: callback })
     }
 
+    //在线生成音频
     handleGenerateAudio = async (index: number, audio: AudioOption, api: TTSApi) => {
 
         let item = this.items[index]
         //生成音频
         let resp = await api.translate(item.srt_rewrite!, audio)
 
-        //保存文件
-        let audioName = item.id + "-" + uuid() + ".mp3"
-        let audioPath = await this.saveFile("audio", audioName, resp.data)
+        //音频路径
+        let audioName = item.id + "-new-" + uuid() + ".mp3"
+        let audioPath = await this.saveFile("audios", audioName, resp.data)
 
-        this.items[index].srt_rewrite_audio_duration = resp.duration
+        //记录时长
+        this.items[index].srt_rewrite_duration = resp.duration
         this.items[index].srt_rewrite_audio_path = audioPath
 
         this.sync()
         return audioPath
     }
 
+    //本地生成视频
     handleGenerateVideo = async (index: number) => {
         let item = this.items[index]
 
@@ -224,18 +206,18 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         await fs.createDir(videoDir, { dir: this.baseDir(), recursive: true })
 
         //视频路径
-        let videoPath = "videos/" + item.id + "-" + uuid() + ".mp4"
+        let videoPath = "videos" + path.sep + item.id + "-new-" + uuid() + ".mp4"
         let assetPath = await this.absulotePath(videoPath)
 
         //字幕文件，音频 合成视频
         let cmd = shell.Command.sidecar("bin/ffmpeg", [
             "-loop", "1",
-            "-i", await this.absulotePath(item.image.path!),         //图片
+            "-i", await this.absulotePath(item.image.path!),              //图片
             "-i", await this.absulotePath(item.srt_rewrite_audio_path!),  //音频
             "-c:v", 'libx264',
             "-tune", "stillimage",
             "-vf", 'format=yuv420p',      //兼容大部分播放器
-            "-r", "5",                      //默认1秒5帧
+            "-r", "5",                    //默认1秒5帧
             "-shortest",
             assetPath                       //视频
         ])
@@ -245,52 +227,75 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         console.info(output.stdout)
 
 
-        this.items[index].video_path = videoPath
+        this.items[index].srt_rewrite_video_path = videoPath
         this.sync()
+
         return videoPath
     }
 
+    //过滤有效片段
+    filterValidFragments = async () => {
+        
+        let fragments = [] as KeyFragment[]
+        for (let i = 0; i < this.items.length; i++) {
+            let item = this.items[i]
+            let fragment =  {
+                id: item.id,
+                name: item.name,
+                //有效取生成的
+                srt: item.srt_rewrite_audio_path ? item.srt_rewrite : item.srt,
+                duration: item.srt_rewrite_audio_path ? item.srt_rewrite_duration : item.srt_duration,
+                image_path: await this.absulotePath(item.image.path ? item.image.path : item.path),
+                audio_path: await this.absulotePath(item.srt_rewrite_audio_path ? item.srt_rewrite_audio_path : item.srt_audio_path!),
+                video_path: await this.absulotePath(item.srt_rewrite_video_path ? item.srt_rewrite_video_path : item.srt_video_path!)
+            } as KeyFragment
+            fragments.push(fragment)
+        }
+        return fragments
+    }
+
+    //合并导出视频
     handleConcatVideo = async (savePath: string) => {
-        //选择已经生成视频的item
 
-        let srtLines = [] as SRTLine[]
-        let concats = [] as string[]
-
-        let validItems = this.items.filter(item => item.video_path)
-        for (let i = 0; i < validItems.length; i++) {
-            let item = validItems[i]
-
-            //获取上一个字幕时间
-            let last = srtLines.length > 0 ? srtLines[srtLines.length - 1] : { id: 0, start_time: 0, end_time: 0 }
-            srtLines.push({
-                id: i + 1,
-                start_time: last.end_time,
-                end_time: Number(last.end_time) + Number(item.srt_rewrite_audio_duration!),
-                text: item.srt_rewrite!
-            })
-            let vp = await this.absulotePath(item.video_path!)
-            let vpText = "file " + "'" + vp + "'"
-            concats.push(vpText)
-        }
-        if (concats.length === 0) {
-            throw new Error("无有效视频")
-        }
+        //有效片段
+        let fragments = await this.filterValidFragments()
 
         //生成字幕文件
-        let srtPath = await this.absulotePath("video.srt")
-        await this.srtToFile(srtLines, srtPath)
+        let srt_path = await this.absulotePath("video.srt")
+        await this.srtExport(srt_path, fragments)
 
-        //生成合并文件
-        let concatsPath = await this.absulotePath("video.concats")
-        await fs.writeTextFile(concatsPath, concats.join("\n"), { append: false })
+        //临时存储目录
+        let videoDir = await path.join(this.repoDir, "temp-videos")
+        await fs.createDir(videoDir, { dir: this.baseDir(), recursive: true })
 
+        //根据当前音频+图片，生成视频
+        let jobs = [] as KeyVideoGenerateJob[]
+        for (let i = 0; i < fragments.length; i++) {
+            let item = fragments[i];
+            let arg = {
+                idx: i,
+                image_path: item.image_path,
+                audio_path: item.audio_path,
+                output: await this.absulotePath("temp-videos" + path.sep + item.id + ".mp4")
+            } as KeyVideoGenerateJob
+            jobs.push(arg)
+        }
 
-        let tempVideoPath = await this.absulotePath("video-" + uuid() + ".mp4")
+        //批量生产原始视频片段
+        let results: KeyVideoGenerateJob[] = await tauri.invoke("key_video_generate", { parameters: jobs })
+
+        //生成拼接文件
+        let concats_path = await this.absulotePath("video.concats")
+        let concats_content: string[] = results.map(i => "file " + "'" + i.output + "'")
+        await fs.writeTextFile(concats_path, concats_content.join("\n"), { append: false })
+
+        let tempVideoPath = await this.absulotePath("output-" + uuid() + ".mp4")
         //1合成视频
         let cmd = shell.Command.sidecar("bin/ffmpeg", [
+            "-y",
             "-f", "concat",
             "-safe", "0",
-            "-i", concatsPath,      //目标视频
+            "-i", concats_path,     //目标视频
             "-c", "copy",
             tempVideoPath           //视频
         ])
@@ -299,11 +304,12 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         console.info(output.stdout)
 
         await delay(2000)
-        
+
         //2导入字幕 
         cmd = shell.Command.sidecar("bin/ffmpeg", [
+            "-y",
             "-i", tempVideoPath,    //目标视频
-            "-i", srtPath,          //目标字幕
+            "-i", srt_path,         //目标字幕
             "-c", "copy",
             "-c:s", "mov_text",
             "-metadata:s:s:0",
@@ -313,34 +319,23 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         output = await cmd.execute()
         console.info(output.stderr)
         console.info(output.stdout)
-
         return savePath
     }
 
     //导出剪映草稿
-    handleConcatJYDraft = async (saveDir:string)=>{
+    handleConcatJYDraft = async (saveDir: string) => {
         let draft_name = await path.basename(saveDir)
         console.info("draft_name", draft_name)
 
+        //有效帧片段
+        let fragments = await this.filterValidFragments()
 
-        //将每个关键帧生成音频，视频，字幕
+        //生成字幕文件
+        let srtpath = await this.absulotePath("video.srt")
+        await this.srtExport(srtpath, fragments)
 
-
-
-        
-        //素材模版
-        let meta_template_path = await path.resolveResource("resources/jy_drafts/draft_meta_info.json")
-        let meta_template = JSON.parse(await fs.readTextFile(meta_template_path))
-        console.info(meta_template)
-        
-
-
-
-
-        //内容模版
-        let content_template_path = await path.resolveResource("resources/jy_drafts/draft_content.json")
-        let content_template = JSON.parse(await fs.readTextFile(content_template_path))
-        console.info(content_template)
+        //导出
+        await JYMetaDraftExport(saveDir, fragments, srtpath)
     }
 }
 

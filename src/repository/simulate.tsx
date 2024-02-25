@@ -5,6 +5,7 @@ import { fs, path, shell, tauri } from "@tauri-apps/api"
 import { KeyFrame } from "./keyframe"
 import { TTSApi } from "./tts_api"
 import { SRTLine, formatTime } from "./srt"
+import { v4 as uuid } from "uuid"
 
 interface KeyFrameJob {
     idx: number,
@@ -14,23 +15,19 @@ interface KeyFrameJob {
     input: string,
     ss: string
     to: string
-    output: string,
+
+    image_output: string,
+    audio_output: string,
+    video_output: string,
 
     // 字幕信息
     srt: string,
-    srt_start_time: number,
-    srt_end_time: number,
+    srt_duration: number,
 }
 
-interface KeyFrameJobResult {
-    item: KeyFrameJob
-    outputs?: string
-    errors?: string
-}
 
 //剧本
 export class SimulateRepository extends BaseRepository<SimulateRepository> {
-
 
     free() {
         console.info('释放.....')
@@ -74,10 +71,6 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         this.payload = JSON.parse(output.stdout)
 
         let audioPath = await this.absulotePath("audio.mp3")
-        //删除原始音频
-        //if (await fs.exists(this.repoDir + path.sep + "audio.mp3", { dir: this.baseDir() })) {
-        //    await fs.removeFile(this.repoDir + path.sep + "audio.mp3", { dir: this.baseDir() })
-        //}
 
         //导出音频
         cmd = shell.Command.sidecar("bin/ffmpeg", [
@@ -166,7 +159,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
             return srcIndex + matchIndex + 1
         }
         let repo_path = await path.join(await this.basePath(), this.repoDir)
-        
+
         //比对相识度 默认从第一张图片开始
         let diffs = [frames[0]]
         let index = 0
@@ -233,10 +226,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
                 history: []
             },
             srt: srt.text,
-            srt_duration: {
-                start_time: srt.start_time,
-                end_time: srt.end_time
-            }
+            srt_duration: srt.end_time - srt.start_time
         } as KeyFrame
     }
 
@@ -244,68 +234,75 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     //抽帧关键帧
     handleCollectFrames = async (api: TTSApi) => {
 
-
         //临时存储目录
         let framesDir = await path.join(this.repoDir, "frames")
         await fs.createDir(framesDir, { dir: this.baseDir(), recursive: true })
+        let audiosDir = await path.join(this.repoDir, "audios")
+        await fs.createDir(audiosDir, { dir: this.baseDir(), recursive: true })
+        let videosDir = await path.join(this.repoDir, "videos")
+        await fs.createDir(videosDir, { dir: this.baseDir(), recursive: true })
+
+
+        //音频文件
+        let exportAudioPath = await this.absulotePath("audio.mp3")
 
         //根据字幕文件抽取关键帧
-        let srtLines = await this.handleRecognitionAudio(api)
-
+        let srtLines = await this.handleRecognitionAudio(api, exportAudioPath)
 
         //关键帧参数
         let frames = [] as KeyFrameJob[]
         for (let i = 0; i < srtLines.length; i++) {
-            let name = i + ".png"
-            let output_path = await this.absulotePath("/frames/" + name)
+
+            let name = i + "-org-" + uuid()
+            let image_path = await this.absulotePath("frames" + path.sep + name + ".png")
+            let audio_path = await this.absulotePath("audios" + path.sep + name + ".mp3")
+            let video_path = await this.absulotePath("videos" + path.sep + name + ".mp4")
+
+            let srt = srtLines[i]
+
             frames.push({
                 idx: i,
                 name: name,
 
                 //参数
                 input: this.videoPath!,
-                ss: formatTime(srtLines[i].start_time, "."),
-                to: formatTime(srtLines[i].end_time, "."),
-                output: output_path,
+                ss: formatTime(srt.start_time, "."),
+                to: formatTime(srt.end_time, "."),
+
+                //输出文件
+                image_output: image_path,
+                audio_output: audio_path,
+                video_output: video_path,
 
                 //字幕
-                srt: srtLines[i].text,
-                srt_start_time: srtLines[i].start_time,
-                srt_end_time: srtLines[i].end_time
+                srt: srt.text,
+                srt_duration: srt.end_time - srt.start_time,
             } as KeyFrameJob)
         }
-        
+
         //并发执行
-        let results: KeyFrameJobResult[] = await tauri.invoke('key_frame_collect', { videoPath: this.videoPath!, frames: frames })
+        let results: KeyFrameJob[] = await tauri.invoke('key_frame_collect', { videoPath: this.videoPath!, audioPath: exportAudioPath, parameters: frames })
 
         //转换关键帧对象
-        return results.map((job: KeyFrameJobResult) => {
-            let item = job.item
+        return results.map((item: KeyFrameJob) => {
             return {
                 id: item.idx,
                 name: item.name,
-                path: "frames" + path.sep + item.name,
+                path: "frames" + path.sep + item.name + ".png",
                 image: {
                     prompt: "",
                     history: []
                 },
                 srt: item.srt,
-                srt_duration: {
-                    start_time: item.srt_start_time,
-                    end_time: item.srt_end_time
-                }
+                srt_duration: item.srt_duration,
+                srt_audio_path: "audios" + path.sep + item.name + ".mp3",
+                srt_video_path: "videos" + path.sep + item.name + ".mp4",
             } as KeyFrame
         })
     }
 
     //识别音频
-    handleRecognitionAudio = async (api: TTSApi) => {
-
-        // let frames = [
-        //     // { idx: 0, start_time: 10, end_time: 900 },
-        //     { idx: 1, start_time: 900, end_time: 1700 }]
-
-        // return frames
+    handleRecognitionAudio = async (api: TTSApi, audioPath: string) => {
 
         //是否已经识别
         let audioRecognitionPath = await this.absulotePath("audio.json")
@@ -314,15 +311,8 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
             return JSON.parse(audioText).utterances as SRTLine[]
         }
 
-        //提取音频
-        if (!this.audioPath) {
-            throw new Error("无音频文件")
-        }
-
-        console.info("上传音频")
-
-        let audioPath = await this.absulotePath("audio.mp3")
         //在线 生成字幕文件
+        console.info("上传音频")
         let jobResp: any = await api.submitAudio(audioPath)
         this.audioRecognitionJobId = jobResp.id
 
@@ -335,7 +325,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         console.info("查询任务结果：", audioText)
 
         //写入文件
-        await fs.writeFile(audioRecognitionPath, JSON.stringify(audioText, null, "\t"), {append: false })
+        await fs.writeFile(audioRecognitionPath, JSON.stringify(audioText, null, "\t"), { append: false })
         this.audioRecognition = true
 
         this.sync()

@@ -66,7 +66,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, geAudioOption, 
             mask: true,
             maskClosable: false,
         })
-        await keyFreamRepo.aiRewriteContent(index, gptApi).catch(err => message.error(err)).finally(Modal.destroyAll)
+        await keyFreamRepo.handleRewriteContent(index, gptApi).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
     const handleRecognize = async () => {
@@ -115,8 +115,8 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, geAudioOption, 
             <Fragment>
                 <div className='index'>{index + 1}</div>
                 <div>
-                    <Typography.Paragraph style={{ color: 'white', fontSize: 10 }}>开始:{stateFrame.srt_duration?.start_time}</Typography.Paragraph>
-                    <Typography.Paragraph style={{ color: 'white', fontSize: 10 }}>结束:{stateFrame.srt_duration?.end_time}</Typography.Paragraph>
+                    <Typography.Paragraph style={{ color: 'white', fontSize: 10 }}>原始:{stateFrame.srt_duration}</Typography.Paragraph>
+                    <Typography.Paragraph style={{ color: 'white', fontSize: 10 }}>改写:{stateFrame.srt_rewrite_duration}</Typography.Paragraph>
                 </div>
             </Fragment>
         )
@@ -151,7 +151,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, geAudioOption, 
                 </ButtonGroup>
                 <ButtonGroup>
                     <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateVideo} disabled={!(stateFrame.srt_rewrite_audio_path && stateFrame.image.path)}>生成视频</Button>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={() => hanldePlayer(stateFrame.video_path!)} disabled={!stateFrame.video_path} icon={<CameraFilled />}>播放</Button>
+                    <Button type='default' className='btn-default-auto btn-default-98' onClick={() => hanldePlayer(stateFrame.srt_rewrite_video_path!)} disabled={!stateFrame.srt_rewrite_video_path} icon={<CameraFilled />}>播放</Button>
                 </ButtonGroup>
             </Fragment>
         )
