@@ -47,7 +47,7 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
         let kf = items[i]
         let template = {
             ...material_video_template,
-            id: kf.id,
+            id: uuid(),
             duration: kf.duration,
             file_Path: kf.video_path,
             extra_info: await path.basename(kf.video_path),
@@ -55,9 +55,7 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
                 duration: kf.duration,
                 start: 0
             }
-
         }
-
         video_templates.push(template)
     }
 
@@ -66,17 +64,24 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
     let material_srt_template: any = await loadJYDraftTemplate("resources/jy_drafts/materials/srt.json")
     material_srt_template.extra_info = await path.basename(srtpath)
     material_srt_template.file_Path = srtpath
+    material_srt_template.id=uuid()
 
     //素材
     root_meta.draft_materials = [
         { type: 0, value: video_templates },
-        { type: 2, value: [material_srt_template] }
+        { type: 1, value: [] },
+        { type: 2, value: [{...material_srt_template}] },
+        { type: 3, value: [] },
+        { type: 6, value: [] },
+        { type: 7, value: [] },
+        { type: 8, value: [] }
     ]
 
     root_meta.draft_fold_path = draft_dir
     root_meta.draft_id = uuid()
     root_meta.draft_name = draft_name
     root_meta.draft_root_path = ""
+    root_meta.draft_removable_storage_device=""
     root_meta.tm_duration = total_duration
 
     /**
