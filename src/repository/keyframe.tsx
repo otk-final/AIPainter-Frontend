@@ -150,7 +150,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let script = new WFScript(text)
 
         //add prompt task
-        let job = await api.prompt(script, { positive: frame.prompt || comyuiRepo.positivePrompt, negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
+        let job = await api.prompt(script, { positive: [comyuiRepo.positivePrompt, frame.prompt].join(""), negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
 
         //获取 当前流程中 输出图片节点位置
         let step = script.getOutputImageStep()
@@ -235,11 +235,11 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
     //过滤有效片段
     filterValidFragments = async () => {
-        
+
         let fragments = [] as KeyFragment[]
         for (let i = 0; i < this.items.length; i++) {
             let item = this.items[i]
-            let fragment =  {
+            let fragment = {
                 id: item.id,
                 name: item.name,
                 //有效取生成的
