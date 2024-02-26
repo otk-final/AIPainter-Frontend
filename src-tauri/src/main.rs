@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use std::path::PathBuf;
 use tauri::{Manager};
+use crate::cmd::execute;
 use crate::key_export_cmd::key_frame_collect;
 use crate::key_generate_cmd::key_video_generate;
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -42,4 +43,11 @@ fn main() {
         .plugin(tauri_plugin_websocket::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+
+    // let diff = vec!["/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/7326f325-0a90-4b38-9960-f8a8d76370ca/frames/279-org.png",
+    //                 "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/7326f325-0a90-4b38-9960-f8a8d76370ca/frames/280-org.png"].iter().map(|item| { item.to_string() }).collect();
+    //
+    // let out = execute(None, String::from("dssim"), "比对".to_string(), diff, "X");
+    // println!("outputs:{:?}", out.outputs);
+    // println!("errors:{:?}", out.errors);
 }

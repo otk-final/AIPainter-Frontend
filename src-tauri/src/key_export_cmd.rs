@@ -33,11 +33,11 @@ fn handle(tx: Sender<KeyFrame>, video_path: String, audio_path: String, item: Ke
         "-y",
         "-ss", ss,
         "-to", to,
-        "-i", video_path.as_str(), "-f", "image2", "-vframes", "1",
+        "-i", video_path.as_str(), "-vframes", "1", "-vf", "select='eq(n,3)'",
         item.image_output.as_str()
     ].iter().map(|item| { item.to_string() }).collect();
 
-    execute(None, format!("关键帧：{}", item.name), image_args, item.clone());
+    execute(None, String::from("ffmpeg"),format!("关键帧：{}", item.name), image_args, item.clone());
 
     //生成音频
     let audio_args = [
@@ -47,7 +47,7 @@ fn handle(tx: Sender<KeyFrame>, video_path: String, audio_path: String, item: Ke
         "-i", audio_path.as_str(), "-vn", "-ab", "128k", "-f", "mp3",
         item.audio_output.as_str()
     ].iter().map(|item| { item.to_string() }).collect();
-    execute(None, format!("音频：{}", item.name), audio_args, item.clone());
+    execute(None,  String::from("ffmpeg"),format!("音频：{}", item.name), audio_args, item.clone());
 
     //生成视频
     let video_args = [
@@ -57,7 +57,7 @@ fn handle(tx: Sender<KeyFrame>, video_path: String, audio_path: String, item: Ke
         "-i", video_path.as_str(), "-vcodec", "copy", "-an",
         item.video_output.as_str()
     ].iter().map(|item| { item.to_string() }).collect();
-    execute(None, format!("视频：{}", item.name), video_args, item.clone());
+    execute(None,  String::from("ffmpeg"),format!("视频：{}", item.name), video_args, item.clone());
 
     //通知
     tx.send(item).unwrap()
@@ -101,6 +101,13 @@ pub async fn key_frame_collect(window: Window,
     out.sort_by(|i, j| {
         i.idx.cmp(&j.idx)
     });
+
+
+    //执行比对相似度比对
+
+
+
+
 
     //通知前端
     Ok(out)

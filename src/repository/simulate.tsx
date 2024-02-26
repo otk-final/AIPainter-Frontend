@@ -253,7 +253,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         let frames = [] as KeyFrameJob[]
         for (let i = 0; i < srtLines.length; i++) {
 
-            let name = i + "-org-" + uuid()
+            let name = i + "-org"
             let image_path = await this.absulotePath("frames" + path.sep + name + ".png")
             let audio_path = await this.absulotePath("audios" + path.sep + name + ".mp3")
             let video_path = await this.absulotePath("videos" + path.sep + name + ".mp4")

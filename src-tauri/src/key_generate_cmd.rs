@@ -27,7 +27,7 @@ pub async fn key_video_generate(window: Window, parameters: Vec<KeyVideo>) -> Re
             let name = item.idx.to_string();
             //参数
             let args = [
-                "-y", "-loop", "1","-i", item.image_path.as_str(), "-i", item.audio_path.as_str(),  "-c:v", "libx264", "-tune", "stillimage",
+                "-y", "-loop", "1", "-i", item.image_path.as_str(), "-i", item.audio_path.as_str(), "-c:v", "libx264", "-tune", "stillimage",
                 "-vf", "format=yuv420p",
                 "-r", "5",
                 "-shortest",
@@ -35,7 +35,7 @@ pub async fn key_video_generate(window: Window, parameters: Vec<KeyVideo>) -> Re
             ].iter().map(|item| { item.to_string() }).collect();
 
             //独立线程
-            POOL.spawn(move || { execute(Some(_tx), name, args, item); })
+            POOL.spawn(move || { execute(Some(_tx), String::from("ffmpeg"), name, args, item); })
         })
         .collect::<Vec<_>>();
 

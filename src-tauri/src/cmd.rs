@@ -31,26 +31,27 @@ pub struct HandleProcess<T: Clone> {
 }
 
 
-pub fn execute<T: Clone>(opt_tx: Option<Sender<T>>, name: String, args: Vec<String>, msg: T) -> ExecuteOutput<T> {
-
-
+pub fn execute<T: Clone>(opt_tx: Option<Sender<T>>, cmd: String, name: String, args: Vec<String>, msg: T) -> ExecuteOutput<T> {
     let args_log = args.clone();
 
     // 创建命令
-    let (mut rx, mut child) = Command::new_sidecar("ffmpeg")
+    let (mut rx, mut child) = Command::new_sidecar(cmd)
         .unwrap()
         .args(args)
         .spawn()
         .expect("Failed to spawn sidecar");
 
     println!(
-        "开始执行关键帧抽取命令[{}]:{} = {:?}",
+        "开始执行命令[{}]-{} = {:?}",
         child.pid().to_string(),
         name,
         args_log
     );
 
     let out_msg = msg.clone();
+
+
+
 
     let run = async move {
 
@@ -75,12 +76,14 @@ pub fn execute<T: Clone>(opt_tx: Option<Sender<T>>, name: String, args: Vec<Stri
             None => {}
             Some(tx) => tx.send(msg).unwrap()
         }
+
+        (outputs,errors)
     };
 
     //同步
-    block_on(run);
+    let (o,e) = block_on(run);
 
-    ExecuteOutput { data: out_msg, outputs: "".to_string(), errors: "".to_string() }
+    ExecuteOutput { data: out_msg, outputs: o.join("\n").to_string(), errors: e.join("\n").to_string() }
 }
 
 
