@@ -149,8 +149,11 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let text = await comyuiRepo.buildModePrompt(style)
         let script = new WFScript(text)
 
+        //生成随机
+        let seed:number = await tauri.invoke('seed_random',{})
+
         //add prompt task
-        let job = await api.prompt(script, { positive: [comyuiRepo.positivePrompt, frame.prompt].join(""), negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
+        let job = await api.prompt(script, { seed: seed, positive: [comyuiRepo.positivePrompt, frame.prompt].join(""), negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
 
         //获取 当前流程中 输出图片节点位置
         let step = script.getOutputImageStep()

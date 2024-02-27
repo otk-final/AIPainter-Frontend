@@ -7,7 +7,7 @@ use crate::cmd::{execute, HandleProcess, POOL};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct KeyFrame {
-    pub idx: usize,
+    pub idx:  usize,
     pub name: String,
 
     //参数
@@ -97,16 +97,11 @@ pub async fn key_frame_collect(window: Window,
         if out.len() == except_count { break; }
     }
 
+
     //排序
     out.sort_by(|i, j| {
         i.idx.cmp(&j.idx)
     });
-
-
-    //执行比对相似度比对
-
-
-
 
 
     //通知前端

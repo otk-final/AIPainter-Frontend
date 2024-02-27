@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use tauri::api::process::{Command, CommandEvent};
 
 use rayon::ThreadPool;
+use crate::key_export_cmd::KeyFrame;
 
 
 // 线程池
@@ -19,8 +20,8 @@ lazy_static! {
 //关键帧
 pub struct ExecuteOutput<T: Clone> {
     pub data: T,
-    pub outputs: String,
-    pub errors: String,
+    pub outputs: Vec<String>,
+    pub errors: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -51,8 +52,7 @@ pub fn execute<T: Clone>(opt_tx: Option<Sender<T>>, cmd: String, name: String, a
     let out_msg = msg.clone();
 
 
-
-
+    // let mut outs = vec![];
     let run = async move {
 
         // 获取响应
@@ -77,13 +77,13 @@ pub fn execute<T: Clone>(opt_tx: Option<Sender<T>>, cmd: String, name: String, a
             Some(tx) => tx.send(msg).unwrap()
         }
 
-        (outputs,errors)
+        (outputs, errors)
     };
 
     //同步
-    let (o,e) = block_on(run);
+    let (o, e) = block_on(run);
 
-    ExecuteOutput { data: out_msg, outputs: o.join("\n").to_string(), errors: e.join("\n").to_string() }
+    ExecuteOutput { data: out_msg, outputs: o, errors: e }
 }
 
 

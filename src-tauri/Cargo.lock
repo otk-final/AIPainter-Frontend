@@ -32,6 +32,7 @@ version = "0.0.0"
 dependencies = [
  "futures",
  "lazy_static",
+ "rand 0.8.5",
  "rayon",
  "serde",
  "serde_json",

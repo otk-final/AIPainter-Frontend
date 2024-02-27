@@ -304,6 +304,12 @@ export class WFScript {
             loader.node.inputs = { ...loader.node.inputs, image: name }
         })
     }
+    setSeed(seed: number) {
+        let samplers = this.getNodes("KSampler")
+        samplers.forEach(s => {
+            s.node.inputs = { ...s.node.inputs, seed: seed }
+        })
+    }
     getOutputImageStep(): string {
         return this.getOutputStep("SaveImage")
     }
@@ -343,12 +349,14 @@ export const Image2TextHandle: CompletionPromptParams<ImageFileParams> = (api: C
 export interface Text2ImageParams {
     positive: string
     negative: string
+    seed: number
 }
 
 //文生图
 export const Text2ImageHandle: CompletionPromptParams<Text2ImageParams> = (api: ComfyUIApi, script: WFScript, params: Text2ImageParams) => {
     script.setNegativePrompt(params.negative)
     script.setPositivePrompt(params.positive)
+    script.setSeed(params.seed)
     return script.toObject()
 }
 

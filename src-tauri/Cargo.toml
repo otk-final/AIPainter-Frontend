@@ -21,6 +21,7 @@ futures = { version = "0.3.30", features = ["thread-pool"] }
 lazy_static = "1.4.0"
 tokio = "1.36.0"
 rayon = "1.8.1"
+rand = "0.8.5"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
