@@ -45,7 +45,7 @@ pub async fn key_video_generate(window: Window, parameters: Vec<KeyVideo>) -> Re
         out.push(msg.clone());
 
         //通知前端进度
-        window.emit("key_audio_generate_process", HandleProcess { except: except_count, completed: out.len(), current: msg.clone() }).expect("send err");
+        window.emit("key_audio_generate_process", HandleProcess { title: "生成视频".to_string(), except: except_count, completed: out.len(), current: msg.clone() }).expect("send err");
 
         //所有任务完成退出
         if out.len() == except_count { break; }

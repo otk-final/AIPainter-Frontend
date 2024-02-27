@@ -1,3 +1,4 @@
+use std::cmp::min;
 use std::sync::mpsc::{channel, Sender};
 use serde::{Deserialize, Serialize};
 use tauri::{Error, Window};
@@ -7,7 +8,7 @@ use crate::cmd::{execute, HandleProcess, POOL};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct KeyFrame {
-    pub idx:  usize,
+    pub idx: usize,
     pub name: String,
 
     //参数
@@ -23,8 +24,35 @@ pub struct KeyFrame {
     pub srt_duration: usize,
 }
 
+fn audio_video_handle(tx: Sender<KeyFrame>, video_path: String, audio_path: String, item: KeyFrame) {
+    let ss = item.ss.as_str();
+    let to = item.to.as_str();
 
-fn handle(tx: Sender<KeyFrame>, video_path: String, audio_path: String, item: KeyFrame) {
+    //生成音频
+    let audio_args = [
+        "-y",
+        "-ss", ss,
+        "-to", to,
+        "-i", audio_path.as_str(), "-vn", "-ab", "128k", "-f", "mp3",
+        item.audio_output.as_str()
+    ].iter().map(|item| { item.to_string() }).collect();
+    execute(None, String::from("ffmpeg"), format!("音频：{}", item.name), audio_args, item.clone());
+
+    //生成视频
+    let video_args = [
+        "-y",
+        "-ss", ss,
+        "-to", to,
+        "-i", video_path.as_str(), "-vcodec", "copy", "-an",
+        item.video_output.as_str()
+    ].iter().map(|item| { item.to_string() }).collect();
+    execute(None, String::from("ffmpeg"), format!("视频：{}", item.name), video_args, item.clone());
+
+    //通知
+    tx.send(item).unwrap()
+}
+
+fn image_handle(tx: Sender<KeyFrame>, video_path: String, item: KeyFrame) {
     let ss = item.ss.as_str();
     let to = item.to.as_str();
 
@@ -36,31 +64,109 @@ fn handle(tx: Sender<KeyFrame>, video_path: String, audio_path: String, item: Ke
         "-i", video_path.as_str(), "-vframes", "1", "-vf", "select='eq(n,3)'",
         item.image_output.as_str()
     ].iter().map(|item| { item.to_string() }).collect();
+    execute(Some(tx), String::from("ffmpeg"), format!("关键帧：{}", item.name), image_args, item.clone());
+}
 
-    execute(None, String::from("ffmpeg"),format!("关键帧：{}", item.name), image_args, item.clone());
 
-    //生成音频
-    let audio_args = [
-        "-y",
-        "-ss", ss,
-        "-to", to,
-        "-i", audio_path.as_str(), "-vn", "-ab", "128k", "-f", "mp3",
-        item.audio_output.as_str()
-    ].iter().map(|item| { item.to_string() }).collect();
-    execute(None,  String::from("ffmpeg"),format!("音频：{}", item.name), audio_args, item.clone());
+fn step_image(window: Window, video_path: String, audio_path: String, parameters: Vec<KeyFrame>) -> Vec<KeyFrame> {
+    let except_count = parameters.len();
+    let (tx, rv) = channel::<KeyFrame>();
 
-    //生成视频
-    let video_args = [
-        "-y",
-        "-ss", ss,
-        "-to", to,
-        "-i", video_path.as_str(), "-vcodec", "copy", "-an",
-        item.video_output.as_str()
-    ].iter().map(|item| { item.to_string() }).collect();
-    execute(None,  String::from("ffmpeg"),format!("视频：{}", item.name), video_args, item.clone());
+    //第一步 关键帧抽取
+    let _ = parameters.into_iter().for_each(move |item| {
+        let _tx = tx.clone();
+        let _video_path = video_path.clone();
+        let _audio_path = audio_path.clone();
+        //独立线程
+        POOL.spawn(move || { image_handle(_tx, _video_path, item); })
+    });
 
-    //通知
-    tx.send(item).unwrap()
+    //主线程同步监听消息 待抽帧完成
+    let mut roughs = vec![];
+    for msg in rv {
+        roughs.push(msg.clone());
+        //通知前端进度
+        window.emit("key_frame_collect_process", HandleProcess { title: "关键帧导出".to_string(), except: except_count, completed: roughs.len(), current: msg.clone() }).expect("send err");
+        //所有任务完成退出
+        if roughs.len() == except_count { break; }
+    }
+    //排序
+    roughs.sort_by(|i, j| {
+        i.idx.cmp(&j.idx)
+    });
+
+    roughs
+}
+
+fn step_diff(window: Window, roughs: Vec<KeyFrame>) -> Vec<KeyFrame> {
+
+    //第一步，分批次并发比对
+    let (tx, rv) = channel::<Vec<KeyFrame>>();
+    let threshold = 0.55432121;
+    let step = 5;
+    let chunk_size = 10;
+
+    let chunks = roughs.chunks(chunk_size);
+    let jobs = chunks.len();
+    chunks.for_each(move |batch| {
+        let _tx = tx.clone();
+        let _batch = batch.to_vec().clone();
+        POOL.spawn(move || {
+            let batch_outs = key_frames_dssim(_batch, threshold, step);
+            _tx.send(batch_outs).unwrap();
+        })
+    });
+
+    //待同步等待完成
+    let mut completed = 0;
+    let mut diffs = vec![];
+    for batch in rv {
+        completed = completed + 1;
+        diffs.extend(batch);
+        window.emit("key_frame_collect_process", HandleProcess { title: "关键帧对比".to_string(), except: jobs, completed, current: "" }).expect("send err");
+        if completed == jobs { break; }
+    }
+
+    //排序
+    diffs.sort_by(|i, j| {
+        i.idx.cmp(&j.idx)
+    });
+
+    //第二步 二次对比
+    let all_diffs = key_frames_dssim(diffs.clone(), threshold, 3);
+
+    println!("对比结束");
+
+    all_diffs
+}
+
+fn step_audio(window: Window, video_path: String, audio_path: String, diffs: Vec<KeyFrame>) -> Vec<KeyFrame> {
+    let (tx, rv) = channel::<KeyFrame>();
+    let diffs_length = diffs.len();
+
+    //第三步 关键帧抽取
+    let _ = diffs.into_iter().for_each(move |item| {
+        let _tx = tx.clone();
+        let _video_path = video_path.clone();
+        let _audio_path = audio_path.clone();
+        //独立线程
+        POOL.spawn(move || { audio_video_handle(_tx, _video_path, _audio_path, item); })
+    });
+
+    //主线程同步监听消息 待抽帧完成
+    let mut outputs = vec![];
+    for msg in rv {
+        outputs.push(msg.clone());
+        //通知前端进度
+        window.emit("key_frame_collect_process", HandleProcess { title: "关键帧导出".to_string(), except: diffs_length, completed: outputs.len(), current: msg.clone() }).expect("send err");
+        //所有任务完成退出
+        if outputs.len() == diffs_length { break; }
+    }
+    //排序
+    outputs.sort_by(|i, j| {
+        i.idx.cmp(&j.idx)
+    });
+    outputs
 }
 
 //导出关键帧
@@ -69,41 +175,78 @@ pub async fn key_frame_collect(window: Window,
                                video_path: String,
                                audio_path: String,
                                parameters: Vec<KeyFrame>) -> Result<Vec<KeyFrame>, Error> {
-    let except_count = parameters.len();
-    let (tx, rv) = channel::<KeyFrame>();
+    //三步
 
+    println!("第一步:抽取关键帧");
+    let roughs = step_image(window.clone(), video_path.clone(), audio_path.clone(), parameters);
 
-    //分发任务
-    let _tasks = parameters
-        .into_iter()
-        .map(move |item| {
-            let _tx = tx.clone();
-            let _video_path = video_path.clone();
-            let _audio_path = audio_path.clone();
-            //独立线程
-            POOL.spawn(move || { handle(_tx, _video_path, _audio_path, item); })
-        })
-        .collect::<Vec<_>>();
+    println!("第二步:对比关键帧");
+    let diffs = step_diff(window.clone(), roughs);
 
-    //主线程同步监听消息
-    let mut out = vec![];
-    for msg in rv {
-        out.push(msg.clone());
-
-        //通知前端进度
-        window.emit("key_frame_collect_process", HandleProcess { except: except_count, completed: out.len(), current: msg.clone() }).expect("send err");
-
-        //所有任务完成退出
-        if out.len() == except_count { break; }
-    }
-
-
-    //排序
-    out.sort_by(|i, j| {
-        i.idx.cmp(&j.idx)
-    });
+    println!("第三步:导出音视频");
+    let outputs = step_audio(window.clone(), video_path.clone(), audio_path.clone(), diffs);
 
 
     //通知前端
-    Ok(out)
+    Ok(outputs)
+}
+
+pub fn key_frames_dssim(sources: Vec<KeyFrame>, threshold: f64, step: usize) -> Vec<KeyFrame> {
+    let sources_len = sources.len();
+    let mut diff_outs: Vec<KeyFrame> = vec![];
+
+    let mut start_idx: usize = 0;
+    while start_idx < sources_len {
+        let mut current = sources.get(start_idx).unwrap().clone();
+
+        //待合并属性
+        let mut current_to: String = current.to.clone();
+        let mut current_duration = current.srt_duration.clone();
+        let mut current_srt: String = current.srt.clone();
+
+        // if (start_idx == 25) {
+        //     println!("比对...{}:{:?}", start_idx, sources.clone());
+        // }
+
+
+        //当前图片 + 目标图片
+        let targets = sources[start_idx..min(start_idx + step, sources_len)].iter().map(|item| item.image_output.clone()).collect::<Vec<_>>();
+        if (targets.len() <= 1) {
+            diff_outs.push(current);
+            break;
+        }
+
+        //执行命令
+        println!("{}开始",start_idx);
+        let cmd_outputs = execute(None, String::from("dssim"), "图片比对".to_string(), targets.clone(), "X");
+        println!("{}结束",start_idx);
+
+        for value in cmd_outputs.outputs.iter() {
+
+            //顺移到下张图片
+            start_idx += 1;
+
+            let diff_score_str = value.split("\t").collect::<Vec<_>>()[0];
+            let diff_score: f64 = diff_score_str.parse().unwrap();
+            let diff_item = sources.get(start_idx).unwrap();
+
+            if diff_score >= threshold {
+                break;
+            } else {
+                //合并时间，和时长
+                current_to = diff_item.to.clone();
+                current_duration = current_duration + &diff_item.srt_duration;
+                current_srt = format!("{},{}", current_srt, diff_item.srt);
+            }
+        }
+
+        //重置属性
+        current.to = current_to;
+        current.srt_duration = current_duration;
+        current.srt = current_srt;
+
+        diff_outs.push(current);
+    }
+
+    diff_outs
 }

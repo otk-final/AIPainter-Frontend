@@ -26,6 +26,7 @@ pub struct ExecuteOutput<T: Clone> {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct HandleProcess<T: Clone> {
+    pub title: String,
     pub except: usize,
     pub completed: usize,
     pub current: T,
@@ -65,18 +66,20 @@ pub fn execute<T: Clone>(opt_tx: Option<Sender<T>>, cmd: String, name: String, a
                 outputs.push(line)
             } else if let CommandEvent::Stderr(line) = event {
                 errors.push(line)
+            } else {
+                // println!("unkown:{:?}", event)
+                break;
             }
         }
 
         //退出子进程
-        child.kill().unwrap();
+        // child.kill().unwrap();
 
         //通知
         match opt_tx {
             None => {}
             Some(tx) => tx.send(msg).unwrap()
         }
-
         (outputs, errors)
     };
 
