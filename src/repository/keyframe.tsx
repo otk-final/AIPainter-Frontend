@@ -157,8 +157,11 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         //获取 当前流程中 输出图片节点位置
         let step = script.getOutputImageStep()
+        
+
         const callback = async (promptId: string, respData: any) => {
 
+            let history = frame.image.history || []
             //下载文件
             let images = respData[promptId]!.outputs![step].images
             for (let i = 0; i < images.length; i++) {
@@ -170,8 +173,9 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
                 let filePath = await this.saveFile("outputs", fileName, fileBuffer)
 
                 frame.image.path = filePath
-                frame.image.history.push(filePath)
+                history.push(filePath)
             }
+            frame.image.history = [...history]
 
             //save
             this.sync()
