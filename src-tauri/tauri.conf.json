@@ -109,7 +109,9 @@
         "title": "AI 新版本 0.0.14",
         "center": true,
         "width": 1700,
-        "height": 1000
+        "height": 1000,
+        "minWidth": 1700,
+        "minHeight": 848
       }
     ]
   }
