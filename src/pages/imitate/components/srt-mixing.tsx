@@ -23,7 +23,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
             return
         }
         //有效片段
-        let valids = await keyFreamsRepo.filterValidFragments()
+        let valids = await keyFreamsRepo.formatFragments()
         await keyFreamsRepo.srtExport(selected as string, valids).finally(() => { message.success("导出成功") })
     }
 

@@ -3,7 +3,7 @@ import { BaseCRUDRepository, BaseRepository, ItemIdentifiable } from "./tauri_re
 import { create } from "zustand"
 import { GPTAssistantsApi } from "./gpt"
 import { fs, tauri } from "@tauri-apps/api"
-import { Text2ImageHandle, WFScript, registerComfyUIPromptCallback } from "./comfyui_api"
+import { Text2ImageHandle, WFScript } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
 import { v4 as uuid } from "uuid"
 import { AudioOption } from "./tts_api"

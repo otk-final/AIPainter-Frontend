@@ -1,4 +1,4 @@
-import { Button, Modal, message } from "antd"
+import { Button, Modal, Select, message } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import React, { Fragment, useMemo, useState } from "react";
 import { srtMixingColumns } from "../data";
@@ -18,13 +18,22 @@ interface SRTMixingTRProps {
     style: React.CSSProperties
 }
 
+const effect_directions = [
+    { label: "默认", value: "default" },
+    { label: "从上往下", value: "up" },
+    { label: "从下往上", value: "down" },
+    { label: "从左往右", value: "left" },
+    { label: "从右往左", value: "right" },
+    { label: "随机", value: "random" },
+]
+
 
 const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) => {
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
     const keyFreamRepo = useKeyFrameRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
     const gptApi = useGPTAssistantsApi(state => state)
-    const settingRepo = useBaisicSettingRepository(state=>state)
+    const settingRepo = useBaisicSettingRepository(state => state)
 
     useMemo(() => {
         const unsub = useKeyFrameRepository.subscribe(
@@ -46,6 +55,9 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
         await keyFreamRepo.updateItem(index, { ...stateFrame, srt_rewrite: e.target.value }, false)
     }
 
+    const handleChangeEffect = async (e: string) => {
+        await keyFreamRepo.updateItem(index, { ...stateFrame, effect: { ...stateFrame.effect, orientation: e } }, false)
+    }
 
     const [isOpen, setOpen] = useState<boolean>(false)
     const [playerUrl, setPlayerUrl] = useState<string | undefined>()
@@ -100,7 +112,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
             mask: true,
             maskClosable: false,
         })
-        let path = await keyFreamRepo.handleGenerateVideo(index).catch(err => message.error(err)).finally(Modal.destroyAll)
+        let path = await keyFreamRepo.handleGenerateVideo(index, settingRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
 
         hanldePlayer(path as string)
     }
@@ -109,6 +121,13 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
         return (
             <Fragment>
                 <div className='index'>{index + 1}</div>
+                <Select
+                    className={`select-auto`}
+                    style={{ width: '100px' }}
+                    value={stateFrame.effect.orientation}
+                    onChange={handleChangeEffect}
+                    options={effect_directions}
+                />
             </Fragment>
         )
     }

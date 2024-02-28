@@ -5,8 +5,6 @@ import { generateImagesColumns } from "../data";
 import { KeyFrame, useKeyFrameRepository } from "@/repository/keyframe";
 import { useComfyUIRepository } from "@/repository/comfyui";
 import { AssetHistoryImages, AssetImage, ModalHistoryImages } from "@/components/history-image";
-import ReactPlayer from "react-player";
-import { tauri } from "@tauri-apps/api";
 import VideoPlayerModal from "./video-player";
 
 interface GenerateImagesTRProps {
@@ -110,7 +108,6 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: i.key === 'number' ? `0 0 124px` : `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
-                        {/* {i.key === 'video' ? renderVideo() : null} */}
                         {i.key === 'path' && <AssetImage path={stateFrame.path} repo={keyFreamRepo} />}
                         {i.key === 'drawPrompt' ? renderPrompt() : null}
                         {i.key === 'drawImage' && <AssetImage path={stateFrame.image?.path} repo={keyFreamRepo} />}

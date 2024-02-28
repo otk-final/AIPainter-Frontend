@@ -2,14 +2,15 @@ import { create } from "zustand"
 import { BaseCRUDRepository, ItemIdentifiable, delay } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
 import { fs, path, shell, tauri } from "@tauri-apps/api"
-import { Image2TextHandle, Text2ImageHandle, WFScript, registerComfyUIPromptCallback } from "./comfyui_api"
+import { Image2TextHandle, Text2ImageHandle, WFScript } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
 import { SRTLine, formatTime } from "./srt"
 import { GPTAssistantsApi } from "./gpt"
 import { createWorker } from "tesseract.js"
 import { v4 as uuid } from "uuid"
 import { AudioOption, TTSApi } from "./tts_api"
-import { JYMetaDraftExport, KeyFragment } from "./drafts"
+import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./drafts"
+import { BaisicSettingConfiguration } from "./setting"
 
 export interface KeyFrame extends ItemIdentifiable {
     id: number
@@ -38,6 +39,9 @@ export interface KeyFrame extends ItemIdentifiable {
     srt_rewrite_duration?: number
     srt_rewrite_audio_path?: string
     srt_rewrite_video_path?: string
+
+    //效果
+    effect: KeyFragmentEffect
 }
 
 
@@ -45,6 +49,7 @@ interface KeyVideoGenerateJob {
     idx: number,
     image_path: string,
     audio_path: string,
+    effect_direction: string
     output: string,
 }
 
@@ -194,67 +199,73 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     }
 
     //本地生成视频
-    handleGenerateVideo = async (index: number) => {
+    handleGenerateVideo = async (index: number, settingRepo: BaisicSettingConfiguration) => {
         let item = this.items[index]
 
         //临时存储目录
         let videoDir = await path.join(this.repoDir, "videos")
         await fs.createDir(videoDir, { dir: this.baseDir(), recursive: true })
 
-        //视频路径
-        let videoPath = "videos" + path.sep + item.id + "-new-" + uuid() + ".mp4"
-        let assetPath = await this.absulotePath(videoPath)
+        //参数
+        let fragment = await this.convertFragment(item);
+        fragment.effect.orientation = this.formatEffectOrientation(fragment.effect.orientation, settingRepo);
 
-        //字幕文件，音频 合成视频
-        let cmd = shell.Command.sidecar("bin/ffmpeg", [
-            "-loop", "1",
-            "-i", await this.absulotePath(item.image.path!),              //图片
-            "-i", await this.absulotePath(item.srt_rewrite_audio_path!),  //音频
-            "-c:v", 'libx264',
-            "-tune", "stillimage",
-            "-vf", 'format=yuv420p',      //兼容大部分播放器
-            "-r", "5",                    //默认1秒5帧
-            "-shortest",
-            assetPath                       //视频
-        ])
+        //图片+音频 合成视频
+        let outputs = await tauri.invoke("key_video_generate", { parameters: [fragment] })
+        console.info("outputs", outputs);
 
-        let output = await cmd.execute()
-        console.info(output.stderr)
-        console.info(output.stdout)
+        //outpath
+        let videoPath = "videos" + path.sep + item.name + ".mp4";
 
-
-        this.items[index].srt_rewrite_video_path = videoPath
+        //更新
+        this.items[index].srt_rewrite_video_path = videoPath;
         this.sync()
-
         return videoPath
     }
 
-    //过滤有效片段
-    filterValidFragments = async () => {
+    formatEffectOrientation = (orientation: string, settingRepo: BaisicSettingConfiguration) => {
+        if (orientation === "random") {
+            //随机
+            let randomIdx = Math.floor(Math.random() * 4);
+            return ["up", "down", "left", "right"][randomIdx];
+        } else if (orientation === "default") {
+            //默认
+            return settingRepo.video.effect;
+        }
+        return orientation;
+    }
 
+
+    //过滤有效片段
+    formatFragments = async () => {
         let fragments = [] as KeyFragment[]
         for (let i = 0; i < this.items.length; i++) {
             let item = this.items[i]
-            let fragment = {
-                id: item.id,
-                name: item.name,
-                //有效取生成的
-                srt: item.srt_rewrite_audio_path ? item.srt_rewrite : item.srt,
-                duration: item.srt_rewrite_audio_path ? item.srt_rewrite_duration : item.srt_duration,
-                image_path: await this.absulotePath(item.image.path ? item.image.path : item.path),
-                audio_path: await this.absulotePath(item.srt_rewrite_audio_path ? item.srt_rewrite_audio_path : item.srt_audio_path!),
-                video_path: await this.absulotePath(item.srt_rewrite_video_path ? item.srt_rewrite_video_path : item.srt_video_path!)
-            } as KeyFragment
+            let fragment = await this.convertFragment(item)
             fragments.push(fragment)
         }
         return fragments
     }
 
+    convertFragment = async (item: KeyFrame) => {
+        return {
+            id: item.id,
+            name: item.name,
+            srt: item.srt_rewrite_audio_path ? item.srt_rewrite : item.srt,
+            duration: item.srt_rewrite_audio_path ? item.srt_rewrite_duration : item.srt_duration,
+            image_path: await this.absulotePath(item.image.path ? item.image.path : item.path),
+            audio_path: await this.absulotePath(item.srt_rewrite_audio_path ? item.srt_rewrite_audio_path : item.srt_audio_path!),
+            video_path: await this.absulotePath(item.srt_rewrite_video_path ? item.srt_rewrite_video_path : item.srt_video_path!),
+            effect: { ...item.effect }
+        } as KeyFragment
+    }
+
     //合并导出视频
-    handleConcatVideo = async (savePath: string) => {
+    handleConcatVideo = async (savePath: string, settingRepo: BaisicSettingConfiguration) => {
 
         //有效片段
-        let fragments = await this.filterValidFragments()
+        let fragments = await this.formatFragments()
+        fragments.forEach(e => e.effect.orientation = this.formatEffectOrientation(e.effect.orientation, settingRepo))
 
         //生成字幕文件
         let srt_path = await this.absulotePath("video.srt")
@@ -264,21 +275,8 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let videoDir = await path.join(this.repoDir, "temp-videos")
         await fs.createDir(videoDir, { dir: this.baseDir(), recursive: true })
 
-        //根据当前音频+图片，生成视频
-        let jobs = [] as KeyVideoGenerateJob[]
-        for (let i = 0; i < fragments.length; i++) {
-            let item = fragments[i];
-            let arg = {
-                idx: i,
-                image_path: item.image_path,
-                audio_path: item.audio_path,
-                output: await this.absulotePath("temp-videos" + path.sep + item.id + ".mp4")
-            } as KeyVideoGenerateJob
-            jobs.push(arg)
-        }
-
         //批量生产原始视频片段
-        let results: KeyVideoGenerateJob[] = await tauri.invoke("key_video_generate", { parameters: jobs })
+        let results: KeyVideoGenerateJob[] = await tauri.invoke("key_video_generate", { parameters: fragments })
 
         //生成拼接文件
         let concats_path = await this.absulotePath("video.concats")
@@ -324,7 +322,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         console.info("draft_name", draft_name)
 
         //有效帧片段
-        let fragments = await this.filterValidFragments()
+        let fragments = await this.formatFragments()
 
         //生成字幕文件
         let srtpath = await this.absulotePath("video.srt")

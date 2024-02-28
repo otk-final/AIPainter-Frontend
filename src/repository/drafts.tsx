@@ -10,6 +10,10 @@ const loadJYDraftTemplate = async (filepath: string) => {
     let template_path = await path.resolveResource(filepath)
     return JSON.parse(await fs.readTextFile(template_path))
 }
+export interface KeyFragmentEffect {
+    orientation:string
+}
+
 
 export interface KeyFragment {
     id: number
@@ -20,6 +24,7 @@ export interface KeyFragment {
     image_path: string,
     audio_path: string,
     video_path: string,
+    effect: KeyFragmentEffect
 }
 
 

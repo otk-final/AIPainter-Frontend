@@ -250,7 +250,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         let srtLines = await this.handleRecognitionAudio(api, exportAudioPath)
 
         //关键帧参数
-        let frames = [] as KeyFrameJob[]
+        let jobs = [] as KeyFrameJob[]
         for (let i = 0; i < srtLines.length; i++) {
 
             let name = i + "-org"
@@ -260,7 +260,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
             let srt = srtLines[i]
 
-            frames.push({
+            jobs.push({
                 idx: i,
                 name: name,
 
@@ -297,6 +297,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
                 srt_duration: item.srt_duration,
                 srt_audio_path: "audios" + path.sep + item.name + ".mp3",
                 srt_video_path: "videos" + path.sep + item.name + ".mp4",
+                effect: { orientation: "default" }
             } as KeyFrame
         })
     }

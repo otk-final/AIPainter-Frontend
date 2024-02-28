@@ -84,11 +84,11 @@ fn main2() {
     //
     // key_frames_dssim(outs, threshold, step);
 
-    let a = "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/bd092e8a-656a-424e-bfb4-5c0a5b5982ce/frames/21-org.png".to_string();
-    let b = "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/bd092e8a-656a-424e-bfb4-5c0a5b5982ce/frames/22-org.png".to_string();
-    let c = "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/bd092e8a-656a-424e-bfb4-5c0a5b5982ce/frames/23-org.png".to_string();
-    let d = "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/bd092e8a-656a-424e-bfb4-5c0a5b5982ce/frames/24-org.png".to_string();
-    let e = "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/bd092e8a-656a-424e-bfb4-5c0a5b5982ce/frames/25-org.png".to_string();
+    // let a = "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/bd092e8a-656a-424e-bfb4-5c0a5b5982ce/frames/21-org.png".to_string();
+    // let b = "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/bd092e8a-656a-424e-bfb4-5c0a5b5982ce/frames/22-org.png".to_string();
+    // let c = "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/bd092e8a-656a-424e-bfb4-5c0a5b5982ce/frames/23-org.png".to_string();
+    // let d = "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/bd092e8a-656a-424e-bfb4-5c0a5b5982ce/frames/24-org.png".to_string();
+    // let e = "/Users/hxy/develops/Rust/AIPainter-Frontend/src-tauri/target/debug/bd092e8a-656a-424e-bfb4-5c0a5b5982ce/frames/25-org.png".to_string();
 
     // let (tx, rv) = channel::<ExecuteOutput<String>>();
     // async_execute(tx, "图片比对".to_string(), String::from("dssim"), vec![a, b,c,d,e], "X".to_string());

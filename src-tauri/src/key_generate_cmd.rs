@@ -1,15 +1,30 @@
+use std::collections::HashMap;
 use std::sync::mpsc::{channel};
+use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use tauri::{Error, Window};
 use crate::cmd::{execute, HandleProcess, POOL};
 
 
+//滤镜
+lazy_static! {
+    static ref EFFECT_DIRECTION:HashMap<&'static str,&'static str> = {
+         let mut map = HashMap::new();
+         map.insert("up","zoompan='1.5':x='if(lte(on,1),(iw-iw/zoom)/2,x)':y='if(lte(on,-1),(ih-ih/zoom)/2,y+2)'");
+         map.insert("down","zoompan='1.5':x='if(lte(on,1),(iw-iw/zoom)/2,x)':y='if(lte(on,1),(ih/zoom)/2,y-2)'");
+         map.insert("left","zoompan='1.5':x='if(lte(on,-1),(iw-iw/zoom)/2,x+3)':y='if(lte(on,1),(ih-ih/zoom)/2,y)'");
+         map.insert("right","zoompan='1.5':x='if(lte(on,1),(iw/zoom)/2,x-3)':y='if(lte(on,1),(ih-ih/zoom)/2,y)'");
+         map
+    };
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct KeyVideo {
     idx: usize,
+    effect: String,
     image_path: String,
     audio_path: String,
-    output: String,
+    video_path: String,
 }
 
 //并发处理生成视频
@@ -22,22 +37,24 @@ pub async fn key_video_generate(window: Window, parameters: Vec<KeyVideo>) -> Re
     let _tasks = parameters
         .into_iter()
         .map(move |item| {
-            let _tx = tx.clone();
 
+            let _tx = tx.clone();
             let name = item.idx.to_string();
+            let effect = EFFECT_DIRECTION.get(item.effect.as_str()).unwrap();
+
             //参数
             let args = [
                 "-y", "-loop", "1", "-i", item.image_path.as_str(), "-i", item.audio_path.as_str(), "-c:v", "libx264", "-tune", "stillimage",
-                "-vf", "format=yuv420p",
-                "-r", "5",
+                "-vf", effect,
+                // "-r", "5",
                 "-shortest",
-                item.output.as_str()
+                item.video_path.as_str()
             ].iter().map(|item| { item.to_string() }).collect();
 
             let _item = item.clone();
             //独立线程
             POOL.spawn(move || {
-                let _ = execute(name,String::from("ffmpeg"), args, item);
+                let _ = execute(name, String::from("ffmpeg"), args, item);
                 _tx.send(_item).unwrap();
             })
         })
