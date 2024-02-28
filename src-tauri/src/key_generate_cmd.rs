@@ -19,28 +19,32 @@ lazy_static! {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct KeyVideo {
+pub struct KeyFragment {
     idx: usize,
-    effect: String,
+    effect: KeyFragmentEffect,
     image_path: String,
     audio_path: String,
     video_path: String,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct KeyFragmentEffect {
+    pub orientation: String,
+}
+
 //并发处理生成视频
 #[tauri::command]
-pub async fn key_video_generate(window: Window, parameters: Vec<KeyVideo>) -> Result<Vec<KeyVideo>, Error> {
+pub async fn key_video_generate(window: Window, parameters: Vec<KeyFragment>) -> Result<Vec<KeyFragment>, Error> {
     let except_count = parameters.len();
-    let (tx, rv) = channel::<KeyVideo>();
+    let (tx, rv) = channel::<KeyFragment>();
 
     //分发任务
     let _tasks = parameters
         .into_iter()
         .map(move |item| {
-
             let _tx = tx.clone();
             let name = item.idx.to_string();
-            let effect = EFFECT_DIRECTION.get(item.effect.as_str()).unwrap();
+            let effect = EFFECT_DIRECTION.get(item.effect.orientation.as_str()).unwrap();
 
             //参数
             let args = [
