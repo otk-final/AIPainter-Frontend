@@ -11,6 +11,7 @@ import TagModalContent from './components/tags-modal';
 import { v4 as uuid } from "uuid"
 import TTSVoiceSelect from '@/components/voice-select';
 import { AudioOption } from '@/repository/tts_api';
+import { useBaisicSettingRepository } from '@/repository/setting';
 
 
 
@@ -56,7 +57,7 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) 
   const handleEditAlias = async (e: any) => {
     await actorRepo.updateItem(index, { ...stateActor, alias: e.target.value }, false)
   }
-  
+
   return (
     <div className='role-item'>
       <div className='top flexR'>
@@ -99,15 +100,17 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
   //当前项目配置
   let actorRepo = useActorRepository(state => state)
   let comfyuiRepo = useComfyUIRepository(state => state)
+  let settingRepo = useBaisicSettingRepository(state => state)
 
-
+  
+  //加载数据
   useEffect(() => {
-
-    actorRepo.load(pid)
+    
     comfyuiRepo.load("env")
+    settingRepo.load("env")
+    actorRepo.load(pid)
 
-    //保存
-    return () => { actorRepo.sync() }
+    return () => { actorRepo.sync()}
   }, [pid])
 
 

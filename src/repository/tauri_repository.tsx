@@ -36,12 +36,12 @@ export abstract class BaseRepository<T> implements TauriRepo {
         return base_path.replace("\\\\?\\", "")
     }
     
-    load = async (dir: Directory) => {
+    load = async (repoDir: string) => {
         this.free()
 
         console.info('runtime dir', await this.basePath())
+        this.repoDir = repoDir
 
-        this.repoDir = dir
         //目录是否存在
         if (!await fs.exists(this.repoDir, { dir: this.baseDir() })) {
             //创建空项目
@@ -101,7 +101,7 @@ export abstract class BaseRepository<T> implements TauriRepo {
     protected save = async () => {
 
         let that = { ...this }
-
+        
         //创建目录
         await fs.createDir(this.repoDir, { dir: this.baseDir(), recursive: true })
         let filePath = this.repoDir + path.sep + this.repo
