@@ -22,9 +22,6 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
     const keyFreamRepo = useKeyFrameRepository(state => state)
     const comfyUIRepo = useComfyUIRepository(state => state)
 
-
-
-    console.log("stateFrame", stateFrame)
     useEffect(() => {
         const unsub = useKeyFrameRepository.subscribe(
             (state) => state.items[index],
@@ -65,7 +62,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
     const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
     const [videoPlayerUrl, setVideoPlayerUrl] = useState<string | undefined>();
     const startPlayerFrament = async () => {
-        setVideoPlayerUrl(tauri.convertFileSrc(await keyFreamRepo.absulotePath(stateFrame.srt_video_path!)))
+        setVideoPlayerUrl(await keyFreamRepo.absulotePath(stateFrame.srt_video_path!))
         setIsVideoPlayerOpen(true);
     }
 
