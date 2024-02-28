@@ -3,7 +3,13 @@ export const generateImagesColumns = [
     title: "编号",
     key: "number",
     space: 1,
-  }, {
+  },
+  {
+    title: "视频预览",
+    key: "video",
+    space: 4,
+  },
+  {
     title: "原始图片",
     key: "path",
     space: 4,
@@ -65,48 +71,3 @@ export const srtMixingColumns = [
 ]
 
 
-
-export const generateImagesColumnsData = [
-  {
-    number: 1,
-    originalImage: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    keyword: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    newImage: "",
-    historyImages: ["", ""]
-  },
-  {
-    number: 2,
-    originalImage: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    keyword: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    newImage: "",
-    historyImages: ["", ""]
-  },
-  {
-    number: 3,
-    originalImage: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    keyword: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    newImage: "",
-    historyImages: ["", ""]
-  },
-  {
-    number: 4,
-    originalImage: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    keyword: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    newImage: "",
-    historyImages: ["", ""]
-  },
-  {
-    number: 5,
-    originalImage: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    keyword: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    newImage: "",
-    historyImages: ["", ""]
-  },
-  {
-    number: 6,
-    originalImage: "原文描述原文原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    keyword: "asdfasfa原文描述原文sfsfs原文描述原文描述原文描述原文描述原文描述原文描述描述原文描述原文描述原文描述原文描述",
-    newImage: "",
-    historyImages: ["", ""]
-  },
-]

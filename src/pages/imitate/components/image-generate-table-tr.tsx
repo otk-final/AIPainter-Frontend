@@ -5,6 +5,9 @@ import { generateImagesColumns } from "../data";
 import { KeyFrame, useKeyFrameRepository } from "@/repository/keyframe";
 import { useComfyUIRepository } from "@/repository/comfyui";
 import { AssetHistoryImages, AssetImage, ModalHistoryImages } from "@/components/history-image";
+import ReactPlayer from "react-player";
+import { tauri } from "@tauri-apps/api";
+import VideoPlayerModal from "./video-player";
 
 interface GenerateImagesTRProps {
     key: string
@@ -18,7 +21,10 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
     const keyFreamRepo = useKeyFrameRepository(state => state)
     const comfyUIRepo = useComfyUIRepository(state => state)
+    const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
 
+
+    console.log("stateFrame", stateFrame)
     useEffect(() => {
         const unsub = useKeyFrameRepository.subscribe(
             (state) => state.items[index],
@@ -70,7 +76,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
         return (
             <Fragment>
                 <div className='index'>{index + 1}</div>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleDelKeyFrame}>删除</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' style={{width: '76px'}} onClick={handleDelKeyFrame}>删除</Button>
             </Fragment>
         )
     }
@@ -95,6 +101,21 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
         )
     }
 
+    const renderVideo = ()=>{
+        if(!stateFrame?.srt_video_path) {
+            return <div></div>
+        }
+        return (
+            <div className='video-wrap' onClick={() => setIsVideoPlayerOpen(true)}>
+                <ReactPlayer url={tauri.convertFileSrc(stateFrame?.srt_video_path!)}
+                    width="200px"
+                    height="200px"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '6px' }}
+                />
+            </div>
+        )
+    }
+
 
     const handleUpdateCurrentImage = async (path: string) => {
         await keyFreamRepo.updateItem(index, { ...stateFrame, image: { ...stateFrame.image, path: path } }, true)
@@ -105,8 +126,9 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
         <div className='tr flexR' style={style} key={key}>
             {generateImagesColumns.map((i, index) => {
                 return (
-                    <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
+                    <div className='td script-id flexC' key={i.key + index} style={{ flex: i.key === 'number' ? `0 0 124px`: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
+                        {i.key === 'video' ? renderVideo() : null}
                         {i.key === 'path' && <AssetImage path={stateFrame.path} repo={keyFreamRepo} />}
                         {i.key === 'drawPrompt' ? renderPrompt() : null}
                         {i.key === 'drawImage' && <AssetImage path={stateFrame.image?.path} repo={keyFreamRepo} />}
@@ -116,6 +138,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
                 )
             })}
             <ModalHistoryImages isOpen={isOpen} setOpen={setOpen} path={stateFrame.image?.path} history={stateFrame.image?.history} repo={keyFreamRepo} onChange={handleUpdateCurrentImage} />
+            {isVideoPlayerOpen && <VideoPlayerModal videoPath={stateFrame?.srt_video_path!} isOpen={isVideoPlayerOpen} onClose={() => setIsVideoPlayerOpen(false)} />}
         </div>
     )
 }
