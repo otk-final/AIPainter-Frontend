@@ -5,7 +5,6 @@ import { fs, path, shell, tauri } from "@tauri-apps/api"
 import { KeyFrame } from "./keyframe"
 import { TTSApi } from "./tts_api"
 import { SRTLine, formatTime } from "./srt"
-import { v4 as uuid } from "uuid"
 
 interface KeyFrameJob {
     idx: number,
@@ -97,49 +96,49 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     }
 
     //根据帧率
-    handleCollectFramesWithFps = async () => {
+    // handleCollectFramesWithFps = async () => {
 
-        //临时存储目录
-        let framesDir = await path.join(this.repoDir, "frames")
-        await fs.createDir(framesDir, { dir: this.baseDir(), recursive: true })
+    //     //临时存储目录
+    //     let framesDir = await path.join(this.repoDir, "frames")
+    //     await fs.createDir(framesDir, { dir: this.baseDir(), recursive: true })
 
-        //图片路径
-        let framesPath = await path.join(await this.basePath(), framesDir, "%05d.png")
-        console.info(this.videoPath, framesPath)
-        //抽帧 关键帧
-        let cmd = shell.Command.sidecar("bin/ffmpeg", [
-            "-y",
-            "-i", this.videoPath!,
-            // "-vf", 'select=eq(pict_type\\,I)',
-            "-vf", 'fps=1/1',
-            "-vsync", "vfr",
-            "-qscale:v", "10",
-            "-f", "image2",
-            framesPath
-        ])
-        let output = await cmd.execute()
-        console.info(output.stderr)
-        console.info(output.stdout)
-        await delay(1000)
+    //     //图片路径
+    //     let framesPath = await path.join(await this.basePath(), framesDir, "%05d.png")
+    //     console.info(this.videoPath, framesPath)
+    //     //抽帧 关键帧
+    //     let cmd = shell.Command.sidecar("bin/ffmpeg", [
+    //         "-y",
+    //         "-i", this.videoPath!,
+    //         // "-vf", 'select=eq(pict_type\\,I)',
+    //         "-vf", 'fps=1/1',
+    //         "-vsync", "vfr",
+    //         "-qscale:v", "10",
+    //         "-f", "image2",
+    //         framesPath
+    //     ])
+    //     let output = await cmd.execute()
+    //     console.info(output.stderr)
+    //     console.info(output.stdout)
+    //     await delay(1000)
 
-        //导出所有关键帧(秒)
-        let frameImageFiles = await fs.readDir(framesDir, { dir: this.baseDir(), recursive: false })
-        let tempKeyFrames = frameImageFiles.map(file => {
-            let seq = file.name?.substring(0, file.name.lastIndexOf("."))
-            return {
-                id: Number.parseInt(seq!),
-                name: file.name,
-                path: "frames" + path.sep + file.name,
-                image: {
-                    prompt: "",
-                    history: []
-                }
-            } as KeyFrame
-        }).sort((a, b) => a.id - b.id)
+    //     //导出所有关键帧(秒)
+    //     let frameImageFiles = await fs.readDir(framesDir, { dir: this.baseDir(), recursive: false })
+    //     let tempKeyFrames = frameImageFiles.map(file => {
+    //         let seq = file.name?.substring(0, file.name.lastIndexOf("."))
+    //         return {
+    //             id: Number.parseInt(seq!),
+    //             name: file.name,
+    //             path: "frames" + path.sep + file.name,
+    //             image: {
+    //                 prompt: "",
+    //                 history: []
+    //             }
+    //         } as KeyFrame
+    //     }).sort((a, b) => a.id - b.id)
 
-        //比较关键帧
-        return this.handleCompareKeyFrames(tempKeyFrames)
-    }
+    //     //比较关键帧
+    //     return this.handleCompareKeyFrames(tempKeyFrames)
+    // }
 
     //差异性
     handleCompareKeyFrames = async (frames: KeyFrame[]) => {
@@ -195,40 +194,40 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     }
 
     //根据时间
-    handleCollectKeyFrameWithTime = async (videoPath: string, srtIdx: number, srt: SRTLine) => {
+    // handleCollectKeyFrameWithTime = async (videoPath: string, srtIdx: number, srt: SRTLine) => {
 
-        let name = srtIdx + ".png"
-        let output_name = "frames" + path.sep + name
-        let absulotePath = await this.absulotePath(output_name)
+    //     let name = srtIdx + ".png"
+    //     let output_name = "frames" + path.sep + name
+    //     let absulotePath = await this.absulotePath(output_name)
 
-        //抽帧 关键帧
-        let cmd = shell.Command.sidecar("bin/ffmpeg", [
-            "-i", videoPath,
-            "-ss", formatTime(srt.start_time, "."),
-            "-to", formatTime(srt.end_time, "."),
-            "-vf", 'fps=1/1',
-            "-vsync", "vfr",
-            "-qscale:v", "10",
-            "-update", "1",
-            absulotePath
-        ])
+    //     //抽帧 关键帧
+    //     let cmd = shell.Command.sidecar("bin/ffmpeg", [
+    //         "-i", videoPath,
+    //         "-ss", formatTime(srt.start_time, "."),
+    //         "-to", formatTime(srt.end_time, "."),
+    //         "-vf", 'fps=1/1',
+    //         "-vsync", "vfr",
+    //         "-qscale:v", "10",
+    //         "-update", "1",
+    //         absulotePath
+    //     ])
 
-        let output = await cmd.execute()
-        console.info(output.stderr)
+    //     let output = await cmd.execute()
+    //     console.info(output.stderr)
 
-        //关键帧信息
-        return {
-            id: srtIdx,
-            name: name,
-            path: output_name,
-            image: {
-                prompt: "",
-                history: []
-            },
-            srt: srt.text,
-            srt_duration: srt.end_time - srt.start_time
-        } as KeyFrame
-    }
+    //     //关键帧信息
+    //     return {
+    //         id: srtIdx,
+    //         name: name,
+    //         path: output_name,
+    //         image: {
+    //             prompt: "",
+    //             history: []
+    //         },
+    //         srt: srt.text,
+    //         srt_duration: srt.end_time - srt.start_time
+    //     } as KeyFrame
+    // }
 
 
     //抽帧关键帧
@@ -307,6 +306,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
         //是否已经识别
         let audioRecognitionPath = await this.absulotePath("audio.json")
+        debugger
         if (this.audioRecognition) {
             let audioText = await fs.readTextFile(audioRecognitionPath)
             return JSON.parse(audioText).utterances as SRTLine[]

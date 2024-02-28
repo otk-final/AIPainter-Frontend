@@ -81,16 +81,9 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
     const handleCollectFrames = async (type: CollectFrameType) => {
         setIsModalText("正在抽取关键帧...")
 
-        //抽帧，导入，切换tab
-        let keyFrames = [] as KeyFrame[]
-        if (type === "fps") {
-            //按秒
-            keyFrames = await simulateRepo.handleCollectFramesWithFps()
-        } else if (type === "srt") {
-            //按音频
-            let api = await ttsRepo.newClient()
-            keyFrames = await simulateRepo.handleCollectFrames(api)
-        }
+        //按音频
+        let api = await ttsRepo.newClient()
+        let keyFrames = await simulateRepo.handleCollectFrames(api)
         await keyFrameRepo.initialization(keyFrames).then(() => { handleChangeTab("frames") }).catch(err => message.error(err))
         .finally(()=>{
             setIsModalText("")
