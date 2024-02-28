@@ -36,7 +36,7 @@ fn audio_video_handle(tx: Sender<KeyFrame>, video_path: String, audio_path: Stri
         "-i", audio_path.as_str(), "-vn", "-ab", "128k", "-f", "mp3",
         item.audio_output.as_str()
     ].iter().map(|item| { item.to_string() }).collect();
-    execute(None, String::from("ffmpeg"), format!("音频：{}", item.name), audio_args, item.clone());
+    let _ = execute(format!("音频：{}", item.name), String::from("ffmpeg"), audio_args, item.clone());
 
     //生成视频
     let video_args = [
@@ -46,7 +46,7 @@ fn audio_video_handle(tx: Sender<KeyFrame>, video_path: String, audio_path: Stri
         "-i", video_path.as_str(), "-vcodec", "copy", "-an",
         item.video_output.as_str()
     ].iter().map(|item| { item.to_string() }).collect();
-    execute(None, String::from("ffmpeg"), format!("视频：{}", item.name), video_args, item.clone());
+    let _ = execute(format!("视频：{}", item.name), String::from("ffmpeg"), video_args, item.clone());
 
     //通知
     tx.send(item).unwrap()
@@ -64,7 +64,10 @@ fn image_handle(tx: Sender<KeyFrame>, video_path: String, item: KeyFrame) {
         "-i", video_path.as_str(), "-vframes", "1", "-vf", "select='eq(n,3)'",
         item.image_output.as_str()
     ].iter().map(|item| { item.to_string() }).collect();
-    execute(Some(tx), String::from("ffmpeg"), format!("关键帧：{}", item.name), image_args, item.clone());
+    let _ = execute(format!("关键帧：{}", item.name), String::from("ffmpeg"), image_args, item.clone());
+
+    //通知
+    tx.send(item).unwrap()
 }
 
 
@@ -86,7 +89,7 @@ fn step_image(window: Window, video_path: String, audio_path: String, parameters
     for msg in rv {
         roughs.push(msg.clone());
         //通知前端进度
-        window.emit("key_frame_collect_process", HandleProcess { title: "关键帧导出".to_string(), except: except_count, completed: roughs.len(), current: msg.clone() }).expect("send err");
+        window.emit("key_frame_collect_process", HandleProcess { title: "图片导出".to_string(), except: except_count, completed: roughs.len(), current: msg.clone() }).expect("send err");
         //所有任务完成退出
         if roughs.len() == except_count { break; }
     }
@@ -98,13 +101,10 @@ fn step_image(window: Window, video_path: String, audio_path: String, parameters
     roughs
 }
 
-fn step_diff(window: Window, roughs: Vec<KeyFrame>) -> Vec<KeyFrame> {
+fn step_diff(title: String, window: Window, roughs: Vec<KeyFrame>, threshold: f64, chunk_size: usize, step: usize) -> Vec<KeyFrame> {
 
     //第一步，分批次并发比对
     let (tx, rv) = channel::<Vec<KeyFrame>>();
-    let threshold = 0.55432121;
-    let step = 5;
-    let chunk_size = 10;
 
     let chunks = roughs.chunks(chunk_size);
     let jobs = chunks.len();
@@ -123,7 +123,8 @@ fn step_diff(window: Window, roughs: Vec<KeyFrame>) -> Vec<KeyFrame> {
     for batch in rv {
         completed = completed + 1;
         diffs.extend(batch);
-        window.emit("key_frame_collect_process", HandleProcess { title: "关键帧对比".to_string(), except: jobs, completed, current: "" }).expect("send err");
+
+        window.emit("key_frame_collect_process", HandleProcess { title: title.clone(), except: jobs, completed, current: "" }).expect("send err");
         if completed == jobs { break; }
     }
 
@@ -132,12 +133,7 @@ fn step_diff(window: Window, roughs: Vec<KeyFrame>) -> Vec<KeyFrame> {
         i.idx.cmp(&j.idx)
     });
 
-    //第二步 二次对比
-    let all_diffs = key_frames_dssim(diffs.clone(), threshold, 3);
-
-    println!("对比结束");
-
-    all_diffs
+    diffs
 }
 
 fn step_audio(window: Window, video_path: String, audio_path: String, diffs: Vec<KeyFrame>) -> Vec<KeyFrame> {
@@ -181,11 +177,18 @@ pub async fn key_frame_collect(window: Window,
     let roughs = step_image(window.clone(), video_path.clone(), audio_path.clone(), parameters);
 
     println!("第二步:对比关键帧");
-    let diffs = step_diff(window.clone(), roughs);
+    let threshold = 0.7;
+
+    println!("第二步:对比关键帧1");
+    //五张比对
+    let diffs1 = step_diff("图片比对-第一次".to_string(), window.clone(), roughs, threshold, 5, 5);
+
+    //两两比对
+    println!("第三步:对比关键帧2");
+    let diffs2 = step_diff("图片比对-第二次".to_string(), window.clone(), diffs1, threshold, 2, 5);
 
     println!("第三步:导出音视频");
-    let outputs = step_audio(window.clone(), video_path.clone(), audio_path.clone(), diffs);
-
+    let outputs = step_audio(window.clone(), video_path.clone(), audio_path.clone(), diffs2);
 
     //通知前端
     Ok(outputs)
@@ -195,6 +198,7 @@ pub fn key_frames_dssim(sources: Vec<KeyFrame>, threshold: f64, step: usize) -> 
     let sources_len = sources.len();
     let mut diff_outs: Vec<KeyFrame> = vec![];
 
+    let mut execute_count = 0;
     let mut start_idx: usize = 0;
     while start_idx < sources_len {
         let mut current = sources.get(start_idx).unwrap().clone();
@@ -203,10 +207,6 @@ pub fn key_frames_dssim(sources: Vec<KeyFrame>, threshold: f64, step: usize) -> 
         let mut current_to: String = current.to.clone();
         let mut current_duration = current.srt_duration.clone();
         let mut current_srt: String = current.srt.clone();
-
-        // if (start_idx == 25) {
-        //     println!("比对...{}:{:?}", start_idx, sources.clone());
-        // }
 
 
         //当前图片 + 目标图片
@@ -217,10 +217,7 @@ pub fn key_frames_dssim(sources: Vec<KeyFrame>, threshold: f64, step: usize) -> 
         }
 
         //执行命令
-        println!("{}开始",start_idx);
-        let cmd_outputs = execute(None, String::from("dssim"), "图片比对".to_string(), targets.clone(), "X");
-        println!("{}结束",start_idx);
-
+        let cmd_outputs = execute("图片比对".to_string(), String::from("dssim"), targets.clone(), "X");
         for value in cmd_outputs.outputs.iter() {
 
             //顺移到下张图片

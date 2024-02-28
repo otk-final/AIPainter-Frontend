@@ -4,10 +4,9 @@ import { v4 as uuid } from "uuid"
 
 //音频参数
 export interface AudioOption {
-    encoding: string
+    voice_classify: string
     voice_type: string
     emotion: string
-    language: string
 }
 
 export interface AudioData {
@@ -50,7 +49,7 @@ export class TTSApi {
             user: {
                 uid: uuid()
             },
-            audio: option,
+            audio: { ...option, encoding: "mp3", language: "zh" },
             request: {
                 reqid: uuid(),
                 text: srtText,

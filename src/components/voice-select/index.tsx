@@ -86,53 +86,34 @@ const zhOptions: Option[] = [
 ];
 
 
-const enOptions: Option[] = []
+// const langs = [{ label: "中文", value: "zh" }, { label: "英文", value: "en" }]
 
-const langs = [{ label: "中文", value: "zh" }, { label: "英文", value: "en" }]
-
-const TTSVoiceSelect: React.FC<{ onChange: (audioOption: AudioOption) => void }> = ({ onChange }) => {
-
-
-    const [lang, setLang] = useState("zh")
-    const [options, setOptions] = useState<Option[]>([])
+const TTSVoiceSelect: React.FC<{ option?: AudioOption, onChange: (audioOption: AudioOption) => void }> = ({ option, onChange }) => {
+    const [value, setValue] = useState<string[]>([])
     useEffect(() => {
-        if (lang === "zh") {
-            setOptions([...zhOptions])
-        } else {
-            setOptions([...enOptions])
-        }
-    }, [lang])
+        if (option) setValue([option.voice_classify, option.voice_type, option.emotion])
+    }, [option])
 
-    const handleChange = (value: string[], selectedOptions: Option[]) => {
-        console.log(value, selectedOptions);
+    const handleChange = (value: string[]) => {
         onChange({
-            encoding: "mp3",
+            voice_classify:value[0],
             voice_type: value[1],
             emotion: value[2],
-            language: lang
         })
     };
     const filter = (inputValue: string, path: any[]) => {
         return path.some((option) => (option.label as string).toLowerCase().indexOf(inputValue.toLowerCase()) > -1);
     }
 
-    return (<Fragment>
-        <Select
-            className={`select-auto`}
-            style={{ width: '200px' }}
-            value={lang}
-            onChange={setLang}
-            options={langs}
-        />
-        <Divider type={'vertical'} />
-        <Cascader
-            className={`select-auto`}
-            style={{ width: '300px' }}
-            options={options}
-            onChange={handleChange}
-            placeholder="选择场景/音色/情感"
-            showSearch={{ filter }}
-        /></Fragment>)
+    return <Cascader
+        className={`select-auto`}
+        // style={{ width: '400px' }}
+        options={zhOptions}
+        value={value}
+        onChange={(value) => { handleChange(value as string[]) }}
+        placeholder="选择场景/音色/情感"
+        showSearch={{ filter }}
+    />
 }
 
 export default TTSVoiceSelect

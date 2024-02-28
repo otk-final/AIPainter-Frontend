@@ -5,7 +5,6 @@ import { createTabs } from './data'
 import { useParams } from "umi"
 import Storyboard from './components/storyboard';
 import Drawbatch from './components/drawbatch';
-import Videogeneration from './components/videogeneration'
 import { Header } from '@/components';
 import { useActorRepository, useChapterRepository, useScriptRepository } from '@/repository/story';
 
@@ -70,7 +69,6 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
       />
       {cur === "storyboard" ? <Storyboard pid={pid} /> : null}
       {cur === 'drawbatch' ? <Drawbatch /> : null}
-      {cur === "videogeneration" ? <Videogeneration /> : null}
     </div>
   );
 };

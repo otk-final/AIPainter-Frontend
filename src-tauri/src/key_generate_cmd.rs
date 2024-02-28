@@ -34,8 +34,12 @@ pub async fn key_video_generate(window: Window, parameters: Vec<KeyVideo>) -> Re
                 item.output.as_str()
             ].iter().map(|item| { item.to_string() }).collect();
 
+            let _item = item.clone();
             //独立线程
-            POOL.spawn(move || { execute(Some(_tx), String::from("ffmpeg"), name, args, item); })
+            POOL.spawn(move || {
+                let _ = execute(name,String::from("ffmpeg"), args, item);
+                _tx.send(_item).unwrap();
+            })
         })
         .collect::<Vec<_>>();
 

@@ -17,6 +17,7 @@ interface VideoImportProps {
 type CollectFrameType = "srt" | "fps"
 
 interface CollectFrameProcess {
+    title:string,
     except: number,
     completed: number
     current: any
@@ -46,7 +47,7 @@ const HandleCollectFramesProcess: React.FC<{ pid: string, title: string }> = ({ 
     if (!stateProccess) {
         return <div className='title'>{title}</div>
     }
-    return <div className='title'>{title}<Progress percent={Math.floor((stateProccess.completed / stateProccess.except) * 100)} status="active" showInfo/></div>
+    return <div className='title'>{stateProccess.title}<Progress percent={Math.floor((stateProccess.completed / stateProccess.except) * 100)} status="active" showInfo/></div>
 }
 
 
@@ -134,8 +135,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
             <div className='flexR'>
                 <div>请导入视频：</div>
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported} >导入</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '130px' }} disabled={!simulateRepo.videoPath} onClick={() => { handleCollectFrames("fps") }}>抽帧关键帧(秒)</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '130px' }} disabled={!simulateRepo.videoPath} onClick={() => { handleCollectFrames("srt") }}>抽帧关键帧(字幕)</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '130px' }} disabled={!simulateRepo.videoPath} onClick={() => { handleCollectFrames("srt") }}>抽帧关键帧</Button>
                 <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!simulateRepo.videoPath} onClick={handleCollectAudio}>导出音频</Button>
             </div>
 

@@ -7,7 +7,7 @@
     "postinstall": "umi setup",
     "setup": "umi setup",
     "start": "npm run dev",
-    "tauri-dev": "tauri dev",
+    "tauri-dev": "RUST_BACKTRACE=1 RUST_MIN_STACK=8388608 tauri dev",
     "tauri-build": "tauri build"
   },
   "dependencies": {

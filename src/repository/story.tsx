@@ -2,10 +2,11 @@ import { subscribeWithSelector } from "zustand/middleware"
 import { BaseCRUDRepository, BaseRepository, ItemIdentifiable } from "./tauri_repository"
 import { create } from "zustand"
 import { GPTAssistantsApi } from "./gpt"
-import { fs } from "@tauri-apps/api"
+import { fs, tauri } from "@tauri-apps/api"
 import { Text2ImageHandle, WFScript, registerComfyUIPromptCallback } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
 import { v4 as uuid } from "uuid"
+import { AudioOption } from "./tts_api"
 
 export type ImportType = "input" | "file"
 
@@ -157,7 +158,9 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         let script = new WFScript(text)
 
         //add prompt task
-        let job = await api.prompt(script, { positive: chapter.prompt!.en || comyuiRepo.positivePrompt, negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
+        let seed: number = await tauri.invoke('seed_random', {})
+
+        let job = await api.prompt(script, { seed: seed, positive: [comyuiRepo.positivePrompt, chapter.prompt].join(""), negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
 
         //获取 当前流程中 输出图片节点位置
         let step = script.getOutputImageStep()
@@ -195,6 +198,7 @@ export interface Actor extends ItemIdentifiable {
     alias: string
     style: string
     image?: string
+    voice?: AudioOption
     traits: TraitsOption[]
 }
 
@@ -237,7 +241,9 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
         let script = new WFScript(text)
 
         //add prompt task
-        let job = await api.prompt(script, { positive: prompt || comyuiRepo.positivePrompt, negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
+        //生成随机
+        let seed: number = await tauri.invoke('seed_random', {})
+        let job = await api.prompt(script, { seed: seed, positive: [comyuiRepo.positivePrompt, prompt].join(""), negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
 
         //获取 当前流程中 输出图片节点位置
         let step = script.getOutputImageStep()

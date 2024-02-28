@@ -9,6 +9,8 @@ import { Actor, useActorRepository } from '@/repository/story';
 import { useComfyUIRepository } from '@/repository/comfyui';
 import TagModalContent from './components/tags-modal';
 import { v4 as uuid } from "uuid"
+import TTSVoiceSelect from '@/components/voice-select';
+import { AudioOption } from '@/repository/tts_api';
 
 
 
@@ -23,6 +25,19 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) 
   const [stateActor, setActor] = useState<Actor>({ ...actor })
   const actorRepo = useActorRepository(state => state)
 
+  useMemo(() => {
+    const unsub = useActorRepository.subscribe(
+      (state) => state.items[index],
+      async (state) => {
+        if (state) setActor(state)
+      },
+      {
+        fireImmediately: true
+      })
+    return unsub
+  }, [index])
+
+
   //删除
   const handleDel = async () => {
     let ok = await dialog.ask("确认删除角色?", { title: "删除角色?", type: "warning" })
@@ -32,14 +47,16 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) 
     await actorRepo.delItem(index, true)
   }
 
-  //更新
-  useMemo(() => {
-    actorRepo.assignItem(index, { name: stateActor.name, alias: stateActor.alias })
-  }, [stateActor])
-
-
-
-
+  const handleEditVoice = async (option: AudioOption) => {
+    await actorRepo.updateItem(index, { ...stateActor, voice: option }, false)
+  }
+  const handleEditName = async (e: any) => {
+    await actorRepo.updateItem(index, { ...stateActor, name: e.target.value }, false)
+  }
+  const handleEditAlias = async (e: any) => {
+    await actorRepo.updateItem(index, { ...stateActor, alias: e.target.value }, false)
+  }
+  
   return (
     <div className='role-item'>
       <div className='top flexR'>
@@ -53,12 +70,12 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) 
             <div className='content-title'>角色姓名</div>
             <div className='num'>/50</div>
           </div>
-          <Input size="large" className='input' value={stateActor.name} onChange={(e) => { setActor({ ...stateActor, name: e.target.value }) }} />
+          <Input size="large" className='input' value={stateActor.name} onChange={handleEditName} />
           <div className='RB flexR'>
             <div className='content-title'>角色别名</div>
             <div className='num'>/50</div>
           </div>
-          <Input size="large" className='input' value={stateActor.alias} onChange={(e) => { setActor({ ...stateActor, alias: e.target.value }) }} />
+          <Input size="large" className='input' value={stateActor.alias} onChange={handleEditAlias} />
         </div>
         <div className='content-i flexC'>
           <div className='RB flexR'>
@@ -71,7 +88,7 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) 
         </div>
       </div>
       <div className='content-title' style={{ marginTop: '20px', marginBottom: '10px' }}>角色配音</div>
-      <Button type='default' block className='btn-default-auto' > 添加角色配音</Button>
+      <TTSVoiceSelect option={stateActor.voice} onChange={handleEditVoice} />
     </div>
   )
 }

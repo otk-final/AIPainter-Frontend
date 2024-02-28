@@ -1,5 +1,5 @@
 import { Button, Divider, Input, Modal, Select, Tabs, TabsProps, message } from "antd"
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./index.less"
 import { dialog, path } from "@tauri-apps/api";
 import TextArea from "antd/es/input/TextArea";

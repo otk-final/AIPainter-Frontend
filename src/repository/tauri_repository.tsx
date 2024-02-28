@@ -106,7 +106,7 @@ export abstract class BaseRepository<T> implements TauriRepo {
         await fs.createDir(this.repoDir, { dir: this.baseDir(), recursive: true })
         let filePath = this.repoDir + path.sep + this.repo
 
-        console.info("save script", filePath)
+        console.info("save script", filePath,that)
         // save file
         await fs.writeFile(filePath, JSON.stringify(that, null, "\t"), { dir: this.baseDir(), append: false })
     }

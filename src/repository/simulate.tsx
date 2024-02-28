@@ -319,7 +319,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         console.info("已提交任务：", jobResp)
 
         //在线 延迟查询
-        await delay(5000)
+        await delay(10000)
         let audioText: any = await api.queryResult(this.audioRecognitionJobId!)
 
         console.info("查询任务结果：", audioText)

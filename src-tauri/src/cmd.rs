@@ -10,14 +10,16 @@ use crate::key_export_cmd::KeyFrame;
 
 // 线程池
 lazy_static! {
+
     pub static ref POOL: ThreadPool = rayon::ThreadPoolBuilder::new()
         .num_threads(20)
+        // .stack_size(100)
         .build()
         .unwrap();
 }
 
 
-//关键帧
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ExecuteOutput<T: Clone> {
     pub data: T,
     pub outputs: Vec<String>,
@@ -33,9 +35,8 @@ pub struct HandleProcess<T: Clone> {
 }
 
 
-pub fn execute<T: Clone>(opt_tx: Option<Sender<T>>, cmd: String, name: String, args: Vec<String>, msg: T) -> ExecuteOutput<T> {
+pub fn execute<T: Clone>(title: String, cmd: String, args: Vec<String>, msg: T) -> ExecuteOutput<T> {
     let args_log = args.clone();
-
     // 创建命令
     let (mut rx, mut child) = Command::new_sidecar(cmd)
         .unwrap()
@@ -43,17 +44,9 @@ pub fn execute<T: Clone>(opt_tx: Option<Sender<T>>, cmd: String, name: String, a
         .spawn()
         .expect("Failed to spawn sidecar");
 
-    println!(
-        "开始执行命令[{}]-{} = {:?}",
-        child.pid().to_string(),
-        name,
-        args_log
-    );
+    println!("开始执行命令[{}]-{} = {:?}", child.pid().to_string(), title, args_log);
 
     let out_msg = msg.clone();
-
-
-    // let mut outs = vec![];
     let run = async move {
 
         // 获取响应
@@ -67,26 +60,54 @@ pub fn execute<T: Clone>(opt_tx: Option<Sender<T>>, cmd: String, name: String, a
             } else if let CommandEvent::Stderr(line) = event {
                 errors.push(line)
             } else {
-                // println!("unkown:{:?}", event)
                 break;
             }
         }
 
         //退出子进程
-        // child.kill().unwrap();
+        child.kill().unwrap();
 
-        //通知
-        match opt_tx {
-            None => {}
-            Some(tx) => tx.send(msg).unwrap()
-        }
         (outputs, errors)
     };
 
     //同步
     let (o, e) = block_on(run);
-
     ExecuteOutput { data: out_msg, outputs: o, errors: e }
 }
 
+
+pub fn async_execute<T: Clone + Send + 'static>(tx: Sender<ExecuteOutput<T>>, title: String, cmd: String, args: Vec<String>, msg: T) {
+    let args_log = args.clone();
+    // 创建命令
+    let (mut rx, mut child) = Command::new_sidecar(cmd)
+        .unwrap()
+        .args(args)
+        .spawn()
+        .expect("Failed to spawn sidecar");
+
+    println!("开始执行命令[{}]-{} = {:?}", child.pid().to_string(), title, args_log);
+
+    let run = async move {
+
+        // 获取响应
+        let mut outputs = vec![];
+        let mut errors = vec![];
+
+        //等待命令执行完成
+        while let Some(event) = rx.recv().await {
+            if let CommandEvent::Stdout(line) = event {
+                outputs.push(line);
+                // child.write("message from Rust\n".as_bytes()).unwrap();
+            } else if let CommandEvent::Stderr(line) = event {
+                errors.push(line)
+            } else {
+                break;
+            }
+        }
+
+        //通知
+        tx.send(ExecuteOutput { data: msg, outputs, errors }).unwrap();
+    };
+    tauri::async_runtime::spawn(run);
+}
 

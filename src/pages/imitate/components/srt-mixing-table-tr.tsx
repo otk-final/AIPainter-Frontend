@@ -1,4 +1,4 @@
-import { Button, Modal, Typography, message } from "antd"
+import { Button, Modal, message } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import React, { Fragment, useMemo, useState } from "react";
 import { srtMixingColumns } from "../data";
@@ -9,10 +9,9 @@ import { CameraFilled, SoundFilled } from "@ant-design/icons";
 import { AssetImage } from "@/components/history-image";
 import ButtonGroup from "antd/es/button/button-group";
 import VideoPlayerModal from "./video-player";
-import { AudioOption } from "@/repository/tts_api";
+import { useBaisicSettingRepository } from "@/repository/setting";
 
 interface SRTMixingTRProps {
-    geAudioOption: () => AudioOption | undefined
     key: string,
     index: number,
     frame: KeyFrame,
@@ -20,12 +19,12 @@ interface SRTMixingTRProps {
 }
 
 
-const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, geAudioOption, key, style }) => {
+const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) => {
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
     const keyFreamRepo = useKeyFrameRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
     const gptApi = useGPTAssistantsApi(state => state)
-
+    const settingRepo = useBaisicSettingRepository(state=>state)
 
     useMemo(() => {
         const unsub = useKeyFrameRepository.subscribe(
@@ -38,8 +37,6 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, geAudioOption, 
             })
         return unsub
     }, [index])
-
-
 
     const handleEditContent = async (e: any) => {
         await keyFreamRepo.updateItem(index, { ...stateFrame, srt: e.target.value }, false)
@@ -58,10 +55,9 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, geAudioOption, 
         setPlayerUrl(await keyFreamRepo.absulotePath(path))
     }
 
-
     const handleRewriteContent = async () => {
         Modal.info({
-            content: <div style={{ color: '#fff' }}>GPT改写中...</div>,
+            content: <div style={{ color: '#fff' }}>AI改写中...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
@@ -69,27 +65,26 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, geAudioOption, 
         await keyFreamRepo.handleRewriteContent(index, gptApi).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
-    const handleRecognize = async () => {
-        Modal.info({
-            content: <div style={{ color: '#fff' }}>识别字幕...</div>,
-            footer: null,
-            mask: true,
-            maskClosable: false,
-        })
-        await keyFreamRepo.recognizeContent(index).catch(err => message.error(err)).finally(Modal.destroyAll)
-    }
+    // const handleRecognize = async () => {
+    //     Modal.info({
+    //         content: <div style={{ color: '#fff' }}>识别字幕...</div>,
+    //         footer: null,
+    //         mask: true,
+    //         maskClosable: false,
+    //     })
+    //     await keyFreamRepo.recognizeContent(index).catch(err => message.error(err)).finally(Modal.destroyAll)
+    // }
 
     const handleGenerateAudio = async () => {
-        let option = geAudioOption()
-        if (!option) {
-            return message.error("选择声音")
-        }
+        let option = settingRepo.audio.option
         Modal.info({
             content: <div style={{ color: '#fff' }}>生成音频...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
         })
+
+        //音频接口
         let ttsApi = await ttsRepo.newClient()
         let path = await keyFreamRepo.handleGenerateAudio(index, option, ttsApi).catch(err => message.error(err)).finally(Modal.destroyAll)
 
@@ -114,10 +109,6 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, geAudioOption, 
         return (
             <Fragment>
                 <div className='index'>{index + 1}</div>
-                <div>
-                    <Typography.Paragraph style={{ color: 'white', fontSize: 10 }}>原始:{stateFrame.srt_duration}</Typography.Paragraph>
-                    <Typography.Paragraph style={{ color: 'white', fontSize: 10 }}>改写:{stateFrame.srt_rewrite_duration}</Typography.Paragraph>
-                </div>
             </Fragment>
         )
     }
@@ -143,7 +134,6 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, geAudioOption, 
     const renderOperate = () => {
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRecognize}>原字幕识别</Button>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRewriteContent} disabled={!stateFrame.srt}>AI改写</Button>
                 <ButtonGroup>
                     <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateAudio} disabled={!stateFrame.srt_rewrite}>生成音频</Button>
