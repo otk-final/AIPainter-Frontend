@@ -20,7 +20,7 @@ lazy_static! {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct KeyFragment {
-    idx: usize,
+    id: usize,
     effect: KeyFragmentEffect,
     image_path: String,
     audio_path: String,
@@ -43,7 +43,7 @@ pub async fn key_video_generate(window: Window, parameters: Vec<KeyFragment>) ->
         .into_iter()
         .map(move |item| {
             let _tx = tx.clone();
-            let name = item.idx.to_string();
+            let name = item.id.to_string();
             let effect = EFFECT_DIRECTION.get(item.effect.orientation.as_str()).unwrap();
 
             //参数
@@ -78,7 +78,7 @@ pub async fn key_video_generate(window: Window, parameters: Vec<KeyFragment>) ->
 
     //排序
     out.sort_by(|i, j| {
-        i.idx.cmp(&j.idx)
+        i.id.cmp(&j.id)
     });
 
     //通知前端

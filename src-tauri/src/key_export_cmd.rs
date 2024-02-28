@@ -8,7 +8,7 @@ use crate::cmd::{execute, HandleProcess, POOL};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct KeyFrame {
-    pub idx: usize,
+    pub id: usize,
     pub name: String,
 
     //参数
@@ -95,7 +95,7 @@ fn step_image(window: Window, video_path: String, audio_path: String, parameters
     }
     //排序
     roughs.sort_by(|i, j| {
-        i.idx.cmp(&j.idx)
+        i.id.cmp(&j.id)
     });
 
     roughs
@@ -130,7 +130,7 @@ fn step_diff(title: String, window: Window, roughs: Vec<KeyFrame>, threshold: f6
 
     //排序
     diffs.sort_by(|i, j| {
-        i.idx.cmp(&j.idx)
+        i.id.cmp(&j.id)
     });
 
     diffs
@@ -160,7 +160,7 @@ fn step_audio(window: Window, video_path: String, audio_path: String, diffs: Vec
     }
     //排序
     outputs.sort_by(|i, j| {
-        i.idx.cmp(&j.idx)
+        i.id.cmp(&j.id)
     });
     outputs
 }

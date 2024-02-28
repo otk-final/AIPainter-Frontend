@@ -7,7 +7,7 @@ import { TTSApi } from "./tts_api"
 import { SRTLine, formatTime } from "./srt"
 
 interface KeyFrameJob {
-    idx: number,
+    id: number,
     name: string,
 
     //参数
@@ -260,7 +260,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
             let srt = srtLines[i]
 
             jobs.push({
-                idx: i,
+                id: i,
                 name: name,
 
                 //参数
@@ -285,7 +285,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         //转换关键帧对象
         return results.map((item: KeyFrameJob) => {
             return {
-                id: item.idx,
+                id: item.id,
                 name: item.name,
                 path: "frames" + path.sep + item.name + ".png",
                 image: {

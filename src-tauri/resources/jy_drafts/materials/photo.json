@@ -1,0 +1,23 @@
+{
+    "create_time": 1708407364,
+    "duration": 5000000,
+    "extra_info": "0.png",
+    "file_Path": "D:/AIPainter-Frontend/src-tauri/target/debug/4561f53a-69c0-46c8-bf05-5cffa196fe8d/frames/0.png",
+    "height": 960,
+    "id": "efb4bcdd-b6b9-4c7c-a83e-3023554959a6",
+    "import_time": 1709114981,
+    "import_time_ms": 1709114980018305,
+    "item_source": 1,
+    "md5": "",
+    "metetype": "photo",
+    "roughcut_time_range": {
+        "duration": -1,
+        "start": -1
+    },
+    "sub_time_range": {
+        "duration": -1,
+        "start": -1
+    },
+    "type": 0,
+    "width": 960
+}

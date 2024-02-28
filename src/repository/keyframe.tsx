@@ -209,7 +209,8 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         //参数
         let fragment = await this.convertFragment(item);
         fragment.effect.orientation = this.formatEffectOrientation(fragment.effect.orientation, settingRepo);
-
+        debugger;
+        
         //图片+音频 合成视频
         let outputs = await tauri.invoke("key_video_generate", { parameters: [fragment] })
         console.info("outputs", outputs);
