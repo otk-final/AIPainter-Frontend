@@ -11,7 +11,7 @@ const loadJYDraftTemplate = async (filepath: string) => {
     return JSON.parse(await fs.readTextFile(template_path))
 }
 export interface KeyFragmentEffect {
-    orientation:string
+    orientation: string
 }
 
 
@@ -62,8 +62,9 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
             ...material_video_template,
             id: uuid(),
             duration: kf.duration * 1000,
-            file_Path: kf.video_path,
-            extra_info: await path.basename(kf.video_path),
+            //图片
+            file_Path: kf.image_path,
+            extra_info: await path.basename(kf.image_path),
             roughcut_time_range: {
                 duration: kf.duration * 1000,
                 start: 0
@@ -151,8 +152,9 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
             ...video_template,
             id: uuid(),
             duration: items[i].duration,
-            material_name: await path.basename(items[i].video_path),
-            path: items[i].video_path
+            //图片
+            material_name: await path.basename(items[i].image_path),
+            path: items[i].image_path
         })
     }
     root_content.materials.videos = videos
@@ -178,6 +180,11 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
     let text_segment_template: any = await loadJYDraftTemplate("resources/jy_drafts/contents/track_text_segment.json")
     let video_segment_template: any = await loadJYDraftTemplate("resources/jy_drafts/contents/track_video_segment.json")
 
+
+    let video_segment_clip_template: any = await loadJYDraftTemplate("resources/jy_drafts/contents/track_video_segment_chip.json")
+    let video_segment_keyframe_template: any = await loadJYDraftTemplate("resources/jy_drafts/contents/track_video_segment_keyframe.json")
+
+
     let next_start_time = 0
     for (let i = 0; i < items.length; i++) {
         //转换为微秒
@@ -199,6 +206,7 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
         }
         text_track.segments.push(ts)
 
+
         //视频
         let vs = {
             ...video_segment_template,
@@ -217,7 +225,10 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
             target_timerange: {
                 duration: duration,
                 start: next_start_time,
-            }
+            },
+            //TODO 通知关键帧方向
+            clip: EffectChipConvert(items[i].effect, video_segment_clip_template),
+            common_keyframes: EffectCommonKeyframesConvert(items[i].effect, video_segment_keyframe_template)
         }
         video_track.segments.push(vs)
 
@@ -236,3 +247,47 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
 }
 
 
+const EffectChipConvert = (effect: KeyFragmentEffect, chip_template: any) => {
+    let transform = { x: 0, y: 0 }
+    if (effect.orientation === "up") {
+        transform = { x: 0, y: -0.1 }
+    } else if (effect.orientation === "down") {
+        transform = { x: 0, y: 0.1 }
+    } else if (effect.orientation === "left") {
+        transform = { x: -0.1, y: 0 }
+    } else if (effect.orientation === "right") {
+        transform = { x: 0.1, y: 0 }
+    }
+    return { ...chip_template, transform: transform }
+}
+
+const EffectCommonKeyframesConvert = (effect: KeyFragmentEffect, kf_template: any) => {
+
+    let x = {
+        id: uuid(),
+        keyframe_list: [{ ...kf_template, id: uuid() }],
+        material_id: "",
+        property_type: "KFTypePositionX"
+    }
+    let y = {
+        id: uuid(),
+        keyframe_list: [{ ...kf_template, id: uuid() }],
+        material_id: "",
+        property_type: "KFTypePositionY"
+    }
+
+    if (effect.orientation === "up") {
+        x.keyframe_list.push({ ...kf_template, id: uuid() })
+        y.keyframe_list.push({ ...kf_template, id: uuid(), values: [-0.1] })
+    } else if (effect.orientation === "down") {
+        x.keyframe_list.push({ ...kf_template, id: uuid() })
+        y.keyframe_list.push({ ...kf_template, id: uuid(), values: [0.1] })
+    } else if (effect.orientation === "left") {
+        x.keyframe_list.push({ ...kf_template, id: uuid(), values: [-0.1] })
+        y.keyframe_list.push({ ...kf_template, id: uuid() })
+    } else if (effect.orientation === "right") {
+        x.keyframe_list.push({ ...kf_template, id: uuid(), values: [0.1] })
+        y.keyframe_list.push({ ...kf_template, id: uuid() })
+    }
+    return [x, y]
+}

@@ -1,0 +1,16 @@
+{
+    "alpha": 1.0,
+    "flip": {
+        "horizontal": false,
+        "vertical": false
+    },
+    "rotation": 0.0,
+    "scale": {
+        "x": 1.0999999999999999,
+        "y": 1.0999999999999999
+    },
+    "transform": {
+        "x": 0.0,
+        "y": 0.09838506711409367
+    }
+}

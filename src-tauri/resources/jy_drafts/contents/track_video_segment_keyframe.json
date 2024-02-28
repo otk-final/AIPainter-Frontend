@@ -1,0 +1,17 @@
+{
+    "curveType": "Line",
+    "graphID": "",
+    "id": "220E2DCF-92E5-4601-89B8-8E0475CF307E",
+    "left_control": {
+        "x": 0.0,
+        "y": 0.0
+    },
+    "right_control": {
+        "x": 0.0,
+        "y": 0.0
+    },
+    "time_offset": 0,
+    "values": [
+        0.0
+    ]
+}
