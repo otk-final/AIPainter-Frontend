@@ -4,11 +4,7 @@ export const generateImagesColumns = [
     key: "number",
     space: 1,
   },
-  {
-    title: "视频预览",
-    key: "video",
-    space: 4,
-  },
+
   {
     title: "原始图片",
     key: "path",

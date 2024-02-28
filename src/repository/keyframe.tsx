@@ -120,7 +120,8 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let api = await comyuiRepo.newClient()
         let text = await comyuiRepo.buildReversePrompt()
         let script = new WFScript(text)
-
+        debugger;
+        
         //上传文件
         await api.upload(api.clientId, await this.absulotePath(frame.path), frame.name)
 
