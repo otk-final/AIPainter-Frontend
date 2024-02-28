@@ -210,7 +210,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let fragment = await this.convertFragment(item);
         fragment.effect.orientation = this.formatEffectOrientation(fragment.effect.orientation, settingRepo);
         debugger;
-        
+
         //图片+音频 合成视频
         let outputs = await tauri.invoke("key_video_generate", { parameters: [fragment] })
         console.info("outputs", outputs);
@@ -320,13 +320,15 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     }
 
     //导出剪映草稿
-    handleConcatJYDraft = async (saveDir: string) => {
+    handleConcatJYDraft = async (saveDir: string, settingRepo: BaisicSettingConfiguration) => {
         let draft_name = await path.basename(saveDir)
         console.info("draft_name", draft_name)
 
         //有效帧片段
         let fragments = await this.formatFragments()
+        fragments.forEach(e => e.effect.orientation = this.formatEffectOrientation(e.effect.orientation, settingRepo))
 
+        debugger
         //生成字幕文件
         let srtpath = await this.absulotePath("video.srt")
         await this.srtExport(srtpath, fragments)

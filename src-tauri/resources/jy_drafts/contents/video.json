@@ -3,7 +3,7 @@
     "audio_fade": null,
     "cartoon_path": "",
     "category_id": "",
-    "category_name": "",
+    "category_name": "local",
     "check_flag": 63487,
     "crop": {
         "lower_left_x": 0.0,
@@ -17,14 +17,14 @@
     },
     "crop_ratio": "free",
     "crop_scale": 1.0,
-    "duration": 2400000,
+    "duration": 10800000000,
     "extra_type_option": 0,
     "formula_id": "",
     "freeze": null,
     "gameplay": null,
-    "has_audio": true,
-    "height": 512,
-    "id": "C5549F46-798E-4833-8574-4FA8E0256278",
+    "has_audio": false,
+    "height": 960,
+    "id": "9C745C4C-ADAC-4565-90BA-3E9B656E91FC",
     "intensifies_audio_path": "",
     "intensifies_path": "",
     "is_ai_generate_content": false,
@@ -33,7 +33,7 @@
     "local_id": "",
     "local_material_id": "",
     "material_id": "",
-    "material_name": "0-345d3741-f6c9-4316-a15d-c0b83aeb6258.mp4",
+    "material_name": "7-org-b5fe182b-6c9f-412c-a882-8b1bfcc9c0cc.png",
     "material_url": "",
     "matting": {
         "flag": 0,
@@ -46,7 +46,7 @@
     "media_path": "",
     "object_locked": null,
     "origin_material_id": "",
-    "path": "D:/AI/3133800e-7b31-444b-a5b3-4ab4a5edc37f/videos/0-345d3741-f6c9-4316-a15d-c0b83aeb6258.mp4",
+    "path": "D:/AIPainter-Frontend/src-tauri/target/debug/4561f53a-69c0-46c8-bf05-5cffa196fe8d/frames/7-org-b5fe182b-6c9f-412c-a882-8b1bfcc9c0cc.png",
     "picture_from": "none",
     "picture_set_category_id": "",
     "picture_set_category_name": "",
@@ -65,7 +65,7 @@
         }
     },
     "team_id": "",
-    "type": "video",
+    "type": "photo",
     "video_algorithm": {
         "algorithms": [],
         "deflicker": null,
@@ -75,5 +75,5 @@
         "quality_enhance": null,
         "time_range": null
     },
-    "width": 512
+    "width": 960
 }
