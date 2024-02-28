@@ -120,25 +120,20 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let api = await comyuiRepo.newClient()
         let text = await comyuiRepo.buildReversePrompt()
         let script = new WFScript(text)
-        debugger;
-        
+
         //上传文件
         await api.upload(api.clientId, await this.absulotePath(frame.path), frame.name)
 
         //提交任务
-        let job = await api.prompt(script, { subfolder: api.clientId, filename: frame.name }, Image2TextHandle)
+        let { promptId, promptResult } = await api.prompt(script, { subfolder: api.clientId, filename: frame.name }, Image2TextHandle)
         //关键词所在的节点数
         let step = script.getWD14TaggerStep()
-        const callback = async (promptId: string, respData: any) => {
+        //定位结果
+        let reversePrompts = promptResult[promptId]!.outputs![step]!.tags! as string[]
+        if (reversePrompts) frame.prompt = reversePrompts.join(",")
 
-            //定位结果
-            let reversePrompts = respData[promptId]!.outputs![step]!.tags! as string[]
-            if (reversePrompts) frame.prompt = reversePrompts.join(",")
-
-            this.sync()
-        }
-        //监听任务
-        registerComfyUIPromptCallback({ jobId: "", promptId: job.prompt_id, handle: callback })
+        //更新
+        this.sync()
     }
 
     //生成图片
@@ -151,39 +146,32 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let script = new WFScript(text)
 
         //生成随机
-        let seed:number = await tauri.invoke('seed_random',{})
+        let seed: number = await tauri.invoke('seed_random', {})
 
         //add prompt task
-        let job = await api.prompt(script, { seed: seed, positive: [comyuiRepo.positivePrompt, frame.prompt].join(""), negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
+        let { promptId, promptResult } = await api.prompt(script, { seed: seed, positive: [comyuiRepo.positivePrompt, frame.prompt].join(""), negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
 
         //获取 当前流程中 输出图片节点位置
         let step = script.getOutputImageStep()
-        
 
-        const callback = async (promptId: string, respData: any) => {
+        //下载文件
+        let history = frame.image.history || []
+        let images = promptResult[promptId]!.outputs![step].images
+        for (let i = 0; i < images.length; i++) {
+            let imageItem = images[i] as { filename: string, subfolder: string, type: string }
 
-            let history = frame.image.history || []
-            //下载文件
-            let images = respData[promptId]!.outputs![step].images
-            for (let i = 0; i < images.length; i++) {
-                let imageItem = images[i] as { filename: string, subfolder: string, type: string }
+            //保存
+            let fileBuffer = await api.download(promptId, imageItem.subfolder, imageItem.filename)
+            let fileName = frame.id + "-" + uuid() + ".png"
+            let filePath = await this.saveFile("outputs", fileName, fileBuffer)
 
-                //保存
-                let fileBuffer = await api.download(promptId, imageItem.subfolder, imageItem.filename)
-                let fileName = frame.id + "-" + uuid() + ".png"
-                let filePath = await this.saveFile("outputs", fileName, fileBuffer)
-
-                frame.image.path = filePath
-                history.push(filePath)
-            }
-            frame.image.history = [...history]
-
-            //save
-            this.sync()
+            frame.image.path = filePath
+            history.push(filePath)
         }
+        frame.image.history = [...history]
 
-        //监听任务
-        registerComfyUIPromptCallback({ jobId: "", promptId: job.prompt_id, handle: callback })
+        //save
+        this.sync()
     }
 
     //在线生成音频

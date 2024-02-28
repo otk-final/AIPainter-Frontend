@@ -72,22 +72,14 @@ const PaintSetting = forwardRef<PaintSettingRef, PaintSettingProps>((props, ref)
             <div className='setting-section'>
                 <div className='setting-title'>ComfyUI 环境配置</div>
 
-                <div className='flexR half-width'>
-                    <div className='flexR'>
-                        <div className='setting-label'>Http地址</div>
-                    </div>
+                <div className='flexR'>
+                    <Input size="large" placeholder="http://127.0.0.1:8188" className='input-s'
+                        value={stateComfyui?.host.url}
+                        onChange={(e) => setComfyui({ ...stateComfyui, host: { ...stateComfyui.host, url: e.target.value } })}
+                    />
                 </div>
 
-                <div className='setting-form-label flexR half-width'>
-                    <div className='setting-form flexR half-width'>
-                        <Input size="large" placeholder="http://127.0.0.1:8188" className='input-s'
-                            value={stateComfyui?.host.url}
-                            onChange={(e) => setComfyui({ ...stateComfyui, host: { ...stateComfyui.host, url: e.target.value } })}
-                        />
-                    </div>
-                </div>
-
-                <div className='flexR half-width'>
+                {/* <div className='flexR half-width'>
                     <div className='flexR'>
                         <div className='setting-label'>Websocket地址</div>
                     </div>
@@ -100,7 +92,7 @@ const PaintSetting = forwardRef<PaintSettingRef, PaintSettingProps>((props, ref)
                             onChange={(e) => setComfyui({ ...stateComfyui, host: { ...stateComfyui.host, websocket: e.target.value } })}
                         />
                     </div>
-                </div>
+                </div> */}
 
             </div >
 

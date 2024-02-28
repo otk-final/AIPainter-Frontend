@@ -160,32 +160,26 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         //add prompt task
         let seed: number = await tauri.invoke('seed_random', {})
 
-        let job = await api.prompt(script, { seed: seed, positive: [comyuiRepo.positivePrompt, chapter.prompt].join(""), negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
+        let { promptId, promptResult } = await api.prompt(script, { seed: seed, positive: [comyuiRepo.positivePrompt, chapter.prompt].join(""), negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
 
         //获取 当前流程中 输出图片节点位置
         let step = script.getOutputImageStep()
-        const callback = async (promptId: string, respData: any) => {
+        //下载文件
+        let images = promptResult[promptId]!.outputs![step].images
+        for (let i = 0; i < images.length; i++) {
+            let imageItem = images[i] as { filename: string, subfolder: string, type: string }
 
-            //下载文件
-            let images = respData[promptId]!.outputs![step].images
-            for (let i = 0; i < images.length; i++) {
-                let imageItem = images[i] as { filename: string, subfolder: string, type: string }
+            //保存
+            let fileBuffer = await api.download(promptId, imageItem.subfolder, imageItem.filename)
+            let filePath = await this.saveFile("outputs", "cp_" + uuid() + ".png", fileBuffer)
 
-                //保存
-                let fileBuffer = await api.download(promptId, imageItem.subfolder, imageItem.filename)
-                let filePath = await this.saveFile("outputs", "cp_" + uuid() + ".png", fileBuffer)
-
-                let history = chapter.image?.history || []
-                history.push(filePath)
-                chapter.image = { path: filePath, history: history }
-            }
-
-            //save
-            this.sync()
+            let history = chapter.image?.history || []
+            history.push(filePath)
+            chapter.image = { path: filePath, history: history }
         }
 
-        //监听任务
-        registerComfyUIPromptCallback({ jobId: "", promptId: job.prompt_id, handle: callback })
+        //save
+        this.sync()
     }
 }
 
@@ -243,29 +237,23 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
         //add prompt task
         //生成随机
         let seed: number = await tauri.invoke('seed_random', {})
-        let job = await api.prompt(script, { seed: seed, positive: [comyuiRepo.positivePrompt, prompt].join(""), negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
+        let { promptId, promptResult } = await api.prompt(script, { seed: seed, positive: [comyuiRepo.positivePrompt, prompt].join(""), negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
 
         //获取 当前流程中 输出图片节点位置
         let step = script.getOutputImageStep()
-        const callback = async (promptId: string, respData: any) => {
 
+        let images = promptResult[promptId]!.outputs![step].images
+        let imageItem = images[0] as { filename: string, subfolder: string, type: string }
 
-            let images = respData[promptId]!.outputs![step].images
-            let imageItem = images[0] as { filename: string, subfolder: string, type: string }
+        //下载文件
+        console.info("下载文件", imageItem)
 
-            //下载文件
-            console.info("下载文件", imageItem)
+        //下载，保存
+        let fileBuffer = await api.download(promptId, imageItem.subfolder, imageItem.filename)
+        let filePath = await this.saveFile("outputs", "ac_" + uuid() + ".png", fileBuffer)
 
-            //下载，保存
-            let fileBuffer = await api.download(promptId, imageItem.subfolder, imageItem.filename)
-            let filePath = await this.saveFile("outputs", "ac_" + uuid() + ".png", fileBuffer)
-
-            //更新状态
-            tempCallBack(filePath)
-        }
-
-        //监听任务
-        registerComfyUIPromptCallback({ jobId: "", promptId: job.prompt_id, handle: callback })
+        //更新状态
+        tempCallBack(filePath)
     }
 }
 

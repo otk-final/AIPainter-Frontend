@@ -9,7 +9,8 @@ import { useSimulateRepository } from '@/repository/simulate';
 import { useComfyUIRepository } from '@/repository/comfyui';
 import SRTMixingTab from './components/srt-mixing';
 import { useKeyFrameRepository } from '@/repository/keyframe';
-import { dialog } from '@tauri-apps/api';
+import { dialog, path } from '@tauri-apps/api';
+import { useBaisicSettingRepository } from '@/repository/setting';
 
 export type ImitateTabType = "import" | "frames" | "audio"
 const imitateTabs: TabsProps["items"] = [
@@ -34,7 +35,7 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   const simulateRepo = useSimulateRepository(state => state)
   const keyFreamRepo = useKeyFrameRepository(state => state)
   const comfyuiRepo = useComfyUIRepository(state => state)
-
+  const settingRepo = useBaisicSettingRepository(state => state)
 
   //加载配置项
   useMemo(() => {
@@ -66,11 +67,10 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   //导出
   const handleJYDraft = async () => {
 
-    let selected = await dialog.open({ directory: true, title: "剪映草稿目录", recursive: true })
+    let selected = await dialog.open({ directory: true, title: "剪映草稿目录", defaultPath: settingRepo.draft_dir || await path.desktopDir(), recursive: true })
     if (!selected) {
       return
     }
-
 
     Modal.info({
       content: <div style={{ color: '#fff' }}>正在导出剪映草稿..</div>,

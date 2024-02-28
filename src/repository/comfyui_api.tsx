@@ -44,7 +44,6 @@ export const registerComfyUIPromptCallback = (cb: ComfyUIPromptCallback) => {
 }
 
 
-
 //执行回调
 const doComfyUIPromptCallback = async (api: ComfyUIApi, promptId: string) => {
 
@@ -107,9 +106,9 @@ export class ComfyUIPipe {
         }
 
         //websocket  只保持一个链接 
-        this.ws = await WebSocket.connect(host.websocket + "?client_id=" + clientId, { headers: { 'Authorization': authorization } })
-        this.ws.addListener(this.received)
-        console.info("websocket has connected", this.ws.id)
+        // this.ws = await WebSocket.connect(host.websocket + "?client_id=" + clientId, { headers: { 'Authorization': authorization } })
+        // this.ws.addListener(this.received)
+        // console.info("websocket has connected", this.ws.id)
     }
 
     disconnect = async () => {
@@ -118,27 +117,27 @@ export class ComfyUIPipe {
         this.ws = undefined
     }
 
-    private received = async (message: Message) => {
+    // private received = async (message: Message) => {
 
-        //关闭事件
-        if (message.type === undefined || message.type === "Close") {
-            await this.disconnect()
-            return
-        }
+    //     //关闭事件
+    //     if (message.type === undefined || message.type === "Close") {
+    //         await this.disconnect()
+    //         return
+    //     }
 
-        //非文本数据，直接过滤
-        if (message.type !== "Text") {
-            return
-        }
+    //     //非文本数据，直接过滤
+    //     if (message.type !== "Text") {
+    //         return
+    //     }
 
-        //server
-        let { type, data } = JSON.parse(message.data as string) as ComfyUIPromptEvent
-        let ok = (data.value !== undefined) && (data.max !== undefined) && (data.value === data.max)
-        if (type === "progress" && ok) {
-            //通知业务 有的版本不返回任务prompt_id ，取当前临时id
-            doComfyUIPromptCallback(this.api, data.prompt_id || this.api.current_prompt_id)
-        }
-    }
+    //     //server
+    //     let { type, data } = JSON.parse(message.data as string) as ComfyUIPromptEvent
+    //     let ok = (data.value !== undefined) && (data.max !== undefined) && (data.value === data.max)
+    //     if (type === "progress" && ok) {
+    //         //通知业务 有的版本不返回任务prompt_id ，取当前临时id
+    //         doComfyUIPromptCallback(this.api, data.prompt_id || this.api.current_prompt_id)
+    //     }
+    // }
 }
 
 
@@ -160,7 +159,6 @@ export class ComfyUIApi {
         this.authorization = authorization
     }
 
-
     async connect() {
         this.api = await http.getClient()
     }
@@ -171,7 +169,7 @@ export class ComfyUIApi {
     }
 
     //post prompt
-    async prompt<T>(script: WFScript, params: T, handle: CompletionPromptParams<T>): Promise<ComfyUIPromptTask> {
+    async prompt<T>(script: WFScript, params: T, handle: CompletionPromptParams<T>): Promise<{ promptId: string, promptResult: any }> {
         let prompt = handle(this, script, params)
         console.info('提交ComfyUI任务', prompt)
         //提交任务
@@ -186,11 +184,28 @@ export class ComfyUIApi {
             }
         );
         let task = response.data as ComfyUIPromptTask
+        let prompt_id = task.prompt_id;
 
-        //缓存当前id,用于回调通知
-        this.current_prompt_id = task.prompt_id
-        return task
+        //堵塞
+        return new Promise(async (resolve, reject) => {
+            let count = 0;
+            let respData: any;
+            while (count < 10) {
+                //查询状态
+                let tempData = await this.history(prompt_id)
+                console.log("查询结果:", prompt_id, count, respData)
+                if (tempData && Object.keys(tempData).length > 0) {
+                    respData = tempData;
+                    break
+                }
+                await delay(3000)
+                count++;
+            }
+            //判断状态
+            respData ? resolve({ promptId: prompt_id, promptResult: respData }) : reject("查询结果超时");
+        })
     }
+
 
     //任务状态
     async history(prompt_id: string): Promise<any> {

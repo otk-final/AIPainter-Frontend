@@ -32,7 +32,6 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
     positivePrompt: string = ""
     negativePrompt: string = ""
 
-
     newClient = async () => {
         this.destroyClient()
 
