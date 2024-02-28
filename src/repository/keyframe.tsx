@@ -224,15 +224,17 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     }
 
     formatEffectOrientation = (orientation: string, settingRepo: BaisicSettingConfiguration) => {
-        if (orientation === "random") {
+        let x = orientation;
+        if (x === "default") {
+            //默认
+            x = settingRepo.video.effect;
+        }
+        if (x === "random") {
             //随机
             let randomIdx = Math.floor(Math.random() * 4);
             return ["up", "down", "left", "right"][randomIdx];
-        } else if (orientation === "default") {
-            //默认
-            return settingRepo.video.effect;
         }
-        return orientation;
+        return x;
     }
 
 

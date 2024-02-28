@@ -280,7 +280,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         }
 
         //并发执行
-        let results: KeyFrameJob[] = await tauri.invoke('key_frame_collect', { videoPath: this.videoPath!, audioPath: exportAudioPath, parameters: frames })
+        let results: KeyFrameJob[] = await tauri.invoke('key_frame_collect', { videoPath: this.videoPath!, audioPath: exportAudioPath, parameters: jobs })
 
         //转换关键帧对象
         return results.map((item: KeyFrameJob) => {
