@@ -1,0 +1,23 @@
+{
+    "create_time": 1709106467,
+    "duration": 4048000,
+    "extra_info": "0-org.mp3",
+    "file_Path": "D:/AIPainter-Frontend/src-tauri/target/debug/4561f53a-69c0-46c8-bf05-5cffa196fe8d/audios/0-org.mp3",
+    "height": 0,
+    "id": "5b7e8aba-7bbd-4069-9922-2b0769abd3cc",
+    "import_time": 1709173272,
+    "import_time_ms": 1709173271151379,
+    "item_source": 1,
+    "md5": "",
+    "metetype": "music",
+    "roughcut_time_range": {
+        "duration": 4048000,
+        "start": 0
+    },
+    "sub_time_range": {
+        "duration": -1,
+        "start": -1
+    },
+    "type": 0,
+    "width": 0
+}

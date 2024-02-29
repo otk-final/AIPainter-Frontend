@@ -1,0 +1,20 @@
+{
+    "ai_beats": {
+        "beat_speed_infos": [],
+        "beats_path": "",
+        "beats_url": "",
+        "melody_path": "",
+        "melody_percents": [
+            0.0
+        ],
+        "melody_url": ""
+    },
+    "enable_ai_beats": false,
+    "gear": 404,
+    "gear_count": 0,
+    "id": "09CAFC57-9405-4938-9D32-38718DAFCEA8",
+    "mode": 404,
+    "type": "beats",
+    "user_beats": [],
+    "user_delete_ai_beats": null
+}

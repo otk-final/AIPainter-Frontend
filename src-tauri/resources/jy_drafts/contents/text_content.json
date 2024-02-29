@@ -14,13 +14,13 @@
           }
         },
         "font": {
-          "path": "D:/JianyingPro/5.3.0.11154/Resources/Font/SystemFont/zh-hans.ttf",
+          "path": "",
           "id": ""
         },
-        "size": 15,
+        "size": 10,
         "range": [
           0,
-          11
+          0
         ]
       }
     ]

@@ -1,5 +1,6 @@
 import { fs, path } from "@tauri-apps/api";
 import { v4 as uuid } from "uuid"
+import { BaisicSettingConfiguration } from "./setting";
 
 /**
  * 加载剪映草稿模版
@@ -29,7 +30,7 @@ export interface KeyFragment {
 
 
 //导出剪映草稿
-export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[], srtpath: string) => {
+export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[], srtpath: string, settingRepo: BaisicSettingConfiguration) => {
 
     let now = new Date();
     let now_time = now.getTime()
@@ -52,19 +53,34 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
      * 素材准备
      * 视频 + 字幕
      */
-    let material_video_template: any = await loadJYDraftTemplate("resources/jy_drafts/materials/video.json")
+    let material_photo_template: any = await loadJYDraftTemplate("resources/jy_drafts/materials/photo.json")
+    let material_audio_template: any = await loadJYDraftTemplate("resources/jy_drafts/materials/audio.json")
 
     //视频
-    let video_templates = []
+    let import_materials = []
     for (let i = 0; i < items.length; i++) {
         let kf = items[i]
-        let template = {
-            ...material_video_template,
+
+        //图片
+        let image = {
+            ...material_photo_template,
             id: uuid(),
             duration: kf.duration * 1000,
-            //图片
             file_Path: kf.image_path,
             extra_info: await path.basename(kf.image_path),
+            import_time: now_time_s,
+            import_time_ms: now_time_ms
+        }
+        import_materials.push(image)
+
+
+        //音频
+        let audio = {
+            ...material_audio_template,
+            id: uuid(),
+            duration: kf.duration * 1000,
+            file_Path: kf.audio_path,
+            extra_info: await path.basename(kf.audio_path),
             roughcut_time_range: {
                 duration: kf.duration * 1000,
                 start: 0
@@ -72,8 +88,9 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
             import_time: now_time_s,
             import_time_ms: now_time_ms
         }
-        video_templates.push(template)
+        import_materials.push(audio)
     }
+
 
     //字幕
     let material_srt_template: any = await loadJYDraftTemplate("resources/jy_drafts/materials/srt.json")
@@ -86,7 +103,7 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
 
     //素材
     root_meta.draft_materials = [
-        { type: 0, value: video_templates },
+        { type: 0, value: import_materials },
         { type: 1, value: [] },
         { type: 2, value: [{ ...material_srt_template }] },
         { type: 3, value: [] },
@@ -136,27 +153,52 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
     })
 
 
+    //视频集（图片）
+    let video_template: any = await loadJYDraftTemplate("resources/jy_drafts/contents/video.json")
+    //音频集
+    let audio_template: any = await loadJYDraftTemplate("resources/jy_drafts/contents/audio.json")
     //字幕集
     let text_template: any = await loadJYDraftTemplate("resources/jy_drafts/contents/text.json")
     let text_content_template: any = await loadJYDraftTemplate("resources/jy_drafts/contents/text_content.json")
-    root_content.materials.texts = items.map((item) => {
-        let text = { ...text_content_template, text: item.srt }
-        return { ...text_template, id: uuid(), content: JSON.stringify(text), font_path: "" }
-    })
 
-    //视频集
-    let video_template: any = await loadJYDraftTemplate("resources/jy_drafts/contents/video.json")
     let videos = []
+    let texts = []
+    let audios = []
+
     for (let i = 0; i < items.length; i++) {
-        videos.push({
+        let item = items[i]
+
+        //字幕（取当前字幕长度）
+        let text_style = { ...text_content_template.styles[0], range: [0, Math.max(10, item.srt.length)] }
+        let text_content = { ...text_content_template, text: item.srt, styles: [text_style] }
+        let text = { ...text_template, id: uuid(), content: JSON.stringify(text_content) }
+        texts.push(text)
+
+        //图片
+        let photo = {
             ...video_template,
             id: uuid(),
-            duration: items[i].duration,
-            //图片
-            material_name: await path.basename(items[i].image_path),
-            path: items[i].image_path
-        })
+            duration: item.duration,
+
+            material_name: await path.basename(item.image_path),
+            path: item.image_path
+        }
+        videos.push(photo)
+
+        //音频
+        let audio = {
+            ...audio_template,
+            id: uuid(),
+            duration: item.duration,
+            music_id: uuid(),
+            name: item.name,
+            material_name: await path.basename(item.audio_path),
+            path: item.audio_path
+        }
+        audios.push(audio)
     }
+    root_content.materials.texts = texts
+    root_content.materials.audios = audios
     root_content.materials.videos = videos
 
 
@@ -177,8 +219,18 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
         type: "video"
     }
 
+    //音频轨道
+    let audio_track = {
+        ...track_template,
+        id: uuid(),
+        segments: [],
+        type: "audio"
+    }
+
+
     let text_segment_template: any = await loadJYDraftTemplate("resources/jy_drafts/contents/track_text_segment.json")
     let video_segment_template: any = await loadJYDraftTemplate("resources/jy_drafts/contents/track_video_segment.json")
+    let audio_segment_template: any = await loadJYDraftTemplate("resources/jy_drafts/contents/track_audio_segment.json")
 
 
     let video_segment_clip_template: any = await loadJYDraftTemplate("resources/jy_drafts/contents/track_video_segment_chip.json")
@@ -206,7 +258,6 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
         }
         text_track.segments.push(ts)
 
-
         //视频
         let vs = {
             ...video_segment_template,
@@ -226,17 +277,39 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
                 duration: duration,
                 start: next_start_time,
             },
-            //TODO 通知关键帧方向
+            //控制关键帧方向
             clip: EffectChipConvert(items[i], video_segment_clip_template),
             common_keyframes: EffectCommonKeyframesConvert(items[i], video_segment_keyframe_template)
         }
         video_track.segments.push(vs)
 
+        //音频
+        let as = {
+            ...audio_segment_template,
+            id: uuid(),
+            material_id: root_content.materials.audios[i].id,
+            extra_material_refs: [
+                root_content.materials.speeds[i].id,
+                root_content.materials.canvases[i].id,
+                root_content.materials.sound_channel_mappings[i].id,
+                root_content.materials.vocal_separations[i].id,
+            ],
+            source_timerange: {
+                duration: duration,
+                start: 0,
+            },
+            target_timerange: {
+                duration: duration,
+                start: next_start_time,
+            }
+        }
+        audio_track.segments.push(as)
+
         //轨道时间累计顺延
         next_start_time = next_start_time + duration
     }
 
-    root_content.tracks = [text_track, video_track]
+    root_content.tracks = [text_track, video_track, audio_track]
     root_content.id = uuid()
     root_content.duration = total_duration
 
@@ -247,17 +320,17 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
 }
 
 
-let scale_offset = 0.12
-let scale = 1.2
+let scale_offset = 0.15
+let scale = 1.5
 
 const EffectChipConvert = (item: KeyFragment, chip_template: any) => {
     let orientation = item.effect.orientation
 
     let transform = { x: 0, y: 0 }
     if (orientation === "up") {
-        transform = { x: 0, y: scale_offset }
-    } else if (orientation === "down") {
         transform = { x: 0, y: -scale_offset }
+    } else if (orientation === "down") {
+        transform = { x: 0, y: scale_offset }
     } else if (orientation === "left") {
         transform = { x: -scale_offset, y: 0 }
     } else if (orientation === "right") {
@@ -285,10 +358,10 @@ const EffectCommonKeyframesConvert = (item: KeyFragment, kf_template: any) => {
     //移动方向
     if (orientation === "up") {
         x.keyframe_list = [{ ...kf_template, id: uuid() }, { ...kf_template, id: uuid(), time_offset: duration }]
-        y.keyframe_list = [{ ...kf_template, id: uuid(), values: [scale_offset] }, { ...kf_template, id: uuid(), time_offset: duration, values: [-scale_offset] }]
+        y.keyframe_list = [{ ...kf_template, id: uuid(), values: [-scale_offset] }, { ...kf_template, id: uuid(), time_offset: duration, values: [scale_offset] }]
     } else if (orientation === "down") {
         x.keyframe_list = [{ ...kf_template, id: uuid() }, { ...kf_template, id: uuid(), time_offset: duration }]
-        y.keyframe_list = [{ ...kf_template, id: uuid(), values: [-scale_offset] }, { ...kf_template, id: uuid(), time_offset: duration, values: [scale_offset] }]
+        y.keyframe_list = [{ ...kf_template, id: uuid(), values: [scale_offset] }, { ...kf_template, id: uuid(), time_offset: duration, values: [-scale_offset] }]
     } else if (orientation === "left") {
         x.keyframe_list = [{ ...kf_template, id: uuid(), values: [scale_offset] }, { ...kf_template, id: uuid(), time_offset: duration, values: [-scale_offset] }]
         y.keyframe_list = [{ ...kf_template, id: uuid() }, { ...kf_template, id: uuid(), time_offset: duration }]

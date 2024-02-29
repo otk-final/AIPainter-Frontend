@@ -207,16 +207,16 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         await fs.createDir(videoDir, { dir: this.baseDir(), recursive: true })
 
         //参数
+        let videoPath = "temp-videos" + path.sep + item.name + "-" + uuid() + ".mp4";
         let fragment = await this.convertFragment(item);
+
+        //rewrite
+        fragment.video_path = await this.absulotePath(videoPath)
         fragment.effect.orientation = this.formatEffectOrientation(fragment.effect.orientation, settingRepo);
-        debugger;
 
         //图片+音频 合成视频
         let outputs = await tauri.invoke("key_video_generate", { parameters: [fragment] })
         console.info("outputs", outputs);
-
-        //outpath
-        let videoPath = "videos" + path.sep + item.name + ".mp4";
 
         //更新
         this.items[index].srt_rewrite_video_path = videoPath;
@@ -334,7 +334,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         await this.srtExport(srtpath, fragments)
 
         //导出
-        await JYMetaDraftExport(saveDir, fragments, srtpath)
+        await JYMetaDraftExport(saveDir, fragments, srtpath, settingRepo)
     }
 }
 
