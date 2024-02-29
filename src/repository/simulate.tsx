@@ -319,21 +319,39 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
         console.info("已提交任务：", jobResp)
 
-        //在线 延迟查询
-        await delay(10000)
-        let audioText: any = await api.queryResult(this.audioRecognitionJobId!)
 
-        console.info("查询任务结果：", audioText)
+        //轮询查询结果
+        let fatch = 0;
+        let audioText: any;
+        while (fatch <= 10) {
+            //处理中
+            await delay(3000)
+            fatch++;
+            let respText: any = await api.queryResult(this.audioRecognitionJobId!);
+            console.info("查询任务结果：", audioText)
+            if (respText.code === 0) {
+                //成功
+                audioText = { ...respText }
+                break;
+            } else if (respText.code === 2000) {
+                //处理中
+                continue
+            } else {
+                //异常
+                throw new Error(respText.message)
+            }
+        }
+
+        if (!audioText) {
+            throw new Error("音频解析失败,稍后重试！")
+        }
 
         //写入文件
         await fs.writeFile(audioRecognitionPath, JSON.stringify(audioText, null, "\t"), { append: false })
         this.audioRecognition = true
-
         this.sync()
 
-        console.info("保存文件")
-
-        //提取数据
+        //提取字幕
         return audioText.utterances as SRTLine[]
     }
 
