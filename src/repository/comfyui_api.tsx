@@ -193,7 +193,7 @@ export class ComfyUIApi {
             while (count < 10) {
                 //查询状态
                 let tempData = await this.history(prompt_id)
-                console.log("查询结果:", prompt_id, count, respData)
+                console.log("查询结果:", prompt_id, count, tempData)
                 if (tempData && Object.keys(tempData).length > 0) {
                     respData = tempData;
                     break

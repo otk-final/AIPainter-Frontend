@@ -203,7 +203,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let item = this.items[index]
 
         //临时存储目录
-        let videoDir = await path.join(this.repoDir, "videos")
+        let videoDir = await path.join(this.repoDir, "temp-videos")
         await fs.createDir(videoDir, { dir: this.baseDir(), recursive: true })
 
         //参数
