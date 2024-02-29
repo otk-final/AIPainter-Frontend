@@ -181,11 +181,11 @@ pub async fn key_frame_collect(window: Window,
 
     println!("第二步:对比关键帧1");
     //五张比对
-    let diffs1 = step_diff("图片比对-第一次".to_string(), window.clone(), roughs, threshold, 5, 5);
+    let diffs1 = step_diff("第一次图片比对".to_string(), window.clone(), roughs, threshold, 5, 5);
 
     //两两比对
     println!("第三步:对比关键帧2");
-    let diffs2 = step_diff("图片比对-第二次".to_string(), window.clone(), diffs1, threshold, 2, 5);
+    let diffs2 = step_diff("第二次图片比对".to_string(), window.clone(), diffs1, threshold, 2, 5);
 
     println!("第三步:导出音视频");
     let outputs = step_audio(window.clone(), video_path.clone(), audio_path.clone(), diffs2);
@@ -198,21 +198,24 @@ pub fn key_frames_dssim(sources: Vec<KeyFrame>, threshold: f64, step: usize) -> 
     let sources_len = sources.len();
     let mut diff_outs: Vec<KeyFrame> = vec![];
 
-    let mut execute_count = 0;
-    let mut start_idx: usize = 0;
-    while start_idx < sources_len {
-        let mut current = sources.get(start_idx).unwrap().clone();
+    let mut next_idx: usize = 0;
+    let mut lasted_merge_id: usize = 0;
+    while next_idx < sources_len {
+        let mut current = sources.get(next_idx).unwrap().clone();
 
         //待合并属性
         let mut current_to: String = current.to.clone();
         let mut current_duration = current.srt_duration.clone();
         let mut current_srt: String = current.srt.clone();
 
-
         //当前图片 + 目标图片
-        let targets = sources[start_idx..min(start_idx + step, sources_len)].iter().map(|item| item.image_output.clone()).collect::<Vec<_>>();
+        let targets = sources[next_idx..min(next_idx + step, sources_len)].iter().map(|item| item.image_output.clone()).collect::<Vec<_>>();
+        //只剩一张图，则退出
         if (targets.len() <= 1) {
-            diff_outs.push(current);
+            //当前剩余图片是否已经merge,
+            if current.id != lasted_merge_id {
+                diff_outs.push(current);
+            }
             break;
         }
 
@@ -221,19 +224,23 @@ pub fn key_frames_dssim(sources: Vec<KeyFrame>, threshold: f64, step: usize) -> 
         for value in cmd_outputs.outputs.iter() {
 
             //顺移到下张图片
-            start_idx += 1;
+            next_idx += 1;
+            let next_item = sources.get(next_idx).unwrap();
 
-            let diff_score_str = value.split("\t").collect::<Vec<_>>()[0];
-            let diff_score: f64 = diff_score_str.parse().unwrap();
-            let diff_item = sources.get(start_idx).unwrap();
+            let next_score_str = value.split("\t").collect::<Vec<_>>()[0];
+            let next_score: f64 = next_score_str.parse().unwrap();
 
-            if diff_score >= threshold {
+            if next_score >= threshold {
+                //大于阀值，则退出，下次以该图片为准，继续比对
                 break;
             } else {
                 //合并时间，和时长
-                current_to = diff_item.to.clone();
-                current_duration = current_duration + &diff_item.srt_duration;
-                current_srt = format!("{},{}", current_srt, diff_item.srt);
+                current_to = next_item.to.clone();
+                current_duration = current_duration + &next_item.srt_duration;
+                current_srt = format!("{},{}", current_srt, next_item.srt);
+
+                //记录最后合并的id
+                lasted_merge_id = next_item.id;
             }
         }
 

@@ -10,10 +10,10 @@ use crate::cmd::{execute, HandleProcess, POOL};
 lazy_static! {
     static ref EFFECT_DIRECTION:HashMap<&'static str,&'static str> = {
          let mut map = HashMap::new();
-         map.insert("up","zoompan='1.5':x='if(lte(on,1),(iw-iw/zoom)/2,x)':y='if(lte(on,-1),(ih-ih/zoom)/2,y+2)'");
-         map.insert("down","zoompan='1.5':x='if(lte(on,1),(iw-iw/zoom)/2,x)':y='if(lte(on,1),(ih/zoom)/2,y-2)'");
-         map.insert("left","zoompan='1.5':x='if(lte(on,-1),(iw-iw/zoom)/2,x+3)':y='if(lte(on,1),(ih-ih/zoom)/2,y)'");
-         map.insert("right","zoompan='1.5':x='if(lte(on,1),(iw/zoom)/2,x-3)':y='if(lte(on,1),(ih-ih/zoom)/2,y)'");
+         map.insert("up","zoompan='1.2':x='if(lte(on,1),(iw-iw/zoom)/2,x)':y='if(lte(on,-1),(ih-ih/zoom)/2,y+2)'");
+         map.insert("down","zoompan='1.2':x='if(lte(on,1),(iw-iw/zoom)/2,x)':y='if(lte(on,1),(ih/zoom)/2,y-2)'");
+         map.insert("left","zoompan='1.2':x='if(lte(on,-1),(iw-iw/zoom)/2,x+3)':y='if(lte(on,1),(ih-ih/zoom)/2,y)'");
+         map.insert("right","zoompan='1.2':x='if(lte(on,1),(iw/zoom)/2,x-3)':y='if(lte(on,1),(ih-ih/zoom)/2,y)'");
          map
     };
 }
@@ -50,7 +50,7 @@ pub async fn key_video_generate(window: Window, parameters: Vec<KeyFragment>) ->
             let args = [
                 "-y", "-loop", "1", "-i", item.image_path.as_str(), "-i", item.audio_path.as_str(), "-c:v", "libx264", "-tune", "stillimage",
                 "-vf", effect,
-                // "-r", "5",
+                "-pix_fmt", "yuv420p",
                 "-shortest",
                 item.video_path.as_str()
             ].iter().map(|item| { item.to_string() }).collect();
