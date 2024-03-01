@@ -26,7 +26,7 @@ export class TTSApi {
     constructor(host: string, appId: string, authorization: string,) {
         this.host = host
         this.appId = appId
-        this.authorization = authorization
+        this.authorization = 'Bearer;' + authorization
     }
 
     async connect() {

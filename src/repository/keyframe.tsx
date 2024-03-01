@@ -5,12 +5,12 @@ import { fs, path, shell, tauri } from "@tauri-apps/api"
 import { Image2TextHandle, Text2ImageHandle, WFScript } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
 import { SRTLine, formatTime } from "./srt"
-import { GPTAssistantsApi } from "./gpt"
 import { createWorker } from "tesseract.js"
 import { v4 as uuid } from "uuid"
 import { AudioOption, TTSApi } from "./tts_api"
 import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./drafts"
 import { BaisicSettingConfiguration } from "./setting"
+import { GPTRepository } from "./gpt"
 
 export interface KeyFrame extends ItemIdentifiable {
     id: number
@@ -87,8 +87,9 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     }
 
     //重写台词
-    handleRewriteContent = async (index: number, gptApi: GPTAssistantsApi) => {
-        let rewrite = await gptApi.rewritePrompt(this.items[index].srt!)
+    handleRewriteContent = async (index: number,gptRepo: GPTRepository) => {
+        let gptApi = await gptRepo.newClient();
+        let rewrite = await gptApi.rewritePrompt(this.items[index].srt!, gptRepo)
         this.items[index].srt_rewrite = rewrite
         await this.sync()
     }
@@ -328,7 +329,6 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let fragments = await this.formatFragments()
         fragments.forEach(e => e.effect.orientation = this.formatEffectOrientation(e.effect.orientation, settingRepo))
 
-        debugger
         //生成字幕文件
         let srtpath = await this.absulotePath("video.srt")
         await this.srtExport(srtpath, fragments)

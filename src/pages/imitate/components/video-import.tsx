@@ -5,7 +5,7 @@ import { dialog, event, tauri } from '@tauri-apps/api';
 import { ImitateTabType } from '../index';
 import VideoPlayerModal from './video-player';
 import { useSimulateRepository } from '@/repository/simulate';
-import { KeyFrame, useKeyFrameRepository } from '@/repository/keyframe';
+import { useKeyFrameRepository } from '@/repository/keyframe';
 import { useTTSRepository } from '@/repository/tts';
 import { UnlistenFn } from '@tauri-apps/api/event';
 import { CloseOutlined } from '@ant-design/icons';

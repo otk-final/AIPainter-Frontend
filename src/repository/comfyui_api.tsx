@@ -105,10 +105,10 @@ export class ComfyUIPipe {
             return
         }
 
-        //websocket  只保持一个链接 
-        // this.ws = await WebSocket.connect(host.websocket + "?client_id=" + clientId, { headers: { 'Authorization': authorization } })
-        // this.ws.addListener(this.received)
-        // console.info("websocket has connected", this.ws.id)
+        // websocket  只保持一个链接 
+        this.ws = await WebSocket.connect(host.websocket + "?client_id=" + clientId, { headers: { 'Authorization': authorization } })
+        this.ws.addListener(this.received)
+        console.info("websocket has connected", this.ws.id)
     }
 
     disconnect = async () => {
@@ -117,27 +117,27 @@ export class ComfyUIPipe {
         this.ws = undefined
     }
 
-    // private received = async (message: Message) => {
+    private received = async (message: Message) => {
 
-    //     //关闭事件
-    //     if (message.type === undefined || message.type === "Close") {
-    //         await this.disconnect()
-    //         return
-    //     }
+        //关闭事件
+        if (message.type === undefined || message.type === "Close") {
+            await this.disconnect()
+            return
+        }
 
-    //     //非文本数据，直接过滤
-    //     if (message.type !== "Text") {
-    //         return
-    //     }
+        //非文本数据，直接过滤
+        if (message.type !== "Text") {
+            return
+        }
 
-    //     //server
-    //     let { type, data } = JSON.parse(message.data as string) as ComfyUIPromptEvent
-    //     let ok = (data.value !== undefined) && (data.max !== undefined) && (data.value === data.max)
-    //     if (type === "progress" && ok) {
-    //         //通知业务 有的版本不返回任务prompt_id ，取当前临时id
-    //         doComfyUIPromptCallback(this.api, data.prompt_id || this.api.current_prompt_id)
-    //     }
-    // }
+        //server
+        let { type, data } = JSON.parse(message.data as string) as ComfyUIPromptEvent
+        let ok = (data.value !== undefined) && (data.max !== undefined) && (data.value === data.max)
+        if (type === "progress" && ok) {
+            //通知业务 有的版本不返回任务prompt_id ，取当前临时id
+            doComfyUIPromptCallback(this.api, data.prompt_id || this.api.current_prompt_id)
+        }
+    }
 }
 
 

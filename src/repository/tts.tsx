@@ -19,7 +19,7 @@ export class TTSRepository extends BaseRepository<TTSRepository> implements TTSC
     }
     appId = "9413902475"
     host =  "https://openspeech.bytedance.com"
-    authorization =  "Bearer;9gyYDsIV-NcEcsbsmErHWK39T9Uvb8Bf"
+    authorization =  "9gyYDsIV-NcEcsbsmErHWK39T9Uvb8Bf"
 
     newClient = async () => {
         //api

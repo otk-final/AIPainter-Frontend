@@ -1,12 +1,12 @@
 import { subscribeWithSelector } from "zustand/middleware"
 import { BaseCRUDRepository, BaseRepository, ItemIdentifiable } from "./tauri_repository"
 import { create } from "zustand"
-import { GPTAssistantsApi } from "./gpt"
 import { fs, tauri } from "@tauri-apps/api"
 import { Text2ImageHandle, WFScript } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
 import { v4 as uuid } from "uuid"
 import { AudioOption } from "./tts_api"
+import { GPTRepository } from "./gpt"
 
 export type ImportType = "input" | "file"
 
@@ -47,7 +47,8 @@ export class ScriptRepository extends BaseRepository<ScriptRepository> {
     boardType?: BoardType
 
     //分镜
-    boardWithAi = async (gptApi: GPTAssistantsApi, importType: ImportType, path: string, text: string) => {
+    boardWithAi = async (gptRepo: GPTRepository, importType: ImportType, path: string, text: string) => {
+        let gptApi = await gptRepo.newClient()
         this.boardType = "ai"
         //上传文本
         if (importType === "file") {
@@ -59,7 +60,7 @@ export class ScriptRepository extends BaseRepository<ScriptRepository> {
         }
 
         //添加任务
-        let chapterObjects = await gptApi.scriptBoarding(this.fileId)
+        let chapterObjects = await gptApi.scriptBoarding(this.fileId, gptRepo)
         return chapterObjects.flatMap((message) => {
             return {
                 id: uuid(),

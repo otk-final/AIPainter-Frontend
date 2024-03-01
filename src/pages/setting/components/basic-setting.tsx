@@ -150,7 +150,7 @@ export interface BasicSettingProps {
 }
 
 export interface BasicSettingRef {
-    getSetting(): BaisicSettingConfiguration
+    getConfiguration(): BaisicSettingConfiguration
 }
 
 
@@ -161,7 +161,7 @@ const BasicSetting = forwardRef<BasicSettingRef, BasicSettingProps>((props, ref)
     const [stateConfiguration, setConfiguration] = useState<BaisicSettingConfiguration>({ ...settingRepo })
 
     useImperativeHandle(ref, () => ({
-        getSetting() { return stateConfiguration }
+        getConfiguration() { return stateConfiguration }
     }))
 
 

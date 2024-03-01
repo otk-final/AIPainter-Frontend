@@ -13,7 +13,7 @@ export interface PaintSettingProps {
 }
 
 export interface PaintSettingRef {
-    getComfyUI(): ComfyUIConfiguration
+    getConfiguration(): ComfyUIConfiguration
 }
 
 const PaintSetting = forwardRef<PaintSettingRef, PaintSettingProps>((props, ref) => {
@@ -24,7 +24,7 @@ const PaintSetting = forwardRef<PaintSettingRef, PaintSettingProps>((props, ref)
     const [stateComfyui, setComfyui] = useState<ComfyUIConfiguration>({ ...comfyUIRepo })
 
     useImperativeHandle(ref, () => ({
-        getComfyUI() { return stateComfyui }
+        getConfiguration() { return stateComfyui }
     }))
 
     const handleUploadMode = async (idx: number) => {

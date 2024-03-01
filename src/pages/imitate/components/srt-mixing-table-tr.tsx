@@ -2,7 +2,6 @@ import { Button, Modal, Select, message } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import React, { Fragment, useMemo, useState } from "react";
 import { srtMixingColumns } from "../data";
-import { useGPTAssistantsApi } from "@/repository/gpt";
 import { KeyFrame, useKeyFrameRepository } from "@/repository/keyframe";
 import { useTTSRepository } from "@/repository/tts";
 import { CameraFilled, SoundFilled } from "@ant-design/icons";
@@ -10,6 +9,7 @@ import { AssetImage } from "@/components/history-image";
 import ButtonGroup from "antd/es/button/button-group";
 import VideoPlayerModal from "./video-player";
 import { useBaisicSettingRepository } from "@/repository/setting";
+import { useGPTRepository } from "@/repository/gpt";
 
 interface SRTMixingTRProps {
     key: string,
@@ -32,7 +32,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
     const keyFreamRepo = useKeyFrameRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
-    const gptApi = useGPTAssistantsApi(state => state)
+    const gptRepo = useGPTRepository(state => state)
     const settingRepo = useBaisicSettingRepository(state => state)
 
     useMemo(() => {
@@ -74,7 +74,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
             mask: true,
             maskClosable: false,
         })
-        await keyFreamRepo.handleRewriteContent(index, gptApi).catch(err => message.error(err)).finally(Modal.destroyAll)
+        await keyFreamRepo.handleRewriteContent(index, gptRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
     // const handleRecognize = async () => {

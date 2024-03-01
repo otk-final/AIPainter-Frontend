@@ -29,6 +29,68 @@ export interface KeyFragment {
 }
 
 
+
+let scale_offset = 0.15
+let scale = 1.5
+
+const EffectChipConvert = (item: KeyFragment, chip_template: any) => {
+    let orientation = item.effect.orientation
+
+    let transform = { x: 0, y: 0 }
+    if (orientation === "up") {
+        transform = { x: 0, y: -scale_offset }
+    } else if (orientation === "down") {
+        transform = { x: 0, y: scale_offset }
+    } else if (orientation === "left") {
+        transform = { x: -scale_offset, y: 0 }
+    } else if (orientation === "right") {
+        transform = { x: scale_offset, y: 0 }
+    }
+    return { ...chip_template, scale: { x: scale, y: scale }, transform: transform }
+}
+
+const EffectCommonKeyframesConvert = (item: KeyFragment, kf_template: any) => {
+    let orientation = item.effect.orientation
+    let duration = item.duration * 1000
+    let x = {
+        id: uuid(),
+        keyframe_list: [] as any[],
+        material_id: "",
+        property_type: "KFTypePositionX"
+    }
+    let y = {
+        id: uuid(),
+        keyframe_list: [] as any[],
+        material_id: "",
+        property_type: "KFTypePositionY"
+    }
+
+    //移动方向
+    if (orientation === "up") {
+        x.keyframe_list = [{ ...kf_template, id: uuid() }, { ...kf_template, id: uuid(), time_offset: duration }]
+        y.keyframe_list = [{ ...kf_template, id: uuid(), values: [-scale_offset] }, { ...kf_template, id: uuid(), time_offset: duration, values: [scale_offset] }]
+    } else if (orientation === "down") {
+        x.keyframe_list = [{ ...kf_template, id: uuid() }, { ...kf_template, id: uuid(), time_offset: duration }]
+        y.keyframe_list = [{ ...kf_template, id: uuid(), values: [scale_offset] }, { ...kf_template, id: uuid(), time_offset: duration, values: [-scale_offset] }]
+    } else if (orientation === "left") {
+        x.keyframe_list = [{ ...kf_template, id: uuid(), values: [scale_offset] }, { ...kf_template, id: uuid(), time_offset: duration, values: [-scale_offset] }]
+        y.keyframe_list = [{ ...kf_template, id: uuid() }, { ...kf_template, id: uuid(), time_offset: duration }]
+    } else if (orientation === "right") {
+        x.keyframe_list = [{ ...kf_template, id: uuid(), values: [-scale_offset] }, { ...kf_template, id: uuid(), time_offset: duration, values: [scale_offset] }]
+        y.keyframe_list = [{ ...kf_template, id: uuid() }, { ...kf_template, id: uuid(), time_offset: duration }]
+    }
+
+    //缩放
+    let s = {
+        id: uuid(),
+        keyframe_list: [{ ...kf_template, id: uuid(), values: [scale] }, { ...kf_template, id: uuid(), values: [scale], time_offset: duration }],
+        material_id: "",
+        property_type: "KFTypeScaleX"
+    }
+    return [x, y, s]
+}
+
+
 //导出剪映草稿
 export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[], srtpath: string, settingRepo: BaisicSettingConfiguration) => {
 
@@ -319,65 +381,3 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
     await fs.copyFile(items[0].image_path, draft_dir + path.sep + "draft_cover.jpg", { append: false })
 }
 
-
-let scale_offset = 0.15
-let scale = 1.5
-
-const EffectChipConvert = (item: KeyFragment, chip_template: any) => {
-    let orientation = item.effect.orientation
-
-    let transform = { x: 0, y: 0 }
-    if (orientation === "up") {
-        transform = { x: 0, y: -scale_offset }
-    } else if (orientation === "down") {
-        transform = { x: 0, y: scale_offset }
-    } else if (orientation === "left") {
-        transform = { x: -scale_offset, y: 0 }
-    } else if (orientation === "right") {
-        transform = { x: scale_offset, y: 0 }
-    }
-    return { ...chip_template, scale: { x: scale, y: scale }, transform: transform }
-}
-
-const EffectCommonKeyframesConvert = (item: KeyFragment, kf_template: any) => {
-    let orientation = item.effect.orientation
-    let duration = item.duration * 1000
-    let x = {
-        id: uuid(),
-        keyframe_list: [] as any[],
-        material_id: "",
-        property_type: "KFTypePositionX"
-    }
-    let y = {
-        id: uuid(),
-        keyframe_list: [] as any[],
-        material_id: "",
-        property_type: "KFTypePositionY"
-    }
-
-    //移动方向
-    if (orientation === "up") {
-        x.keyframe_list = [{ ...kf_template, id: uuid() }, { ...kf_template, id: uuid(), time_offset: duration }]
-        y.keyframe_list = [{ ...kf_template, id: uuid(), values: [-scale_offset] }, { ...kf_template, id: uuid(), time_offset: duration, values: [scale_offset] }]
-    } else if (orientation === "down") {
-        x.keyframe_list = [{ ...kf_template, id: uuid() }, { ...kf_template, id: uuid(), time_offset: duration }]
-        y.keyframe_list = [{ ...kf_template, id: uuid(), values: [scale_offset] }, { ...kf_template, id: uuid(), time_offset: duration, values: [-scale_offset] }]
-    } else if (orientation === "left") {
-        x.keyframe_list = [{ ...kf_template, id: uuid(), values: [scale_offset] }, { ...kf_template, id: uuid(), time_offset: duration, values: [-scale_offset] }]
-        y.keyframe_list = [{ ...kf_template, id: uuid() }, { ...kf_template, id: uuid(), time_offset: duration }]
-    } else if (orientation === "right") {
-        x.keyframe_list = [{ ...kf_template, id: uuid(), values: [-scale_offset] }, { ...kf_template, id: uuid(), time_offset: duration, values: [scale_offset] }]
-        y.keyframe_list = [{ ...kf_template, id: uuid() }, { ...kf_template, id: uuid(), time_offset: duration }]
-    }
-
-    //缩放
-    let s = {
-        id: uuid(),
-        keyframe_list: [{ ...kf_template, id: uuid(), values: [scale] }, { ...kf_template, id: uuid(), values: [scale], time_offset: duration }],
-        material_id: "",
-        property_type: "KFTypeScaleX"
-    }
-
-
-    return [x, y, s]
-}

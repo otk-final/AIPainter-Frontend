@@ -4,7 +4,7 @@ import "./index.less"
 import { dialog, path } from "@tauri-apps/api";
 import TextArea from "antd/es/input/TextArea";
 import { Actor, BoardType, ImportType, useActorRepository, useChapterRepository, useScriptRepository } from "@/repository/story";
-import { useGPTAssistantsApi } from "@/repository/gpt";
+import { useGPTRepository } from "@/repository/gpt";
 import { v4 } from "uuid";
 
 const importTabItems: TabsProps['items'] = [
@@ -37,7 +37,7 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
     const scriptRepo = useScriptRepository(state => state)
     const chapterRepo = useChapterRepository(state => state)
     const actorRepo = useActorRepository(state => state)
-    const gptApi = useGPTAssistantsApi(state => state)
+    const gptRepo = useGPTRepository(state => state)
 
 
 
@@ -62,7 +62,7 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
         //分镜
         let chapters = []
         if (boardType === "ai") {
-            chapters = await scriptRepo.boardWithAi(gptApi, importType, scriptPath, scriptInput)
+            chapters = await scriptRepo.boardWithAi(gptRepo, importType, scriptPath, scriptInput)
         } else {
             chapters = await scriptRepo.boardWithLine(importType, scriptPath, scriptInput)
         }

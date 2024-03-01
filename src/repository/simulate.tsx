@@ -306,7 +306,6 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
         //是否已经识别
         let audioRecognitionPath = await this.absulotePath("audio.json")
-        debugger
         if (this.audioRecognition) {
             let audioText = await fs.readTextFile(audioRecognitionPath)
             return JSON.parse(audioText).utterances as SRTLine[]

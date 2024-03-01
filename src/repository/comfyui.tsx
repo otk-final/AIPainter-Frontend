@@ -44,10 +44,10 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
         await _baseApi.connect()
 
         //pipe
-        if (!_basePipe) {
-            _basePipe = new ComfyUIPipe(_baseApi)
-        }
-        await _basePipe.connect(this.host, newClientId, authorization)
+        // if (!_basePipe) {
+        //     _basePipe = new ComfyUIPipe(_baseApi)
+        // }
+        // await _basePipe.connect(this.host, newClientId, authorization)
 
         return _baseApi
     }
@@ -56,11 +56,12 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
         if (_baseApi) {
             _baseApi.disconnect()
         }
-        if (_basePipe) {
-            _basePipe.disconnect()
-        }
         _baseApi = undefined
-        _basePipe = undefined
+
+        // if (_basePipe) {
+        //     _basePipe.disconnect()
+        // }
+        // _basePipe = undefined
     }
 
     buildModePrompt = async (mode: string) => {
