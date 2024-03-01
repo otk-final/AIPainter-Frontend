@@ -67,7 +67,6 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
             chapters = await scriptRepo.boardWithLine(importType, scriptPath, scriptInput)
         }
         await scriptRepo.sync()
-
         await chapterRepo.initialization(chapters)
 
         //过滤出所有角色信息
@@ -83,9 +82,8 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
         })
         //合并已配置角色
         if (newActors && newActors.length > 0) {
-            await actorRepo.mergeActors(newActors)
+            await actorRepo.initialization(newActors)
         }
-
         setLoading(false)
         onClose()
     }

@@ -1,12 +1,14 @@
 import { subscribeWithSelector } from "zustand/middleware"
 import { BaseCRUDRepository, BaseRepository, ItemIdentifiable } from "./tauri_repository"
 import { create } from "zustand"
-import { fs, tauri } from "@tauri-apps/api"
-import { Text2ImageHandle, WFScript } from "./comfyui_api"
+import { fs, path, tauri } from "@tauri-apps/api"
 import { ComfyUIRepository } from "./comfyui"
 import { v4 as uuid } from "uuid"
-import { AudioOption } from "./tts_api"
+import { AudioOption, TTSApi } from "./tts_api"
 import { GPTRepository } from "./gpt"
+import { ImageGenerate, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
+import { BaisicSettingRepository } from "./setting"
+import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./drafts"
 
 export type ImportType = "input" | "file"
 
@@ -19,6 +21,20 @@ export interface Script {
     type: ImportType
 }
 
+
+
+export interface ChapterBoardingOutput {
+    //剧本
+    original?: string,
+    //场景
+    scene: string,
+    //角色集
+    characters: string[],
+    //场景描述
+    description: string,
+    //台词集
+    dialogues: string[]
+}
 
 //剧本
 export class ScriptRepository extends BaseRepository<ScriptRepository> {
@@ -59,21 +75,22 @@ export class ScriptRepository extends BaseRepository<ScriptRepository> {
             this.input = text
         }
 
-        //添加任务
+        //添加分镜
         let chapterObjects = await gptApi.scriptBoarding(this.fileId, gptRepo)
-        return chapterObjects.flatMap((message) => {
+        return chapterObjects.flatMap((message, idx) => {
+            let record = message as ChapterBoardingOutput
             return {
-                id: uuid(),
-                original: message["original"] || "",
-                ai: {
-                    actors: message["characters"] || [],
-                    scene: message["scene"] || "",
-                    description: message["description"] || "",
-                    dialogues: message["dialogues"] || [],
-                },
+                id: idx,
+                name: "",
+                draft: record.original!,
+                scene: record.scene,
+                description: record.description,
+                srt: record.dialogues.join(","),
+                actors: record.characters,
                 image: {
                     history: [] as string[]
-                }
+                },
+                effect: { orientation: "default" }
             } as Chapter
         })
     }
@@ -91,20 +108,21 @@ export class ScriptRepository extends BaseRepository<ScriptRepository> {
         }
 
         let lines = scriptText.split("\n")
-        return lines.filter(line => line !== "").map((line) => {
+        return lines.filter(line => line !== "").map((line, idx) => {
             return {
-                id: uuid(),
-                original: line.trim(),
+                id: idx,
+                name: "",
+                draft: line.trim(),
+                scene: "",
+                description: "",
+                dialogue: "",
+                actors: [],
                 image: {
                     history: [] as string[]
-                }
+                },
+                effect: { orientation: "default" }
             } as Chapter
         })
-    }
-
-    //其他角色信息
-    handleCollectActors = async () => {
-
     }
 
 }
@@ -113,26 +131,40 @@ export const useScriptRepository = create<ScriptRepository>()(subscribeWithSelec
 
 
 export interface Chapter extends ItemIdentifiable {
-    id: string
-    original: string
+    id: number,
+    name: string,
+
+    //草稿
+    draft: string
+    //场景名称
+    scene: string,
+    //场景描写
+    description: string,
+    //字幕台词
+    srt?: string
+    //角色集
     actors: string[]
-    ai?: {
-        dialogues: string[],
-        scene?: string
-        actors: string[]
-        description?: string
-    }
-    image?: {
-        style?: string
-        prompt?: string
+
+    //场景关键词
+    prompt?: string,
+
+    //生成图片信息
+    image: {
         path?: string
         history: string[]
-    }
-    prompt?: {
-        cn: string
-        en: string
-    }
+    },
+
+    srt_actor?: string
+
+    //原字幕信息
+    srt_duration?: number
+    srt_audio_path?: string
+    srt_video_path?: string
+
+    //效果
+    effect: KeyFragmentEffect
 }
+
 
 
 export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterRepository> {
@@ -149,38 +181,156 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         console.info(chapter)
     }
 
+    //解析原稿
+    handleResolveChapter = async (index: number, gptRepo: GPTRepository, actorRepo: ActorRepository) => {
+        let chapter = this.items[index];
+        let api = await gptRepo.newClient()
+        let outputs = await api.chapterBoarding("", chapter.draft, gptRepo)
+        if (!outputs) {
+            throw new Error("推理异常")
+        }
+        //解析
+        let result = outputs[0] as ChapterBoardingOutput
+
+
+        //判断是否有新角色加入，则添加默认角色
+        await actorRepo.mergeActors(result.characters)
+
+        //覆盖数据
+        this.items[index].actors = result.characters
+        this.items[index].description = result.description
+
+        //TODO 翻译场景关键词
+        this.items[index].prompt = ""
+        //保存
+        this.sync()
+    }
+
     //生成图片
-    handleGenerateImage = async (index: number, style: string, comyuiRepo: ComfyUIRepository) => {
+    handleGenerateImage = async (index: number, style: string, comyuiRepo: ComfyUIRepository, actorRepo: ActorRepository) => {
         let chapter = this.items[index]
 
-        //comyui api
-        let api = await comyuiRepo.newClient()
-        let text = await comyuiRepo.buildModePrompt(style)
-        let script = new WFScript(text)
+        //获取所有角色关键词
+        let actor_prompt = actorRepo.toPrompt(chapter.actors)
 
-        //add prompt task
-        let seed: number = await tauri.invoke('seed_random', {})
+        //角色关键词 + 场景关键词
+        let prompt = [actor_prompt, chapter.prompt].join(",")
 
-        let { promptId, promptResult } = await api.prompt(script, { seed: seed, positive: [comyuiRepo.positivePrompt, chapter.prompt].join(""), negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
+        //生成图片
+        let outputs = await ImageGenerate(prompt, style, comyuiRepo, async (idx, fileBuffer) => {
+            let fileName = chapter.id + "-" + uuid() + ".png"
+            return await this.saveFile("outputs", fileName, fileBuffer)
+        })
 
-        //获取 当前流程中 输出图片节点位置
-        let step = script.getOutputImageStep()
-        //下载文件
-        let images = promptResult[promptId]!.outputs![step].images
-        for (let i = 0; i < images.length; i++) {
-            let imageItem = images[i] as { filename: string, subfolder: string, type: string }
-
-            //保存
-            let fileBuffer = await api.download(promptId, imageItem.subfolder, imageItem.filename)
-            let filePath = await this.saveFile("outputs", "cp_" + uuid() + ".png", fileBuffer)
-
-            let history = chapter.image?.history || []
-            history.push(filePath)
-            chapter.image = { path: filePath, history: history }
-        }
+        //记录当前图片，和历史图片
+        chapter.image!.path = outputs[0]
+        chapter.image!.history = [...chapter.image!.history.concat(...outputs)]
 
         //save
         this.sync()
+    }
+    handleGenerateAudio = async (index: number, audio: AudioOption, api: TTSApi) => {
+        //生成音频
+        let item = this.items[index]
+        let resp = await api.translate(item.srt!, audio)
+
+        //保存音频
+        let audioName = item.id + "-new-" + uuid() + ".mp3"
+        let audioPath = await this.saveFile("temp-audios", audioName, resp.data)
+
+        //记录时长
+        this.items[index].srt_duration = resp.duration
+        this.items[index].srt_audio_path = audioPath
+
+        this.sync()
+        return audioPath
+    }
+    handleGenerateVideo = async (index: number, settingRepo: BaisicSettingRepository) => {
+        let item = this.items[index]
+
+        //临时存储目录
+        let videoDir = await path.join(this.repoDir, "temp-videos")
+        await fs.createDir(videoDir, { dir: this.baseDir(), recursive: true })
+
+        //参数
+        let videoPath = "temp-videos" + path.sep + item.name + "-" + uuid() + ".mp4";
+        let fragment = await this.convertFragment(item);
+
+        //rewrite 参数
+        fragment.video_path = await this.absulotePath(videoPath)
+        fragment.effect.orientation = settingRepo.formatEffectOrientation(fragment.effect.orientation);
+
+        //图片+音频 合成视频
+        let outputs = await tauri.invoke("key_video_generate", { parameters: [fragment] })
+        console.info("outputs", outputs);
+
+        //更新
+        this.items[index].srt_video_path = videoPath;
+        this.sync()
+        return videoPath
+    }
+
+    //过滤有效片段
+    formatFragments = async () => {
+        let fragments = [] as KeyFragment[]
+        for (let i = 0; i < this.items.length; i++) {
+            let item = this.items[i]
+            let fragment = await this.convertFragment(item)
+            fragments.push(fragment)
+        }
+        return fragments
+    }
+
+    private convertFragment = async (item: Chapter) => {
+        return {
+            id: item.id,
+            name: item.name,
+            srt: item.srt,
+            duration: item.srt_duration,
+            image_path: item.image.path ? await this.absulotePath(item.image.path) : "",
+            audio_path: item.srt_audio_path ? await this.absulotePath(item.srt_audio_path) : "",
+            video_path: item.srt_video_path ? await this.absulotePath(item.srt_video_path) : "",
+            effect: { ...item.effect }
+        } as KeyFragment
+    }
+
+    //合并导出视频
+    handleConcatVideo = async (savePath: string, settingRepo: BaisicSettingRepository) => {
+        //有效片段
+        let fragments = await this.formatFragments()
+        fragments = fragments.slice(0, 3)
+
+        //rewrite 参数
+        for (let i = 0; i < fragments.length; i++) {
+            fragments[i].effect.orientation = settingRepo.formatEffectOrientation(fragments[i].effect.orientation);
+            fragments[i].video_path = await this.absulotePath("temp-videos" + path.sep + fragments[i].name + ".mp4")
+        }
+
+        //生成字幕文件
+        let srt_path = await this.absulotePath("video.srt")
+        await SRTGenerate(srt_path, fragments)
+
+        //临时存储目录
+        let concats_path = await this.absulotePath("video.concats")
+        let video_path = await this.absulotePath("output-" + uuid() + ".mp4")
+        return await VideoFragmentConcat(concats_path, srt_path, video_path, savePath, fragments)
+    }
+
+    //导出剪映草稿
+    handleConcatJYDraft = async (saveDir: string, settingRepo: BaisicSettingRepository) => {
+        let draft_name = await path.basename(saveDir)
+        console.info("draft_name", draft_name)
+
+        //有效帧片段
+        let fragments = await this.formatFragments()
+        fragments.forEach(e => e.effect.orientation = settingRepo.formatEffectOrientation(e.effect.orientation))
+
+        //生成字幕文件
+        let srt_path = await this.absulotePath("video.srt")
+        await SRTGenerate(srt_path, fragments)
+
+        //导出
+        await JYMetaDraftExport(saveDir, fragments, srt_path, settingRepo)
     }
 }
 
@@ -220,41 +370,42 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
     }
 
     //初始化
-    mergeActors = async (newActors: Actor[]) => {
+    initialization = async (newActors: Actor[]) => {
         this.items.push(...newActors)
         this.sync()
     }
+
+    mergeActors = async (newActors: string[]) => {
+        for (let i = 0; i < newActors.length; i++) {
+            let exist = this.items.some(actor => actor.alias === newActors[i])
+            if (exist) {
+                continue
+            }
+            this.items.push({ id: uuid(), name: newActors[i], alias: newActors[i], style: "", traits: [] })
+        }
+        this.sync()
+    }
+
 
     //生成图片
     handleGenerateImage = async (traits: TraitsOption[], comyuiRepo: ComfyUIRepository, tempCallBack: (filepath: string) => void) => {
 
         // this.items[index]
         let prompt = traits.map(item => item.value).join(",")
-        //api
-        let api = await comyuiRepo.newClient()
-        let text = await comyuiRepo.buildModePrompt(comyuiRepo.items[0].name)
-        let script = new WFScript(text)
 
-        //add prompt task
-        //生成随机
-        let seed: number = await tauri.invoke('seed_random', {})
-        let { promptId, promptResult } = await api.prompt(script, { seed: seed, positive: [comyuiRepo.positivePrompt, prompt].join(""), negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
+        //生成图片
+        let style = comyuiRepo.items[0].name;
+        let outputs = await ImageGenerate(prompt, style, comyuiRepo, async (idx, fileBuffer) => {
+            return await this.saveFile("outputs", "ac_" + uuid() + ".png", fileBuffer)
+        })
 
-        //获取 当前流程中 输出图片节点位置
-        let step = script.getOutputImageStep()
+        tempCallBack(outputs[0]);
+    }
 
-        let images = promptResult[promptId]!.outputs![step].images
-        let imageItem = images[0] as { filename: string, subfolder: string, type: string }
-
-        //下载文件
-        console.info("下载文件", imageItem)
-
-        //下载，保存
-        let fileBuffer = await api.download(promptId, imageItem.subfolder, imageItem.filename)
-        let filePath = await this.saveFile("outputs", "ac_" + uuid() + ".png", fileBuffer)
-
-        //更新状态
-        tempCallBack(filePath)
+    toPrompt = (checkActors: string[]) => {
+        return this.items.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
+            return item.traits.map(f => f.value).join(",")
+        }).join(";")
     }
 }
 

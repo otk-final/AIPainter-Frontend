@@ -8,7 +8,7 @@ import { CameraFilled, SoundFilled } from "@ant-design/icons";
 import { AssetImage } from "@/components/history-image";
 import ButtonGroup from "antd/es/button/button-group";
 import VideoPlayerModal from "./video-player";
-import { useBaisicSettingRepository } from "@/repository/setting";
+import { EFFECT_DIRECTIONS, useBaisicSettingRepository } from "@/repository/setting";
 import { useGPTRepository } from "@/repository/gpt";
 
 interface SRTMixingTRProps {
@@ -17,16 +17,6 @@ interface SRTMixingTRProps {
     frame: KeyFrame,
     style: React.CSSProperties
 }
-
-const effect_directions = [
-    { label: "默认", value: "default" },
-    { label: "从上往下", value: "up" },
-    { label: "从下往上", value: "down" },
-    { label: "从左往右", value: "left" },
-    { label: "从右往左", value: "right" },
-    { label: "随机", value: "random" },
-]
-
 
 const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) => {
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
@@ -126,7 +116,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
                     style={{ width: '100px' }}
                     value={stateFrame.effect.orientation}
                     onChange={handleChangeEffect}
-                    options={effect_directions}
+                    options={EFFECT_DIRECTIONS}
                 />
             </Fragment>
         )

@@ -4,14 +4,13 @@ import { subscribeWithSelector } from "zustand/middleware"
 import { fs, path, tauri } from "@tauri-apps/api"
 import { Image2TextHandle, WFScript } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
-import { SRTLine, formatTime } from "./srt"
 import { createWorker } from "tesseract.js"
 import { v4 as uuid } from "uuid"
 import { AudioOption, TTSApi } from "./tts_api"
 import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./drafts"
 import { BaisicSettingRepository } from "./setting"
 import { GPTRepository } from "./gpt"
-import { ImageGenerate, VideoFragmentConcat } from "./generate_utils"
+import { ImageGenerate, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
 
 export interface KeyFrame extends ItemIdentifiable {
     id: number
@@ -51,29 +50,6 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     initialization = async (frames: KeyFrame[]) => {
         this.items = [...frames]
         this.sync()
-    }
-
-    //字幕导出
-    handleExportSRT = async (srtfile: string, fragments: KeyFragment[]) => {
-        let srts = []
-        for (let i = 0; i < fragments.length; i++) {
-            let item = fragments[i]
-            let srt = {
-                id: srts.length + 1,
-                start_time: srts.length === 0 ? 0 : srts[srts.length - 1].end_time,
-                end_time: srts.length === 0 ? item.duration : srts[srts.length - 1].start_time + item.duration,
-                text: item.srt
-            } as SRTLine
-            srts.push(srt)
-        }
-        let strText = srts.map((item, idx) => {
-            let line =
-                (idx + 1) + "\n"
-                + formatTime(item.start_time, ",") + " --> " + formatTime(item.end_time, ",") + "\n"
-                + (item.text || '') + "\n"
-            return line
-        }).join("\n")
-        await fs.writeTextFile(srtfile, strText, { append: false })
     }
 
     //重写台词
@@ -169,7 +145,6 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         return audioPath
     }
 
-
     //本地生成视频
     handleGenerateVideo = async (index: number, settingRepo: BaisicSettingRepository) => {
         let item = this.items[index]
@@ -236,7 +211,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         //生成字幕文件
         let srt_path = await this.absulotePath("video.srt")
-        await this.handleExportSRT(srt_path, fragments)
+        await SRTGenerate(srt_path, fragments)
 
         //临时存储目录
         let concats_path = await this.absulotePath("video.concats")
@@ -256,7 +231,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         //生成字幕文件
         let srt_path = await this.absulotePath("video.srt")
-        await this.handleExportSRT(srt_path, fragments)
+        await SRTGenerate(srt_path, fragments)
 
         //导出
         await JYMetaDraftExport(saveDir, fragments, srt_path, settingRepo)

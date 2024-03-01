@@ -79,7 +79,9 @@ export class GPTAssistantsApi {
             thread: {
                 messages: [{
                     role: "user",
-                    content: `Create a storyboard based on the script file I provide, including scene original script, scene names, character names, scene descriptions, and dialogue. The return data format is as follows: "[{"original": "场景原始剧本","scene": "场景名称","characters": ["角色名称"],"description": "场景描写","dialogues": ["台词"]}]"Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation.`,
+                    content: `Create a storyboard based on the script file I provide, including scene original script, scene names, character names, scene descriptions, and dialogue. 
+                    The return data format is as follows: "[{"original": "场景原始剧本","scene": "场景名称","characters": ["角色名称"],"description": "场景描写","dialogues": ["台词"]}]",
+                    Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation.`,
                     file_ids: [fileId]
                 }]
             },
@@ -93,23 +95,18 @@ export class GPTAssistantsApi {
     }
 
     //角色收集
-    async characterCollecting(assistantId: string, fileId: string, repo: GPTRepository): Promise<any[]> {
-
-        // 检查当前 thread 是否运行中
-        let run = await this.api.beta.threads.runs.retrieve(this.threadId!, this.runId!)
-        if (run.status === "in_progress" || run.status === "queued") {
-            throw new Error("is Running")
-        }
-
+    async characterCollecting(fileId: string, repo: GPTRepository): Promise<any[]> {
         //添加分析规则
         await this.api.beta.threads.messages.create(this.threadId!, {
             role: "user",
-            content: `Analyzing all character information based on the script file I provide, including character name, character alias, and character traits.The return data format is as follows:"[{"name": "角色名称","alias": "角色别名","traits": ["角色特征"]}]".Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation.`,
+            content: `Analyzing all character information based on the script file I provide, including character name, character alias, and character traits.
+            The return data format is as follows:"[{"name": "角色名称","alias": "角色别名","traits": ["角色特征"]}]".
+            Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation.`,
             file_ids: [fileId]
         })
 
         //运行
-        let runable = await this.api.beta.threads.runs.create(this.threadId!, { assistant_id: assistantId!, model: repo.mode })
+        let runable = await this.api.beta.threads.runs.create(this.threadId!, { assistant_id: repo.assistantId, model: repo.mode })
         this.runId = runable.id
 
         //检索响应
@@ -118,13 +115,6 @@ export class GPTAssistantsApi {
 
     //章节独立分镜分析
     async chapterBoarding(fileId: string, chapterText: string, repo: GPTRepository): Promise<any[]> {
-
-        // 检查当前 thread 是否运行中
-        let run = await this.api.beta.threads.runs.retrieve(this.threadId!, this.runId!)
-        if (run.status === "in_progress" || run.status === "queued") {
-            throw new Error("is Running")
-        }
-
         //在上下文问中，继续提供自定义章节进行推理
         await this.api.beta.threads.messages.create(this.threadId!, {
             role: "user",
@@ -135,7 +125,9 @@ export class GPTAssistantsApi {
         //添加分析规则
         await this.api.beta.threads.messages.create(this.threadId!, {
             role: "user",
-            content: `Based on the script segment provided above, analyze the current scene (scene name, character name, scene description, dialogue).The return data format is as follows:"{"scene": "场景名称","characters": ["角色名称"],"description": "场景描写","dialogues":["台词"]}".Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation.`,
+            content: `Based on the script segment provided above, analyze the current scene (scene name, character name, scene description, dialogue).
+            The return data format is as follows:"{"scene": "场景名称","characters": ["角色名称"],"description": "场景描写","dialogues":["台词"]}".
+            Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation.`,
             file_ids: [fileId]
         })
 
@@ -154,7 +146,6 @@ export class GPTAssistantsApi {
                 { content: input, role: 'user' },
                 // { content: "Help me rewrite the above content while keeping the language unchanged, with a word count difference of around 10 words, and try to closely align with the original meaning.", role: 'user' }
                 { content: "帮我改写上述内容，保持语种不变，尽量贴合原文意思。", role: 'user' }
-
             ],
             stream: false,
             model: repo.mode

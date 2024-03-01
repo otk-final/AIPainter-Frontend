@@ -1,38 +1,45 @@
-import DrawTableTR from "./drawbatch-table-tr"
-import { drawbatchColumns } from "../data"
-import { useState } from "react"
+import { mixingColumns } from "../data"
 import { useChapterRepository } from "@/repository/story"
-import { ComyUIModeSelect } from "@/components/mode-select"
-import { Button, InputNumber } from "antd"
-import {List, AutoSizer, ListRowProps} from 'react-virtualized';
+import { Button, InputNumber, message } from "antd"
+import { List, AutoSizer, ListRowProps } from 'react-virtualized';
+import MixingTableTR from "./mixing-table-tr"
+import { dialog } from "@tauri-apps/api";
+import { SRTGenerate } from "@/repository/generate_utils";
 
-interface DrawbatchTabProps {
+interface MixingTabProps {
     pid: string
 }
 
-const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
+const MixingTab: React.FC<MixingTabProps> = ({ pid }) => {
     console.info(pid)
-    
-    const [mode, setOption] = useState<string>("")
     const chapterRepo = useChapterRepository(state => state)
-    
 
-    const _rowRenderer = ({index, key, style}: ListRowProps)=>{
+    const handleExportSRTFile = async () => {
+        let selected = await dialog.save({ title: "保存文件", filters: [{ name: "SRT文件", extensions: ["srt"] }] })
+        if (!selected) {
+            return
+        }
+        //有效片段
+        let valids = await chapterRepo.formatFragments()
+        await SRTGenerate(selected as string, valids).finally(() => { message.success("导出成功") })
+    }
+
+    const _rowRenderer = ({ index, key, style }: ListRowProps) => {
         const items = chapterRepo.items;
-        return <DrawTableTR key={key} idx={index} chapter={items[index]} style={style} mode={mode}/>
+        return <MixingTableTR key={key} index={index} chapter={items[index]} style={style} />
     }
 
     const renderTable = () => {
         return (
-            <div className='script-table-wrap' style={{height: 'calc(100% - 60px)', display: "flex", flexDirection: 'column'}}>
+            <div className='script-table-wrap' style={{ height: 'calc(100% - 60px)', display: "flex", flexDirection: 'column' }}>
                 <div className='th flexR'>
-                    {drawbatchColumns.map((i) => {
+                    {mixingColumns.map((i) => {
                         return <div className='th-td' style={{ flex: `${i.space}` }} key={i.key}>{i.title}</div>
                     })}
                 </div>
-                <div style={{flex: 1}} >
+                <div style={{ flex: 1 }} >
                     <AutoSizer>
-                        {({height, width }) => {
+                        {({ height, width }) => {
                             let len = chapterRepo.items.length;
                             return (
                                 <List
@@ -42,7 +49,7 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
                                     rowHeight={224}
                                     rowRenderer={_rowRenderer}
                                     width={width}
-                                    noRowsRenderer={()=> <div></div>}
+                                    noRowsRenderer={() => <div></div>}
                                     overscanRowCount={20}
                                 />
                             )
@@ -53,17 +60,16 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
         )
     }
 
-
     return (
         <div className="storyboard-wrap">
             <div className='script-header flexR'>
                 <div className='flexR'>
-                    <ComyUIModeSelect mode={mode} onChange={setOption}></ComyUIModeSelect>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExportSRTFile}>导出新字幕文件</Button>
                 </div>
                 <div className='flexR'>
                     <div className='flexR'>批量开始起点 <InputNumber controls={false} style={{ width: "54px", marginLeft: '10px', marginRight: '10px' }} className="inputnumber-auto" placeholder='1' defaultValue={1} /> 镜</div>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" >批量生图</Button>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" >批量生成关键词</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" >批量生成音频</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" >批量合成视频</Button>
                 </div>
             </div>
             {renderTable()}
@@ -71,4 +77,4 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
     )
 }
 
-export default DrawbatchTab
+export default MixingTab

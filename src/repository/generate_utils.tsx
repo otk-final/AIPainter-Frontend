@@ -3,6 +3,7 @@ import { ComfyUIRepository } from "./comfyui"
 import { Text2ImageHandle, WFScript } from "./comfyui_api"
 import { KeyFragment } from "./drafts"
 import { delay } from "./tauri_repository"
+import { SRTLine, formatTime } from "./srt"
 
 
 export type ImageGenerateCallback = (idx: number, fileBuffer: ArrayBuffer) => Promise<string>
@@ -21,7 +22,7 @@ export const ImageGenerate = async (prompt: string, style: string, comyuiRepo: C
     let { promptId, promptResult } = await api.prompt(script,
         {
             seed: seed,
-            positive: [comyuiRepo.positivePrompt, prompt].join(""),
+            positive: [comyuiRepo.positivePrompt, prompt].join(","),
             negative: comyuiRepo.negativePrompt || ""
         }, Text2ImageHandle)
 
@@ -43,6 +44,28 @@ export const ImageGenerate = async (prompt: string, style: string, comyuiRepo: C
     return outpaths;
 }
 
+//字幕生成
+export const SRTGenerate = async (srtfile: string, fragments: KeyFragment[]) => {
+    let srts = []
+    for (let i = 0; i < fragments.length; i++) {
+        let item = fragments[i]
+        let srt = {
+            id: srts.length + 1,
+            start_time: srts.length === 0 ? 0 : srts[srts.length - 1].end_time,
+            end_time: srts.length === 0 ? item.duration : srts[srts.length - 1].start_time + item.duration,
+            text: item.srt
+        } as SRTLine
+        srts.push(srt)
+    }
+    let strText = srts.map((item, idx) => {
+        let line =
+            (idx + 1) + "\n"
+            + formatTime(item.start_time, ",") + " --> " + formatTime(item.end_time, ",") + "\n"
+            + (item.text || '') + "\n"
+        return line
+    }).join("\n")
+    await fs.writeTextFile(srtfile, strText, { append: false })
+}
 
 //视频片段合成
 export const VideoFragmentConcat = async (concats_path: string, srt_path: string, video_path: string, out_path: string, fragments: KeyFragment[]) => {

@@ -2,7 +2,6 @@ import { Button, Switch } from "antd"
 import { Fragment, useEffect, useState } from "react";
 import { storyboardColumns } from "../data";
 import TextArea from "antd/es/input/TextArea";
-import { v4 as uuid } from "uuid"
 import { Actor, Chapter, useChapterRepository } from "@/repository/story";
 
 interface StoryboardTableTRProps {
@@ -13,12 +12,35 @@ interface StoryboardTableTRProps {
     key: string
 }
 
-const emptyChapter: Chapter = { id: "", original: "", actors: [] }
+const emptyChapter: Chapter = {
+    id: 0,
+    name: "",
+    draft: "",
+    scene: "",
+    description: "",
+    srt: "",
+    actors: [],
+    image: {
+        history: [] as string[]
+    },
+    effect: { orientation: "default" }
+}
+
 
 const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, actors, style, key }) => {
 
     //页面级状态
     const [stateChapter, setChapter] = useState<Chapter>({ ...chapter })
+    useEffect(() => {
+        const unsub = useChapterRepository.subscribe(
+            (state) => state.items[idx],
+            (state, prev) => setChapter(state),
+            { fireImmediately: true })
+        return unsub
+    }, [idx, chapter])
+
+
+    const chapterRepo = useChapterRepository(state => state)
 
     const isActorChecked = (alias: string) => {
         return stateChapter.actors && stateChapter.actors.indexOf(alias) !== -1
@@ -32,22 +54,8 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
             return item.traits.map(f => f.label).join(",")
         }).join(";")
     }
-
-
-
-    useEffect(() => {
-        const unsub = useChapterRepository.subscribe(
-            (state) => state.items[idx],
-            (state, prev) => setChapter(state),
-            { fireImmediately: true })
-        return unsub
-    }, [idx, chapter])
-
-
-    const chapterRepo = useChapterRepository(state => state)
-
     const handleAddChapter = async () => {
-        await chapterRepo.addItem(idx, { ...emptyChapter, id: uuid() })
+        await chapterRepo.addItem(idx, { ...emptyChapter })
     }
 
     const handleDelChapter = async () => {
@@ -58,7 +66,6 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
         return (
             <Fragment>
                 <div className='index'>{idx + 1}</div>
-                <Button type='default' className='btn-default-auto btn-default-98'>推理关键词</Button>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleDelChapter} disabled={chapterRepo.items!.length === 1}>删除</Button>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleAddChapter}>插入分镜</Button>
             </Fragment >
@@ -73,8 +80,7 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
         } else {
             actors = actors.filter(alias => alias !== actor.alias)
         }
-
-        await chapterRepo.updateItem(idx, { ...stateChapter, actors: actors },true)
+        await chapterRepo.updateItem(idx, { ...stateChapter, actors: actors }, true)
     }
 
 
@@ -93,18 +99,41 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
         )
     }
 
-    const handleEditOriginal = async (e: any) => {
-        await chapterRepo.updateItem(idx, { ...stateChapter, original: e.target.value }, false)
+    const handleEditDraft = async (e: any) => {
+        await chapterRepo.updateItem(idx, { ...stateChapter, draft: e.target.value }, false)
     }
-    const renderEditOriginal = () => {
+    const renderDraft = () => {
         return (
             <TextArea rows={6} placeholder={"请输入剧本内容"}
                 maxLength={1000} className="text-area-auto"
-                value={stateChapter.original}
-                onChange={handleEditOriginal} />
+                value={stateChapter.draft}
+                onChange={handleEditDraft} />
         )
     }
 
+    const handleEditDescription = async (e: any) => {
+        await chapterRepo.updateItem(idx, { ...stateChapter, description: e.target.value }, false)
+    }
+    const renderDescription = () => {
+        return (
+            <TextArea rows={6} placeholder={"请输入场景关键词"}
+                maxLength={1000} className="text-area-auto"
+                value={stateChapter.description}
+                onChange={handleEditDescription} />
+        )
+    }
+
+    const handleResloveSceneKeyword = () => { 
+
+    }
+
+    const renderOperate = () => {
+        return (
+            <Fragment>
+                <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateChapter.draft} onClick={handleResloveSceneKeyword}>推理关键词</Button>
+            </Fragment>
+        )
+    }
 
     return (
         <div className='tr flexR' style={style} key={key}>
@@ -112,10 +141,11 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
-                        {i.key === 'original' ? renderEditOriginal() : null}
-                        {i.key === 'scene' ? stateChapter.ai?.scene : null}
+                        {i.key === 'original' ? renderDraft() : null}
+                        {i.key === 'scene' ? renderDescription() : null}
                         {i.key === 'actors' ? renderActors() : null}
                         {i.key === 'prompts' ? renderChinesePrompts(stateChapter.actors) : null}
+                        {i.key === 'operate' ? renderOperate() : null}
                     </div>
                 )
             })}

@@ -8,6 +8,7 @@ import 'react-virtualized/styles.css'; // 导入样式文件
 import { Button, InputNumber, message } from "antd"
 import React from "react"
 import { useKeyFrameRepository } from "@/repository/keyframe";
+import { SRTGenerate } from "@/repository/generate_utils";
 
 interface SRTMixingProps {
     pid: string,
@@ -24,7 +25,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
         }
         //有效片段
         let valids = await keyFreamsRepo.formatFragments()
-        await keyFreamsRepo.handleExportSRT(selected as string, valids).finally(() => { message.success("导出成功") })
+        await SRTGenerate(selected as string, valids).finally(() => { message.success("导出成功") })
     }
 
     const _rowRenderer = ({ index, key, style }: ListRowProps) => {

@@ -2,7 +2,7 @@ import { Button, message, Modal } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import { Fragment, useEffect, useState } from "react";
 import { drawbatchColumns } from "../data";
-import { Actor, Chapter, useChapterRepository } from "@/repository/story";
+import { Actor, Chapter, useActorRepository, useChapterRepository } from "@/repository/story";
 import { useComfyUIRepository } from "@/repository/comfyui";
 import { AssetHistoryImages, AssetImage, ModalHistoryImages } from "@/components/history-image";
 
@@ -15,11 +15,13 @@ interface ChapterTableTRProps {
     actors?: Actor[]
 }
 
-
-const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, style, key }) => {
+const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, style, key }) => {
 
     const chapterRepo = useChapterRepository(state => state)
+    const actorRepo = useActorRepository(state => state)
+
     const [stateChapter, setChapter] = useState<Chapter>({ ...chapter })
+
     useEffect(() => {
         const unsub = useChapterRepository.subscribe(
             (state) => state.items[idx],
@@ -54,7 +56,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, style,
         return (
             <TextArea rows={6} placeholder={"请输入画面描述词"}
                 maxLength={1000} className="text-area-auto"
-                value={stateChapter.prompt?.en}
+                value={stateChapter.prompt}
                 onChange={handleEditPrompt} />
         )
     }
@@ -63,6 +65,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, style,
     const comfyuiRepo = useComfyUIRepository(state => state)
 
     const handleText2Image = async () => {
+
         if (!mode) {
             await message.warning("请选择图片风格")
             return
@@ -75,7 +78,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, style,
             maskClosable: false,
         })
 
-        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
+        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo, actorRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
     const handleImageScale = async () => {
@@ -89,7 +92,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, style,
             mask: true,
             maskClosable: false,
         })
-        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
+        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo, actorRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
 
@@ -112,7 +115,7 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, style,
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
-                        {i.key === 'original' ? stateChapter.original : null}
+                        {i.key === 'description' ? stateChapter.description : null}
                         {i.key === 'drawPrompt' ? renderEditPrompts() : null}
                         {i.key === 'drawImage' && <AssetImage path={stateChapter.image?.path} repo={chapterRepo} />}
                         {i.key === 'drawImageHistory' && <AssetHistoryImages setOpen={setOpen} path={stateChapter.image?.path} history={stateChapter.image?.history || []} repo={chapterRepo} />}
@@ -125,4 +128,4 @@ const DrawTableTR: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, style,
     )
 }
 
-export default DrawTableTR
+export default ImageGenerateTab

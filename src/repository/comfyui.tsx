@@ -1,11 +1,11 @@
 import { subscribeWithSelector } from "zustand/middleware";
 import { BaseCRUDRepository } from "./tauri_repository";
 import { create } from "zustand";
-import { ComfyUIApi, ComfyUIHost, ComfyUIPipe, ComfyUIWorkflow } from "./comfyui_api";
+import { ComfyUIApi, ComfyUIHost, ComfyUIWorkflow } from "./comfyui_api";
 import { fs } from "@tauri-apps/api";
 
 let _baseApi: ComfyUIApi | undefined = undefined
-let _basePipe: ComfyUIPipe | undefined = undefined
+// let _basePipe: ComfyUIPipe | undefined = undefined
 
 export interface ComfyUIConfiguration {
     host: ComfyUIHost

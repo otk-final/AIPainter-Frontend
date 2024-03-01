@@ -9,11 +9,11 @@ import { history } from 'umi';
 import { AutoSizer, ListRowProps, List } from 'react-virtualized';
 
 
-interface StoryboardProps {
+interface StoryboardTabProps {
     pid: string
 }
 
-const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
+const StoryboardTab: React.FC<StoryboardTabProps> = ({ pid }) => {
     const [isOpen, setOpen] = useState(false);
     const chapterRepo = useChapterRepository(state => state)
     const actorRepo = useActorRepository(state => state)
@@ -96,4 +96,4 @@ const Storyboard: React.FC<StoryboardProps> = ({ pid }) => {
     );
 };
 
-export default Storyboard
+export default StoryboardTab

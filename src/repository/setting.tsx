@@ -3,6 +3,14 @@ import { BaseRepository } from "./tauri_repository"
 import { AudioOption } from "./tts_api"
 import { subscribeWithSelector } from "zustand/middleware"
 
+export const EFFECT_DIRECTIONS = [
+    { label: "默认", value: "default" },
+    { label: "从上往下", value: "up" },
+    { label: "从下往上", value: "down" },
+    { label: "从左往右", value: "left" },
+    { label: "从右往左", value: "right" },
+    { label: "随机", value: "random" },
+]
 
 
 export interface BaisicSettingConfiguration {

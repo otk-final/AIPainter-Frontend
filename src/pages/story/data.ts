@@ -1,4 +1,3 @@
-import assets from "@/assets";
 import { TabsProps } from "antd";
 
 export const createTabs: TabsProps["items"] = [
@@ -9,6 +8,11 @@ export const createTabs: TabsProps["items"] = [
   {
     key: "drawbatch",
     label: "批量绘图",
+    disabled: true
+  },
+  {
+    key: "mixing",
+    label: "字幕配音",
     disabled: true
   }
 ];
@@ -25,8 +29,8 @@ export const storyboardColumns = [
     space: 4,
   },
   {
-    title: "画面关键词(智能推理)",
-    key: "keywords",
+    title: "场景描述关键词",
+    key: "scene",
     space: 4,
   },
   {
@@ -35,10 +39,16 @@ export const storyboardColumns = [
     space: 3,
   },
   {
-    title: "画面中的角色描述(中文)",
+    title: "角色描述(中文)",
     key: "prompts",
     space: 4,
+  },
+  {
+    title: "操作",
+    key: "operate",
+    space: 2,
   }
+  
 ]
 
 export const drawbatchColumns = [
@@ -47,12 +57,12 @@ export const drawbatchColumns = [
     key: "number",
     space: 2,
   }, {
-    title: "原文描述",
-    key: "original",
-    space: 3,
+    title: "画面描述",
+    key: "description",
+    space: 4,
   },
   {
-    title: "画面描述词(可输入)",
+    title: "关键词",
     key: "drawPrompt",
     space: 4,
   },
@@ -73,145 +83,35 @@ export const drawbatchColumns = [
   }
 ]
 
-export const videogFrom = [
+export const mixingColumns = [
   {
-    key: 'timbre',
-    type: 'select',
-    label: '配音音色',
+    title: "编号",
+    key: "number",
+    space: 1,
   },
   {
-    key: 'volume',
-    type: 'inputNumber',
-    label: '音量调节',
-    defaultValue: '50%',
-    max: 100,
-    min: 0
+    title: "原文",
+    key: "draft",
+    space: 3,
   },
   {
-    key: 'pace',
-    type: 'inputNumber',
-    label: '语速调节',
-    defaultValue: '20%',
-    max: 100,
-    min: 0
+    title: "图片",
+    key: "image",
+    space: 3,
   },
   {
-    key: 'vfx',
-    type: 'select',
-    label: '特效设置',
+    title: "字幕",
+    key: "srt",
+    space: 3,
   },
   {
-    key: 'frame',
-    type: 'inputNumber',
-    label: '帧数设置',
-    defaultValue: '30',
-    max: 100,
-    min: 1
-  },
-]
-
-
-export const fontSizeDatas = [
-  {
-    key: 1,
-    label: "小"
+    title: "配音角色",
+    key: "actors",
+    space: 3,
   },
   {
-    key: 2,
-    label: "中"
-  },
-  {
-    key: 3,
-    label: "大"
-  },
-  {
-    key: 4,
-    label: "特大"
-  },
-]
-
-export const fontColorDatas = [
-  {
-    key: 1,
-    color: "fff"
-  },
-  {
-    key: 2,
-    color: "000"
-  },
-  {
-    key: 3,
-    color: "fd3"
-  },
-  {
-    key: 4,
-    color: "f38578"
-  },
-  {
-    key: 5,
-    color: "eb3a41"
-  },
-  {
-    key: 6,
-    color: "bedbf3"
-  },
-  {
-    key: 7,
-    color: "5acae1"
-  },
-  {
-    key: 8,
-    color: "0034f5"
-  },
-  {
-    key: 9,
-    color: "4b4b4f"
-  },
-  {
-    key: 10,
-    color: "76e966"
-  }
-]
-
-export const fontFamilyDatas = [
-  {
-    key: 1,
-    url: assets.fontfamily1
-  },
-  {
-    key: 2,
-    url: assets.fontfamily2
-  },
-  {
-    key: 3,
-    url: assets.fontfamily3
-  },
-  {
-    key: 4,
-    url: assets.fontfamily4
-  },
-  {
-    key: 5,
-    url: assets.fontfamily5
-  },
-  {
-    key: 6,
-    url: assets.fontfamily6
-  },
-  {
-    key: 7,
-    url: assets.fontfamily7
-  },
-  {
-    key: 8,
-    url: assets.fontfamily8
-  },
-  {
-    key: 9,
-    url: assets.fontfamily9
-  },
-  {
-    key: 10,
-    url: assets.fontfamily10
+    title: "操作",
+    key: "operate",
+    space: 2,
   }
 ]
