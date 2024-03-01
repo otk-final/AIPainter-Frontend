@@ -29,8 +29,8 @@ export class BaisicSettingRepository extends BaseRepository<BaisicSettingReposit
         speed: 10,
         volume: 20,
         option: {
-            voice_classify: "1",
-            voice_type: "BV001_streaming",
+            voice_classify: "3",
+            voice_type: "BV437_streaming",
             emotion: "xiasha",
         }
     }
