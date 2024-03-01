@@ -34,6 +34,10 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
       await chaptersRepo.load(pid)
     }
     initializeContext().catch(err => message.error(err))
+
+    return () => {
+      chaptersRepo.sync()
+    }
   }, [pid])
 
 

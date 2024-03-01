@@ -21,12 +21,6 @@ const StoryboardTab: React.FC<StoryboardTabProps> = ({ pid }) => {
 
     useEffect(() => {
         setCompletedCount(chapterRepo.items.filter(item => item.image?.path).length)
-        actorRepo.load(pid)
-
-        //保存当前状态
-        return () => {
-            chapterRepo.sync()
-        }
     }, [pid])
 
 
@@ -45,7 +39,7 @@ const StoryboardTab: React.FC<StoryboardTabProps> = ({ pid }) => {
 
     const _rowRenderer = ({index, key, style}: ListRowProps)=>{
         const items = chapterRepo.items;
-        return <StoryboardTableTR key={key} idx={index} style={style} chapter={items[index]} actors={actorRepo.items} />
+        return <StoryboardTableTR key={key} idx={index} style={style} chapter={items[index]} actors={[...actorRepo.items]} />
     }
     const renderChapterList = () => {
         return (

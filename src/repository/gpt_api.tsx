@@ -119,7 +119,7 @@ export class GPTAssistantsApi {
         await this.api.beta.threads.messages.create(this.threadId!, {
             role: "user",
             content: chapterText,
-            file_ids: [fileId]
+            file_ids: fileId !== "" ? [fileId] : []
         })
 
         //添加分析规则
@@ -128,7 +128,7 @@ export class GPTAssistantsApi {
             content: `Based on the script segment provided above, analyze the current scene (scene name, character name, scene description, dialogue).
             The return data format is as follows:"{"scene": "场景名称","characters": ["角色名称"],"description": "场景描写","dialogues":["台词"]}".
             Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation.`,
-            file_ids: [fileId]
+            file_ids: fileId !== "" ? [fileId] : []
         })
 
         //运行

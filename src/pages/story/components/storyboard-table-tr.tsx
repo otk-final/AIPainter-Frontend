@@ -1,8 +1,10 @@
-import { Button, Switch } from "antd"
+import { Button, Modal, Switch, message } from "antd"
 import { Fragment, useEffect, useState } from "react";
 import { storyboardColumns } from "../data";
 import TextArea from "antd/es/input/TextArea";
-import { Actor, Chapter, useChapterRepository } from "@/repository/story";
+import { Actor, Chapter, useActorRepository, useChapterRepository } from "@/repository/story";
+import { useGPTRepository } from "@/repository/gpt";
+import { useBaisicSettingRepository } from "@/repository/setting";
 
 interface StoryboardTableTRProps {
     idx: number,
@@ -31,6 +33,12 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
 
     //页面级状态
     const [stateChapter, setChapter] = useState<Chapter>({ ...chapter })
+
+    const chapterRepo = useChapterRepository(state => state)
+    const gptRepo = useGPTRepository(state => state)
+    const settingRepo = useBaisicSettingRepository(state => state)
+    const actorRepo = useActorRepository(state => state)
+
     useEffect(() => {
         const unsub = useChapterRepository.subscribe(
             (state) => state.items[idx],
@@ -39,8 +47,6 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
         return unsub
     }, [idx, chapter])
 
-
-    const chapterRepo = useChapterRepository(state => state)
 
     const isActorChecked = (alias: string) => {
         return stateChapter.actors && stateChapter.actors.indexOf(alias) !== -1
@@ -123,14 +129,20 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
         )
     }
 
-    const handleResloveSceneKeyword = () => { 
-
+    const handleResloveChapter = async () => { 
+        Modal.info({
+            content: <div style={{ color: '#fff' }}>推理关键词中...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
+        })
+        await chapterRepo.handleResolveChapter(idx, gptRepo, actorRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
 
     const renderOperate = () => {
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateChapter.draft} onClick={handleResloveSceneKeyword}>推理关键词</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateChapter.draft} onClick={handleResloveChapter}>推理关键词</Button>
             </Fragment>
         )
     }

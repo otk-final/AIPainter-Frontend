@@ -52,7 +52,7 @@ export const SRTGenerate = async (srtfile: string, fragments: KeyFragment[]) => 
         let srt = {
             id: srts.length + 1,
             start_time: srts.length === 0 ? 0 : srts[srts.length - 1].end_time,
-            end_time: srts.length === 0 ? item.duration : srts[srts.length - 1].start_time + item.duration,
+            end_time: srts.length === 0 ? (item.duration * 1) : srts[srts.length - 1].start_time + (item.duration * 1),
             text: item.srt
         } as SRTLine
         srts.push(srt)

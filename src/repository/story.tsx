@@ -218,13 +218,13 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
 
         //生成图片
         let outputs = await ImageGenerate(prompt, style, comyuiRepo, async (idx, fileBuffer) => {
-            let fileName = chapter.id + "-" + uuid() + ".png"
+            let fileName = index + "-" + uuid() + ".png"
             return await this.saveFile("outputs", fileName, fileBuffer)
         })
 
         //记录当前图片，和历史图片
-        chapter.image!.path = outputs[0]
-        chapter.image!.history = [...chapter.image!.history.concat(...outputs)]
+        chapter.image.path = outputs[0]
+        chapter.image.history = [...chapter.image!.history.concat(...outputs)]
 
         //save
         this.sync()
@@ -235,7 +235,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         let resp = await api.translate(item.srt!, audio)
 
         //保存音频
-        let audioName = item.id + "-new-" + uuid() + ".mp3"
+        let audioName = index + "-new-" + uuid() + ".mp3"
         let audioPath = await this.saveFile("temp-audios", audioName, resp.data)
 
         //记录时长
@@ -253,8 +253,8 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         await fs.createDir(videoDir, { dir: this.baseDir(), recursive: true })
 
         //参数
-        let videoPath = "temp-videos" + path.sep + item.name + "-" + uuid() + ".mp4";
-        let fragment = await this.convertFragment(item);
+        let videoPath = "temp-videos" + path.sep + index + "-" + uuid() + ".mp4";
+        let fragment = await this.convertFragment(index,item);
 
         //rewrite 参数
         fragment.video_path = await this.absulotePath(videoPath)
@@ -275,16 +275,16 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         let fragments = [] as KeyFragment[]
         for (let i = 0; i < this.items.length; i++) {
             let item = this.items[i]
-            let fragment = await this.convertFragment(item)
+            let fragment = await this.convertFragment(i, item)
             fragments.push(fragment)
         }
         return fragments
     }
 
-    private convertFragment = async (item: Chapter) => {
+    private convertFragment = async (index: number, item: Chapter) => {
         return {
             id: item.id,
-            name: item.name,
+            name: index + "",
             srt: item.srt,
             duration: item.srt_duration,
             image_path: item.image.path ? await this.absulotePath(item.image.path) : "",
