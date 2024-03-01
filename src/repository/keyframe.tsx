@@ -138,7 +138,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         //生成图片
         let outputs = await ImageGenerate(frame.prompt!, style, comyuiRepo, async (idx, fileBuffer) => {
-            let fileName = frame.id + "-" + uuid() + ".png"
+           let fileName = frame.id + "-" + uuid() + ".png"
             return await this.saveFile("outputs", fileName, fileBuffer)
         })
 
@@ -234,7 +234,6 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
             fragments[i].video_path = await this.absulotePath("temp-videos" + path.sep + fragments[i].name + ".mp4")
         }
 
-        debugger
         //生成字幕文件
         let srt_path = await this.absulotePath("video.srt")
         await this.handleExportSRT(srt_path, fragments)
@@ -242,7 +241,6 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         //临时存储目录
         let concats_path = await this.absulotePath("video.concats")
         let video_path = await this.absulotePath("output-" + uuid() + ".mp4")
-        debugger
         return await VideoFragmentConcat(concats_path, srt_path, video_path, savePath, fragments)
     }
 
