@@ -14,7 +14,6 @@ interface VideoImportProps {
     pid: string
     handleChangeTab: (key: ImitateTabType) => void,
 }
-type CollectFrameType = "srt" | "fps"
 
 interface CollectFrameProcess {
     title:string,
@@ -78,7 +77,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
     }
 
 
-    const handleCollectFrames = async (type: CollectFrameType) => {
+    const handleCollectFrames = async () => {
         setIsModalText("正在抽取关键帧...")
 
         //按音频
@@ -128,7 +127,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
             <div className='flexR'>
                 <div>请导入视频：</div>
                 <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported} >导入</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '130px' }} disabled={!simulateRepo.videoPath} onClick={() => { handleCollectFrames("srt") }}>抽帧关键帧</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '130px' }} disabled={!simulateRepo.videoPath} onClick={handleCollectFrames}>抽帧关键帧</Button>
                 <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!simulateRepo.videoPath} onClick={handleCollectAudio}>导出音频</Button>
             </div>
 

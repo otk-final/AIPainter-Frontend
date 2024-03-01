@@ -24,7 +24,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
         }
         //有效片段
         let valids = await keyFreamsRepo.formatFragments()
-        await keyFreamsRepo.srtExport(selected as string, valids).finally(() => { message.success("导出成功") })
+        await keyFreamsRepo.handleExportSRT(selected as string, valids).finally(() => { message.success("导出成功") })
     }
 
     const _rowRenderer = ({ index, key, style }: ListRowProps) => {

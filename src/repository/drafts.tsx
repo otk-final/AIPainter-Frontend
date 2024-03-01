@@ -93,7 +93,8 @@ const EffectCommonKeyframesConvert = (item: KeyFragment, kf_template: any) => {
 
 //导出剪映草稿
 export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[], srtpath: string, settingRepo: BaisicSettingConfiguration) => {
-
+    console.info("setting", settingRepo)
+    
     let now = new Date();
     let now_time = now.getTime()
     let now_time_s = Math.floor(now_time / 1000)
