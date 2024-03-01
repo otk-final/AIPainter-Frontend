@@ -2,7 +2,7 @@ import { create } from "zustand"
 import { BaseCRUDRepository, ItemIdentifiable, delay } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
 import { fs, path, shell, tauri } from "@tauri-apps/api"
-import { Image2TextHandle, Text2ImageHandle, WFScript } from "./comfyui_api"
+import { Image2TextHandle, Text2ImageHandle, Text2ImageParams, WFScript } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
 import { SRTLine, formatTime } from "./srt"
 import { createWorker } from "tesseract.js"
@@ -87,7 +87,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     }
 
     //重写台词
-    handleRewriteContent = async (index: number,gptRepo: GPTRepository) => {
+    handleRewriteContent = async (index: number, gptRepo: GPTRepository) => {
         let gptApi = await gptRepo.newClient();
         let rewrite = await gptApi.rewritePrompt(this.items[index].srt!, gptRepo)
         this.items[index].srt_rewrite = rewrite
@@ -153,10 +153,17 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         //生成随机
         let seed: number = await tauri.invoke('seed_random', {})
+        let parms = { seed: seed, positive: [comyuiRepo.positivePrompt, frame.prompt].join(""), negative: comyuiRepo.negativePrompt || "" } as Text2ImageParams
+
+        //兼容右参考图片流程
+        if (script.hasInputImageStep()) {
+            //上传文件
+            await api.upload(api.clientId, await this.absulotePath(frame.path), frame.name)
+            parms.image = { subfolder: api.clientId, filename: frame.name }
+        }
 
         //add prompt task
-        let { promptId, promptResult } = await api.prompt(script, { seed: seed, positive: [comyuiRepo.positivePrompt, frame.prompt].join(""), negative: comyuiRepo.negativePrompt || "" }, Text2ImageHandle)
-
+        let { promptId, promptResult } = await api.prompt(script, parms, Text2ImageHandle)
         //获取 当前流程中 输出图片节点位置
         let step = script.getOutputImageStep()
 
