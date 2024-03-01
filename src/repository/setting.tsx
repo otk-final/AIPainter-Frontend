@@ -48,6 +48,20 @@ export class BaisicSettingRepository extends BaseRepository<BaisicSettingReposit
     free() {
 
     }
+
+    formatEffectOrientation = (orientation: string) => {
+        let x = orientation;
+        if (x === "default") {
+            //默认
+            x = this.video.effect;
+        }
+        if (x === "random") {
+            //随机
+            let randomIdx = Math.floor(Math.random() * 4);
+            return ["up", "down", "left", "right"][randomIdx];
+        }
+        return x;
+    }
 }
 
 
