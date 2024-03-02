@@ -64,7 +64,6 @@ export class TTSApi {
                 'Authorization': this.authorization
             }
         }).then(resp => resp.data)
-        console.info("resp", resp)
         return {
             data: Uint8Array.from(atob(resp.data), c => c.charCodeAt(0)),
             duration: resp.addition.duration

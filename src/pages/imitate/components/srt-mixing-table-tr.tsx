@@ -87,8 +87,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
         })
 
         //音频接口
-        let ttsApi = await ttsRepo.newClient()
-        let path = await keyFreamRepo.handleGenerateAudio(index, option, ttsApi).catch(err => message.error(err)).finally(Modal.destroyAll)
+        let path = await keyFreamRepo.handleGenerateAudio(index, option, ttsRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
 
         //播放
         hanldePlayer(path as string)

@@ -1,6 +1,6 @@
 import DrawTableTR from "./drawbatch-table-tr"
 import { drawbatchColumns } from "../data"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useActorRepository, useChapterRepository } from "@/repository/story"
 import { ComyUIModeSelect } from "@/components/mode-select"
 import { Button, InputNumber } from "antd"
@@ -56,7 +56,6 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
         )
     }
 
-    // await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo, actorRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
     const comfyuiRepo = useComfyUIRepository(state => state)
     const actorRepo = useActorRepository(state => state)
 
@@ -65,12 +64,17 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
     const [batchImageLoading, setBatchImageLoading] = useState<boolean>(false)
     const [batchPromptLoading, setBatchPromptLoading] = useState<boolean>(false)
 
+    useEffect(() => {
+        return () => { chapterRepo.setBatchExit() }
+    }, [])
+
+
 
     //-------------------------------批量生成图片-----------------------------
 
-    const batchGenerateImage = async (next_idx: number) => {
+    const batchGenerateImage = async (next_idx: number, end_idx: number) => {
         //查询状态
-        if (chapterRepo.isBatchExit() || next_idx === chapterRepo.items.length) {
+        if (chapterRepo.isBatchExit() || next_idx === end_idx) {
             return;
         }
         setBatchPos(next_idx + 1)
@@ -79,7 +83,7 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
             if (chapterRepo.isBatchExit()) {
                 return;
             }
-            await batchGenerateImage(next_idx + 1)
+            await batchGenerateImage(next_idx + 1, end_idx)
         }).finally(chapterRepo.resetBatchExit)
     }
     const handleBatchGenerateImage = async () => {
@@ -87,7 +91,7 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
         setBatchImageLoading(true)
         chapterRepo.resetBatchExit()
 
-        await batchGenerateImage(batchPos - 1).finally(() => setBatchImageLoading(false))
+        await batchGenerateImage(batchPos - 1, chapterRepo.items.length).finally(() => setBatchImageLoading(false))
     }
 
     const handleExitBatchGenerateImage = () => {
@@ -99,9 +103,9 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
 
     //-------------------------------批量生成关键词-----------------------------
 
-    const batchGeneratePrompt = async (next_idx: number) => {
+    const batchGeneratePrompt = async (next_idx: number, end_idx: number) => {
         //查询状态
-        if (chapterRepo.isBatchExit() || next_idx === chapterRepo.items.length) {
+        if (chapterRepo.isBatchExit() || next_idx === end_idx) {
             return;
         }
         setBatchPos(next_idx + 1)
@@ -110,7 +114,7 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
             if (chapterRepo.isBatchExit()) {
                 return;
             }
-            await batchGenerateImage(next_idx + 1)
+            await batchGeneratePrompt(next_idx + 1,end_idx)
         }).finally(chapterRepo.resetBatchExit)
     }
     const handleBatchGeneratePrompt = async () => {
@@ -118,7 +122,7 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
         setBatchImageLoading(true)
         chapterRepo.resetBatchExit()
 
-        await batchGeneratePrompt(batchPos - 1).finally(() => setBatchImageLoading(false))
+        await batchGeneratePrompt(batchPos - 1, chapterRepo.items.length).finally(() => setBatchImageLoading(false))
     }
 
     const handleExitBatchGeneratePrompt = () => {
@@ -139,7 +143,10 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
                         <InputNumber controls={false}
                             style={{ width: "54px", marginLeft: '10px', marginRight: '10px' }} className="inputnumber-auto" placeholder='1'
                             defaultValue={1}
+                            min={1}
+                            max={chapterRepo.items.length}
                             value={batchPos}
+                            required
                             onChange={(e) => setBatchPos(e!)} /> 镜</div>
 
                     <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateImage} loading={batchImageLoading}>批量生图</Button>

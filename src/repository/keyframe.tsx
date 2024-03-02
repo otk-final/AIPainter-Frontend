@@ -6,11 +6,12 @@ import { Image2TextHandle, WFScript } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
 import { createWorker } from "tesseract.js"
 import { v4 as uuid } from "uuid"
-import { AudioOption, TTSApi } from "./tts_api"
+import { AudioOption } from "./tts_api"
 import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./drafts"
 import { BaisicSettingRepository } from "./setting"
 import { GPTRepository } from "./gpt"
 import { ImageGenerate, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
+import { TTSRepository } from "./tts"
 
 export interface KeyFrame extends ItemIdentifiable {
     id: number
@@ -87,7 +88,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     }
 
     //反推关键词
-    handleReversePrompt = async (index: number, comyuiRepo: ComfyUIRepository) => {
+    handleGeneratePrompt = async (index: number, comyuiRepo: ComfyUIRepository) => {
         let frame = this.items[index]
         let api = await comyuiRepo.newClient()
         let text = await comyuiRepo.buildReversePrompt()
@@ -102,10 +103,12 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let step = script.getWD14TaggerStep()
         //定位结果
         let reversePrompts = promptResult[promptId]!.outputs![step]!.tags! as string[]
-        if (reversePrompts) frame.prompt = reversePrompts.join(",")
 
-        //更新
-        this.sync()
+        //存在返回结果，则更新
+        if (reversePrompts) {
+            this.items[index].prompt = reversePrompts.join(",")
+            this.sync()
+        }
     }
 
     //生成图片
@@ -127,7 +130,8 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     }
 
     //在线生成音频
-    handleGenerateAudio = async (index: number, audio: AudioOption, api: TTSApi) => {
+    handleGenerateAudio = async (index: number, audio: AudioOption, ttsRepo: TTSRepository) => {
+        let api = await ttsRepo.newClient()
 
         //生成音频
         let item = this.items[index]

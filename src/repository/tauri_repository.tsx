@@ -1,4 +1,4 @@
-import { fs, path, } from "@tauri-apps/api"
+import { fs, path, tauri, } from "@tauri-apps/api"
 import { BaseDirectory } from "@tauri-apps/api/fs"
 import { create } from "zustand"
 
@@ -132,8 +132,8 @@ export abstract class BaseRepository<T> implements TauriRepo {
     }
 }
 
-export const delay = (ms: number) => {
-    return new Promise(resolve => { setTimeout(resolve, ms) });
+export const delay = async (ms: number) => {
+    await tauri.invoke("env_delay", { ms: ms });
 }
 
 export interface ItemIdentifiable {

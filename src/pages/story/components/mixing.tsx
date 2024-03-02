@@ -5,7 +5,7 @@ import { List, AutoSizer, ListRowProps } from 'react-virtualized';
 import MixingTableTR from "./mixing-table-tr"
 import { dialog } from "@tauri-apps/api";
 import { SRTGenerate } from "@/repository/generate_utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CloseCircleFilled } from "@ant-design/icons";
 import { useBaisicSettingRepository } from "@/repository/setting";
 import { useTTSRepository } from "@/repository/tts";
@@ -68,6 +68,9 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid }) => {
     }
 
 
+    useEffect(() => {
+        return () => { chapterRepo.setBatchExit() }
+    }, [])
 
     //批量处理
     const [batchPos, setBatchPos] = useState<number>(1)
@@ -122,7 +125,7 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid }) => {
             if (chapterRepo.isBatchExit()) {
                 return;
             }
-            await batchGenerateAudio(next_idx + 1)
+            await batchGenerateVideo(next_idx + 1)
         }).finally(chapterRepo.resetBatchExit)
     }
     const handleBatchGenerateVideo = async () => {
@@ -149,10 +152,13 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid }) => {
                 <div className='flexR'>
                     <div className='flexR'>批量开始起点 <InputNumber controls={false} style={{ width: "54px", marginLeft: '10px', marginRight: '10px' }} className="inputnumber-auto" placeholder='1'
                         defaultValue={1}
+                        min={1}
+                        max={chapterRepo.items.length}
                         value={batchPos}
+                        required
                         onChange={(e) => setBatchPos(e!)} /> 镜</div>
                     <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateAudio} loading={batchAudioLoading}>批量生成音频</Button>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateVideo} loading={batchVideoLoading} >批量合成视频</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateVideo} loading={batchVideoLoading} >批量生成视频</Button>
                     {
                         batchAudioLoading && <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExitBatchGenerateAudio} icon={<CloseCircleFilled />}>取消</Button>
                     }

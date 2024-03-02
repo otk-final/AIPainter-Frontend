@@ -126,7 +126,7 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
         return (
             <Fragment>
                 <ButtonGroup>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateAudio} disabled={!stateChapter.srt}>生成旁白</Button>
+                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateAudio} disabled={!stateChapter.srt}>生成音频</Button>
                     <Button type='default' className='btn-default-auto btn-default-98' onClick={() => hanldePlayer(stateChapter.srt_audio_path!)} disabled={!stateChapter.srt_audio_path} icon={<SoundFilled />}>播放</Button>
                 </ButtonGroup>
                 <ButtonGroup>

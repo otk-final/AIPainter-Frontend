@@ -186,24 +186,47 @@ export class ComfyUIApi {
         let task = response.data as ComfyUIPromptTask
         let prompt_id = task.prompt_id;
 
-        //堵塞
-        return new Promise(async (resolve, reject) => {
-            let count = 0;
-            let respData: any;
-            while (count < 10) {
-                //查询状态
-                let tempData = await this.history(prompt_id)
-                console.log("查询结果:", prompt_id, count, tempData)
-                if (tempData && Object.keys(tempData).length > 0) {
-                    respData = tempData;
-                    break
-                }
-                await delay(3000)
-                count++;
+
+        //堵塞式
+        let count = 0;
+        let respData: any;
+        while (count < 10) {
+
+            await delay(3000)
+
+            //查询状态
+            let tempData = await this.history(prompt_id)
+            console.log("查询结果:", prompt_id, count, tempData)
+            if (tempData && Object.keys(tempData).length > 0) {
+                respData = tempData;
+                break
             }
-            //判断状态
-            respData ? resolve({ promptId: prompt_id, promptResult: respData }) : reject("查询结果超时");
-        })
+            count++;
+        }
+
+        if (!respData){
+            throw new Error("任务异常")
+        }
+        return { promptId: prompt_id, promptResult: respData };
+
+        // //堵塞
+        // return new Promise(async (resolve, reject) => {
+        //     let count = 0;
+        //     let respData: any;
+        //     while (count < 10) {
+        //         //查询状态
+        //         let tempData = await this.history(prompt_id)
+        //         console.log("查询结果:", prompt_id, count, tempData)
+        //         if (tempData && Object.keys(tempData).length > 0) {
+        //             respData = tempData;
+        //             break
+        //         }
+        //         await delay(3000)
+        //         count++;
+        //     }
+        //     //判断状态
+        //     respData ? resolve({ promptId: prompt_id, promptResult: respData }) : reject("查询结果超时");
+        // })
     }
 
 
