@@ -24,13 +24,17 @@ interface RoleItemProps {
 export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) => {
 
   const [stateActor, setActor] = useState<Actor>({ ...actor })
+  const [statePreviewImage, setPreviewImage] = useState<string | undefined>()
   const actorRepo = useActorRepository(state => state)
 
   useMemo(() => {
     const unsub = useActorRepository.subscribe(
       (state) => state.items[index],
       async (state) => {
-        if (state) setActor(state)
+        if (state) {
+          setActor(state)
+          if (state.image) setPreviewImage(await actorRepo.absulotePath(state.image))
+        }
       },
       {
         fireImmediately: true
@@ -61,7 +65,7 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) 
   return (
     <div className='role-item'>
       <div className='top flexR'>
-        {stateActor.image && <Avatar src={tauri.convertFileSrc(stateActor.image)} size={'large'}></Avatar>}
+        {statePreviewImage && <Avatar src={tauri.convertFileSrc(statePreviewImage)} size={'large'}></Avatar>}
         <div className='text'>角色{index + 1}</div>
         <DeleteOutlined onClick={handleDel} />
       </div>

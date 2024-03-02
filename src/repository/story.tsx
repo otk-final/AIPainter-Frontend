@@ -254,7 +254,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
 
         //参数
         let videoPath = "temp-videos" + path.sep + index + "-" + uuid() + ".mp4";
-        let fragment = await this.convertFragment(index,item);
+        let fragment = await this.convertFragment(index, item);
 
         //rewrite 参数
         fragment.video_path = await this.absulotePath(videoPath)
@@ -386,9 +386,13 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
         this.sync()
     }
 
+    handleConfirmTraitsOption = async (index: number,traits: TraitsOption[]) => {
+        this.items[index].traits = [...traits]
+        this.sync()
+    }
 
     //生成图片
-    handleGenerateImage = async (traits: TraitsOption[], comyuiRepo: ComfyUIRepository, tempCallBack: (filepath: string) => void) => {
+    handleGenerateImage = async (index: number, traits: TraitsOption[], comyuiRepo: ComfyUIRepository) => {
 
         // this.items[index]
         let prompt = traits.map(item => item.value).join(",")
@@ -399,7 +403,11 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
             return await this.saveFile("outputs", "ac_" + uuid() + ".png", fileBuffer)
         })
 
-        tempCallBack(outputs[0]);
+        this.items[index].image = outputs[0];
+        this.sync()
+
+        //渲染页面
+        return this.absulotePath(outputs[0])
     }
 
     toPrompt = (checkActors: string[]) => {

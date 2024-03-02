@@ -19,6 +19,7 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
 
     const chapterRepo = useChapterRepository(state => state)
     const actorRepo = useActorRepository(state => state)
+    const comfyuiRepo = useComfyUIRepository(state => state)
 
     const [stateChapter, setChapter] = useState<Chapter>({ ...chapter })
 
@@ -60,9 +61,6 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
                 onChange={handleEditPrompt} />
         )
     }
-
-    //comfyui
-    const comfyuiRepo = useComfyUIRepository(state => state)
 
     const handleText2Image = async () => {
 

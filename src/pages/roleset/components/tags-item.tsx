@@ -155,10 +155,17 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
     }
 
     const [isPreview, setPreview] = useState<boolean>(false)
-    const [statePreviewPath, setPreviewPath] = useState<string | undefined>(image)
+    const [statePreviewPath, setPreviewPath] = useState<string | undefined>()
     const comfyuiRepo = useComfyUIRepository(state => state)
     const actorRepo = useActorRepository(state => state)
 
+    useEffect(() => {
+        if (image) {
+            actorRepo.absulotePath(image).then((imagePath) => { setPreviewPath(imagePath) })
+        }else{
+            setPreviewPath(undefined)
+        }
+    }, [index, image])
 
     //生成图片
     const handleText2Image = async () => {
@@ -173,8 +180,9 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
             maskClosable: false,
         })
 
-        await actorRepo.handleGenerateImage(tags, comfyuiRepo, (filepath) => {
-            setPreviewPath(filepath)
+        //渲染
+        await actorRepo.handleGenerateImage(index, tags, comfyuiRepo).then((actor_path) => {
+            setPreviewPath(actor_path)
             setPreview(true)
         }).catch(err => message.error(err)).finally(Modal.destroyAll)
     }
@@ -182,13 +190,7 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
 
     //保存数据
     const handleConfirm = async () => {
-
-        actorRepo.items[index].traits = tags!
-        actorRepo.items[index].image = statePreviewPath
-
-        await actorRepo.sync()
-
-        handleClose()
+        await actorRepo.handleConfirmTraitsOption(index,tags || []).finally(handleClose)
     }
 
 
