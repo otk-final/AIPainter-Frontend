@@ -30,7 +30,6 @@ export class TTSRepository extends BaseRepository<TTSRepository> implements TTSC
         return _baseApi
     }
 
-
     destroyClient = () => {
         if (_baseApi) {
             _baseApi.disconnect()

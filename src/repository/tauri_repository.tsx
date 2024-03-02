@@ -1,5 +1,6 @@
 import { fs, path, } from "@tauri-apps/api"
 import { BaseDirectory } from "@tauri-apps/api/fs"
+import { create } from "zustand"
 
 
 export type Directory = string
@@ -35,7 +36,7 @@ export abstract class BaseRepository<T> implements TauriRepo {
         //兼容 windows 路径 \\?\
         return base_path.replace("\\\\?\\", "")
     }
-    
+
     load = async (repoDir: string) => {
         this.free()
 
@@ -101,12 +102,12 @@ export abstract class BaseRepository<T> implements TauriRepo {
     protected save = async () => {
 
         let that = { ...this }
-        
+
         //创建目录
         await fs.createDir(this.repoDir, { dir: this.baseDir(), recursive: true })
         let filePath = this.repoDir + path.sep + this.repo
 
-        console.info("save script", filePath,that)
+        console.info("save script", filePath, that)
         // save file
         await fs.writeFile(filePath, JSON.stringify(that, null, "\t"), { dir: this.baseDir(), append: false })
     }
@@ -144,7 +145,8 @@ export abstract class BaseCRUDRepository<Item extends ItemIdentifiable, T> exten
 
     items: Item[] = []
     free(): void {
-        this.items = []
+        this.items = [];
+        this._exit = false;
     }
 
     addItem = async (idx: number, item: Item, temporary?: boolean) => {
@@ -178,6 +180,17 @@ export abstract class BaseCRUDRepository<Item extends ItemIdentifiable, T> exten
         let lasted = this.items[this.items.length - 1]
         return lasted.id + 1
     }
+
+
+    //处理批量标识位
+    _exit: boolean = false
+    isBatchExit = () => {
+        return this._exit;
+    }
+    setBatchExit = () => {
+        this._exit = true
+    }
+    resetBatchExit = () => {
+        this._exit = false
+    }
 }
-
-

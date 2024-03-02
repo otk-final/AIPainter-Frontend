@@ -75,8 +75,8 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
 
 
     const handleGenerateAudio = async () => {
+
         //默认配置
-        let option = settingRepo.audio.option
         Modal.info({
             content: <div style={{ color: '#fff' }}>生成音频...</div>,
             footer: null,
@@ -84,38 +84,11 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
             maskClosable: false,
         })
         //音频接口
-        let ttsApi = await ttsRepo.newClient()
-        let path = await chapterRepo.handleGenerateAudio(index, option, ttsApi).catch(err => message.error(err)).finally(Modal.destroyAll)
+        let path = await chapterRepo.handleGenerateAudio(index, settingRepo.audio.option, actorRepo, ttsRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
 
         //播放
         hanldePlayer(path as string)
     }
-
-    //生成配音
-    const handleGenerateActorAudio = async () => {
-        //获取角色设置配音
-        let actors = actorRepo.items.filter(item => item.alias === stateChapter.srt_actor)
-        if (!actors) {
-            return message.error("角色不存在")
-        }
-        let actor = actors[0]
-        if (!actor.voice) {
-            return message.error("角色未配置配音")
-        }
-
-        Modal.info({
-            content: <div style={{ color: '#fff' }}>生成角色配音...</div>,
-            footer: null,
-            mask: true,
-            maskClosable: false,
-        })
-        //音频接口
-        let ttsApi = await ttsRepo.newClient()
-        let path = await chapterRepo.handleGenerateAudio(index, actor.voice, ttsApi).catch(err => message.error(err)).finally(Modal.destroyAll)
-        //播放
-        hanldePlayer(path as string)
-    }
-
 
     const handleGenerateVideo = async () => {
         Modal.info({
@@ -152,10 +125,6 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
     const renderOperate = () => {
         return (
             <Fragment>
-                <ButtonGroup>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateActorAudio} disabled={!stateChapter.srt || !stateChapter.srt_actor}>生成配音</Button>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={() => hanldePlayer(stateChapter.srt_audio_path!)} disabled={!stateChapter.srt_audio_path} icon={<SoundFilled />}>播放</Button>
-                </ButtonGroup>
                 <ButtonGroup>
                     <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateAudio} disabled={!stateChapter.srt}>生成旁白</Button>
                     <Button type='default' className='btn-default-auto btn-default-98' onClick={() => hanldePlayer(stateChapter.srt_audio_path!)} disabled={!stateChapter.srt_audio_path} icon={<SoundFilled />}>播放</Button>

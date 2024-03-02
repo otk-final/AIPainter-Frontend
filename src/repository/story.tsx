@@ -9,6 +9,7 @@ import { GPTRepository } from "./gpt"
 import { ImageGenerate, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
 import { BaisicSettingRepository } from "./setting"
 import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./drafts"
+import { TTSRepository } from "./tts"
 
 export type ImportType = "input" | "file"
 
@@ -206,6 +207,10 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         this.sync()
     }
 
+    //生成场景关键词
+    handleGeneratePrompt = async (index: number) => {
+
+    }   
     //生成图片
     handleGenerateImage = async (index: number, style: string, comyuiRepo: ComfyUIRepository, actorRepo: ActorRepository) => {
         let chapter = this.items[index]
@@ -229,10 +234,30 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         //save
         this.sync()
     }
-    handleGenerateAudio = async (index: number, audio: AudioOption, api: TTSApi) => {
+    handleGenerateAudio = async (index: number,defaultAudioOption: AudioOption, actorRepo:ActorRepository,ttsRepo: TTSRepository) => {
+
+        let audioOption: AudioOption
+        let chapter = this.items[index]
+        if (chapter.srt_actor) {
+            //获取角色设置配音
+            let actors = actorRepo.items.filter(item => item.alias === chapter.srt_actor)
+            if (!actors) {
+                throw new Error("角色不存在")
+            }
+            let actor = actors[0]
+            if (!actor.voice) {
+                throw new Error("角色未配置配音")
+            }
+            audioOption = actor.voice!
+        } else {
+            audioOption = { ...defaultAudioOption }
+        }
+
+
         //生成音频
-        let item = this.items[index]
-        let resp = await api.translate(item.srt!, audio)
+        let api = await ttsRepo.newClient()
+        let resp = await api.translate(chapter.srt!, audioOption)
+
 
         //保存音频
         let audioName = index + "-new-" + uuid() + ".mp3"
