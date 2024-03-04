@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { BaseRepository } from "./tauri_repository"
+import { BaseRepository, trimApiHost } from "./tauri_repository"
 import { TTSApi } from "./tts_api"
 import { subscribeWithSelector } from "zustand/middleware"
 
@@ -24,7 +24,7 @@ export class TTSRepository extends BaseRepository<TTSRepository> implements TTSC
     newClient = async () => {
         //api
         if (!_baseApi) {
-            _baseApi = new TTSApi(this.host, this.appId, this.authorization)
+            _baseApi = new TTSApi(trimApiHost(this.host), this.appId, this.authorization)
         }
         await _baseApi.connect()
         return _baseApi

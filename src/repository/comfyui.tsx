@@ -1,5 +1,5 @@
 import { subscribeWithSelector } from "zustand/middleware";
-import { BaseCRUDRepository } from "./tauri_repository";
+import { BaseCRUDRepository, trimApiHost } from "./tauri_repository";
 import { create } from "zustand";
 import { ComfyUIApi, ComfyUIHost, ComfyUIWorkflow } from "./comfyui_api";
 import { fs } from "@tauri-apps/api";
@@ -39,7 +39,7 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
         let authorization = "test"
         //api
         if (!_baseApi) {
-            _baseApi = new ComfyUIApi(this.host, newClientId, authorization)
+            _baseApi = new ComfyUIApi(trimApiHost(this.host.url), newClientId, authorization)
         }
         await _baseApi.connect()
 

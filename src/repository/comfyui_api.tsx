@@ -147,14 +147,14 @@ export class ComfyUIPipe {
 export class ComfyUIApi {
 
     api?: Client
-    host: ComfyUIHost
+    host: string
     clientId: string
     authorization: string
 
     current_prompt_id?: string
 
     // storage:
-    constructor(host: ComfyUIHost, clientId: string, authorization: string) {
+    constructor(host: string, clientId: string, authorization: string) {
         this.host = host
         this.clientId = clientId
         this.authorization = authorization
@@ -174,7 +174,7 @@ export class ComfyUIApi {
         let prompt = handle(this, script, params)
         console.info('提交ComfyUI任务', prompt)
         //提交任务
-        const response = await this.api!.post(this.host.url + "/prompt",
+        const response = await this.api!.post(this.host + "/prompt",
             Body.json({
                 clientId: this.clientId, prompt: prompt
             }),
@@ -216,31 +216,12 @@ export class ComfyUIApi {
             throw new Error("任务异常")
         }
         return { promptId: prompt_id, promptResult: respData };
-
-        // //堵塞
-        // return new Promise(async (resolve, reject) => {
-        //     let count = 0;
-        //     let respData: any;
-        //     while (count < 10) {
-        //         //查询状态
-        //         let tempData = await this.history(prompt_id)
-        //         console.log("查询结果:", prompt_id, count, tempData)
-        //         if (tempData && Object.keys(tempData).length > 0) {
-        //             respData = tempData;
-        //             break
-        //         }
-        //         await delay(3000)
-        //         count++;
-        //     }
-        //     //判断状态
-        //     respData ? resolve({ promptId: prompt_id, promptResult: respData }) : reject("查询结果超时");
-        // })
     }
 
 
     //任务状态
     async history(prompt_id: string): Promise<any> {
-        return await this.api!.get(this.host.url + "/history/" + prompt_id,
+        return await this.api!.get(this.host + "/history/" + prompt_id,
             {
                 responseType: ResponseType.JSON,
                 timeout: ComfyUIApiTimeout,
@@ -264,7 +245,7 @@ export class ComfyUIApi {
         })
 
         console.info('上传ComfyUI文件', body)
-        return await this.api!.post(this.host.url + '/upload/image',
+        return await this.api!.post(this.host + '/upload/image',
             body,
             {
                 headers: {
@@ -281,7 +262,7 @@ export class ComfyUIApi {
     //download
     async download(prompt_id: string, subfolder: string, fileName: any): Promise<ArrayBuffer> {
         //下载网络文件
-        let resp = await this.api!.get(this.host.url + '/view',
+        let resp = await this.api!.get(this.host + '/view',
             {
                 headers: {
                     'Authorization': this.authorization

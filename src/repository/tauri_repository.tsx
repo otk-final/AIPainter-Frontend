@@ -1,6 +1,13 @@
 import { fs, path, tauri, } from "@tauri-apps/api"
 import { BaseDirectory } from "@tauri-apps/api/fs"
-import { create } from "zustand"
+
+
+export const trimApiHost = (host:string)=>{
+    if (host.endsWith("/")){
+        return host.substring(0,host.lastIndexOf("/"))
+    }
+    return host;
+}
 
 
 export type Directory = string
