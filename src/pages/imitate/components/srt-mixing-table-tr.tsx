@@ -64,7 +64,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
             mask: true,
             maskClosable: false,
         })
-        await keyFreamRepo.handleRewriteContent(index, gptRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
+        await keyFreamRepo.handleRewriteContent(index, gptRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
     // const handleRecognize = async () => {
@@ -87,7 +87,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
         })
 
         //音频接口
-        let path = await keyFreamRepo.handleGenerateAudio(index, option, ttsRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
+        let path = await keyFreamRepo.handleGenerateAudio(index, option, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
 
         //播放
         hanldePlayer(path as string)
@@ -101,7 +101,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
             mask: true,
             maskClosable: false,
         })
-        let path = await keyFreamRepo.handleGenerateVideo(index, settingRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
+        let path = await keyFreamRepo.handleGenerateVideo(index, settingRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
 
         hanldePlayer(path as string)
     }

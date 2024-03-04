@@ -89,7 +89,7 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
     }
 
     const handleCatchBoading = async () => {
-        await handleBoading().catch(err => message.error(err))
+        await handleBoading().catch(err => message.error(err.message))
     }
 
 

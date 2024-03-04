@@ -84,7 +84,7 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
             maskClosable: false,
         })
         //音频接口
-        let path = await chapterRepo.handleGenerateAudio(index, settingRepo.audio.option, actorRepo, ttsRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
+        let path = await chapterRepo.handleGenerateAudio(index, settingRepo.audio.option, actorRepo, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
 
         //播放
         hanldePlayer(path as string)
@@ -97,7 +97,7 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
             mask: true,
             maskClosable: false,
         })
-        let path = await chapterRepo.handleGenerateVideo(index, settingRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
+        let path = await chapterRepo.handleGenerateVideo(index, settingRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
 
         hanldePlayer(path as string)
     }

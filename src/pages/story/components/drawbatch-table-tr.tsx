@@ -76,7 +76,7 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
             maskClosable: false,
         })
 
-        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo, actorRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
+        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo, actorRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
     const handleImageScale = async () => {
@@ -90,7 +90,7 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
             mask: true,
             maskClosable: false,
         })
-        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo, actorRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
+        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo, actorRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
 

@@ -136,7 +136,7 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
             mask: true,
             maskClosable: false,
         })
-        await chapterRepo.handleResolveChapter(idx, gptRepo, actorRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
+        await chapterRepo.handleResolveChapter(idx, gptRepo, actorRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
     const renderOperate = () => {

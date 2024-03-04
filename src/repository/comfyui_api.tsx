@@ -16,7 +16,8 @@ export interface ComfyUIHost {
 export interface ComfyUIPromptTask {
     prompt_id: string
     number: number
-    node_errors: any
+    error?: any
+    node_errors?: any
 }
 
 export interface ComfyUIPromptEvent {
@@ -183,9 +184,12 @@ export class ComfyUIApi {
                 headers: { 'Authorization': this.authorization }
             }
         );
+
         let task = response.data as ComfyUIPromptTask
         let prompt_id = task.prompt_id;
-
+        if (!prompt_id) {
+            throw new Error(task.error.message)
+        }
 
         //堵塞式
         let count = 0;
@@ -204,7 +208,7 @@ export class ComfyUIApi {
             count++;
         }
 
-        if (!respData){
+        if (!respData) {
             throw new Error("任务异常")
         }
         return { promptId: prompt_id, promptResult: respData };
@@ -349,7 +353,7 @@ export class WFScript {
         })
     }
     hasInputImageStep(): boolean {
-        return this.getNodes("LoadImage").length > 0 
+        return this.getNodes("LoadImage").length > 0
     }
     getOutputImageStep(): string {
         return this.getOutputStep("SaveImage")
@@ -398,7 +402,7 @@ export interface Text2ImageParams {
 export const Text2ImageHandle: CompletionPromptParams<Text2ImageParams> = (api: ComfyUIApi, script: WFScript, params: Text2ImageParams) => {
 
     //参考图片
-    if (params.image){
+    if (params.image) {
         script.setInputImage(params.image.subfolder + "/" + params.image.filename)
     }
 

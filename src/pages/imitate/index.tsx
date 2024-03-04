@@ -61,7 +61,7 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
       mask: true,
       maskClosable: false,
     })
-    await keyFreamRepo.handleConcatVideo(selected as string,settingRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
+    await keyFreamRepo.handleConcatVideo(selected as string, settingRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
   }
 
   //导出
@@ -79,7 +79,7 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
       maskClosable: false,
     })
 
-    await keyFreamRepo.handleConcatJYDraft(selected as string,settingRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
+    await keyFreamRepo.handleConcatJYDraft(selected as string, settingRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
   }
 
 

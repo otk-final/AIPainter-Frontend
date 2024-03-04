@@ -33,7 +33,7 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
       await actorsRepo.load(pid)
       await chaptersRepo.load(pid)
     }
-    initializeContext().catch(err => message.error(err))
+    initializeContext().catch(err => message.error(err.message))
 
     return () => {
       chaptersRepo.sync()
@@ -64,7 +64,7 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
       mask: true,
       maskClosable: false,
     })
-    await chaptersRepo.handleConcatVideo(selected as string, settingRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
+    await chaptersRepo.handleConcatVideo(selected as string, settingRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
   }
 
   //导出
@@ -82,7 +82,7 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
       maskClosable: false,
     })
 
-    await chaptersRepo.handleConcatJYDraft(selected as string, settingRepo).catch(err => message.error(err)).finally(Modal.destroyAll)
+    await chaptersRepo.handleConcatJYDraft(selected as string, settingRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
   }
 
 

@@ -40,7 +40,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
             mask: true,
             maskClosable: false,
         });
-        await keyFreamRepo.handleGeneratePrompt(index, comfyUIRepo).catch(err => { message.error(err) }).finally(Modal.destroyAll)
+        await keyFreamRepo.handleGeneratePrompt(index, comfyUIRepo).catch(err => { message.error(err.message) }).finally(Modal.destroyAll)
     }
 
     const handleText2ImageCatch = async () => {
@@ -50,7 +50,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
             mask: true,
             maskClosable: false,
         })
-        await keyFreamRepo.handleGenerateImage(index, mode, comfyUIRepo).catch(err => { message.error(err) }).finally(Modal.destroyAll)
+        await keyFreamRepo.handleGenerateImage(index, mode, comfyUIRepo).catch(err => {message.error(err.message) }).finally(Modal.destroyAll)
     }
 
     const handleDelKeyFrame = async () => {

@@ -69,7 +69,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
             return
         }
         setIsModalText("正在导入视频提取音频...")
-        await simulateRepo.handleImportVideo(selected as string).catch(err => message.error(err))
+        await simulateRepo.handleImportVideo(selected as string).catch(err => message.error(err.message))
         .finally(()=>{
             setIsModalText("")
             }
@@ -83,7 +83,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
         //按音频
         let api = await ttsRepo.newClient()
         let keyFrames = await simulateRepo.handleCollectFrames(api)
-        await keyFrameRepo.initialization(keyFrames).then(() => { handleChangeTab("frames") }).catch(err => message.error(err))
+        await keyFrameRepo.initialization(keyFrames).then(() => { handleChangeTab("frames") }).catch(err => message.error(err.message))
         .finally(()=>{
             setIsModalText("")
         })
@@ -94,7 +94,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
         if (!savePath) {
             return
         }
-        await simulateRepo.handleExportVideo(savePath).catch(err => message.error(err)).finally(Modal.destroyAll)
+        await simulateRepo.handleExportVideo(savePath).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
     

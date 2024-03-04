@@ -184,7 +184,7 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
         await actorRepo.handleGenerateImage(index, tags, comfyuiRepo).then((actor_path) => {
             setPreviewPath(actor_path)
             setPreview(true)
-        }).catch(err => message.error(err)).finally(Modal.destroyAll)
+        }).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
 
