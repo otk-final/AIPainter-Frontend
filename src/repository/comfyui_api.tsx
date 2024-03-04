@@ -185,6 +185,10 @@ export class ComfyUIApi {
             }
         );
 
+        if (response.status !== 200) {
+            throw new Error(response.data as string);
+        }
+
         let task = response.data as ComfyUIPromptTask
         let prompt_id = task.prompt_id;
         if (!prompt_id) {
