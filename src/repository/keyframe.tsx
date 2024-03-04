@@ -117,8 +117,13 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         //生成图片
         let outputs = await ImageGenerate(frame.prompt!, style, comyuiRepo, async (idx, fileBuffer) => {
-           let fileName = frame.id + "-" + uuid() + ".png"
+            //保存文件
+            let fileName = frame.id + "-" + uuid() + ".png"
             return await this.saveFile("outputs", fileName, fileBuffer)
+        }, async (api) => {
+            //上传文件
+            await api.upload(api.clientId, await this.absulotePath(frame.path), frame.name)
+            return { subfolder: api.clientId, filename: frame.name }
         })
 
         //记录当前图片，和历史图片
@@ -205,7 +210,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     handleConcatVideo = async (savePath: string, settingRepo: BaisicSettingRepository) => {
         //有效片段
         let fragments = await this.formatFragments()
-        fragments = fragments.slice(0,3)
+        fragments = fragments.slice(0, 3)
 
         //rewrite 参数
         for (let i = 0; i < fragments.length; i++) {

@@ -1,15 +1,16 @@
-import { fs,shell, tauri } from "@tauri-apps/api"
+import { fs, shell, tauri } from "@tauri-apps/api"
 import { ComfyUIRepository } from "./comfyui"
-import { Text2ImageHandle, WFScript } from "./comfyui_api"
+import { ComfyUIApi, ImageFileParams, Text2ImageHandle, Text2ImageParams, WFScript } from "./comfyui_api"
 import { KeyFragment } from "./drafts"
 import { delay } from "./tauri_repository"
 import { SRTLine, formatTime } from "./srt"
 
 
 export type ImageGenerateCallback = (idx: number, fileBuffer: ArrayBuffer) => Promise<string>
+export type ImageUploadCallback = (api: ComfyUIApi) => Promise<ImageFileParams>
 
 //图片生成
-export const ImageGenerate = async (prompt: string, style: string, comyuiRepo: ComfyUIRepository, callback: ImageGenerateCallback) => {
+export const ImageGenerate = async (prompt: string, style: string, comyuiRepo: ComfyUIRepository, callback: ImageGenerateCallback, upload?: ImageUploadCallback) => {
 
     //comyui api
     let api = await comyuiRepo.newClient()
@@ -18,14 +19,18 @@ export const ImageGenerate = async (prompt: string, style: string, comyuiRepo: C
 
     //生成随机
     let seed: number = await tauri.invoke('seed_random', {})
-    //add prompt task
-    let { promptId, promptResult } = await api.prompt(script,
-        {
-            seed: seed,
-            positive: [comyuiRepo.positivePrompt, prompt].join(","),
-            negative: comyuiRepo.negativePrompt || ""
-        }, Text2ImageHandle)
+    let parms = { seed: seed, positive: [comyuiRepo.positivePrompt, prompt].join(""), negative: comyuiRepo.negativePrompt || "" } as Text2ImageParams
 
+    //兼容有参考图片流程
+    if (script.hasInputImageStep()) {
+        if (!upload) {
+            throw new Error("required upload image")
+        }
+        parms.image = await upload!(api)
+    }
+
+    //add prompt task
+    let { promptId, promptResult } = await api.prompt(script, parms, Text2ImageHandle)
     //获取 当前流程中 输出图片节点位置
     let step = script.getOutputImageStep()
 
