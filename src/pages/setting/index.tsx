@@ -10,6 +10,8 @@ import GPTSetting, { GPTSettingRef } from './components/gpt-setting';
 import TTSSetting, { TTSSettingRef } from './components/tts-setting';
 import { useGPTRepository } from '@/repository/gpt';
 import { useTTSRepository } from '@/repository/tts';
+import TranslateSetting, { TranslateSettingRef } from './components/translate-setting';
+import { useTranslateRepository } from '@/repository/translate';
 
 type setTabType = "paint" | "translate" | "basic" | "gpt" | "tts"
 
@@ -29,6 +31,10 @@ export const setTabItems: TabsProps['items'] = [
   {
     key: 'tts',
     label: '音频设置',
+  },
+  {
+    key: 'translate',
+    label: '翻译设置',
   }
 ];
 
@@ -45,12 +51,14 @@ const SettingPage = () => {
   const basicRepo = useBaisicSettingRepository(state => state)
   const gptRepo = useGPTRepository(state => state)
   const ttsRepo = useTTSRepository(state => state)
+  const translateRepo = useTranslateRepository(state => state)
 
   useEffect(() => {
     comfyuiRepo.load("env")
     basicRepo.load("env")
     gptRepo.load("env")
     ttsRepo.load("env")
+    translateRepo.load("env")
   }, [])
 
 
@@ -58,6 +66,7 @@ const SettingPage = () => {
   const basicRef = createRef<BasicSettingRef>()
   const gptRef = createRef<GPTSettingRef>()
   const ttsRef = createRef<TTSSettingRef>()
+  const translateRef = createRef<TranslateSettingRef>()
 
   const handleSave = async () => {
     if (cur === "paint") {
@@ -66,8 +75,10 @@ const SettingPage = () => {
       await basicRepo.reload(basicRef.current!.getConfiguration()).then(() => { message.success("保存成功") }).finally(() => history.back())
     } else if (cur === "gpt") {
       await gptRepo.reload(gptRef.current!.getConfiguration()).then(() => { message.success("保存成功") }).finally(() => history.back())
-    }else if (cur === "tts") {
+    } else if (cur === "tts") {
       await ttsRepo.reload(ttsRef.current!.getConfiguration()).then(() => { message.success("保存成功") }).finally(() => history.back())
+    } else if (cur === "translate") {
+      await translateRepo.reload(translateRef.current!.getConfiguration()).then(() => { message.success("保存成功") }).finally(() => history.back())
     }
   }
 
@@ -82,6 +93,7 @@ const SettingPage = () => {
       {cur === 'paint' ? <PaintSetting ref={paintRef} name="" /> : null}
       {cur === 'gpt' ? <GPTSetting ref={gptRef} name="" /> : null}
       {cur === 'tts' ? <TTSSetting ref={ttsRef} name="" /> : null}
+      {cur === 'translate' ? <TranslateSetting ref={translateRef} name="" /> : null}
     </div>
   );
 };

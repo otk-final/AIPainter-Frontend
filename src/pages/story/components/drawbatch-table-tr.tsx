@@ -5,6 +5,7 @@ import { drawbatchColumns } from "../data";
 import { Actor, Chapter, useActorRepository, useChapterRepository } from "@/repository/story";
 import { useComfyUIRepository } from "@/repository/comfyui";
 import { AssetHistoryImages, AssetImage, ModalHistoryImages } from "@/components/history-image";
+import { useTranslateRepository } from "@/repository/translate";
 
 interface ChapterTableTRProps {
     idx: number,
@@ -20,7 +21,7 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
     const chapterRepo = useChapterRepository(state => state)
     const actorRepo = useActorRepository(state => state)
     const comfyuiRepo = useComfyUIRepository(state => state)
-
+    const translateRepo = useTranslateRepository(state => state)
     const [stateChapter, setChapter] = useState<Chapter>({ ...chapter })
 
     useEffect(() => {
@@ -53,14 +54,28 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
         await chapterRepo.updateItem(idx, { ...stateChapter, prompt: e.target.value }, false)
     }
 
-    const renderEditPrompts = () => {
+    const renderEditPrompt = () => {
         return (
-            <TextArea rows={6} placeholder={"请输入画面描述词"}
+            <TextArea rows={6} placeholder={"请输入画面关键词"}
                 maxLength={1000} className="text-area-auto"
                 value={stateChapter.prompt}
                 onChange={handleEditPrompt} />
         )
     }
+
+    const handleEditDescription = async (e: any) => {
+        await chapterRepo.updateItem(idx, { ...stateChapter, description: e.target.value }, false)
+    }
+
+    const renderEditDescription = () => {
+        return (
+            <TextArea rows={6} placeholder={"请输入画面描述词"}
+                maxLength={1000} className="text-area-auto"
+                value={stateChapter.description}
+                onChange={handleEditDescription} />
+        )
+    }
+
 
     const handleText2Image = async () => {
 
@@ -93,12 +108,24 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
         await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo, actorRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
+    const handleTranslatePrompt = async () => {
+        Modal.info({
+            content: <div style={{ color: '#fff' }}>关键词翻译中...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
+        })
+        await chapterRepo.handleTranslatePrompt(idx, translateRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+    }
+
+
 
     const renderOperate = () => {
         return (
             <Fragment>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleText2Image}>重绘本镜</Button>
                 <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateChapter.image?.path} onClick={handleImageScale}>高清放大</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateChapter.description} onClick={handleTranslatePrompt}>翻译描述</Button>
             </Fragment>
         )
     }
@@ -113,8 +140,8 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
-                        {i.key === 'description' ? stateChapter.description : null}
-                        {i.key === 'drawPrompt' ? renderEditPrompts() : null}
+                        {i.key === 'description' ? renderEditDescription() : null}
+                        {i.key === 'drawPrompt' ? renderEditPrompt() : null}
                         {i.key === 'drawImage' && <AssetImage path={stateChapter.image?.path} repo={chapterRepo} />}
                         {i.key === 'drawImageHistory' && <AssetHistoryImages setOpen={setOpen} path={stateChapter.image?.path} history={stateChapter.image?.history || []} repo={chapterRepo} />}
                         {i.key === 'operate' ? renderOperate() : null}

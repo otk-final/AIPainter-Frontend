@@ -10,6 +10,7 @@ import { ImageGenerate, SRTGenerate, VideoFragmentConcat } from "./generate_util
 import { BaisicSettingRepository } from "./setting"
 import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./drafts"
 import { TTSRepository } from "./tts"
+import { TranslateRepository } from "./translate"
 
 export type ImportType = "input" | "file"
 
@@ -210,7 +211,18 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
     //生成场景关键词
     handleGeneratePrompt = async (index: number) => {
 
-    }   
+    }
+
+    //翻译场景关键词
+    handleTranslatePrompt = async (index: number, translateRepo: TranslateRepository) => {
+        let api = await translateRepo.newClient()
+        //翻译
+        let enResp = await api.translate(this.items[index].description)
+        this.items[index].prompt = enResp.result.trans_result.map(i => i.dst).join(",")
+        
+        //保存
+        this.sync()
+    }
     //生成图片
     handleGenerateImage = async (index: number, style: string, comyuiRepo: ComfyUIRepository, actorRepo: ActorRepository) => {
         let chapter = this.items[index]
@@ -234,7 +246,9 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         //save
         this.sync()
     }
-    handleGenerateAudio = async (index: number,defaultAudioOption: AudioOption, actorRepo:ActorRepository,ttsRepo: TTSRepository) => {
+
+
+    handleGenerateAudio = async (index: number, defaultAudioOption: AudioOption, actorRepo: ActorRepository, ttsRepo: TTSRepository) => {
 
         let audioOption: AudioOption
         let chapter = this.items[index]
@@ -411,7 +425,7 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
         this.sync()
     }
 
-    handleConfirmTraitsOption = async (index: number,traits: TraitsOption[]) => {
+    handleConfirmTraitsOption = async (index: number, traits: TraitsOption[]) => {
         this.items[index].traits = [...traits]
         this.sync()
     }

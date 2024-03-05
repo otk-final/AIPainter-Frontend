@@ -10,6 +10,7 @@ import DrawbatchTab from './components/drawbatch';
 import StoryboardTab from './components/storyboard';
 import { dialog, path } from '@tauri-apps/api';
 import { useBaisicSettingRepository } from '@/repository/setting';
+import { useTranslateRepository } from '@/repository/translate';
 
 type ActionTabType = "storyboard" | "drawbatch" | "mixing"
 
@@ -23,6 +24,7 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
   const actorsRepo = useActorRepository(state => state)
   const chaptersRepo = useChapterRepository(state => state)
   const settingRepo = useBaisicSettingRepository(state => state)
+  const translateRepo = useTranslateRepository(state => state)
 
   //加载配置项
   useEffect(() => {
@@ -32,7 +34,9 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
       await scriptRepo.load(pid)
       await actorsRepo.load(pid)
       await chaptersRepo.load(pid)
+      await translateRepo.load("env")
     }
+    
     initializeContext().catch(err => message.error(err.message))
 
     return () => {

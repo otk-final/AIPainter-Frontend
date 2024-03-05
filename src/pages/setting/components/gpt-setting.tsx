@@ -59,7 +59,7 @@ const GPTSetting = forwardRef<GPTSettingRef, GPTSettingProps>((props, ref) => {
             </div>
 
             <div className="section">
-                <div className="title">GPT参数设置</div>
+                <div className="title">默认参数设置</div>
                 <div className="form-wrap flexR">
                     <div className="form-item flexC">
                         <div className="label">模型</div>
@@ -72,7 +72,7 @@ const GPTSetting = forwardRef<GPTSettingRef, GPTSettingProps>((props, ref) => {
                     </div>
                     <div className="form-item flexC">
                         <div className="label">AssistantId</div>
-                        <Input size="large" placeholder="ApiKey" value={stateConfiguration.assistantId} onChange={(e) => setConfiguration({ ...stateConfiguration, assistantId: e.target.value })} className='input-s ' style={{ width: '900px' }} />
+                        <Input size="large" placeholder="ApiKey" value={stateConfiguration.assistantId} onChange={(e) => setConfiguration({ ...stateConfiguration, assistantId: e.target.value })} className='input-s ' />
                     </div>
                 </div>
             </div>
