@@ -9,8 +9,10 @@ import MixingTab from './components/mixing';
 import DrawbatchTab from './components/drawbatch';
 import StoryboardTab from './components/storyboard';
 import { dialog, path } from '@tauri-apps/api';
-import { useBaisicSettingRepository } from '@/repository/setting';
+import { useBaisicSettingRepository } from '@/repository/draft';
 import { useTranslateRepository } from '@/repository/translate';
+import { useComfyUIRepository } from '@/repository/comfyui';
+import { useTTSRepository } from '@/repository/tts';
 
 type ActionTabType = "storyboard" | "drawbatch" | "mixing"
 
@@ -19,11 +21,13 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
   const [cur, setCur] = useState<ActionTabType>("storyboard");
   const [tabs, setTabs] = useState(createTabs)
 
-  //状态
   const scriptRepo = useScriptRepository(state => state)
   const actorsRepo = useActorRepository(state => state)
   const chaptersRepo = useChapterRepository(state => state)
+
   const settingRepo = useBaisicSettingRepository(state => state)
+  const comfyuiRepo = useComfyUIRepository(state => state)
+  const ttsRepo = useTTSRepository(state => state)
   const translateRepo = useTranslateRepository(state => state)
 
   //加载配置项
@@ -34,9 +38,14 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
       await scriptRepo.load(pid)
       await actorsRepo.load(pid)
       await chaptersRepo.load(pid)
+
+      //系统文件加载
       await translateRepo.load("env")
+      await comfyuiRepo.load("env")
+      await settingRepo.load('env')
+      await ttsRepo.load("env")
     }
-    
+
     initializeContext().catch(err => message.error(err.message))
 
     return () => {
@@ -94,7 +103,7 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
 
     return (
       <div className='flexR'>
-        <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExport} disabled={!chaptersRepo.items || chaptersRepo.items?.length === 0}>导出视频</Button>
+        {/* <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExport} disabled={!chaptersRepo.items || chaptersRepo.items?.length === 0}>导出视频</Button> */}
         <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleJYDraft} disabled={!chaptersRepo.items || chaptersRepo.items?.length === 0}>导出剪映草稿</Button>
       </div>
     )

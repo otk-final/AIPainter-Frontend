@@ -39,11 +39,11 @@ const TTSSetting = forwardRef<TTSSettingRef, TTSSettingProps>((props, ref) => {
                 <div className="form-wrap flexR">
                     <div className="form-item flexC">
                         <div className="label">AppId</div>
-                        <Input size="large" placeholder="appId" value={stateConfiguration.appId} onChange={(e) => setConfiguration({ ...stateConfiguration, appId: e.target.value })} className='input-s ' style={{ width: '900px' }} />
+                        <Input size="large" placeholder="appId" value={stateConfiguration.appId} onChange={(e) => setConfiguration({ ...stateConfiguration, appId: e.target.value })} className='input-s ' />
                     </div>
                     <div className="form-item flexC">
                         <div className="label">AppKey</div>
-                        <Input size="large" placeholder="appKey" value={stateConfiguration.authorization} onChange={(e) => setConfiguration({ ...stateConfiguration, authorization: e.target.value })} className='input-s ' style={{ width: '900px' }} />
+                        <Input size="large" placeholder="appKey" value={stateConfiguration.authorization} onChange={(e) => setConfiguration({ ...stateConfiguration, authorization: e.target.value })} className='input-s ' />
                     </div>
                 </div>
             </div>

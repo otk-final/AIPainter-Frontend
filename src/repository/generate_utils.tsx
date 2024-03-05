@@ -1,7 +1,7 @@
 import { fs, shell, tauri } from "@tauri-apps/api"
 import { ComfyUIRepository } from "./comfyui"
 import { ComfyUIApi, ImageFileParams, Text2ImageHandle, Text2ImageParams, WFScript } from "./comfyui_api"
-import { KeyFragment } from "./drafts"
+import { KeyFragment } from "./draft_utils"
 import { delay } from "./tauri_repository"
 import { SRTLine, formatTime } from "./srt"
 

@@ -7,6 +7,8 @@ export interface AudioOption {
     voice_classify: string
     voice_type: string
     emotion: string
+    speed_ratio?: number,
+    volume_ratio?: number
 }
 
 export interface AudioData {

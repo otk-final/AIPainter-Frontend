@@ -9,7 +9,7 @@ import { Button, InputNumber, message } from "antd"
 import React, { useEffect, useState } from "react"
 import { useKeyFrameRepository } from "@/repository/keyframe";
 import { SRTGenerate } from "@/repository/generate_utils";
-import { useBaisicSettingRepository } from "@/repository/setting";
+import { useBaisicSettingRepository } from "@/repository/draft";
 import { useTTSRepository } from "@/repository/tts";
 import { CloseCircleFilled } from "@ant-design/icons";
 import { useGPTRepository } from "@/repository/gpt";
@@ -93,10 +93,9 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
         setBatchPos(next_idx + 1)
 
         //通用音频参数
-        let audioOption = settingRepo.audio.option;
-
+        let audioOption = { ...settingRepo.audio.option };
         //执行任务
-        await keyFrameRepo.handleGenerateAudio(next_idx, audioOption, ttsRepo).then(async () => {
+        await keyFrameRepo.handleGenerateAudio(next_idx, audioOption, settingRepo, ttsRepo).then(async () => {
             if (keyFrameRepo.isBatchExit()) {
                 return;
             }
@@ -130,7 +129,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
             if (keyFrameRepo.isBatchExit()) {
                 return;
             }
-            await batchGenerateVideo(next_idx + 1,next_idx)
+            await batchGenerateVideo(next_idx + 1, next_idx)
         }).finally(keyFrameRepo.resetBatchExit)
     }
 
@@ -152,9 +151,10 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
     return (
         <div className="generate-image-wrap">
             <div className='generate-header flexR'>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExportSRTFile}>导出新字幕文件</Button>
+                {/* <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExportSRTFile}>导出新字幕文件</Button> */}
+                <div className='flexR'></div>
                 <div className='flexR'>
-                    <div className='flexR'>批量开始起点 <InputNumber controls={false} style={{ width: "54px", marginLeft: '10px', marginRight: '10px' }} className="inputnumber-auto" placeholder='1' 
+                    <div className='flexR'>批量开始起点 <InputNumber controls={false} style={{ width: "54px", marginLeft: '10px', marginRight: '10px' }} className="inputnumber-auto" placeholder='1'
                         defaultValue={1}
                         min={1}
                         max={keyFrameRepo.items.length}
@@ -163,7 +163,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
                         onChange={(e) => setBatchPos(e!)} /> 镜</div>
                     <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchRewrite} loading={batchRewriteLoading}>一键改写</Button>
                     <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateAudio} loading={batchAudioLoading}>批量生成音频</Button>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateVideo} loading={batchVideoLoading} >批量生成视频</Button>
+                    {/* <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateVideo} loading={batchVideoLoading} >批量生成视频</Button> */}
                     {
                         batchRewriteLoading && <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExitBatchRewrite} icon={<CloseCircleFilled />}>取消</Button>
                     }
@@ -171,7 +171,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
                         batchAudioLoading && <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExitBatchGenerateAudio} icon={<CloseCircleFilled />}>取消</Button>
                     }
                     {
-                        batchVideoLoading && <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExitBatchGenerateVideo} icon={<CloseCircleFilled />}>取消</Button>
+                        // batchVideoLoading && <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExitBatchGenerateVideo} icon={<CloseCircleFilled />}>取消</Button>
                     }
                 </div>
             </div>

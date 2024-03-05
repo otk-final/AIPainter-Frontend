@@ -37,30 +37,32 @@ const StoryboardTab: React.FC<StoryboardTabProps> = ({ pid }) => {
         )
     }
 
-    const _rowRenderer = ({index, key, style}: ListRowProps)=>{
+    const _rowRenderer = ({ index, key, style }: ListRowProps) => {
         const items = chapterRepo.items;
         return <StoryboardTableTR key={key} idx={index} style={style} chapter={items[index]} actors={[...actorRepo.items]} />
     }
     const renderChapterList = () => {
         return (
-            <div style={{height: '100%'}}>
+            <div style={{ height: '100%' }}>
                 <div className='script-header flexR'>
                     <div className='flexR'>
                         <Button type='default' className='btn-default-auto btn-default-150 l-p' onClick={() => setOpen(true)}>导入脚本文件</Button>
-                        <Button type='primary' className='btn-primary-auto btn-primary-108'>推理关键词</Button>
                         <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => { history.push('/roleset/' + pid) }} >设置角色</Button>
                     </div>
-                    <div className='text flexR'>已完成分镜: {hasCompletedCount}/{chapterRepo.items.length}</div>
+                    <div className='flexR'>
+                        <div className='text'>已完成分镜: {hasCompletedCount}/{chapterRepo.items.length}</div>
+                        <Button type='primary' className='btn-primary-auto btn-primary-108'>批量推理关键词</Button>
+                    </div>
                 </div>
-                <div className='script-table-wrap' style={{height: 'calc(100% - 60px)', display: "flex", flexDirection: 'column'}}>
+                <div className='script-table-wrap' style={{ height: 'calc(100% - 60px)', display: "flex", flexDirection: 'column' }}>
                     <div className='th flexR'>
                         {storyboardColumns.map((i) => {
                             return <div className='th-td' style={{ flex: `${i.space}` }} key={i.key}>{i.title}</div>
                         })}
                     </div>
-                    <div style={{flex: 1}} >
+                    <div style={{ flex: 1 }} >
                         <AutoSizer>
-                            {({height, width }) => {
+                            {({ height, width }) => {
                                 let len = chapterRepo.items.length;
                                 return (
                                     <List
@@ -70,7 +72,7 @@ const StoryboardTab: React.FC<StoryboardTabProps> = ({ pid }) => {
                                         rowHeight={184}
                                         rowRenderer={_rowRenderer}
                                         width={width}
-                                        noRowsRenderer={()=> <div></div>}
+                                        noRowsRenderer={() => <div></div>}
                                         overscanRowCount={20}
                                     />
                                 )

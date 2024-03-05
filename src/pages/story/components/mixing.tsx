@@ -7,7 +7,7 @@ import { dialog } from "@tauri-apps/api";
 import { SRTGenerate } from "@/repository/generate_utils";
 import { useEffect, useState } from "react";
 import { CloseCircleFilled } from "@ant-design/icons";
-import { useBaisicSettingRepository } from "@/repository/setting";
+import { useBaisicSettingRepository } from "@/repository/draft";
 import { useTTSRepository } from "@/repository/tts";
 
 interface MixingTabProps {
@@ -87,11 +87,8 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid }) => {
         }
         setBatchPos(next_idx + 1)
 
-        //通用音频参数
-        let audioOption = settingRepo.audio.option
-
         //执行任务
-        await chapterRepo.handleGenerateAudio(next_idx, audioOption,actorRepo,ttsRepo).then(async () => {
+        await chapterRepo.handleGenerateAudio(next_idx, settingRepo, actorRepo, ttsRepo).then(async () => {
             if (chapterRepo.isBatchExit()) {
                 return;
             }
@@ -121,7 +118,7 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid }) => {
         }
         setBatchPos(next_idx + 1)
         //执行任务
-        await chapterRepo.handleGenerateVideo(next_idx,settingRepo).then(async () => {
+        await chapterRepo.handleGenerateVideo(next_idx, settingRepo).then(async () => {
             if (chapterRepo.isBatchExit()) {
                 return;
             }
@@ -158,7 +155,7 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid }) => {
                         required
                         onChange={(e) => setBatchPos(e!)} /> 镜</div>
                     <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateAudio} loading={batchAudioLoading}>批量生成音频</Button>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateVideo} loading={batchVideoLoading} >批量生成视频</Button>
+                    {/* <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateVideo} loading={batchVideoLoading} >批量生成视频</Button> */}
                     {
                         batchAudioLoading && <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExitBatchGenerateAudio} icon={<CloseCircleFilled />}>取消</Button>
                     }

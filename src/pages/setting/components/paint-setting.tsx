@@ -99,7 +99,7 @@ const PaintSetting = forwardRef<PaintSettingRef, PaintSettingProps>((props, ref)
             <div className='setting-section'>
                 <div className='setting-title'>ComfyUI Api配置</div>
                 <div className='content flexR'>
-                    <div className='setting-title'>模型
+                    <div className='setting-title'>生图模型
                         <Button type="primary" size={'small'} className="btn-primary-auto btn-primary-108" icon={<PlusOutlined />} onClick={handleAppendMode}>添加模型</Button>
                     </div>
                 </div>

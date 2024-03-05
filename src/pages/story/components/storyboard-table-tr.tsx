@@ -4,7 +4,7 @@ import { storyboardColumns } from "../data";
 import TextArea from "antd/es/input/TextArea";
 import { Actor, Chapter, useActorRepository, useChapterRepository } from "@/repository/story";
 import { useGPTRepository } from "@/repository/gpt";
-import { useBaisicSettingRepository } from "@/repository/setting";
+import { useBaisicSettingRepository } from "@/repository/draft";
 
 interface StoryboardTableTRProps {
     idx: number,

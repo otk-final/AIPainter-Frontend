@@ -10,7 +10,9 @@ import { useComfyUIRepository } from '@/repository/comfyui';
 import SRTMixingTab from './components/srt-mixing';
 import { useKeyFrameRepository } from '@/repository/keyframe';
 import { dialog, path } from '@tauri-apps/api';
-import { useBaisicSettingRepository } from '@/repository/setting';
+import { useBaisicSettingRepository } from '@/repository/draft';
+import { useTTSRepository } from '@/repository/tts';
+import { useTranslateRepository } from '@/repository/translate';
 
 export type ImitateTabType = "import" | "frames" | "audio"
 const imitateTabs: TabsProps["items"] = [
@@ -36,13 +38,20 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   const keyFreamRepo = useKeyFrameRepository(state => state)
   const comfyuiRepo = useComfyUIRepository(state => state)
   const settingRepo = useBaisicSettingRepository(state => state)
+  const ttsRepo = useTTSRepository(state => state)
+  const translateRepo = useTranslateRepository(state => state)
 
   //加载配置项
   useMemo(() => {
     //加载数据
     simulateRepo.load(pid)
     keyFreamRepo.load(pid)
+
     comfyuiRepo.load("env")
+    settingRepo.load('env')
+    ttsRepo.load("env")
+    translateRepo.load("env")
+
     return () => {
       simulateRepo.sync()
       keyFreamRepo.sync()
@@ -94,7 +103,7 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
 
   const renderHeaderRight = () => {
     return <div>
-      <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!keyFreamRepo.items || keyFreamRepo.items.length === 0} onClick={handleExport}> 导出视频</Button>
+      {/* <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!keyFreamRepo.items || keyFreamRepo.items.length === 0} onClick={handleExport}> 导出视频</Button> */}
       <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!keyFreamRepo.items || keyFreamRepo.items.length === 0} onClick={handleJYDraft}> 导出剪映草稿</Button>
     </div>
   }

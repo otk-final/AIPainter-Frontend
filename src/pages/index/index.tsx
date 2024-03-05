@@ -39,11 +39,11 @@ const data: homeDataProps[] = [
     pageUrl: '/setting'
   },
   {
-    key: "tittok-download",
-    title: "抖音下载",
-    describe: "快速下载抖音爆款",
+    key: "draft",
+    title: "草稿设置",
+    describe: "快速设置剪映草稿参数",
     btnText: "去下载",
-    pageUrl: '/tiktok'
+    pageUrl: '/draft'
   }
 ]
 
@@ -71,15 +71,15 @@ const HomePage = () => {
     setBannerW(bannerRef.current.offsetWidth);
   }, []);
 
-  useEffect(()=>{
-    window.addEventListener('resize', function() {
-      if(bannerRef.current) {
+  useEffect(() => {
+    window.addEventListener('resize', function () {
+      if (bannerRef.current) {
         setBannerW(bannerRef.current.offsetWidth);
       }
     })
-  },[])
+  }, [])
 
- 
+
 
   const handleBtn = (i: homeDataProps) => {
     // if (!loginState.isLogin) {
@@ -119,7 +119,7 @@ const HomePage = () => {
         </div>
       ),
       onOk: async () => {
-        await projectRepo.delItem(idx,true)
+        await projectRepo.delItem(idx, true)
       }
     });
   }
@@ -163,7 +163,7 @@ const HomePage = () => {
         {carouselData.map((i, index) => {
           return (
             <div key={index} ref={bannerRef}>
-              <Image  src={i.url} width="100%"  height={bannerW/9 * 1.8} preview={false} />
+              <Image src={i.url} width="100%" height={bannerW / 9 * 1.8} preview={false} />
             </div>
           )
         })}

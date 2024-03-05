@@ -7,8 +7,8 @@ import { ComfyUIRepository } from "./comfyui"
 import { createWorker } from "tesseract.js"
 import { v4 as uuid } from "uuid"
 import { AudioOption } from "./tts_api"
-import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./drafts"
-import { BaisicSettingRepository } from "./setting"
+import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./draft_utils"
+import { JYDraftRepository } from "./draft"
 import { GPTRepository } from "./gpt"
 import { ImageGenerate, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
 import { TTSRepository } from "./tts"
@@ -135,12 +135,16 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     }
 
     //在线生成音频
-    handleGenerateAudio = async (index: number, audio: AudioOption, ttsRepo: TTSRepository) => {
+    handleGenerateAudio = async (index: number, audio: AudioOption, settingRepo: JYDraftRepository, ttsRepo: TTSRepository) => {
         let api = await ttsRepo.newClient()
+
+        audio.speed_ratio = settingRepo.audio.speed
+        audio.volume_ratio = settingRepo.audio.volume
 
         //生成音频
         let item = this.items[index]
-        let resp = await api.translate(item.srt_rewrite!, audio)
+        let srtText = item.srt_rewrite! || item.srt!
+        let resp = await api.translate(srtText, audio)
 
         //保存音频
         let audioName = item.id + "-new-" + uuid() + ".mp3"
@@ -155,7 +159,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     }
 
     //本地生成视频
-    handleGenerateVideo = async (index: number, settingRepo: BaisicSettingRepository) => {
+    handleGenerateVideo = async (index: number, settingRepo: JYDraftRepository) => {
         let item = this.items[index]
 
         //临时存储目录
@@ -207,7 +211,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
 
     //合并导出视频
-    handleConcatVideo = async (savePath: string, settingRepo: BaisicSettingRepository) => {
+    handleConcatVideo = async (savePath: string, settingRepo: JYDraftRepository) => {
         //有效片段
         let fragments = await this.formatFragments()
         fragments = fragments.slice(0, 3)
@@ -230,7 +234,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
 
     //导出剪映草稿
-    handleConcatJYDraft = async (saveDir: string, settingRepo: BaisicSettingRepository) => {
+    handleConcatJYDraft = async (saveDir: string, settingRepo: JYDraftRepository) => {
         let draft_name = await path.basename(saveDir)
         console.info("draft_name", draft_name)
 

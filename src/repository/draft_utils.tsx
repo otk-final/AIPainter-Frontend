@@ -1,6 +1,6 @@
 import { fs, path } from "@tauri-apps/api";
 import { v4 as uuid } from "uuid"
-import { BaisicSettingConfiguration } from "./setting";
+import { JYDraftConfiguration } from "./draft";
 
 /**
  * 加载剪映草稿模版
@@ -92,9 +92,9 @@ const EffectCommonKeyframesConvert = (item: KeyFragment, kf_template: any) => {
 
 
 //导出剪映草稿
-export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[], srtpath: string, settingRepo: BaisicSettingConfiguration) => {
+export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[], srtpath: string, settingRepo: JYDraftConfiguration) => {
     console.info("setting", settingRepo)
-    
+
     let now = new Date();
     let now_time = now.getTime()
     let now_time_s = Math.floor(now_time / 1000)
@@ -231,10 +231,18 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
     for (let i = 0; i < items.length; i++) {
         let item = items[i]
 
-        //字幕（取当前字幕长度）
-        let text_style = { ...text_content_template.styles[0], range: [0, Math.max(10, item.srt.length)] }
+        //字幕（取当前字幕长度）颜色，大小
+        let text_fill = {
+            content: {
+                solid: {
+                    color: [...settingRepo.srt.color_rgb]
+                }
+            }
+        }
+
+        let text_style = { ...text_content_template.styles[0], range: [0, Math.max(10, item.srt.length)], fill: text_fill, size: settingRepo.srt.size }
         let text_content = { ...text_content_template, text: item.srt, styles: [text_style] }
-        let text = { ...text_template, id: uuid(), content: JSON.stringify(text_content) }
+        let text = { ...text_template, id: uuid(), content: JSON.stringify(text_content), text_color: settingRepo.srt.color }
         texts.push(text)
 
         //图片
@@ -372,6 +380,7 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
         next_start_time = next_start_time + duration
     }
 
+    root_content.fps = settingRepo.video.fps
     root_content.tracks = [text_track, video_track, audio_track]
     root_content.id = uuid()
     root_content.duration = total_duration

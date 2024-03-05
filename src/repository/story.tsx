@@ -7,8 +7,8 @@ import { v4 as uuid } from "uuid"
 import { AudioOption, TTSApi } from "./tts_api"
 import { GPTRepository } from "./gpt"
 import { ImageGenerate, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
-import { BaisicSettingRepository } from "./setting"
-import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./drafts"
+import { JYDraftRepository } from "./draft"
+import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./draft_utils"
 import { TTSRepository } from "./tts"
 import { TranslateRepository } from "./translate"
 
@@ -219,8 +219,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         //翻译
         let enResp = await api.translate(this.items[index].description)
         this.items[index].prompt = enResp.result.trans_result.map(i => i.dst).join(",")
-        
-        //保存
+
         this.sync()
     }
     //生成图片
@@ -247,8 +246,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         this.sync()
     }
 
-
-    handleGenerateAudio = async (index: number, defaultAudioOption: AudioOption, actorRepo: ActorRepository, ttsRepo: TTSRepository) => {
+    handleGenerateAudio = async (index: number, settingRepo: JYDraftRepository, actorRepo: ActorRepository, ttsRepo: TTSRepository) => {
 
         let audioOption: AudioOption
         let chapter = this.items[index]
@@ -264,8 +262,12 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
             }
             audioOption = actor.voice!
         } else {
-            audioOption = { ...defaultAudioOption }
+            audioOption = { ...settingRepo.audio.option }
         }
+
+        //merge 通用语速，和音量
+        audioOption.speed_ratio = settingRepo.audio.speed
+        audioOption.volume_ratio = settingRepo.audio.volume
 
 
         //生成音频
@@ -284,7 +286,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         this.sync()
         return audioPath
     }
-    handleGenerateVideo = async (index: number, settingRepo: BaisicSettingRepository) => {
+    handleGenerateVideo = async (index: number, settingRepo: JYDraftRepository) => {
         let item = this.items[index]
 
         //临时存储目录
@@ -334,7 +336,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
     }
 
     //合并导出视频
-    handleConcatVideo = async (savePath: string, settingRepo: BaisicSettingRepository) => {
+    handleConcatVideo = async (savePath: string, settingRepo: JYDraftRepository) => {
         //有效片段
         let fragments = await this.formatFragments()
         fragments = fragments.slice(0, 3)
@@ -356,7 +358,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
     }
 
     //导出剪映草稿
-    handleConcatJYDraft = async (saveDir: string, settingRepo: BaisicSettingRepository) => {
+    handleConcatJYDraft = async (saveDir: string, settingRepo: JYDraftRepository) => {
         let draft_name = await path.basename(saveDir)
         console.info("draft_name", draft_name)
 

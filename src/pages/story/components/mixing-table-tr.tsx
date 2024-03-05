@@ -3,7 +3,7 @@ import { Fragment, useEffect, useState } from "react";
 import { mixingColumns } from "../data";
 import TextArea from "antd/es/input/TextArea";
 import { Chapter, useActorRepository, useChapterRepository } from "@/repository/story";
-import { EFFECT_DIRECTIONS, useBaisicSettingRepository } from "@/repository/setting";
+import { EFFECT_DIRECTIONS, useBaisicSettingRepository } from "@/repository/draft";
 import { AssetImage } from "@/components/history-image";
 import ButtonGroup from "antd/es/button/button-group";
 import { useTTSRepository } from "@/repository/tts";
@@ -84,7 +84,7 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
             maskClosable: false,
         })
         //音频接口
-        let path = await chapterRepo.handleGenerateAudio(index, settingRepo.audio.option, actorRepo, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        let path = await chapterRepo.handleGenerateAudio(index, settingRepo, actorRepo, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
 
         //播放
         hanldePlayer(path as string)
@@ -129,10 +129,10 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
                     <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateAudio} disabled={!stateChapter.srt}>生成音频</Button>
                     <Button type='default' className='btn-default-auto btn-default-98' onClick={() => hanldePlayer(stateChapter.srt_audio_path!)} disabled={!stateChapter.srt_audio_path} icon={<SoundFilled />}>播放</Button>
                 </ButtonGroup>
-                <ButtonGroup>
+                {/* <ButtonGroup>
                     <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateVideo} disabled={!(stateChapter.srt_audio_path && stateChapter.image.path)}>生成视频</Button>
                     <Button type='default' className='btn-default-auto btn-default-98' onClick={() => hanldePlayer(stateChapter.srt_video_path!)} disabled={!stateChapter.srt_video_path} icon={<CameraFilled />}>播放</Button>
-                </ButtonGroup>
+                </ButtonGroup> */}
             </Fragment>
         )
     }

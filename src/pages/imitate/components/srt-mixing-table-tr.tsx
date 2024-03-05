@@ -8,7 +8,7 @@ import { CameraFilled, SoundFilled } from "@ant-design/icons";
 import { AssetImage } from "@/components/history-image";
 import ButtonGroup from "antd/es/button/button-group";
 import VideoPlayerModal from "./video-player";
-import { EFFECT_DIRECTIONS, useBaisicSettingRepository } from "@/repository/setting";
+import { EFFECT_DIRECTIONS, useBaisicSettingRepository } from "@/repository/draft";
 import { useGPTRepository } from "@/repository/gpt";
 
 interface SRTMixingTRProps {
@@ -78,7 +78,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
     // }
 
     const handleGenerateAudio = async () => {
-        let option = settingRepo.audio.option
+        let option = { ...settingRepo.audio.option }
         Modal.info({
             content: <div style={{ color: '#fff' }}>生成音频...</div>,
             footer: null,
@@ -87,7 +87,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
         })
 
         //音频接口
-        let path = await keyFreamRepo.handleGenerateAudio(index, option, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        let path = await keyFreamRepo.handleGenerateAudio(index, option, settingRepo, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
 
         //播放
         hanldePlayer(path as string)
@@ -144,13 +144,13 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
             <Fragment>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRewriteContent} disabled={!stateFrame.srt}>AI改写</Button>
                 <ButtonGroup>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateAudio} disabled={!stateFrame.srt_rewrite}>生成音频</Button>
+                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateAudio} disabled={!stateFrame.srt_rewrite && !stateFrame.srt}>生成音频</Button>
                     <Button type='default' className='btn-default-auto btn-default-98' onClick={() => hanldePlayer(stateFrame.srt_rewrite_audio_path!)} disabled={!stateFrame.srt_rewrite_audio_path} icon={<SoundFilled />}>播放</Button>
                 </ButtonGroup>
-                <ButtonGroup>
+                {/* <ButtonGroup>
                     <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateVideo} disabled={!(stateFrame.srt_rewrite_audio_path && stateFrame.image.path)}>生成视频</Button>
                     <Button type='default' className='btn-default-auto btn-default-98' onClick={() => hanldePlayer(stateFrame.srt_rewrite_video_path!)} disabled={!stateFrame.srt_rewrite_video_path} icon={<CameraFilled />}>播放</Button>
-                </ButtonGroup>
+                </ButtonGroup> */}
             </Fragment>
         )
     }

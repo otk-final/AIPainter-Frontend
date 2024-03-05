@@ -11,7 +11,9 @@ import TagModalContent from './components/tags-modal';
 import { v4 as uuid } from "uuid"
 import TTSVoiceSelect from '@/components/voice-select';
 import { AudioOption } from '@/repository/tts_api';
-import { useBaisicSettingRepository } from '@/repository/setting';
+import { useBaisicSettingRepository } from '@/repository/draft';
+import { useTTSRepository } from '@/repository/tts';
+import { useTranslateRepository } from '@/repository/translate';
 
 
 
@@ -102,19 +104,23 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) 
 const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
 
   //当前项目配置
-  let actorRepo = useActorRepository(state => state)
-  let comfyuiRepo = useComfyUIRepository(state => state)
-  let settingRepo = useBaisicSettingRepository(state => state)
+  const actorRepo = useActorRepository(state => state)
+  const comfyuiRepo = useComfyUIRepository(state => state)
+  const settingRepo = useBaisicSettingRepository(state => state)
 
-  
+  const ttsRepo = useTTSRepository(state => state)
+  const translateRepo = useTranslateRepository(state => state)
+
   //加载数据
   useEffect(() => {
-    
+
     comfyuiRepo.load("env")
     settingRepo.load("env")
-    actorRepo.load(pid)
+    ttsRepo.load("env")
+    translateRepo.load("env")
 
-    return () => { actorRepo.sync()}
+    actorRepo.load(pid)
+    return () => { actorRepo.sync() }
   }, [pid])
 
 

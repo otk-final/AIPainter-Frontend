@@ -1,5 +1,4 @@
 import React, { forwardRef, useImperativeHandle } from 'react'
-import assets from "@/assets";
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
 import { Button, Input, InputNumber, Select } from "antd"
 import { useState } from "react"
@@ -105,16 +104,16 @@ const BasicInputNumber: React.FC<{ label: string, max?: number, min?: number, st
     )
 }
 
-export interface BasicSettingProps {
+export interface JYDraftSettingProps {
     name: string
 }
 
-export interface BasicSettingRef {
+export interface JYDraftSettingRef {
     getConfiguration(): JYDraftConfiguration
 }
 
 
-const BasicSetting = forwardRef<BasicSettingRef, BasicSettingProps>((props, ref) => {
+const BasicSetting = forwardRef<JYDraftSettingRef, JYDraftSettingProps>((props, ref) => {
 
     //init
     const settingRepo = useBaisicSettingRepository(state => state)

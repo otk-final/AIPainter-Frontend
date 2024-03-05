@@ -1,6 +1,5 @@
 import { create } from "zustand"
 import { BaseRepository } from "./tauri_repository"
-import { AudioOption } from "./tts_api"
 import { subscribeWithSelector } from "zustand/middleware"
 
 export const EFFECT_DIRECTIONS = [
@@ -13,43 +12,29 @@ export const EFFECT_DIRECTIONS = [
 ]
 
 
-export interface BaisicSettingConfiguration {
-    audio: {
-        speed: number,
-        volume: number,
-        option: AudioOption
-    }
+export interface JYDraftConfiguration {
     video: {
         effect: string,
-        frame: number
+        fps: number
     }
     srt: {
-        font: number,
         size: number,
-        color: number,
+        color: string,
+        color_rgb: number[],
     },
     draft_dir: string,
 }
 
 
-export class BaisicSettingRepository extends BaseRepository<BaisicSettingRepository> implements BaisicSettingConfiguration {
-    audio = {
-        speed: 10,
-        volume: 20,
-        option: {
-            voice_classify: "3",
-            voice_type: "BV437_streaming",
-            emotion: "xiasha",
-        }
-    }
+export class JYDraftRepository extends BaseRepository<JYDraftRepository> implements JYDraftConfiguration {
     video = {
         effect: "up",
-        frame: 30,
+        fps: 25,
     }
     srt = {
-        font: 1,
-        size: 2,
-        color: 3,
+        size: 5,
+        color: "#ffffff",
+        color_rgb: [1.0, 1.0, 1.0],
     }
     draft_dir = ""
 
@@ -73,4 +58,4 @@ export class BaisicSettingRepository extends BaseRepository<BaisicSettingReposit
 }
 
 
-export const useBaisicSettingRepository = create<BaisicSettingRepository>()(subscribeWithSelector((set, get) => new BaisicSettingRepository("basic-setting.json", set, get)))
+export const useJYDraftRepository = create<JYDraftRepository>()(subscribeWithSelector((set, get) => new JYDraftRepository("jydraft.json", set, get)))

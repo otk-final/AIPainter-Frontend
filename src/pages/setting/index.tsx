@@ -5,7 +5,7 @@ import PaintSetting, { PaintSettingRef } from './components/paint-setting';
 import BasicSetting, { BasicSettingRef } from './components/basic-setting';
 import { Header } from '@/components';
 import { useComfyUIRepository } from '@/repository/comfyui';
-import { useBaisicSettingRepository } from '@/repository/setting';
+import { useBaisicSettingRepository } from '@/repository/draft';
 import GPTSetting, { GPTSettingRef } from './components/gpt-setting';
 import TTSSetting, { TTSSettingRef } from './components/tts-setting';
 import { useGPTRepository } from '@/repository/gpt';
@@ -22,19 +22,19 @@ export const setTabItems: TabsProps['items'] = [
   },
   {
     key: 'paint',
-    label: '绘图设置',
+    label: '绘图接口',
   },
   {
     key: 'gpt',
-    label: 'GPT设置',
+    label: 'GPT接口',
   },
   {
     key: 'tts',
-    label: '音频设置',
+    label: '音频接口',
   },
   {
     key: 'translate',
-    label: '翻译设置',
+    label: '翻译接口',
   }
 ];
 
