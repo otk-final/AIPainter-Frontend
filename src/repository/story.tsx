@@ -4,7 +4,7 @@ import { create } from "zustand"
 import { fs, path, tauri } from "@tauri-apps/api"
 import { ComfyUIRepository } from "./comfyui"
 import { v4 as uuid } from "uuid"
-import { AudioOption, TTSApi } from "./tts_api"
+import { AudioOption } from "./tts_api"
 import { GPTRepository } from "./gpt"
 import { ImageGenerate, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
 import { JYDraftRepository } from "./draft"
@@ -210,7 +210,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
 
     //生成场景关键词
     handleGeneratePrompt = async (index: number) => {
-
+        console.info(index)
     }
 
     //翻译场景关键词
@@ -246,7 +246,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         this.sync()
     }
 
-    handleGenerateAudio = async (index: number, settingRepo: JYDraftRepository, actorRepo: ActorRepository, ttsRepo: TTSRepository) => {
+    handleGenerateAudio = async (index: number,actorRepo: ActorRepository, ttsRepo: TTSRepository) => {
 
         let audioOption: AudioOption
         let chapter = this.items[index]
@@ -262,12 +262,12 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
             }
             audioOption = actor.voice!
         } else {
-            audioOption = { ...settingRepo.audio.option }
+            audioOption = { ...ttsRepo.audio_option }
         }
 
         //merge 通用语速，和音量
-        audioOption.speed_ratio = settingRepo.audio.speed
-        audioOption.volume_ratio = settingRepo.audio.volume
+        audioOption.speed_ratio = ttsRepo.audio_speed
+        audioOption.volume_ratio = ttsRepo.audio_volume
 
 
         //生成音频

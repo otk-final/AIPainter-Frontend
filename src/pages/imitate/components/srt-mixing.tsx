@@ -1,18 +1,18 @@
 import { srtMixingColumns } from "../data"
 import { ImitateTabType } from ".."
 import SRTMixingTR from "./srt-mixing-table-tr"
-import { dialog } from "@tauri-apps/api"
+// import { dialog } from "@tauri-apps/api"
 import { List, AutoSizer, ListRowProps } from 'react-virtualized';
 
 import 'react-virtualized/styles.css'; // 导入样式文件
 import { Button, InputNumber, message } from "antd"
 import React, { useEffect, useState } from "react"
 import { useKeyFrameRepository } from "@/repository/keyframe";
-import { SRTGenerate } from "@/repository/generate_utils";
-import { useBaisicSettingRepository } from "@/repository/draft";
+// import { SRTGenerate } from "@/repository/generate_utils";
 import { useTTSRepository } from "@/repository/tts";
 import { CloseCircleFilled } from "@ant-design/icons";
 import { useGPTRepository } from "@/repository/gpt";
+// import { useJYDraftRepository } from "@/repository/draft";
 
 interface SRTMixingProps {
     pid: string,
@@ -21,19 +21,19 @@ interface SRTMixingProps {
 
 const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
     const keyFrameRepo = useKeyFrameRepository(state => state)
-    const settingRepo = useBaisicSettingRepository(state => state)
+    // const draftRepo = useJYDraftRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
     const gptRepo = useGPTRepository(state => state)
 
-    const handleExportSRTFile = async () => {
-        let selected = await dialog.save({ title: "保存文件", filters: [{ name: "SRT文件", extensions: ["srt"] }] })
-        if (!selected) {
-            return
-        }
-        //有效片段
-        let valids = await keyFrameRepo.formatFragments()
-        await SRTGenerate(selected as string, valids).finally(() => { message.success("导出成功") })
-    }
+    // const handleExportSRTFile = async () => {
+    //     let selected = await dialog.save({ title: "保存文件", filters: [{ name: "SRT文件", extensions: ["srt"] }] })
+    //     if (!selected) {
+    //         return
+    //     }
+    //     //有效片段
+    //     let valids = await keyFrameRepo.formatFragments()
+    //     await SRTGenerate(selected as string, valids).finally(() => { message.success("导出成功") })
+    // }
 
     const _rowRenderer = ({ index, key, style }: ListRowProps) => {
         const items = keyFrameRepo.items;
@@ -43,7 +43,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
     //批量处理
     const [batchPos, setBatchPos] = useState<number>(1)
     const [batchAudioLoading, setBatchAudioLoading] = useState<boolean>(false)
-    const [batchVideoLoading, setBatchVideoLoading] = useState<boolean>(false)
+    // const [batchVideoLoading, setBatchVideoLoading] = useState<boolean>(false)
     const [batchRewriteLoading, setBatchRewriteLoading] = useState<boolean>(false)
 
     useEffect(() => {
@@ -91,11 +91,8 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
             return;
         }
         setBatchPos(next_idx + 1)
-
-        //通用音频参数
-        let audioOption = { ...settingRepo.audio.option };
         //执行任务
-        await keyFrameRepo.handleGenerateAudio(next_idx, audioOption, settingRepo, ttsRepo).then(async () => {
+        await keyFrameRepo.handleGenerateAudio(next_idx, ttsRepo).then(async () => {
             if (keyFrameRepo.isBatchExit()) {
                 return;
             }
@@ -107,7 +104,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
         setBatchAudioLoading(true)
         keyFrameRepo.resetBatchExit()
 
-        await batchGenerateAudio(batchPos - 1, keyFrameRepo.items.length).finally(() => setBatchAudioLoading(false))
+        await batchGenerateAudio(batchPos - 1, keyFrameRepo.items.length).catch(err => message.error(err.message)).finally(() => setBatchAudioLoading(false))
     }
 
     const handleExitBatchGenerateAudio = () => {
@@ -118,35 +115,34 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
     //-------------------------------批量生成视频-----------------------------
 
 
-    const batchGenerateVideo = async (next_idx: number, end_idx: number) => {
-        //查询状态
-        if (keyFrameRepo.isBatchExit() || next_idx === end_idx) {
-            return;
-        }
-        setBatchPos(next_idx + 1)
-        //执行任务
-        await keyFrameRepo.handleGenerateVideo(next_idx, settingRepo).then(async () => {
-            if (keyFrameRepo.isBatchExit()) {
-                return;
-            }
-            await batchGenerateVideo(next_idx + 1, next_idx)
-        }).finally(keyFrameRepo.resetBatchExit)
-    }
-
-    const handleBatchGenerateVideo = async () => {
-        //重置
-        setBatchVideoLoading(true)
-        keyFrameRepo.resetBatchExit()
-
-        await batchGenerateVideo(batchPos - 1, keyFrameRepo.items.length).finally(() => setBatchVideoLoading(false))
-    }
-
-    const handleExitBatchGenerateVideo = () => {
-        keyFrameRepo.setBatchExit()
-        setBatchVideoLoading(false)
-    }
+    // const batchGenerateVideo = async (next_idx: number, end_idx: number) => {
+    //     //查询状态
+    //     if (keyFrameRepo.isBatchExit() || next_idx === end_idx) {
+    //         return;
+    //     }
+    //     setBatchPos(next_idx + 1)
+    //     //执行任务
+    //     await keyFrameRepo.handleGenerateVideo(next_idx, draftRepo).then(async () => {
+    //         if (keyFrameRepo.isBatchExit()) {
+    //             return;
+    //         }
+    //         await batchGenerateVideo(next_idx + 1, next_idx)
+    //     }).finally(keyFrameRepo.resetBatchExit)
+    // }
 
 
+    // const handleBatchGenerateVideo = async () => {
+    //     //重置
+    //     setBatchVideoLoading(true)
+    //     keyFrameRepo.resetBatchExit()
+
+    //     await batchGenerateVideo(batchPos - 1, keyFrameRepo.items.length).finally(() => setBatchVideoLoading(false))
+    // }
+
+    // const handleExitBatchGenerateVideo = () => {
+    //     keyFrameRepo.setBatchExit()
+    //     setBatchVideoLoading(false)
+    // }
 
     return (
         <div className="generate-image-wrap">

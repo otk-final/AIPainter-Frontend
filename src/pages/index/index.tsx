@@ -3,10 +3,8 @@ import { Button, Carousel, Image, Modal } from 'antd';
 import './index.less'
 import assets from '@/assets'
 import { history } from "umi"
-import { useLogin } from '@/uses';
 import { ProjectModal } from '@/components/create-project';
 import { Project, useProjectRepository } from '@/repository/workspace';
-import { useComfyUIRepository } from '@/repository/comfyui';
 
 
 export type ProjectType = "story" | "imitate" | ""
@@ -34,15 +32,15 @@ const data: homeDataProps[] = [
   {
     key: "set",
     title: "通用设置",
-    describe: "快速设置SD环境、绘画参数等配置",
+    describe: "快速设置绘画接口、音频生成、翻译等配置",
     btnText: "去设置",
     pageUrl: '/setting'
   },
   {
     key: "draft",
-    title: "草稿设置",
-    describe: "快速设置剪映草稿参数",
-    btnText: "去下载",
+    title: "剪映设置",
+    describe: "快速设置剪映草稿、下载等参数",
+    btnText: "去设置",
     pageUrl: '/draft'
   }
 ]
@@ -95,10 +93,8 @@ const HomePage = () => {
 
   //加载项目
   const projectRepo = useProjectRepository(state => state)
-  const comfyUIRepo = useComfyUIRepository(state => state)
   useEffect(() => {
     projectRepo.load('env')
-    comfyUIRepo.load("env")
   }, [])
 
 

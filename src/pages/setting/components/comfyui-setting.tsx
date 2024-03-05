@@ -8,15 +8,15 @@ import { ComfyUIConfiguration, useComfyUIRepository } from '@/repository/comfyui
 
 
 
-export interface PaintSettingProps {
+export interface ComfyUISettingProps {
     name: string
 }
 
-export interface PaintSettingRef {
+export interface ComfyUISettingRef {
     getConfiguration(): ComfyUIConfiguration
 }
 
-const PaintSetting = forwardRef<PaintSettingRef, PaintSettingProps>((props, ref) => {
+const ComfyUISettingTab = forwardRef<ComfyUISettingRef, ComfyUISettingProps>((props, ref) => {
 
 
     //init
@@ -145,4 +145,4 @@ const PaintSetting = forwardRef<PaintSettingRef, PaintSettingProps>((props, ref)
         </div >
     )
 })
-export default PaintSetting
+export default ComfyUISettingTab

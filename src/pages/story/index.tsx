@@ -9,10 +9,10 @@ import MixingTab from './components/mixing';
 import DrawbatchTab from './components/drawbatch';
 import StoryboardTab from './components/storyboard';
 import { dialog, path } from '@tauri-apps/api';
-import { useBaisicSettingRepository } from '@/repository/draft';
 import { useTranslateRepository } from '@/repository/translate';
 import { useComfyUIRepository } from '@/repository/comfyui';
 import { useTTSRepository } from '@/repository/tts';
+import { useJYDraftRepository } from '@/repository/draft';
 
 type ActionTabType = "storyboard" | "drawbatch" | "mixing"
 
@@ -25,7 +25,7 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
   const actorsRepo = useActorRepository(state => state)
   const chaptersRepo = useChapterRepository(state => state)
 
-  const settingRepo = useBaisicSettingRepository(state => state)
+  const draftRepo = useJYDraftRepository(state => state)
   const comfyuiRepo = useComfyUIRepository(state => state)
   const ttsRepo = useTTSRepository(state => state)
   const translateRepo = useTranslateRepository(state => state)
@@ -42,7 +42,7 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
       //系统文件加载
       await translateRepo.load("env")
       await comfyuiRepo.load("env")
-      await settingRepo.load('env')
+      await draftRepo.load('env')
       await ttsRepo.load("env")
     }
 
@@ -77,13 +77,13 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
       mask: true,
       maskClosable: false,
     })
-    await chaptersRepo.handleConcatVideo(selected as string, settingRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+    await chaptersRepo.handleConcatVideo(selected as string, draftRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
   }
 
   //导出
   const handleJYDraft = async () => {
 
-    let selected = await dialog.open({ directory: true, title: "剪映草稿目录", defaultPath: settingRepo.draft_dir || await path.desktopDir(), recursive: true })
+    let selected = await dialog.open({ directory: true, title: "剪映草稿目录", defaultPath: draftRepo.draft_dir || await path.desktopDir(), recursive: true })
     if (!selected) {
       return
     }
@@ -95,7 +95,7 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
       maskClosable: false,
     })
 
-    await chaptersRepo.handleConcatJYDraft(selected as string, settingRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+    await chaptersRepo.handleConcatJYDraft(selected as string, draftRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
   }
 
 

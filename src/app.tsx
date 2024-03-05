@@ -1,6 +1,5 @@
 import React from 'react';
 import { LoginProvider } from '@/uses';
-import { history } from 'umi';
 
 /**
  * 设置Provider

@@ -11,7 +11,6 @@ import TagModalContent from './components/tags-modal';
 import { v4 as uuid } from "uuid"
 import TTSVoiceSelect from '@/components/voice-select';
 import { AudioOption } from '@/repository/tts_api';
-import { useBaisicSettingRepository } from '@/repository/draft';
 import { useTTSRepository } from '@/repository/tts';
 import { useTranslateRepository } from '@/repository/translate';
 
@@ -106,7 +105,6 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
   //当前项目配置
   const actorRepo = useActorRepository(state => state)
   const comfyuiRepo = useComfyUIRepository(state => state)
-  const settingRepo = useBaisicSettingRepository(state => state)
 
   const ttsRepo = useTTSRepository(state => state)
   const translateRepo = useTranslateRepository(state => state)
@@ -115,7 +113,6 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
   useEffect(() => {
 
     comfyuiRepo.load("env")
-    settingRepo.load("env")
     ttsRepo.load("env")
     translateRepo.load("env")
 

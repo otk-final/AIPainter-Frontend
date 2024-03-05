@@ -4,11 +4,11 @@ import React, { Fragment, useMemo, useState } from "react";
 import { srtMixingColumns } from "../data";
 import { KeyFrame, useKeyFrameRepository } from "@/repository/keyframe";
 import { useTTSRepository } from "@/repository/tts";
-import { CameraFilled, SoundFilled } from "@ant-design/icons";
+import { SoundFilled } from "@ant-design/icons";
 import { AssetImage } from "@/components/history-image";
 import ButtonGroup from "antd/es/button/button-group";
 import VideoPlayerModal from "./video-player";
-import { EFFECT_DIRECTIONS, useBaisicSettingRepository } from "@/repository/draft";
+import { EFFECT_DIRECTIONS } from "@/repository/draft";
 import { useGPTRepository } from "@/repository/gpt";
 
 interface SRTMixingTRProps {
@@ -23,7 +23,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
     const keyFreamRepo = useKeyFrameRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
     const gptRepo = useGPTRepository(state => state)
-    const settingRepo = useBaisicSettingRepository(state => state)
+    // const draftRepo = useJYDraftRepository(state => state)
 
     useMemo(() => {
         const unsub = useKeyFrameRepository.subscribe(
@@ -78,7 +78,6 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
     // }
 
     const handleGenerateAudio = async () => {
-        let option = { ...settingRepo.audio.option }
         Modal.info({
             content: <div style={{ color: '#fff' }}>生成音频...</div>,
             footer: null,
@@ -87,24 +86,24 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
         })
 
         //音频接口
-        let path = await keyFreamRepo.handleGenerateAudio(index, option, settingRepo, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        let path = await keyFreamRepo.handleGenerateAudio(index, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
 
         //播放
         hanldePlayer(path as string)
 
     }
-    const handleGenerateVideo = async () => {
+    // const handleGenerateVideo = async () => {
 
-        Modal.info({
-            content: <div style={{ color: '#fff' }}>合成视频...</div>,
-            footer: null,
-            mask: true,
-            maskClosable: false,
-        })
-        let path = await keyFreamRepo.handleGenerateVideo(index, settingRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+    //     Modal.info({
+    //         content: <div style={{ color: '#fff' }}>合成视频...</div>,
+    //         footer: null,
+    //         mask: true,
+    //         maskClosable: false,
+    //     })
+    //     let path = await keyFreamRepo.handleGenerateVideo(index, draftRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
 
-        hanldePlayer(path as string)
-    }
+    //     hanldePlayer(path as string)
+    // }
 
     const renderNumber = () => {
         return (
@@ -175,4 +174,4 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
     )
 }
 
-export default React.memo(SRTMixingTR)
+export default SRTMixingTR;

@@ -6,7 +6,6 @@ import { Image2TextHandle, WFScript } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
 import { createWorker } from "tesseract.js"
 import { v4 as uuid } from "uuid"
-import { AudioOption } from "./tts_api"
 import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./draft_utils"
 import { JYDraftRepository } from "./draft"
 import { GPTRepository } from "./gpt"
@@ -135,11 +134,11 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     }
 
     //在线生成音频
-    handleGenerateAudio = async (index: number, audio: AudioOption, settingRepo: JYDraftRepository, ttsRepo: TTSRepository) => {
+    handleGenerateAudio = async (index: number, ttsRepo: TTSRepository) => {
         let api = await ttsRepo.newClient()
-
-        audio.speed_ratio = settingRepo.audio.speed
-        audio.volume_ratio = settingRepo.audio.volume
+        
+        //生成音频参数
+        let audio = { ...ttsRepo.audio_option, speed_ratio: ttsRepo.audio_speed, volume_ratio: ttsRepo.audio_volume }
 
         //生成音频
         let item = this.items[index]

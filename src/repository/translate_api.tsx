@@ -1,6 +1,5 @@
-import { fs, http } from "@tauri-apps/api"
+import { http } from "@tauri-apps/api"
 import { Body, Client } from "@tauri-apps/api/http"
-import { v4 as uuid } from "uuid"
 import { TranslateRepository } from "./translate"
 
 

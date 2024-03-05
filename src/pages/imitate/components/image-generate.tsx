@@ -20,7 +20,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ }) => {
   const comfyUIRepo = useComfyUIRepository(state => state)
   const [mode, setOption] = useState<string>("")
   const [secondConfirm, setSecondConfirm] = useState(false);
-  const [isModal, setIsModal ] = useState(false)
+  const [isModal, setIsModal] = useState(false)
   const comfyuiRepo = useComfyUIRepository(state => state)
 
   //批量处理
@@ -28,39 +28,39 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ }) => {
   const [batchImageLoading, setBatchImageLoading] = useState<boolean>(false)
   const [batchPromptLoading, setBatchPromptLoading] = useState<boolean>(false)
 
-  let progressPercent = useMemo(()=>{
-    let rest = keyFrameRepo.items.filter((i)=>{
-      if(batchImageLoading && i.image.path) {
-       return i;
+  let progressPercent = useMemo(() => {
+    let rest = keyFrameRepo.items.filter((i) => {
+      if (batchImageLoading && i.image.path) {
+        return i;
       }
-      if(batchPromptLoading && i.prompt) {
+      if (batchPromptLoading && i.prompt) {
         return i;
       }
       return;
     })
     return Number((rest.length / keyFrameRepo.items.length * 100).toFixed(0)) || 0;
-  },[batchImageLoading, batchPromptLoading, keyFrameRepo]);
+  }, [batchImageLoading, batchPromptLoading, keyFrameRepo]);
 
   const renderModal = () => {
     return (
       <div className='auto-modal' >
-        {!secondConfirm ? <div className='content' style={{paddingLeft: '30px', paddingRight: '30px', width: '400px'}}>
+        {!secondConfirm ? <div className='content' style={{ paddingLeft: '30px', paddingRight: '30px', width: '400px' }}>
           <CloseOutlined className='close' onClick={() => setSecondConfirm(true)} />
-          <Progress percent={progressPercent} status="active" showInfo style={{marginTop: '140px'}}/>
+          <Progress percent={progressPercent} status="active" showInfo style={{ marginTop: '140px' }} />
         </div> : null}
         {
           secondConfirm ? (
-            <div className='content' style={{width: '400px'}}>
+            <div className='content' style={{ width: '400px' }}>
               <CloseOutlined className='close' onClick={() => setSecondConfirm(false)} />
               <div className='title'>确认要终止任务吗？</div>
-                  <Button type="primary" className="btn-primary-auto btn-primary-108"
-                  style={{marginTop: '30px'}}
-                      onClick={()=>{
-                        batchImageLoading ? handleExitBatchGenerateImage():handleExitBatchGeneratePrompt();
-                        setIsModal(false);
-                        setSecondConfirm(false);
-                      }}
-                        icon={<CloseCircleFilled />}>确认取消{batchImageLoading ? "批量生图" : "批量反推关键词"}</Button>
+              <Button type="primary" className="btn-primary-auto btn-primary-108"
+                style={{ marginTop: '30px' }}
+                onClick={() => {
+                  batchImageLoading ? handleExitBatchGenerateImage() : handleExitBatchGeneratePrompt();
+                  setIsModal(false);
+                  setSecondConfirm(false);
+                }}
+                icon={<CloseCircleFilled />}>确认取消{batchImageLoading ? "批量生图" : "批量反推关键词"}</Button>
             </div>
           ) : null
         }
@@ -68,9 +68,9 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ }) => {
     )
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     return () => { keyFrameRepo.setBatchExit() }
-  },[])
+  }, [])
 
   const _rowRenderer = ({ index, key, style }: ListRowProps) => {
     const items = keyFrameRepo.items;

@@ -327,7 +327,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
             await delay(3000)
             fatch++;
             let respText: any = await api.queryResult(this.audioRecognitionJobId!);
-            console.info("查询任务结果：", audioText)
+            console.info("查询任务结果：", fatch,respText)
             if (respText.code === 0) {
                 //成功
                 audioText = { ...respText }

@@ -4,7 +4,6 @@ import { storyboardColumns } from "../data";
 import TextArea from "antd/es/input/TextArea";
 import { Actor, Chapter, useActorRepository, useChapterRepository } from "@/repository/story";
 import { useGPTRepository } from "@/repository/gpt";
-import { useBaisicSettingRepository } from "@/repository/draft";
 
 interface StoryboardTableTRProps {
     idx: number,
@@ -36,7 +35,6 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
 
     const chapterRepo = useChapterRepository(state => state)
     const gptRepo = useGPTRepository(state => state)
-    const settingRepo = useBaisicSettingRepository(state => state)
     const actorRepo = useActorRepository(state => state)
 
     useEffect(() => {

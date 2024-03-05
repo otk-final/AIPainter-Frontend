@@ -3,12 +3,12 @@ import { Fragment, useEffect, useState } from "react";
 import { mixingColumns } from "../data";
 import TextArea from "antd/es/input/TextArea";
 import { Chapter, useActorRepository, useChapterRepository } from "@/repository/story";
-import { EFFECT_DIRECTIONS, useBaisicSettingRepository } from "@/repository/draft";
+import { EFFECT_DIRECTIONS, useJYDraftRepository } from "@/repository/draft";
 import { AssetImage } from "@/components/history-image";
 import ButtonGroup from "antd/es/button/button-group";
 import { useTTSRepository } from "@/repository/tts";
 import VideoPlayerModal from "@/pages/imitate/components/video-player";
-import { CameraFilled, SoundFilled } from "@ant-design/icons";
+import {  SoundFilled } from "@ant-design/icons";
 
 interface MixingTableTRProps {
     index: number,
@@ -23,7 +23,7 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
     const [stateChapter, setChapter] = useState<Chapter>({ ...chapter })
     const chapterRepo = useChapterRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
-    const settingRepo = useBaisicSettingRepository(state => state)
+    const draftRepo = useJYDraftRepository(state => state)
     const actorRepo = useActorRepository(state => state)
 
     useEffect(() => {
@@ -84,7 +84,7 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
             maskClosable: false,
         })
         //音频接口
-        let path = await chapterRepo.handleGenerateAudio(index, settingRepo, actorRepo, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        let path = await chapterRepo.handleGenerateAudio(index, actorRepo, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
 
         //播放
         hanldePlayer(path as string)
@@ -97,7 +97,7 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
             mask: true,
             maskClosable: false,
         })
-        let path = await chapterRepo.handleGenerateVideo(index, settingRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        let path = await chapterRepo.handleGenerateVideo(index, draftRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
 
         hanldePlayer(path as string)
     }

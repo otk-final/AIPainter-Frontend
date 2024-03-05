@@ -1,10 +1,9 @@
 import React, { forwardRef, useImperativeHandle } from 'react'
-import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
-import { Button, Input, InputNumber, Select } from "antd"
+import { Button, Input, Select } from "antd"
 import { useState } from "react"
-import TTSVoiceSelect from '@/components/voice-select';
-import { JYDraftConfiguration, useBaisicSettingRepository } from '@/repository/draft';
+import { JYDraftConfiguration, useJYDraftRepository } from '@/repository/draft';
 import { dialog, path } from '@tauri-apps/api';
+import AddonNumberInput from '@/components/addon-input';
 
 
 const fontSizeDatas = [
@@ -70,53 +69,19 @@ const fontColorDatas = [
 ]
 
 
-
-const BasicInputNumber: React.FC<{ label: string, max?: number, min?: number, step?: number, value: number, onChange: (value: number) => void }> = ({ label, max = 3, min = 0.1, step = 0.1, value, onChange }) => {
-    const handleAdd = () => {
-        if (value === max) {
-            return;
-        }
-        onChange(Number.parseFloat((value + step).toFixed(1)))
-    }
-
-    const handleMinus = () => {
-        debugger
-        if (value === min) {
-            return;
-        }
-        onChange(Number.parseFloat((value - step).toFixed(1)))
-    }
-
-    return (
-        <div className="form-item flexC">
-            <div className="label">{label}</div>
-            <InputNumber className={"inputnumber-auto has-addon"} size="large"
-                controls={false}
-                defaultValue={value}
-                value={value}
-                max={max}
-                min={min}
-                readOnly
-                addonBefore={<Button type="text" className="addon-btn" onClick={(handleAdd)}><PlusOutlined /></Button>}
-                addonAfter={<Button type="text" className="addon-btn" onClick={handleMinus}><MinusOutlined /></Button>}
-            />
-        </div>
-    )
-}
-
-export interface JYDraftSettingProps {
+export interface ExportSettingProps {
     name: string
 }
 
-export interface JYDraftSettingRef {
+export interface ExportSettingRef {
     getConfiguration(): JYDraftConfiguration
 }
 
 
-const BasicSetting = forwardRef<JYDraftSettingRef, JYDraftSettingProps>((props, ref) => {
+const ExportSettingTab = forwardRef<ExportSettingRef, ExportSettingProps>((props, ref) => {
 
     //init
-    const settingRepo = useBaisicSettingRepository(state => state)
+    const settingRepo = useJYDraftRepository(state => state)
     const [stateConfiguration, setConfiguration] = useState<JYDraftConfiguration>({ ...settingRepo })
 
     useImperativeHandle(ref, () => ({
@@ -148,17 +113,7 @@ const BasicSetting = forwardRef<JYDraftSettingRef, JYDraftSettingProps>((props, 
                 </div>
             </div>
 
-            <div className="section">
-                <div className="title">配音设置</div>
-                <div className="form-wrap flexR">
-                    <div className="form-item flexC">
-                        <div className="label">{"音色"}</div>
-                        <TTSVoiceSelect option={stateConfiguration.audio.option} onChange={(v) => { setConfiguration({ ...stateConfiguration, audio: { ...stateConfiguration.audio, option: v } }) }} />
-                    </div>
-                    <BasicInputNumber label='音量调节' value={stateConfiguration.audio.volume} onChange={(v) => { debugger; setConfiguration({ ...stateConfiguration, audio: { ...stateConfiguration.audio, volume: v } }) }} />
-                    <BasicInputNumber label='语速调节' value={stateConfiguration.audio.speed} onChange={(v) => { debugger; setConfiguration({ ...stateConfiguration, audio: { ...stateConfiguration.audio, speed: v } }) }} />
-                </div>
-            </div>
+
 
             <div className="section">
                 <div className="title">视频设置</div>
@@ -179,7 +134,7 @@ const BasicSetting = forwardRef<JYDraftSettingRef, JYDraftSettingProps>((props, 
                             ]}
                         />
                     </div>
-                    <BasicInputNumber label='视频帧数' value={stateConfiguration.video.fps}
+                    <AddonNumberInput label='视频帧数' value={stateConfiguration.video.fps}
                         min={5} max={30} step={1}
                         onChange={(v) => { setConfiguration({ ...stateConfiguration, video: { ...stateConfiguration.video, fps: v } }) }} />
                     <div className="form-item flexC">
@@ -225,4 +180,4 @@ const BasicSetting = forwardRef<JYDraftSettingRef, JYDraftSettingProps>((props, 
 
 
 
-export default BasicSetting;
+export default ExportSettingTab;

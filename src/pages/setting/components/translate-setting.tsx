@@ -13,7 +13,7 @@ export interface TranslateSettingRef {
 }
 
 
-const TranslateSetting = forwardRef<TranslateSettingRef, TranslateSettingProps>((props, ref) => {
+const TranslateSettingTab = forwardRef<TranslateSettingRef, TranslateSettingProps>((props, ref) => {
 
     //init
     const settingRepo = useTranslateRepository(state => state)
@@ -51,4 +51,4 @@ const TranslateSetting = forwardRef<TranslateSettingRef, TranslateSettingProps>(
     )
 })
 
-export default TranslateSetting;
+export default TranslateSettingTab;

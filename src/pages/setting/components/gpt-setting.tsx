@@ -30,7 +30,7 @@ const mode_options = ['gpt-4-1106-preview'
     });
 
 
-const GPTSetting = forwardRef<GPTSettingRef, GPTSettingProps>((props, ref) => {
+const GPTSettingTab = forwardRef<GPTSettingRef, GPTSettingProps>((props, ref) => {
 
     //init
     const settingRepo = useGPTRepository(state => state)
@@ -80,4 +80,4 @@ const GPTSetting = forwardRef<GPTSettingRef, GPTSettingProps>((props, ref) => {
     )
 })
 
-export default GPTSetting;
+export default GPTSettingTab;

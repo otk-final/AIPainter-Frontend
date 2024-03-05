@@ -7,8 +7,8 @@ import { dialog } from "@tauri-apps/api";
 import { SRTGenerate } from "@/repository/generate_utils";
 import { useEffect, useState } from "react";
 import { CloseCircleFilled } from "@ant-design/icons";
-import { useBaisicSettingRepository } from "@/repository/draft";
 import { useTTSRepository } from "@/repository/tts";
+import { useJYDraftRepository } from "@/repository/draft";
 
 interface MixingTabProps {
     pid: string
@@ -17,9 +17,10 @@ interface MixingTabProps {
 const MixingTab: React.FC<MixingTabProps> = ({ pid }) => {
     console.info(pid)
     const chapterRepo = useChapterRepository(state => state)
-    const settingRepo = useBaisicSettingRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
     const actorRepo = useActorRepository(state => state)
+    const draftRepo = useJYDraftRepository(state => state)
+
 
     const handleExportSRTFile = async () => {
         let selected = await dialog.save({ title: "保存文件", filters: [{ name: "SRT文件", extensions: ["srt"] }] })
@@ -88,7 +89,7 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid }) => {
         setBatchPos(next_idx + 1)
 
         //执行任务
-        await chapterRepo.handleGenerateAudio(next_idx, settingRepo, actorRepo, ttsRepo).then(async () => {
+        await chapterRepo.handleGenerateAudio(next_idx, actorRepo, ttsRepo).then(async () => {
             if (chapterRepo.isBatchExit()) {
                 return;
             }
@@ -118,7 +119,7 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid }) => {
         }
         setBatchPos(next_idx + 1)
         //执行任务
-        await chapterRepo.handleGenerateVideo(next_idx, settingRepo).then(async () => {
+        await chapterRepo.handleGenerateVideo(next_idx, draftRepo).then(async () => {
             if (chapterRepo.isBatchExit()) {
                 return;
             }

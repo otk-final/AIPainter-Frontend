@@ -33,7 +33,6 @@ export class TranslateRepository extends BaseRepository<TranslateRepository> imp
     newClient = async () => {
 
         let now_time = new Date().getTime()
-        debugger
         //不存在，或者提前1天获取最新的token
         if (!this.auth_token || now_time > (this.auth_expired_time - dayMills)) {
             //获取access_token
