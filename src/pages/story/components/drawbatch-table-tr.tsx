@@ -100,7 +100,7 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
             return
         }
         Modal.info({
-            content: <div style={{ color: '#fff' }}>图片生成中...</div>,
+            content: <div style={{ color: '#fff' }}>图片放大中...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
@@ -108,6 +108,7 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
         await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo, actorRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
+    
     const handleTranslatePrompt = async () => {
         Modal.info({
             content: <div style={{ color: '#fff' }}>关键词翻译中...</div>,

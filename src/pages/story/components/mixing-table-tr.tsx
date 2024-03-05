@@ -3,7 +3,7 @@ import { Fragment, useEffect, useState } from "react";
 import { mixingColumns } from "../data";
 import TextArea from "antd/es/input/TextArea";
 import { Chapter, useActorRepository, useChapterRepository } from "@/repository/story";
-import { EFFECT_DIRECTIONS, useJYDraftRepository } from "@/repository/draft";
+import { EFFECT_DIRECTIONS } from "@/repository/draft";
 import { AssetImage } from "@/components/history-image";
 import ButtonGroup from "antd/es/button/button-group";
 import { useTTSRepository } from "@/repository/tts";
@@ -23,7 +23,6 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
     const [stateChapter, setChapter] = useState<Chapter>({ ...chapter })
     const chapterRepo = useChapterRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
-    const draftRepo = useJYDraftRepository(state => state)
     const actorRepo = useActorRepository(state => state)
 
     useEffect(() => {
@@ -90,17 +89,17 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
         hanldePlayer(path as string)
     }
 
-    const handleGenerateVideo = async () => {
-        Modal.info({
-            content: <div style={{ color: '#fff' }}>合成视频...</div>,
-            footer: null,
-            mask: true,
-            maskClosable: false,
-        })
-        let path = await chapterRepo.handleGenerateVideo(index, draftRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+    // const handleGenerateVideo = async () => {
+    //     Modal.info({
+    //         content: <div style={{ color: '#fff' }}>合成视频...</div>,
+    //         footer: null,
+    //         mask: true,
+    //         maskClosable: false,
+    //     })
+    //     let path = await chapterRepo.handleGenerateVideo(index, draftRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
 
-        hanldePlayer(path as string)
-    }
+    //     hanldePlayer(path as string)
+    // }
 
 
     const handleChooseActor = async (checked: boolean, actor: string) => {

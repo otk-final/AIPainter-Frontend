@@ -1,72 +1,31 @@
 import GenerateImagesTR from "./image-generate-table-tr"
 import { generateImagesColumns } from "../data"
 import { ImitateTabType } from ".."
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { ComyUIModeSelect } from "@/components/mode-select"
 import { List, AutoSizer, ListRowProps } from 'react-virtualized';
-import { Button, InputNumber, Progress } from "antd"
+import { Button, InputNumber } from "antd"
 import { useKeyFrameRepository } from "@/repository/keyframe"
-import { CloseCircleFilled, CloseOutlined } from "@ant-design/icons"
 import { useComfyUIRepository } from "@/repository/comfyui"
+import HandleProcessModal from "@/components/handle-process"
+import { event } from "@tauri-apps/api"
 
 interface ImageGenerateProps {
   pid: string,
   handleChangeTab: (key: ImitateTabType) => void,
 }
 
-const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ }) => {
+const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
 
   const keyFrameRepo = useKeyFrameRepository(state => state)
   const comfyUIRepo = useComfyUIRepository(state => state)
   const [mode, setOption] = useState<string>("")
-  const [secondConfirm, setSecondConfirm] = useState(false);
-  const [isModal, setIsModal] = useState(false)
   const comfyuiRepo = useComfyUIRepository(state => state)
 
   //批量处理
   const [batchPos, setBatchPos] = useState<number>(1)
-  const [batchImageLoading, setBatchImageLoading] = useState<boolean>(false)
-  const [batchPromptLoading, setBatchPromptLoading] = useState<boolean>(false)
+  const [stateProcess, setProcess] = useState<{ open: boolean, title: string, run_event?: string, exit_event?: string }>({ open: false, title: "" });
 
-  let progressPercent = useMemo(() => {
-    let rest = keyFrameRepo.items.filter((i) => {
-      if (batchImageLoading && i.image.path) {
-        return i;
-      }
-      if (batchPromptLoading && i.prompt) {
-        return i;
-      }
-      return;
-    })
-    return Number((rest.length / keyFrameRepo.items.length * 100).toFixed(0)) || 0;
-  }, [batchImageLoading, batchPromptLoading, keyFrameRepo]);
-
-  const renderModal = () => {
-    return (
-      <div className='auto-modal' >
-        {!secondConfirm ? <div className='content' style={{ paddingLeft: '30px', paddingRight: '30px', width: '400px' }}>
-          <CloseOutlined className='close' onClick={() => setSecondConfirm(true)} />
-          <Progress percent={progressPercent} status="active" showInfo style={{ marginTop: '140px' }} />
-        </div> : null}
-        {
-          secondConfirm ? (
-            <div className='content' style={{ width: '400px' }}>
-              <CloseOutlined className='close' onClick={() => setSecondConfirm(false)} />
-              <div className='title'>确认要终止任务吗？</div>
-              <Button type="primary" className="btn-primary-auto btn-primary-108"
-                style={{ marginTop: '30px' }}
-                onClick={() => {
-                  batchImageLoading ? handleExitBatchGenerateImage() : handleExitBatchGeneratePrompt();
-                  setIsModal(false);
-                  setSecondConfirm(false);
-                }}
-                icon={<CloseCircleFilled />}>确认取消{batchImageLoading ? "批量生图" : "批量反推关键词"}</Button>
-            </div>
-          ) : null
-        }
-      </div>
-    )
-  }
 
   useEffect(() => {
     return () => { keyFrameRepo.setBatchExit() }
@@ -109,7 +68,11 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ }) => {
   }
 
 
-
+  const destroyProcessModal = () => {
+    //变更状态位
+    keyFrameRepo.setBatchExit()
+    setProcess({ open: false, title: "" })
+  }
 
 
   //-------------------------------批量生成图片-----------------------------
@@ -119,7 +82,19 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ }) => {
     if (keyFrameRepo.isBatchExit() || next_idx === end_idx) {
       return;
     }
-    setBatchPos(next_idx + 1)
+
+    let next_pos = next_idx + 1
+    setBatchPos(next_pos)
+
+
+    //通知进度
+    await event.emit("batchGenerateImage", {
+      title: "正在处理第" + next_pos + "帧",
+      except: end_idx,
+      completed: next_pos,
+      current: next_pos
+    })
+
     //执行任务
     await keyFrameRepo.handleGenerateImage(next_idx, mode, comfyuiRepo).then(async () => {
       if (keyFrameRepo.isBatchExit()) {
@@ -128,19 +103,16 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ }) => {
       await batchGenerateImage(next_idx + 1, end_idx)
     }).finally(keyFrameRepo.resetBatchExit)
   }
+
   const handleBatchGenerateImage = async () => {
     //重置
-    setIsModal(true)
-    setBatchImageLoading(true)
+    setProcess({ open: true, run_event: "batchGenerateImage", title: "正在生成图片..." })
+
     keyFrameRepo.resetBatchExit()
-
-    await batchGenerateImage(batchPos - 1, keyFrameRepo.items.length).finally(() => setBatchImageLoading(false))
+    await batchGenerateImage(batchPos - 1, keyFrameRepo.items.length).finally(destroyProcessModal)
   }
 
-  const handleExitBatchGenerateImage = () => {
-    keyFrameRepo.setBatchExit()
-    setBatchImageLoading(false)
-  }
+
 
 
   //-------------------------------批量生成关键词-----------------------------
@@ -150,7 +122,18 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ }) => {
     if (keyFrameRepo.isBatchExit() || next_idx === end_idx) {
       return;
     }
-    setBatchPos(next_idx + 1)
+
+    let next_pos = next_idx + 1
+    setBatchPos(next_pos)
+
+    //通知进度
+    await event.emit("batchGeneratePrompt", {
+      title: "正在处理第" + next_pos + "帧",
+      except: end_idx,
+      completed: next_pos,
+      current: next_pos
+    });
+
     //执行任务
     await keyFrameRepo.handleGeneratePrompt(next_idx, comfyUIRepo).then(async () => {
       if (keyFrameRepo.isBatchExit()) {
@@ -163,16 +146,10 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ }) => {
 
   const handleBatchGeneratePrompt = async () => {
     //重置
-    setIsModal(true)
-    setBatchPromptLoading(true)
+    setProcess({ open: true, run_event: "batchGeneratePrompt", title: "正在反推关键词..." })
     keyFrameRepo.resetBatchExit()
 
-    await batchGeneratePrompt(batchPos - 1, keyFrameRepo.items.length).finally(() => { console.info("主任务退出"); setBatchPromptLoading(false) })
-  }
-
-  const handleExitBatchGeneratePrompt = () => {
-    keyFrameRepo.setBatchExit()
-    setBatchPromptLoading(false)
+    await batchGeneratePrompt(batchPos - 1, keyFrameRepo.items.length).finally(destroyProcessModal)
   }
 
   return (
@@ -187,12 +164,19 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ }) => {
             value={batchPos}
             required
             onChange={(e) => setBatchPos(e!)} /> 镜</div>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGeneratePrompt} loading={batchPromptLoading}>批量反推关键词</Button>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateImage} loading={batchImageLoading} >批量生图</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGeneratePrompt} >批量反推关键词</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateImage}  >批量生图</Button>
         </div>
       </div>
       {renderTable()}
-      {isModal && (batchImageLoading || batchPromptLoading) ? renderModal() : null}
+      {stateProcess.open && <HandleProcessModal
+        open={stateProcess.open}
+        pid={pid}
+        title={stateProcess.title}
+        running_event={stateProcess.run_event}
+        exit_event={stateProcess.exit_event}
+        onClose={destroyProcessModal} />}
+
     </div>
   )
 }

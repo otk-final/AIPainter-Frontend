@@ -3,10 +3,12 @@ import { drawbatchColumns } from "../data"
 import { useEffect, useState } from "react"
 import { useActorRepository, useChapterRepository } from "@/repository/story"
 import { ComyUIModeSelect } from "@/components/mode-select"
-import { Button, InputNumber } from "antd"
+import { Button, InputNumber, message } from "antd"
 import { List, AutoSizer, ListRowProps } from 'react-virtualized';
 import { useComfyUIRepository } from "@/repository/comfyui"
-import { CloseCircleFilled } from "@ant-design/icons"
+import HandleProcessModal from "@/components/handle-process"
+import { event } from "@tauri-apps/api"
+import { useTranslateRepository } from "@/repository/translate"
 
 interface DrawbatchTabProps {
     pid: string
@@ -14,11 +16,19 @@ interface DrawbatchTabProps {
 
 
 const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
-    console.info(pid)
+    const chapterRepo = useChapterRepository(state => state)
+    const comfyuiRepo = useComfyUIRepository(state => state)
+    const actorRepo = useActorRepository(state => state)
+    const translateRepo = useTranslateRepository(state => state)
 
     const [mode, setOption] = useState<string>("")
-    const chapterRepo = useChapterRepository(state => state)
+    const [batchPos, setBatchPos] = useState<number>(1)
+    const [stateProcess, setProcess] = useState<{ open: boolean, title: string, run_event?: string, exit_event?: string }>({ open: false, title: "" });
 
+
+    useEffect(() => {
+        return () => { chapterRepo.setBatchExit() }
+    }, [])
 
     const _rowRenderer = ({ index, key, style }: ListRowProps) => {
         const items = chapterRepo.items;
@@ -56,17 +66,13 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
         )
     }
 
-    const comfyuiRepo = useComfyUIRepository(state => state)
-    const actorRepo = useActorRepository(state => state)
-
     //批量处理
-    const [batchPos, setBatchPos] = useState<number>(1)
-    const [batchImageLoading, setBatchImageLoading] = useState<boolean>(false)
-    const [batchPromptLoading, setBatchPromptLoading] = useState<boolean>(false)
+    const destroyProcessModal = () => {
+        //变更状态位
+        chapterRepo.setBatchExit()
+        setProcess({ open: false, title: "" })
+    }
 
-    useEffect(() => {
-        return () => { chapterRepo.setBatchExit() }
-    }, [])
 
 
 
@@ -77,7 +83,18 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
         if (chapterRepo.isBatchExit() || next_idx === end_idx) {
             return;
         }
-        setBatchPos(next_idx + 1)
+        let next_pos = next_idx + 1
+        setBatchPos(next_pos)
+
+
+        //通知进度
+        await event.emit("batchGenerateImage", {
+            title: "正在处理第" + next_pos + "个镜头",
+            except: end_idx,
+            completed: next_pos,
+            current: next_pos
+        })
+
         //执行任务
         await chapterRepo.handleGenerateImage(next_idx, mode, comfyuiRepo, actorRepo).then(async () => {
             if (chapterRepo.isBatchExit()) {
@@ -88,48 +105,48 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
     }
     const handleBatchGenerateImage = async () => {
         //重置
-        setBatchImageLoading(true)
+        setProcess({ open: true, run_event: "batchGenerateImage", title: "批量生成音频..." })
+
         chapterRepo.resetBatchExit()
-
-        await batchGenerateImage(batchPos - 1, chapterRepo.items.length).finally(() => setBatchImageLoading(false))
-    }
-
-    const handleExitBatchGenerateImage = () => {
-        chapterRepo.setBatchExit()
-        setBatchImageLoading(false)
+        await batchGenerateImage(batchPos - 1, chapterRepo.items.length).catch(err => { message.error(err.message) }).finally(destroyProcessModal)
     }
 
 
 
-    //-------------------------------批量生成关键词-----------------------------
+    //-------------------------------批量翻译关键词-----------------------------
 
-    const batchGeneratePrompt = async (next_idx: number, end_idx: number) => {
+    const batchTranslatePrompt = async (next_idx: number, end_idx: number) => {
         //查询状态
         if (chapterRepo.isBatchExit() || next_idx === end_idx) {
             return;
         }
-        setBatchPos(next_idx + 1)
+        let next_pos = next_idx + 1
+        setBatchPos(next_pos)
+
+
+        //通知进度
+        await event.emit("batchTranslatePrompt", {
+            title: "正在处理第" + next_pos + "个镜头",
+            except: end_idx,
+            completed: next_pos,
+            current: next_pos
+        })
+
         //执行任务
-        await chapterRepo.handleGeneratePrompt(next_idx).then(async () => {
+        await chapterRepo.handleTranslatePrompt(next_idx, translateRepo).then(async () => {
             if (chapterRepo.isBatchExit()) {
                 return;
             }
-            await batchGeneratePrompt(next_idx + 1,end_idx)
+            await batchTranslatePrompt(next_idx + 1, end_idx)
         }).finally(chapterRepo.resetBatchExit)
     }
-    const handleBatchGeneratePrompt = async () => {
+    const handleBatchTranslatePrompt = async () => {
         //重置
-        setBatchImageLoading(true)
+        setProcess({ open: true, run_event: "batchTranslatePrompt", title: "批量翻译关键词..." })
         chapterRepo.resetBatchExit()
 
-        await batchGeneratePrompt(batchPos - 1, chapterRepo.items.length).finally(() => setBatchImageLoading(false))
+        await batchTranslatePrompt(batchPos - 1, chapterRepo.items.length).catch(err => { message.error(err.message) }).finally(destroyProcessModal)
     }
-
-    const handleExitBatchGeneratePrompt = () => {
-        chapterRepo.setBatchExit()
-        setBatchPromptLoading(false)
-    }
-
 
 
     return (
@@ -149,17 +166,18 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
                             required
                             onChange={(e) => setBatchPos(e!)} /> 镜</div>
 
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateImage} loading={batchImageLoading}>批量生图</Button>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGeneratePrompt} loading={batchPromptLoading}>批量生成关键词</Button>
-                    {
-                        batchImageLoading && <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExitBatchGenerateImage} icon={<CloseCircleFilled />}>取消</Button>
-                    }
-                    {
-                        batchPromptLoading && <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExitBatchGeneratePrompt} icon={<CloseCircleFilled />}>取消</Button>
-                    }
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateImage} >批量生图</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchTranslatePrompt} >批量翻译关键词</Button>
                 </div>
             </div>
             {renderTable()}
+            {stateProcess.open && <HandleProcessModal
+                open={stateProcess.open}
+                pid={pid}
+                title={stateProcess.title}
+                running_event={stateProcess.run_event}
+                exit_event={stateProcess.exit_event}
+                onClose={destroyProcessModal} />}
         </div>
     )
 }

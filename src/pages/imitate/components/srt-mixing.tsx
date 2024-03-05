@@ -10,8 +10,9 @@ import React, { useEffect, useState } from "react"
 import { useKeyFrameRepository } from "@/repository/keyframe";
 // import { SRTGenerate } from "@/repository/generate_utils";
 import { useTTSRepository } from "@/repository/tts";
-import { CloseCircleFilled } from "@ant-design/icons";
 import { useGPTRepository } from "@/repository/gpt";
+import HandleProcessModal from "@/components/handle-process";
+import { event } from "@tauri-apps/api";
 // import { useJYDraftRepository } from "@/repository/draft";
 
 interface SRTMixingProps {
@@ -19,11 +20,12 @@ interface SRTMixingProps {
     handleChangeTab: (key: ImitateTabType) => void,
 }
 
-const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
+const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
     const keyFrameRepo = useKeyFrameRepository(state => state)
     // const draftRepo = useJYDraftRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
     const gptRepo = useGPTRepository(state => state)
+    const [stateProcess, setProcess] = useState<{ open: boolean, title: string, run_event?: string, exit_event?: string }>({ open: false, title: "" });
 
     // const handleExportSRTFile = async () => {
     //     let selected = await dialog.save({ title: "保存文件", filters: [{ name: "SRT文件", extensions: ["srt"] }] })
@@ -42,15 +44,17 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
 
     //批量处理
     const [batchPos, setBatchPos] = useState<number>(1)
-    const [batchAudioLoading, setBatchAudioLoading] = useState<boolean>(false)
-    // const [batchVideoLoading, setBatchVideoLoading] = useState<boolean>(false)
-    const [batchRewriteLoading, setBatchRewriteLoading] = useState<boolean>(false)
 
     useEffect(() => {
         return () => { keyFrameRepo.setBatchExit() }
     }, [])
 
 
+    const destroyProcessModal = () => {
+        //变更状态位
+        keyFrameRepo.setBatchExit()
+        setProcess({ open: false, title: "" })
+    }
 
 
     //-------------------------------批量改写-----------------------------
@@ -60,7 +64,20 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
         if (keyFrameRepo.isBatchExit() || next_idx === end_idx) {
             return;
         }
-        setBatchPos(next_idx + 1)
+
+        let next_pos = next_idx + 1
+        setBatchPos(next_pos)
+
+
+        //通知进度
+        await event.emit("batchRewrite", {
+            title: "正在处理第" + next_pos + "帧",
+            except: end_idx,
+            completed: next_pos,
+            current: next_pos
+        })
+
+
         //执行任务
         await keyFrameRepo.handleRewriteContent(next_idx, gptRepo).then(async () => {
             if (keyFrameRepo.isBatchExit()) {
@@ -70,18 +87,11 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
         }).finally(keyFrameRepo.resetBatchExit)
     }
     const handleBatchRewrite = async () => {
-        //重置
-        setBatchRewriteLoading(true)
+        setProcess({ open: true, run_event: "batchRewrite", title: "批量重写字幕..." })
+
         keyFrameRepo.resetBatchExit()
-
-        await batchRewrite(batchPos - 1, keyFrameRepo.items.length).finally(() => setBatchRewriteLoading(false))
+        await batchRewrite(batchPos - 1, keyFrameRepo.items.length).finally(destroyProcessModal)
     }
-
-    const handleExitBatchRewrite = () => {
-        keyFrameRepo.setBatchExit()
-        setBatchRewriteLoading(false)
-    }
-
 
     //-------------------------------批量生成音频-----------------------------
 
@@ -90,7 +100,17 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
         if (keyFrameRepo.isBatchExit() || next_idx === end_idx) {
             return;
         }
-        setBatchPos(next_idx + 1)
+        let next_pos = next_idx + 1
+        setBatchPos(next_pos)
+
+        //通知进度
+        await event.emit("batchGenerateAudio", {
+            title: "正在处理第" + next_pos + "帧",
+            except: end_idx,
+            completed: next_pos,
+            current: next_pos
+        })
+
         //执行任务
         await keyFrameRepo.handleGenerateAudio(next_idx, ttsRepo).then(async () => {
             if (keyFrameRepo.isBatchExit()) {
@@ -101,16 +121,12 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
     }
     const handleBatchGenerateAudio = async () => {
         //重置
-        setBatchAudioLoading(true)
+        setProcess({ open: true, run_event: "batchGenerateAudio", title: "批量生成音频..." })
         keyFrameRepo.resetBatchExit()
 
-        await batchGenerateAudio(batchPos - 1, keyFrameRepo.items.length).catch(err => message.error(err.message)).finally(() => setBatchAudioLoading(false))
+        await batchGenerateAudio(batchPos - 1, keyFrameRepo.items.length).catch(err => message.error(err.message)).finally(destroyProcessModal)
     }
 
-    const handleExitBatchGenerateAudio = () => {
-        keyFrameRepo.setBatchExit()
-        setBatchAudioLoading(false)
-    }
 
     //-------------------------------批量生成视频-----------------------------
 
@@ -144,6 +160,37 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
     //     setBatchVideoLoading(false)
     // }
 
+    const renderTable = () => {
+        return <div className='script-table-wrap' style={{ height: 'calc(100% - 60px)', display: "flex", flexDirection: 'column' }}>
+            <div className='th flexR'>
+                {srtMixingColumns.map((i) => {
+                    return <div className='th-td' style={{ flex: `${i.space}` }} key={i.key}>{i.title}</div>
+                })}
+            </div>
+            <div style={{ flex: 1 }} >
+                <AutoSizer>
+                    {({ height, width }) => {
+                        let len = keyFrameRepo.items.length;
+                        return (
+                            <List
+                                className='autosizer scrollbar'
+                                height={height - 50}
+                                rowCount={len}
+                                rowHeight={184}
+                                rowRenderer={_rowRenderer}
+                                width={width}
+                                noRowsRenderer={() => <div></div>}
+                                overscanRowCount={20}
+                            />
+                        )
+                    }}
+                </AutoSizer>
+            </div>
+        </div>
+
+    }
+
+
     return (
         <div className="generate-image-wrap">
             <div className='generate-header flexR'>
@@ -157,47 +204,20 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ }) => {
                         value={batchPos}
                         required
                         onChange={(e) => setBatchPos(e!)} /> 镜</div>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchRewrite} loading={batchRewriteLoading}>一键改写</Button>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateAudio} loading={batchAudioLoading}>批量生成音频</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchRewrite}>一键改写</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateAudio}>批量生成音频</Button>
                     {/* <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateVideo} loading={batchVideoLoading} >批量生成视频</Button> */}
-                    {
-                        batchRewriteLoading && <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExitBatchRewrite} icon={<CloseCircleFilled />}>取消</Button>
-                    }
-                    {
-                        batchAudioLoading && <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExitBatchGenerateAudio} icon={<CloseCircleFilled />}>取消</Button>
-                    }
-                    {
-                        // batchVideoLoading && <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExitBatchGenerateVideo} icon={<CloseCircleFilled />}>取消</Button>
-                    }
                 </div>
             </div>
+            {renderTable()}
 
-            <div className='script-table-wrap' style={{ height: 'calc(100% - 60px)', display: "flex", flexDirection: 'column' }}>
-                <div className='th flexR'>
-                    {srtMixingColumns.map((i) => {
-                        return <div className='th-td' style={{ flex: `${i.space}` }} key={i.key}>{i.title}</div>
-                    })}
-                </div>
-                <div style={{ flex: 1 }} >
-                    <AutoSizer>
-                        {({ height, width }) => {
-                            let len = keyFrameRepo.items.length;
-                            return (
-                                <List
-                                    className='autosizer scrollbar'
-                                    height={height - 50}
-                                    rowCount={len}
-                                    rowHeight={184}
-                                    rowRenderer={_rowRenderer}
-                                    width={width}
-                                    noRowsRenderer={() => <div></div>}
-                                    overscanRowCount={20}
-                                />
-                            )
-                        }}
-                    </AutoSizer>
-                </div>
-            </div>
+            {stateProcess.open && <HandleProcessModal
+                open={stateProcess.open}
+                pid={pid}
+                title={stateProcess.title}
+                running_event={stateProcess.run_event}
+                exit_event={stateProcess.exit_event}
+                onClose={destroyProcessModal} />}
         </div>
     )
 }

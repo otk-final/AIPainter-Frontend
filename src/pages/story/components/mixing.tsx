@@ -3,12 +3,11 @@ import { useActorRepository, useChapterRepository } from "@/repository/story"
 import { Button, InputNumber, message } from "antd"
 import { List, AutoSizer, ListRowProps } from 'react-virtualized';
 import MixingTableTR from "./mixing-table-tr"
-import { dialog } from "@tauri-apps/api";
+import { dialog, event } from "@tauri-apps/api";
 import { SRTGenerate } from "@/repository/generate_utils";
 import { useEffect, useState } from "react";
-import { CloseCircleFilled } from "@ant-design/icons";
 import { useTTSRepository } from "@/repository/tts";
-import { useJYDraftRepository } from "@/repository/draft";
+import HandleProcessModal from "@/components/handle-process";
 
 interface MixingTabProps {
     pid: string
@@ -19,7 +18,10 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid }) => {
     const chapterRepo = useChapterRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
     const actorRepo = useActorRepository(state => state)
-    const draftRepo = useJYDraftRepository(state => state)
+
+    //批量处理
+    const [batchPos, setBatchPos] = useState<number>(1)
+    const [stateProcess, setProcess] = useState<{ open: boolean, title: string, run_event?: string, exit_event?: string }>({ open: false, title: "" });
 
 
     const handleExportSRTFile = async () => {
@@ -73,71 +75,73 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid }) => {
         return () => { chapterRepo.setBatchExit() }
     }, [])
 
-    //批量处理
-    const [batchPos, setBatchPos] = useState<number>(1)
-    const [batchAudioLoading, setBatchAudioLoading] = useState<boolean>(false)
-    const [batchVideoLoading, setBatchVideoLoading] = useState<boolean>(false)
 
+    const destroyProcessModal = () => {
+        //变更状态位
+        chapterRepo.setBatchExit()
+        setProcess({ open: false, title: "" })
+    }
 
     //-------------------------------批量生成音频-----------------------------
 
-    const batchGenerateAudio = async (next_idx: number) => {
+    const batchGenerateAudio = async (next_idx: number, end_idx: number) => {
+
         //查询状态
         if (chapterRepo.isBatchExit() || next_idx === chapterRepo.items.length) {
             return;
         }
-        setBatchPos(next_idx + 1)
+        let next_pos = next_idx + 1
+        setBatchPos(next_pos)
+
+
+        //通知进度
+        await event.emit("batchGenerateAudio", {
+            title: "正在处理第" + next_pos + "个镜头",
+            except: end_idx,
+            completed: next_pos,
+            current: next_pos
+        })
 
         //执行任务
         await chapterRepo.handleGenerateAudio(next_idx, actorRepo, ttsRepo).then(async () => {
             if (chapterRepo.isBatchExit()) {
                 return;
             }
-            await batchGenerateAudio(next_idx + 1)
+            await batchGenerateAudio(next_idx + 1, end_idx)
         }).finally(chapterRepo.resetBatchExit)
     }
+    
     const handleBatchGenerateAudio = async () => {
         //重置
-        setBatchAudioLoading(true)
+        setProcess({ open: true, run_event: "batchGenerateAudio", title: "批量生成音频..." })
+
         chapterRepo.resetBatchExit()
-
-        await batchGenerateAudio(batchPos - 1).finally(() => setBatchAudioLoading(false))
+        await batchGenerateAudio(batchPos - 1, chapterRepo.items.length).catch(err => { message.error(err.message) }).finally(destroyProcessModal)
     }
 
-    const handleExitBatchGenerateAudio = () => {
-        chapterRepo.setBatchExit()
-        setBatchAudioLoading(false)
-    }
 
     //-------------------------------批量生成视频-----------------------------
 
+    // const batchGenerateVideo = async (next_idx: number) => {
+    //     //查询状态
+    //     if (chapterRepo.isBatchExit() || next_idx === chapterRepo.items.length) {
+    //         return;
+    //     }
+    //     setBatchPos(next_idx + 1)
+    //     //执行任务
+    //     await chapterRepo.handleGenerateVideo(next_idx, draftRepo).then(async () => {
+    //         if (chapterRepo.isBatchExit()) {
+    //             return;
+    //         }
+    //         await batchGenerateVideo(next_idx + 1)
+    //     }).finally(chapterRepo.resetBatchExit)
+    // }
+    // const handleBatchGenerateVideo = async () => {
+    //     //重置
+    //     chapterRepo.resetBatchExit()
+    //     await batchGenerateVideo(batchPos - 1).finally(() => setBatchVideoLoading(false))
+    // }
 
-    const batchGenerateVideo = async (next_idx: number) => {
-        //查询状态
-        if (chapterRepo.isBatchExit() || next_idx === chapterRepo.items.length) {
-            return;
-        }
-        setBatchPos(next_idx + 1)
-        //执行任务
-        await chapterRepo.handleGenerateVideo(next_idx, draftRepo).then(async () => {
-            if (chapterRepo.isBatchExit()) {
-                return;
-            }
-            await batchGenerateVideo(next_idx + 1)
-        }).finally(chapterRepo.resetBatchExit)
-    }
-    const handleBatchGenerateVideo = async () => {
-        //重置
-        setBatchVideoLoading(true)
-        chapterRepo.resetBatchExit()
-
-        await batchGenerateVideo(batchPos - 1).finally(() => setBatchVideoLoading(false))
-    }
-
-    const handleExitBatchGenerateVideo = () => {
-        chapterRepo.setBatchExit()
-        setBatchVideoLoading(false)
-    }
 
 
 
@@ -155,17 +159,17 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid }) => {
                         value={batchPos}
                         required
                         onChange={(e) => setBatchPos(e!)} /> 镜</div>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateAudio} loading={batchAudioLoading}>批量生成音频</Button>
-                    {/* <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateVideo} loading={batchVideoLoading} >批量生成视频</Button> */}
-                    {
-                        batchAudioLoading && <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExitBatchGenerateAudio} icon={<CloseCircleFilled />}>取消</Button>
-                    }
-                    {
-                        batchVideoLoading && <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExitBatchGenerateVideo} icon={<CloseCircleFilled />}>取消</Button>
-                    }
+                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateAudio}>批量生成音频</Button>
                 </div>
             </div>
             {renderTable()}
+            {stateProcess.open && <HandleProcessModal
+                open={stateProcess.open}
+                pid={pid}
+                title={stateProcess.title}
+                running_event={stateProcess.run_event}
+                exit_event={stateProcess.exit_event}
+                onClose={destroyProcessModal} />}
         </div>
     )
 }
