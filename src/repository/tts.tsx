@@ -17,6 +17,7 @@ export interface TTSConfiguration {
 
 
 
+
 export class TTSRepository extends BaseRepository<TTSRepository> implements TTSConfiguration {
     free() {
 
@@ -27,7 +28,7 @@ export class TTSRepository extends BaseRepository<TTSRepository> implements TTSC
 
     audio_speed = 1
     audio_volume = 1
-    
+
     audio_option = {
         voice_classify: "3",
         voice_type: "BV437_streaming",
