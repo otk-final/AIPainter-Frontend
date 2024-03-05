@@ -1,12 +1,12 @@
 import GenerateImagesTR from "./image-generate-table-tr"
 import { generateImagesColumns } from "../data"
 import { ImitateTabType } from ".."
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { ComyUIModeSelect } from "@/components/mode-select"
 import { List, AutoSizer, ListRowProps } from 'react-virtualized';
-import { Button, InputNumber } from "antd"
+import { Button, InputNumber, Progress } from "antd"
 import { useKeyFrameRepository } from "@/repository/keyframe"
-import { CloseCircleFilled } from "@ant-design/icons"
+import { CloseCircleFilled, CloseOutlined } from "@ant-design/icons"
 import { useComfyUIRepository } from "@/repository/comfyui"
 
 interface ImageGenerateProps {
@@ -19,37 +19,54 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ }) => {
   const keyFrameRepo = useKeyFrameRepository(state => state)
   const comfyUIRepo = useComfyUIRepository(state => state)
   const [mode, setOption] = useState<string>("")
+  const [secondConfirm, setSecondConfirm] = useState(false);
+  const [isModal, setIsModal ] = useState(false)
+  const comfyuiRepo = useComfyUIRepository(state => state)
 
+  //批量处理
+  const [batchPos, setBatchPos] = useState<number>(1)
+  const [batchImageLoading, setBatchImageLoading] = useState<boolean>(false)
+  const [batchPromptLoading, setBatchPromptLoading] = useState<boolean>(false)
 
-  // const [secondConfirm, setSecondConfirm] = useState(false)
-  // const renderModal = () => {
-  //   return (
-  //     <div className='auto-modal'>
-  //       {!secondConfirm ? <div className='content'>
-  //         <CloseOutlined className='close' onClick={() => setSecondConfirm(true)} />
-  //         <Progress percent={20} status="active" showInfo />
-  //       </div> : null}
-  //       {
-  //         secondConfirm ? (
-  //           <div className='content'>
-  //             <CloseOutlined className='close' onClick={() => setSecondConfirm(false)} />
-  //             <div className='title'>确认要终止任务吗？</div>
-  //             <div className='btn-wrap flexR'>
-  //               <Button type="default" className="btn-default-auto btn-default-100" style={{ width: '130px' }}
-  //                 onClick={() => {
-  //                   console.log('点击终止')
-  //                   processing = true;
-  //                   setIsModal("");
-  //                   setSecondConfirm(false);
-  //                 }} >确认</Button>
-  //               <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '130px' }} onClick={() => setSecondConfirm(false)}>取消</Button>
-  //             </div>
-  //           </div>
-  //         ) : null
-  //       }
-  //     </div>
-  //   )
-  // }
+  let progressPercent = useMemo(()=>{
+    let rest = keyFrameRepo.items.filter((i)=>{
+      if(batchImageLoading && i.image.path) {
+       return i;
+      }
+      if(batchPromptLoading && i.prompt) {
+        return i;
+      }
+      return;
+    })
+    return Number((rest.length / keyFrameRepo.items.length * 100).toFixed(0)) || 0;
+  },[batchImageLoading, batchPromptLoading, keyFrameRepo]);
+
+  const renderModal = () => {
+    return (
+      <div className='auto-modal' >
+        {!secondConfirm ? <div className='content' style={{paddingLeft: '30px', paddingRight: '30px', width: '400px'}}>
+          <CloseOutlined className='close' onClick={() => setSecondConfirm(true)} />
+          <Progress percent={progressPercent} status="active" showInfo style={{marginTop: '140px'}}/>
+        </div> : null}
+        {
+          secondConfirm ? (
+            <div className='content' style={{width: '400px'}}>
+              <CloseOutlined className='close' onClick={() => setSecondConfirm(false)} />
+              <div className='title'>确认要终止任务吗？</div>
+                  <Button type="primary" className="btn-primary-auto btn-primary-108"
+                  style={{marginTop: '30px'}}
+                      onClick={()=>{
+                        batchImageLoading ? handleExitBatchGenerateImage():handleExitBatchGeneratePrompt();
+                        setIsModal(false);
+                        setSecondConfirm(false);
+                      }}
+                        icon={<CloseCircleFilled />}>确认取消{batchImageLoading ? "批量生图" : "批量反推关键词"}</Button>
+            </div>
+          ) : null
+        }
+      </div>
+    )
+  }
 
   useEffect(()=>{
     return () => { keyFrameRepo.setBatchExit() }
@@ -92,12 +109,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ }) => {
   }
 
 
-  const comfyuiRepo = useComfyUIRepository(state => state)
 
-  //批量处理
-  const [batchPos, setBatchPos] = useState<number>(1)
-  const [batchImageLoading, setBatchImageLoading] = useState<boolean>(false)
-  const [batchPromptLoading, setBatchPromptLoading] = useState<boolean>(false)
 
 
   //-------------------------------批量生成图片-----------------------------
@@ -118,6 +130,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ }) => {
   }
   const handleBatchGenerateImage = async () => {
     //重置
+    setIsModal(true)
     setBatchImageLoading(true)
     keyFrameRepo.resetBatchExit()
 
@@ -150,6 +163,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ }) => {
 
   const handleBatchGeneratePrompt = async () => {
     //重置
+    setIsModal(true)
     setBatchPromptLoading(true)
     keyFrameRepo.resetBatchExit()
 
@@ -175,15 +189,10 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ }) => {
             onChange={(e) => setBatchPos(e!)} /> 镜</div>
           <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGeneratePrompt} loading={batchPromptLoading}>批量反推关键词</Button>
           <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateImage} loading={batchImageLoading} >批量生图</Button>
-          {
-            batchImageLoading && <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExitBatchGenerateImage} icon={<CloseCircleFilled />}>取消</Button>
-          }
-          {
-            batchPromptLoading && <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExitBatchGeneratePrompt} icon={<CloseCircleFilled />}>取消</Button>
-          }
         </div>
       </div>
       {renderTable()}
+      {isModal && (batchImageLoading || batchPromptLoading) ? renderModal() : null}
     </div>
   )
 }
