@@ -209,7 +209,7 @@ const BasicSetting = forwardRef<BasicSettingRef, BasicSettingProps>((props, ref)
                         <Select
                             className={`select-auto`}
                             value={stateConfiguration.video.effect}
-                            // style={{ width: '400px' }}
+                            style={{ width: '400px' }}
                             onChange={(v) => { setConfiguration({...stateConfiguration,video:{...stateConfiguration.video, effect:v}})}}
                             options={[
                                 { value: 'random', label: '随机' },

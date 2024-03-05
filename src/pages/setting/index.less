@@ -135,11 +135,22 @@
         }
     }
 
-    & .inputnumber-auto.ant-input-number  {
+    & .inputnumber-auto  {
         background-color: @bg-input;
-        border: none;
-        & .ant-input-number-input {
+        border: 1px solid @border-line-color;
+        border-radius: 6px;
+        & .ant-input-number {
             color: @m-font-color;
+            background-color: inherit;
+            border: none;
+
+            & .ant-input-number-input {
+                color: inherit;
+            }
+        }
+
+        & .ant-input-number-group  .ant-input-number-group-addon {
+            border: none;
         }
     }
 
@@ -211,6 +222,13 @@
         & span {
             color: @font-primary-color;
         }
+    }
+
+    & .select-auto.ant-select {
+        & .ant-select-clear {
+            background-color: none;
+        }
+
     }
 }
 
