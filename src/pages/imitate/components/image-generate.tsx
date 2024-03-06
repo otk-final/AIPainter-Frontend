@@ -4,7 +4,7 @@ import { ImitateTabType } from ".."
 import { useEffect, useState } from "react"
 import { ComyUIModeSelect } from "@/components/mode-select"
 import { List, AutoSizer, ListRowProps } from 'react-virtualized';
-import { Button, InputNumber } from "antd"
+import { Button, InputNumber, message } from "antd"
 import { useKeyFrameRepository } from "@/repository/keyframe"
 import { useComfyUIRepository } from "@/repository/comfyui"
 import HandleProcessModal from "@/components/handle-process"
@@ -105,6 +105,11 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
   }
 
   const handleBatchGenerateImage = async () => {
+
+    if (batchPos <= 0 || batchPos > keyFrameRepo.items.length) {
+      return message.error("批量起始位置错误")
+    }
+
     //重置
     setProcess({ open: true, run_event: "batchGenerateImage", title: "正在生成图片..." })
 
@@ -145,6 +150,11 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
   }
 
   const handleBatchGeneratePrompt = async () => {
+
+    if (batchPos <= 0 || batchPos > keyFrameRepo.items.length) {
+      return message.error("批量起始位置错误")
+    }
+
     //重置
     setProcess({ open: true, run_event: "batchGeneratePrompt", title: "正在反推关键词..." })
     keyFrameRepo.resetBatchExit()

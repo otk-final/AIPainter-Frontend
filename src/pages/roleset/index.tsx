@@ -72,17 +72,23 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) 
       </div>
       <div className='content flexR'>
         <div className='content-i  flexC'>
+
           <div className='RB flexR'>
             <div className='content-title'>角色姓名</div>
-            <div className='num'>/50</div>
           </div>
           <Input size="large" className='input' value={stateActor.name} onChange={handleEditName} />
+
           <div className='RB flexR'>
             <div className='content-title'>角色别名</div>
-            <div className='num'>/50</div>
           </div>
           <Input size="large" className='input' value={stateActor.alias} onChange={handleEditAlias} />
+
+          <div className='RB flexR'>
+            <div className='content-title'>角色配音</div>
+          </div>
+          <TTSVoiceSelect option={stateActor.voice} onChange={handleEditVoice} />
         </div>
+
         <div className='content-i flexC'>
           <div className='RB flexR'>
             <div className='content-title'>角色描述</div>
@@ -93,8 +99,7 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) 
           </div>
         </div>
       </div>
-      <div className='content-title' style={{ marginTop: '20px', marginBottom: '10px' }}>角色配音</div>
-      <TTSVoiceSelect option={stateActor.voice} onChange={handleEditVoice} />
+
     </div>
   )
 }

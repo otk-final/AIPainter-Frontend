@@ -61,6 +61,8 @@ const carouselData = [
 ]
 
 const HomePage = () => {
+  //加载项目
+  const projectRepo = useProjectRepository(state => state)
   const [isProjectOpen, setIsProjectOpen] = useState<ProjectType>("");
   const bannerRef = useRef(null);
   let [bannerW, setBannerW] = useState(0);
@@ -69,7 +71,10 @@ const HomePage = () => {
     setBannerW(bannerRef.current.offsetWidth);
   }, []);
 
+
   useEffect(() => {
+    projectRepo.load('env')
+
     window.addEventListener('resize', function () {
       if (bannerRef.current) {
         setBannerW(bannerRef.current.offsetWidth);
@@ -91,11 +96,6 @@ const HomePage = () => {
     }
   }
 
-  //加载项目
-  const projectRepo = useProjectRepository(state => state)
-  useEffect(() => {
-    projectRepo.load('env')
-  }, [])
 
 
 
@@ -128,7 +128,7 @@ const HomePage = () => {
             <div className="home-item-wrap flexR" key={index}>
               <div className="left flexC">
                 <div className="title one-line">{item?.name}</div>
-                <div className="describe" style={{ marginTop: '-10px' }}>类型: {item?.type}</div>
+                <div className="describe" style={{ marginTop: '-10px' }}>类型: {item.type === "story" ? "创造视频" : "一键追爆款"}</div>
                 <div className="describe">开始时间: {item?.createTime}</div>
                 <div className="describe">当前环节: {item?.step}</div>
               </div>

@@ -7,21 +7,22 @@ import { LoginModule, UserInfoModule, MemberRechargeModule, EnergyRechargeModule
 import { checkUpdate, installUpdate } from '@tauri-apps/api/updater';
 import { relaunch } from '@tauri-apps/api/process';
 import assets from '@/assets';
+import { useProjectRepository } from '@/repository/workspace';
 
 export default function Layout(props: any) {
   let { pathname } = useLocation();
   const { logout, loginState } = useLogin();
+  const projectRepo = useProjectRepository(state => state)
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMemberRechargeOpen, setIsMemberRechargeOpen] = useState(false);
   const [isEnergyRechargeOpen, setIsEnergyRechargeOpen] = useState(false);
 
-  useEffect(()=>{
-    if(!loginState.isLogin) {
+  useEffect(() => {
+    if (!loginState.isLogin) {
       setIsModalOpen(true)
     }
-  },[])
-
+  }, [])
 
   const openRecharge = (type: "energy" | 'member') => {
     setIsUserInfoOpen(false);
@@ -30,7 +31,6 @@ export default function Layout(props: any) {
     } else {
       setIsMemberRechargeOpen(true)
     }
-
   }
 
   const renderPopoverContent = () => {
@@ -46,7 +46,7 @@ export default function Layout(props: any) {
 
   const withUpdateHandler = async () => {
     const { shouldUpdate, manifest } = await checkUpdate()
-    console.info('not updated',shouldUpdate,manifest)
+    console.info('not updated', shouldUpdate, manifest)
 
     if (shouldUpdate) {
       // You could show a dialog asking the user if they want to install the update here.
@@ -68,9 +68,13 @@ export default function Layout(props: any) {
   return (
     <Fragment>
       <div className="navs flexR">
-        <div className='left flexR'>
-         
-        </div>
+        {
+          projectRepo.opened && <div className='left flexR'>
+            {`当前项目:  `}<span className="endtime">{projectRepo.opened.name}</span>
+          </div>
+        }
+        <div></div>
+
         <div className="right flexR">
           {loginState.isLogin ?
             <Fragment>
@@ -87,7 +91,6 @@ export default function Layout(props: any) {
               <img src={assets.userImg} className="user-img" />
             </Popover>
             : <div className='login-btn' onClick={() => setIsModalOpen(true)}>登陆/注册</div>}
-
         </div>
       </div>
       <div className='navs-placeholder'></div>

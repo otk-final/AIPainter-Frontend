@@ -87,6 +87,12 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
         }).finally(keyFrameRepo.resetBatchExit)
     }
     const handleBatchRewrite = async () => {
+
+        if (batchPos <= 0 || batchPos > keyFrameRepo.items.length) {
+            return message.error("批量起始位置错误")
+        }
+
+
         setProcess({ open: true, run_event: "batchRewrite", title: "批量重写字幕..." })
 
         keyFrameRepo.resetBatchExit()
@@ -120,6 +126,12 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
         }).finally(keyFrameRepo.resetBatchExit)
     }
     const handleBatchGenerateAudio = async () => {
+
+        if (batchPos <= 0 || batchPos > keyFrameRepo.items.length) {
+            return message.error("批量起始位置错误")
+        }
+
+
         //重置
         setProcess({ open: true, run_event: "batchGenerateAudio", title: "批量生成音频..." })
         keyFrameRepo.resetBatchExit()

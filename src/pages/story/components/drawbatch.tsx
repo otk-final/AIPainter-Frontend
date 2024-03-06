@@ -104,6 +104,10 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
         }).finally(chapterRepo.resetBatchExit)
     }
     const handleBatchGenerateImage = async () => {
+        if (batchPos <= 0 || batchPos > chapterRepo.items.length) {
+            return message.error("批量起始位置错误")
+        }
+        
         //重置
         setProcess({ open: true, run_event: "batchGenerateImage", title: "批量生成音频..." })
 
@@ -141,6 +145,11 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
         }).finally(chapterRepo.resetBatchExit)
     }
     const handleBatchTranslatePrompt = async () => {
+
+        if (batchPos <= 0 || batchPos > chapterRepo.items.length) {
+            return message.error("批量起始位置错误")
+        }
+
         //重置
         setProcess({ open: true, run_event: "batchTranslatePrompt", title: "批量翻译关键词..." })
         chapterRepo.resetBatchExit()

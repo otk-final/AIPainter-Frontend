@@ -327,7 +327,7 @@ const TTSVoiceSelect: React.FC<{ option?: AudioOption, onChange: (audioOption: A
 
     return <Cascader
         className={`select-auto`}
-        style={{ width: '400px' }}
+        // style={{ width: '400px' }}
         options={zhOptions}
         value={value}
         onChange={(value) => { handleChange(value as string[]) }}

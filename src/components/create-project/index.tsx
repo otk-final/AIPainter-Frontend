@@ -1,10 +1,12 @@
-import { Button, Input, message, Modal } from "antd"
+import { Button, Input, message, Modal, Select } from "antd"
 import { useState } from "react";
 import { history } from 'umi'
 import "./index.less"
 import { v4 as uuid } from "uuid"
 import { ProjectType } from "@/pages/index";
 import { Project, useProjectRepository } from "@/repository/workspace";
+import dayjs from "dayjs";
+import { tauri } from "@tauri-apps/api";
 
 interface ProjectProps {
     isOpen: boolean,
@@ -12,23 +14,44 @@ interface ProjectProps {
     type: ProjectType
 }
 
+interface ImagePixel {
+    width: number,
+    height: number,
+}
+
+const size_options = [{
+    label: "默认", value: "default"
+}, {
+    label: "1:1", value: "1024x1024"
+}, {
+    label: "3:4", value: "768x1024"
+}, {
+    label: "4:3", value: "768x1024"
+}, {
+    label: "16:9", value: "1280x720",
+}, {
+    label: "16:9", value: "720x1280",
+}]
+
 export const ProjectModal: React.FC<ProjectProps> = ({ isOpen, onClose, type }) => {
     const [name, setName] = useState("")
-    const { appendItem } = useProjectRepository(state => state)
+    const [imagePixel, setImagePixel] = useState<string>("default")
+    const repo = useProjectRepository(state => state)
 
     const handleCreate = async () => {
         if (!name) {
-            return message.error("请输入小说别名");
+            return message.error("请输入项目名称");
         }
-
-        let newProject = { id: uuid(), name, type: type } as Project
-
+        //判断名称是否存在
+        if (repo.items.some(item => item.name === name)) {
+            return message.error("项目名已存在");
+        }
+        let newProject = { id: uuid(), name, type: type, createTime: dayjs(new Date()).format("YYYY-MM-DD HH:mm"), image_pixel: imagePixel } as Project
         //创建目录
-
         if (type === 'story') {
-            await appendItem(newProject, true).finally(() => { history.push("/story/" + newProject.id) })
+            await repo.appendItem(newProject, true).finally(() => { history.push("/story/" + newProject.id) })
         } else {
-            await appendItem(newProject, true).finally(() => { history.push("/imitate/" + newProject.id) })
+            await repo.appendItem(newProject, true).finally(() => { history.push("/imitate/" + newProject.id) })
         }
     }
 
@@ -39,8 +62,21 @@ export const ProjectModal: React.FC<ProjectProps> = ({ isOpen, onClose, type }) 
             footer={null}
             width={700}
             className="home-login-modal create-project">
-            <div className="title">小说别名（必填）</div>
-            <Input placeholder="请输入小说别名" size="large" onChange={(v) => setName(v.target.value)} />
+            <div className="title">项目名称（必填）</div>
+            <Input placeholder="请输入项目名" size="large" onChange={(v) => setName(v.target.value)} />
+            {
+                type === "story" &&
+                <div>
+                    <div className="title">图片宽高</div>
+                    <Select
+                        className={`select-auto`}
+                        value={imagePixel}
+                        onChange={(v) => setImagePixel(v)}
+                        options={size_options}
+                    />
+                </div>
+            }
+
             <Button type="primary" block className="btn-primary-auto" style={{ marginTop: '20px' }} onClick={handleCreate}>创建项目</Button>
         </Modal>
     )

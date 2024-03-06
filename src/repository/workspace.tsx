@@ -10,11 +10,10 @@ export interface Project extends ItemIdentifiable {
     workPath: string
     step: string,
     createTime: string
+    image_pixel: string
 }
 
 export class ProjectRepository extends BaseCRUDRepository<Project, ProjectRepository> {
-
-
 }
 
 export const useProjectRepository = create<ProjectRepository>()(subscribeWithSelector((set, get) => new ProjectRepository("workspace.json", set, get)))

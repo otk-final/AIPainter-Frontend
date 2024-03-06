@@ -1,5 +1,5 @@
 import { Button, Modal, Tabs, TabsProps, message } from 'antd';
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import './index.less'
 import { history, useParams } from "umi"
 import VideoImportTab from './components/video-import';
@@ -13,6 +13,7 @@ import { dialog, path } from '@tauri-apps/api';
 import { useTTSRepository } from '@/repository/tts';
 import { useTranslateRepository } from '@/repository/translate';
 import { useJYDraftRepository } from '@/repository/draft';
+import { useProjectRepository } from '@/repository/workspace';
 
 export type ImitateTabType = "import" | "frames" | "audio"
 const imitateTabs: TabsProps["items"] = [
@@ -40,9 +41,11 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   const draftRepo = useJYDraftRepository(state => state)
   const ttsRepo = useTTSRepository(state => state)
   const translateRepo = useTranslateRepository(state => state)
+  const projectRepo = useProjectRepository(state => state)
 
   //加载配置项
-  useMemo(() => {
+  useEffect(() => {
+
     //加载数据
     simulateRepo.load(pid)
     keyFreamRepo.load(pid)
@@ -76,7 +79,7 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
   //导出
   const handleJYDraft = async () => {
 
-    let selected = await dialog.open({ directory: true, title: "剪映草稿目录", defaultPath: draftRepo.draft_dir || await path.desktopDir(), recursive: true })
+    let selected = await dialog.open({ directory: true, title: "选择剪映草稿目录", defaultPath: draftRepo.draft_dir || await path.desktopDir(), recursive: true })
     if (!selected) {
       return
     }

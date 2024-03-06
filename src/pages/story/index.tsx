@@ -13,6 +13,7 @@ import { useTranslateRepository } from '@/repository/translate';
 import { useComfyUIRepository } from '@/repository/comfyui';
 import { useTTSRepository } from '@/repository/tts';
 import { useJYDraftRepository } from '@/repository/draft';
+import { useProjectRepository } from '@/repository/workspace';
 
 type ActionTabType = "storyboard" | "drawbatch" | "mixing"
 
@@ -30,11 +31,13 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
   const ttsRepo = useTTSRepository(state => state)
   const translateRepo = useTranslateRepository(state => state)
 
+  const projectRepo = useProjectRepository(state => state)
   //加载配置项
   useEffect(() => {
 
     //加载当前工作需要的所有页面数据
     const initializeContext = async () => {
+
       await scriptRepo.load(pid)
       await actorsRepo.load(pid)
       await chaptersRepo.load(pid)
