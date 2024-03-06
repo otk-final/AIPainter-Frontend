@@ -13,7 +13,7 @@ import { dialog, path } from '@tauri-apps/api';
 import { useTTSRepository } from '@/repository/tts';
 import { useTranslateRepository } from '@/repository/translate';
 import { useJYDraftRepository } from '@/repository/draft';
-import { useProjectRepository } from '@/repository/workspace';
+import { Project, useProjectRepository } from '@/repository/workspace';
 
 export type ImitateTabType = "import" | "frames" | "audio"
 const imitateTabs: TabsProps["items"] = [
@@ -31,7 +31,7 @@ const imitateTabs: TabsProps["items"] = [
   },
 ];
 
-const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
+const ImitateProject: React.FC<{ pid: string, project: Project }> = ({ pid }) => {
   const [currentTab, setCurrentTab] = useState<ImitateTabType>("import");
   const [tabs,] = useState(imitateTabs)
 
@@ -123,8 +123,18 @@ const ImitateProject: React.FC<{ pid: string }> = ({ pid }) => {
 };
 
 const ImitateProjectPage: React.FC = () => {
+
   const params = useParams()
-  return <ImitateProject pid={params.pid as string} />
+  const pid = params.pid as string
+  const projectRepo = useProjectRepository(state => state)
+  const [project, setProject] = useState<Project>()
+
+  useEffect(() => {
+    setProject(projectRepo.items.filter(item => item.id === pid)[0])
+  }, [pid])
+
+
+  return <ImitateProject pid={params.pid as string} project={project!} />
 }
 
 export default ImitateProjectPage

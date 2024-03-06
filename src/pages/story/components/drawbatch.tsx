@@ -9,13 +9,15 @@ import { useComfyUIRepository } from "@/repository/comfyui"
 import HandleProcessModal from "@/components/handle-process"
 import { event } from "@tauri-apps/api"
 import { useTranslateRepository } from "@/repository/translate"
+import { Project } from "@/repository/workspace"
 
 interface DrawbatchTabProps {
     pid: string
+    project: Project
 }
 
 
-const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
+const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid, project }) => {
     const chapterRepo = useChapterRepository(state => state)
     const comfyuiRepo = useComfyUIRepository(state => state)
     const actorRepo = useActorRepository(state => state)
@@ -32,7 +34,7 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
 
     const _rowRenderer = ({ index, key, style }: ListRowProps) => {
         const items = chapterRepo.items;
-        return <DrawTableTR key={key} idx={index} chapter={items[index]} style={style} mode={mode} />
+        return <DrawTableTR key={key} idx={index} chapter={items[index]} style={style} mode={mode} project={project} />
     }
 
     const renderTable = () => {
@@ -96,7 +98,7 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
         })
 
         //执行任务
-        await chapterRepo.handleGenerateImage(next_idx, mode, comfyuiRepo, actorRepo).then(async () => {
+        await chapterRepo.handleGenerateImage(next_idx, mode, project, comfyuiRepo, actorRepo).then(async () => {
             if (chapterRepo.isBatchExit()) {
                 return;
             }
@@ -107,9 +109,11 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid }) => {
         if (batchPos <= 0 || batchPos > chapterRepo.items.length) {
             return message.error("批量起始位置错误")
         }
-        
+
         //重置
         setProcess({ open: true, run_event: "batchGenerateImage", title: "批量生成音频..." })
+
+
 
         chapterRepo.resetBatchExit()
         await batchGenerateImage(batchPos - 1, chapterRepo.items.length).catch(err => { message.error(err.message) }).finally(destroyProcessModal)

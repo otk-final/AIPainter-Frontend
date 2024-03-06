@@ -8,12 +8,14 @@ import { SRTGenerate } from "@/repository/generate_utils";
 import { useEffect, useState } from "react";
 import { useTTSRepository } from "@/repository/tts";
 import HandleProcessModal from "@/components/handle-process";
+import { Project } from "@/repository/workspace";
 
 interface MixingTabProps {
     pid: string
+    project: Project
 }
 
-const MixingTab: React.FC<MixingTabProps> = ({ pid }) => {
+const MixingTab: React.FC<MixingTabProps> = ({ pid, project }) => {
     console.info(pid)
     const chapterRepo = useChapterRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
@@ -110,7 +112,7 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid }) => {
             await batchGenerateAudio(next_idx + 1, end_idx)
         }).finally(chapterRepo.resetBatchExit)
     }
-    
+
     const handleBatchGenerateAudio = async () => {
         //重置
         setProcess({ open: true, run_event: "batchGenerateAudio", title: "批量生成音频..." })

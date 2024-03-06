@@ -115,7 +115,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let frame = this.items[index]
 
         //生成图片
-        let outputs = await ImageGenerate(frame.prompt!, style, comyuiRepo, async (idx, fileBuffer) => {
+        let outputs = await ImageGenerate(frame.prompt!, style, "default", comyuiRepo, async (idx, fileBuffer) => {
             //保存文件
             let fileName = frame.id + "-" + uuid() + ".png"
             return await this.saveFile("outputs", fileName, fileBuffer)
@@ -136,7 +136,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     //在线生成音频
     handleGenerateAudio = async (index: number, ttsRepo: TTSRepository) => {
         let api = await ttsRepo.newClient()
-        
+
         //生成音频参数
         let audio = { ...ttsRepo.audio_option, speed_ratio: ttsRepo.audio_speed, volume_ratio: ttsRepo.audio_volume }
 

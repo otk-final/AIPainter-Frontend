@@ -13,11 +13,11 @@ import { useTranslateRepository } from '@/repository/translate';
 import { useComfyUIRepository } from '@/repository/comfyui';
 import { useTTSRepository } from '@/repository/tts';
 import { useJYDraftRepository } from '@/repository/draft';
-import { useProjectRepository } from '@/repository/workspace';
+import { Project, useProjectRepository } from '@/repository/workspace';
 
 type ActionTabType = "storyboard" | "drawbatch" | "mixing"
 
-const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
+const StoryProject: React.FC<{ pid: string, project: Project }> = ({ pid, project }) => {
 
   const [cur, setCur] = useState<ActionTabType>("storyboard");
   const [tabs, setTabs] = useState(createTabs)
@@ -31,9 +31,9 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
   const ttsRepo = useTTSRepository(state => state)
   const translateRepo = useTranslateRepository(state => state)
 
-  const projectRepo = useProjectRepository(state => state)
   //加载配置项
   useEffect(() => {
+
 
     //加载当前工作需要的所有页面数据
     const initializeContext = async () => {
@@ -119,9 +119,9 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
         renderLeft={<Tabs defaultActiveKey="paint" activeKey={cur} items={tabs} onChange={(key) => setCur(key as ActionTabType)} />}
         renderRight={customButtons()}
       />
-      {cur === "storyboard" ? <StoryboardTab pid={pid} /> : null}
-      {cur === 'drawbatch' ? <DrawbatchTab pid={pid} /> : null}
-      {cur === 'mixing' ? <MixingTab pid={pid} /> : null}
+      {cur === "storyboard" ? <StoryboardTab pid={pid} project={project}/> : null}
+      {cur === 'drawbatch' ? <DrawbatchTab pid={pid} project={project}/> : null}
+      {cur === 'mixing' ? <MixingTab pid={pid} project={project} /> : null}
     </div>
   );
 };
@@ -129,7 +129,15 @@ const StoryProject: React.FC<{ pid: string }> = ({ pid }) => {
 
 const StoryProjectPage: React.FC = () => {
   const params = useParams()
-  return <StoryProject pid={params.pid as string} />
+  const pid = params.pid as string
+  const projectRepo = useProjectRepository(state => state)
+  const [project, setProject] = useState<Project>()
+
+  useEffect(() => {
+    setProject(projectRepo.items.filter(item => item.id === pid)[0])
+  }, [pid])
+
+  return <StoryProject pid={params.pid as string} project={project!} />
 }
 
 export default StoryProjectPage

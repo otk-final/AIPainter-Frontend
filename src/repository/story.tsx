@@ -11,6 +11,7 @@ import { JYDraftRepository } from "./draft"
 import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./draft_utils"
 import { TTSRepository } from "./tts"
 import { TranslateRepository } from "./translate"
+import { Project, ProjectRepository } from "./workspace"
 
 export type ImportType = "input" | "file"
 
@@ -223,7 +224,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         this.sync()
     }
     //生成图片
-    handleGenerateImage = async (index: number, style: string, comyuiRepo: ComfyUIRepository, actorRepo: ActorRepository) => {
+    handleGenerateImage = async (index: number, style: string, project: Project, comyuiRepo: ComfyUIRepository, actorRepo: ActorRepository) => {
         let chapter = this.items[index]
 
         //获取所有角色关键词
@@ -233,7 +234,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         let prompt = [actor_prompt, chapter.prompt].join(",")
 
         //生成图片
-        let outputs = await ImageGenerate(prompt, style, comyuiRepo, async (idx, fileBuffer) => {
+        let outputs = await ImageGenerate(prompt, style, project.image_pixel, comyuiRepo, async (idx, fileBuffer) => {
             let fileName = index + "-" + uuid() + ".png"
             return await this.saveFile("outputs", fileName, fileBuffer)
         })
@@ -246,7 +247,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         this.sync()
     }
 
-    handleGenerateAudio = async (index: number,actorRepo: ActorRepository, ttsRepo: TTSRepository) => {
+    handleGenerateAudio = async (index: number, actorRepo: ActorRepository, ttsRepo: TTSRepository) => {
 
         let audioOption: AudioOption
         let chapter = this.items[index]
@@ -440,7 +441,7 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
 
         //生成图片
         let style = comyuiRepo.items[0].name;
-        let outputs = await ImageGenerate(prompt, style, comyuiRepo, async (idx, fileBuffer) => {
+        let outputs = await ImageGenerate(prompt, style, "default", comyuiRepo, async (idx, fileBuffer) => {
             return await this.saveFile("outputs", "ac_" + uuid() + ".png", fileBuffer)
         })
 

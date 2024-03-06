@@ -10,16 +10,18 @@ export type ImageGenerateCallback = (idx: number, fileBuffer: ArrayBuffer) => Pr
 export type ImageUploadCallback = (api: ComfyUIApi) => Promise<ImageFileParams>
 
 //图片生成
-export const ImageGenerate = async (prompt: string, style: string, comyuiRepo: ComfyUIRepository, callback: ImageGenerateCallback, upload?: ImageUploadCallback) => {
+export const ImageGenerate = async (prompt: string, style: string, pixel: string, comyuiRepo: ComfyUIRepository, callback: ImageGenerateCallback, upload?: ImageUploadCallback) => {
 
     //comyui api
     let api = await comyuiRepo.newClient()
     let text = await comyuiRepo.buildModePrompt(style)
     let script = new WFScript(text)
 
+    //判断流程中是否需要自定义宽高
+
     //生成随机
     let seed: number = await tauri.invoke('seed_random', {})
-    let parms = { seed: seed, positive: [comyuiRepo.positivePrompt, prompt].join(""), negative: comyuiRepo.negativePrompt || "" } as Text2ImageParams
+    let parms = { seed: seed, positive: [comyuiRepo.positivePrompt, prompt].join(""), negative: comyuiRepo.negativePrompt || "", pixel: pixel } as Text2ImageParams
 
     //兼容有参考图片流程
     if (script.hasInputImageStep()) {

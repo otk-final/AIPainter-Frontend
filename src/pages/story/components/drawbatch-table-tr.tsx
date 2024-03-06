@@ -6,6 +6,7 @@ import { Actor, Chapter, useActorRepository, useChapterRepository } from "@/repo
 import { useComfyUIRepository } from "@/repository/comfyui";
 import { AssetHistoryImages, AssetImage, ModalHistoryImages } from "@/components/history-image";
 import { useTranslateRepository } from "@/repository/translate";
+import { Project } from "@/repository/workspace";
 
 interface ChapterTableTRProps {
     idx: number,
@@ -14,9 +15,10 @@ interface ChapterTableTRProps {
     style: React.CSSProperties,
     key: string,
     actors?: Actor[]
+    project: Project
 }
 
-const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, style, key }) => {
+const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, style, key, project }) => {
 
     const chapterRepo = useChapterRepository(state => state)
     const actorRepo = useActorRepository(state => state)
@@ -91,7 +93,7 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
             maskClosable: false,
         })
 
-        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo, actorRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        await chapterRepo.handleGenerateImage(idx, mode, project, comfyuiRepo, actorRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
     const handleImageScale = async () => {
@@ -105,10 +107,10 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
             mask: true,
             maskClosable: false,
         })
-        await chapterRepo.handleGenerateImage(idx, mode, comfyuiRepo, actorRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        await chapterRepo.handleGenerateImage(idx, mode, project, comfyuiRepo, actorRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
-    
+
     const handleTranslatePrompt = async () => {
         Modal.info({
             content: <div style={{ color: '#fff' }}>关键词翻译中...</div>,

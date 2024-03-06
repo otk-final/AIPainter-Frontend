@@ -7,13 +7,15 @@ import FileImportModal from '../story-import';
 import { useActorRepository, useChapterRepository } from '@/repository/story';
 import { history } from 'umi';
 import { AutoSizer, ListRowProps, List } from 'react-virtualized';
+import { Project } from '@/repository/workspace';
 
 
 interface StoryboardTabProps {
     pid: string
+    project: Project
 }
 
-const StoryboardTab: React.FC<StoryboardTabProps> = ({ pid }) => {
+const StoryboardTab: React.FC<StoryboardTabProps> = ({ pid, project }) => {
     const [isOpen, setOpen] = useState(false);
     const chapterRepo = useChapterRepository(state => state)
     const actorRepo = useActorRepository(state => state)
