@@ -4,6 +4,8 @@ import { storyboardColumns } from "../data";
 import TextArea from "antd/es/input/TextArea";
 import { Actor, Chapter, useActorRepository, useChapterRepository } from "@/repository/story";
 import { useGPTRepository } from "@/repository/gpt";
+import ButtonGroup from "antd/es/button/button-group";
+import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 
 interface StoryboardTableTRProps {
     idx: number,
@@ -58,8 +60,11 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
             return item.traits.map(f => f.label).join(",")
         }).join(";")
     }
-    const handleAddChapter = async () => {
-        await chapterRepo.addItem(idx, { ...emptyChapter })
+    const handleAddBeforeChapter = async () => {
+        await chapterRepo.addItemBefore(idx, { ...emptyChapter })
+    }
+    const handleAddAfterChapter = async () => {
+        await chapterRepo.addItemAfter(idx, { ...emptyChapter })
     }
 
     const handleDelChapter = async () => {
@@ -71,7 +76,10 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
             <Fragment>
                 <div className='index'>{idx + 1}</div>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleDelChapter} disabled={chapterRepo.items!.length === 1}>删除</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleAddChapter}>插入分镜</Button>
+                <ButtonGroup>
+                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleAddBeforeChapter} icon={<ArrowUpOutlined/>}>添加分镜</Button>
+                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleAddAfterChapter} icon={<ArrowDownOutlined />}>添加分镜</Button>
+                </ButtonGroup>
             </Fragment >
         )
     }

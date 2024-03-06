@@ -2,9 +2,9 @@ import { fs, path, tauri, } from "@tauri-apps/api"
 import { BaseDirectory } from "@tauri-apps/api/fs"
 
 
-export const trimApiHost = (host:string)=>{
-    if (host.endsWith("/")){
-        return host.substring(0,host.lastIndexOf("/"))
+export const trimApiHost = (host: string) => {
+    if (host.endsWith("/")) {
+        return host.substring(0, host.lastIndexOf("/"))
     }
     return host;
 }
@@ -156,8 +156,13 @@ export abstract class BaseCRUDRepository<Item extends ItemIdentifiable, T> exten
         this._exit = false;
     }
 
-    addItem = async (idx: number, item: Item, temporary?: boolean) => {
+    addItemBefore = async (idx: number, item: Item, temporary?: boolean) => {
         this.items.splice(idx, 0, item)
+        this.setHold({ items: [...this.items] })
+        if (!temporary) await this.save()
+    }
+    addItemAfter = async (idx: number, item: Item, temporary?: boolean) => {
+        this.items.splice(idx + 1, 0, item)
         this.setHold({ items: [...this.items] })
         if (!temporary) await this.save()
     }

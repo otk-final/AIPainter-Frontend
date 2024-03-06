@@ -118,7 +118,6 @@ const TagModalContent: React.FC<TagModalContentProps> = ({ index, actor, handleC
         const unsub = useActorRepository.subscribe(
             (state) => state.items[index],
             (state, prev) => {
-                console.info("actor state", state)
                 if (state) setCheckedTags(state.traits)
             }, { fireImmediately: true })
         return unsub
