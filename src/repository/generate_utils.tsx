@@ -9,8 +9,23 @@ import { SRTLine, formatTime } from "./srt"
 export type ImageGenerateCallback = (idx: number, fileBuffer: ArrayBuffer) => Promise<string>
 export type ImageUploadCallback = (api: ComfyUIApi) => Promise<ImageFileParams>
 
+
+
+export interface KeyImage {
+    id: number,
+    scale: number,
+    image_path: string,
+    output_name: string,
+    output_path: string,
+}
+
+export const ImageScale = async (images: KeyImage[]) => {
+    return await tauri.invoke('key_image_scale', { parameters: images }) as KeyImage[]
+}
+
+
 //图片生成
-export const ImageGenerate = async (prompt: string, style: string, pixel: string, comyuiRepo: ComfyUIRepository, callback: ImageGenerateCallback, upload?: ImageUploadCallback) => {
+export const ImageGenerate = async (prompt: string, style: string, image_pixel: string, comyuiRepo: ComfyUIRepository, callback: ImageGenerateCallback, upload?: ImageUploadCallback) => {
 
     //comyui api
     let api = await comyuiRepo.newClient()
@@ -21,7 +36,7 @@ export const ImageGenerate = async (prompt: string, style: string, pixel: string
 
     //生成随机
     let seed: number = await tauri.invoke('seed_random', {})
-    let parms = { seed: seed, positive: [comyuiRepo.positivePrompt, prompt].join(""), negative: comyuiRepo.negativePrompt || "", pixel: pixel } as Text2ImageParams
+    let parms = { seed: seed, positive: [comyuiRepo.positivePrompt, prompt].join(""), negative: comyuiRepo.negativePrompt || "", image_pixel: image_pixel } as Text2ImageParams
 
     //兼容有参考图片流程
     if (script.hasInputImageStep()) {

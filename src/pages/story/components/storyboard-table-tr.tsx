@@ -2,7 +2,7 @@ import { Button, Modal, Switch, message } from "antd"
 import { Fragment, useEffect, useState } from "react";
 import { storyboardColumns } from "../data";
 import TextArea from "antd/es/input/TextArea";
-import { Actor, Chapter, useActorRepository, useChapterRepository } from "@/repository/story";
+import { Actor, Chapter, useChapterRepository } from "@/repository/story";
 import { useGPTRepository } from "@/repository/gpt";
 import ButtonGroup from "antd/es/button/button-group";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
@@ -20,7 +20,6 @@ const emptyChapter: Chapter = {
     name: "",
     draft: "",
     scene: "",
-    description: "",
     srt: "",
     actors: [],
     image: {
@@ -37,7 +36,6 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
 
     const chapterRepo = useChapterRepository(state => state)
     const gptRepo = useGPTRepository(state => state)
-    const actorRepo = useActorRepository(state => state)
 
     useEffect(() => {
         const unsub = useChapterRepository.subscribe(
@@ -52,14 +50,16 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
         return stateChapter.actors && stateChapter.actors.indexOf(alias) !== -1
     }
 
-    const renderChinesePrompts = (checkActors: string[]) => {
-        if (!checkActors || checkActors.length === 0) {
-            return ""
-        }
-        return actors.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
-            return item.traits.map(f => f.label).join(",")
-        }).join(";")
-    }
+    // const renderChinesePrompts = (checkActors: string[]) => {
+    //     if (!checkActors || checkActors.length === 0) {
+    //         return ""
+    //     }
+    //     return actors.filter(item => checkActors.indexOf(item.alias) !== -1).map(item => {
+    //         return item.traits.map(f => f.label).join(",")
+    //     }).join(";")
+    // }
+
+
     const handleAddBeforeChapter = async () => {
         await chapterRepo.addItemBefore(idx, { ...emptyChapter })
     }
@@ -123,15 +123,15 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
         )
     }
 
-    const handleEditDescription = async (e: any) => {
-        await chapterRepo.updateItem(idx, { ...stateChapter, description: e.target.value }, false)
+    const handleEditScene = async (e: any) => {
+        await chapterRepo.updateItem(idx, { ...stateChapter, scene: e.target.value }, false)
     }
-    const renderDescription = () => {
+    const renderScene = () => {
         return (
             <TextArea rows={6} placeholder={"请输入场景关键词"}
                 maxLength={1000} className="text-area-auto"
-                value={stateChapter.description}
-                onChange={handleEditDescription} />
+                value={stateChapter.scene}
+                onChange={handleEditScene} />
         )
     }
 
@@ -142,7 +142,7 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
             mask: true,
             maskClosable: false,
         })
-        await chapterRepo.handleResolveChapter(idx, gptRepo, actorRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        await chapterRepo.handleResolveChapter(idx, gptRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
     const renderOperate = () => {
@@ -159,10 +159,9 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
                 return (
                     <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
-                        {i.key === 'original' ? renderDraft() : null}
-                        {i.key === 'scene' ? renderDescription() : null}
+                        {i.key === 'draft' ? renderDraft() : null}
+                        {i.key === 'scene' ? renderScene() : null}
                         {i.key === 'actors' ? renderActors() : null}
-                        {i.key === 'prompts' ? renderChinesePrompts(stateChapter.actors) : null}
                         {i.key === 'operate' ? renderOperate() : null}
                     </div>
                 )

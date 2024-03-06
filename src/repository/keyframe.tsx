@@ -9,8 +9,9 @@ import { v4 as uuid } from "uuid"
 import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./draft_utils"
 import { JYDraftRepository } from "./draft"
 import { GPTRepository } from "./gpt"
-import { ImageGenerate, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
+import { ImageGenerate, ImageScale, KeyImage, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
 import { TTSRepository } from "./tts"
+
 
 export interface KeyFrame extends ItemIdentifiable {
     id: number
@@ -84,6 +85,57 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         await this.sync()
         await worker.terminate();
+    }
+
+    //批量图片放大
+    batchScaleImage = async (start_idx: number) => {
+        let scaleArray = [] as KeyImage[]
+        for (let i = start_idx; i < this.items.length; i++) {
+            let frame = this.items[i]
+            //未生成，或者已经放大
+            if (!frame.image.path || frame.image.path.includes("scale")) {
+                continue;
+            }
+            let output_name = "outputs" + path.sep + (frame.id + "-scale-" + uuid() + ".png")
+            scaleArray.push({
+                id: i,
+                image_path: await this.absulotePath(frame.image.path),
+                scale: 2,
+                output_name: output_name,
+                output_path: await this.absulotePath(output_name)
+            })
+        }
+        let results = await ImageScale(scaleArray);
+
+        //替换数据
+        for (let i = 0; i < results.length; i++) {
+            this.items[i].image.path = results[i].output_name
+        }
+
+        //更新
+        await this.sync()
+    }
+
+    //单张图片放大
+    handleScaleImage = async (index: number) => {
+        let frame = this.items[index]
+        if (!frame.image.path || frame.image.path.includes("scale")) {
+            throw new Error("当前图片已放大")
+        }
+
+        let output_name = "outputs" + path.sep + (frame.id + "-scale-" + uuid() + ".png")
+        let arg = {
+            id: frame.id,
+            image_path: await this.absulotePath(frame.image.path),
+            scale: 2,
+            output_name: output_name,
+            output_path: await this.absulotePath(output_name)
+        } as KeyImage
+
+        let results = await ImageScale([arg]);
+        this.items[index].image.path = results[0].output_name
+
+        this.sync()
     }
 
     //反推关键词

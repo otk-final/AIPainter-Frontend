@@ -24,8 +24,8 @@ export const storyboardColumns = [
     space: 2,
   },
   {
-    title: "原文描述",
-    key: "original",
+    title: "原稿",
+    key: "draft",
     space: 4,
   },
   {
@@ -38,11 +38,7 @@ export const storyboardColumns = [
     key: "actors",
     space: 3,
   },
-  {
-    title: "角色描述(中文)",
-    key: "prompts",
-    space: 4,
-  },
+
   {
     title: "操作",
     key: "operate",

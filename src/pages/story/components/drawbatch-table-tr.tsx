@@ -4,12 +4,12 @@ import { Fragment, useEffect, useState } from "react";
 import { drawbatchColumns } from "../data";
 import { Actor, Chapter, useActorRepository, useChapterRepository } from "@/repository/story";
 import { useComfyUIRepository } from "@/repository/comfyui";
-import { AssetHistoryImages, AssetImage, ModalHistoryImages } from "@/components/history-image";
+import { AssetImage, ChapterHistoryImages, ModalHistoryImages } from "@/components/history-image";
 import { useTranslateRepository } from "@/repository/translate";
 import { Project } from "@/repository/workspace";
 
 interface ChapterTableTRProps {
-    idx: number,
+    index: number,
     mode: string
     chapter: Chapter,
     style: React.CSSProperties,
@@ -18,7 +18,7 @@ interface ChapterTableTRProps {
     project: Project
 }
 
-const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, style, key, project }) => {
+const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ index, mode, chapter, style, key, project }) => {
 
     const chapterRepo = useChapterRepository(state => state)
     const actorRepo = useActorRepository(state => state)
@@ -28,12 +28,12 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
 
     useEffect(() => {
         const unsub = useChapterRepository.subscribe(
-            (state) => state.items[idx],
+            (state) => state.items[index],
             (state,) => state && setChapter(state),
             { fireImmediately: true }
         )
         return unsub
-    }, [idx])
+    }, [index])
 
     // const renderEnglishPrompts = (checkActors: string[]) => {
     //     if (!checkActors || checkActors.length === 0) {
@@ -47,13 +47,13 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
     const renderNumber = () => {
         return (
             <Fragment>
-                <div className='index'>{idx + 1}</div>
+                <div className='index'>{index + 1}</div>
             </Fragment>
         )
     }
 
     const handleEditPrompt = async (e: any) => {
-        await chapterRepo.updateItem(idx, { ...stateChapter, prompt: e.target.value }, false)
+        await chapterRepo.updateItem(index, { ...stateChapter, prompt: e.target.value }, false)
     }
 
     const renderEditPrompt = () => {
@@ -65,16 +65,16 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
         )
     }
 
-    const handleEditDescription = async (e: any) => {
-        await chapterRepo.updateItem(idx, { ...stateChapter, description: e.target.value }, false)
+    const handleEditScene = async (e: any) => {
+        await chapterRepo.updateItem(index, { ...stateChapter, scene: e.target.value }, false)
     }
 
-    const renderEditDescription = () => {
+    const renderEditScene = () => {
         return (
             <TextArea rows={6} placeholder={"请输入画面描述词"}
                 maxLength={1000} className="text-area-auto"
-                value={stateChapter.description}
-                onChange={handleEditDescription} />
+                value={stateChapter.scene}
+                onChange={handleEditScene} />
         )
     }
 
@@ -93,21 +93,17 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
             maskClosable: false,
         })
 
-        await chapterRepo.handleGenerateImage(idx, mode, project, comfyuiRepo, actorRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        await chapterRepo.handleGenerateImage(index, mode, project, comfyuiRepo, actorRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
     const handleImageScale = async () => {
-        if (!mode) {
-            await message.warning("请选择图片风格")
-            return
-        }
         Modal.info({
             content: <div style={{ color: '#fff' }}>图片放大中...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
         })
-        await chapterRepo.handleGenerateImage(idx, mode, project, comfyuiRepo, actorRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        await chapterRepo.handleScaleImage(index).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
 
@@ -118,7 +114,7 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
             mask: true,
             maskClosable: false,
         })
-        await chapterRepo.handleTranslatePrompt(idx, translateRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        await chapterRepo.handleTranslatePrompt(index, translateRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
 
@@ -126,27 +122,27 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ idx, mode, chapter, s
     const renderOperate = () => {
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleText2Image}>重绘本镜</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleText2Image} disabled={!stateChapter.prompt}>{stateChapter.image?.path ? "重绘本镜" : "生成图片"}</Button>
                 <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateChapter.image?.path} onClick={handleImageScale}>高清放大</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateChapter.description} onClick={handleTranslatePrompt}>翻译描述</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateChapter.scene} onClick={handleTranslatePrompt}>翻译描述</Button>
             </Fragment>
         )
     }
 
     const handleUpdateCurrentImage = async (path: string) => {
-        await chapterRepo.updateItem(idx, { ...stateChapter, image: { ...stateChapter.image!, path: path } }, true)
+        await chapterRepo.updateItem(index, { ...stateChapter, image: { ...stateChapter.image!, path: path } }, true)
     }
     const [isOpen, setOpen] = useState(false)
     return (
         <div className='tr flexR' style={style} key={key}>
-            {stateChapter && drawbatchColumns.map((i, index) => {
+            {stateChapter && drawbatchColumns.map((i, idx) => {
                 return (
-                    <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
+                    <div className='td script-id flexC' key={i.key + idx} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
-                        {i.key === 'description' ? renderEditDescription() : null}
+                        {i.key === 'description' ? renderEditScene() : null}
                         {i.key === 'drawPrompt' ? renderEditPrompt() : null}
                         {i.key === 'drawImage' && <AssetImage path={stateChapter.image?.path} repo={chapterRepo} />}
-                        {i.key === 'drawImageHistory' && <AssetHistoryImages setOpen={setOpen} path={stateChapter.image?.path} history={stateChapter.image?.history || []} repo={chapterRepo} />}
+                        {i.key === 'drawImageHistory' && <ChapterHistoryImages setOpen={setOpen} idx={index} />}
                         {i.key === 'operate' ? renderOperate() : null}
                     </div>
                 )

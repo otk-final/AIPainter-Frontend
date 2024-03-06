@@ -162,6 +162,15 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
     await batchGeneratePrompt(batchPos - 1, keyFrameRepo.items.length).finally(destroyProcessModal)
   }
 
+
+  //-------------------------------批量图片放大-----------------------------
+
+  const handleBatchScaleImage = async () => {
+    setProcess({ open: true, run_event: "key_image_scale_process", exit_event: "", title: "正在高清放大..." })
+    //按音频
+    await keyFrameRepo.batchScaleImage(batchPos - 1).catch(err => message.error(err.message)).finally(destroyProcessModal)
+  }
+
   return (
     <div className="generate-image-wrap">
       <div className='generate-header flexR'>
@@ -176,6 +185,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
             onChange={(e) => setBatchPos(e!)} /> 镜</div>
           <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGeneratePrompt} >批量反推关键词</Button>
           <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateImage}  >批量生图</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchScaleImage}  >批量高清放大</Button>
         </div>
       </div>
       {renderTable()}

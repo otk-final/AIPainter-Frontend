@@ -3,6 +3,8 @@ import { Button, Image, Modal } from "antd"
 import { useEffect, useState } from "react";
 import './index.less'
 import { TauriRepo } from "@/repository/tauri_repository";
+import { useKeyFrameRepository } from "@/repository/keyframe";
+import { useChapterRepository } from "@/repository/story";
 
 
 export interface ModalHistoryImageProps {
@@ -85,17 +87,24 @@ export const AssetImage: React.FC<{ path?: string, repo: TauriRepo }> = ({ path,
 }
 
 export interface AssetHistoryImagesProps {
+    idx: number
     setOpen: (open: boolean) => void
-    path?: string
-    history: string[]
-    repo: TauriRepo
 }
 
-export const AssetHistoryImages: React.FC<AssetHistoryImagesProps> = ({ setOpen, history, repo }) => {
 
-    const [urls, setUrls] = useState<string[]>()
+export const KeyFrameHistoryImages: React.FC<AssetHistoryImagesProps> = ({ idx, setOpen}) => {
 
-    const render = async (history: string[]) => {
+    const [urls, setUrls] = useState<string[]>([])
+    const repo = useKeyFrameRepository(state => state)
+
+    const render = async (args: string[]) => {
+        let history: string[] = args
+
+        //列表最多保留12个
+        if (history.length > 12) {
+            history = history.slice(Math.abs(12 - history.length));
+        }
+
         let historyUrls = [] as string[]
         history.forEach(async (item) => {
             let url = tauri.convertFileSrc(await repo.absulotePath(item))
@@ -104,20 +113,64 @@ export const AssetHistoryImages: React.FC<AssetHistoryImagesProps> = ({ setOpen,
         setUrls(historyUrls)
     }
 
+    //监听
     useEffect(() => {
-        if (history) render(history)
-    }, [history])
+        const unsub = useKeyFrameRepository.subscribe(
+            (state) => state.items[idx].image.history,
+            async (state, prev) => state && await render(state),
+            { fireImmediately: true }
+        )
+        return unsub
+    }, [idx])
+
+    return <div className="flexR"
+        style={{ flexWrap: "wrap", justifyContent: "flex-start", width: '100%' }}
+        onClick={() => setOpen(true)}
+    >
+        {urls.map((item, idx) => {
+            return <Image src={item} className="generate-image size-s" preview={false} key={idx} />
+        })}
+    </div>
+}
 
 
-    if (urls) {
-        return <div className="flexR"
-            style={{ flexWrap: "wrap", justifyContent: "flex-start", width: '100%' }}
-            onClick={() => setOpen(true)}
-        >
-            {urls.map((item, idx) => {
-                return <Image src={item} className="generate-image size-s" preview={false} key={idx} />
-            })}
-        </div>
+export const ChapterHistoryImages: React.FC<AssetHistoryImagesProps> = ({ idx, setOpen }) => {
+
+    const [urls, setUrls] = useState<string[]>([])
+    const repo = useChapterRepository(state => state)
+
+    const render = async (args: string[]) => {
+        let history: string[] = args
+
+        //列表最多保留12个
+        if (history.length > 12) {
+            history = history.slice(Math.abs(12 - history.length));
+        }
+
+        let historyUrls = [] as string[]
+        history.forEach(async (item) => {
+            let url = tauri.convertFileSrc(await repo.absulotePath(item))
+            historyUrls.push(url)
+        })
+        setUrls(historyUrls)
     }
-    return <div>待生成</div>
+
+    //监听
+    useEffect(() => {
+        const unsub = useChapterRepository.subscribe(
+            (state) => state.items[idx].image.history,
+            async (state, prev) => state && await render(state),
+            { fireImmediately: true }
+        )
+        return unsub
+    }, [idx])
+
+    return <div className="flexR"
+        style={{ flexWrap: "wrap", justifyContent: "flex-start", width: '100%' }}
+        onClick={() => setOpen(true)}
+    >
+        {urls.map((item, idx) => {
+            return <Image src={item} className="generate-image size-s" preview={false} key={idx} />
+        })}
+    </div>
 }

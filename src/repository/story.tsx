@@ -6,12 +6,12 @@ import { ComfyUIRepository } from "./comfyui"
 import { v4 as uuid } from "uuid"
 import { AudioOption } from "./tts_api"
 import { GPTRepository } from "./gpt"
-import { ImageGenerate, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
+import { ImageGenerate, ImageScale, KeyImage, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
 import { JYDraftRepository } from "./draft"
 import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./draft_utils"
 import { TTSRepository } from "./tts"
 import { TranslateRepository } from "./translate"
-import { Project, ProjectRepository } from "./workspace"
+import { Project } from "./workspace"
 
 export type ImportType = "input" | "file"
 
@@ -139,15 +139,16 @@ export interface Chapter extends ItemIdentifiable {
 
     //草稿
     draft: string
-    //场景名称
+    //场景
     scene: string,
-    //场景描写
-    description: string,
-    //字幕台词
-    srt?: string
     //角色集
     actors: string[]
 
+
+    //字幕台词
+    srt?: string
+
+    
     //场景关键词
     prompt?: string,
 
@@ -185,26 +186,16 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
     }
 
     //解析原稿
-    handleResolveChapter = async (index: number, gptRepo: GPTRepository, actorRepo: ActorRepository) => {
+    handleResolveChapter = async (index: number, gptRepo: GPTRepository) => {
         let chapter = this.items[index];
         let api = await gptRepo.newClient()
-        let outputs = await api.chapterBoarding("", chapter.draft, gptRepo)
-        if (!outputs) {
+        let scene = await api.chapterBoarding(chapter.draft, gptRepo)
+        if (!scene) {
             throw new Error("推理异常")
         }
-        //解析
-        let result = outputs[0] as ChapterBoardingOutput
-
-
-        //判断是否有新角色加入，则添加默认角色
-        await actorRepo.mergeActors(result.characters)
-
         //覆盖数据
-        this.items[index].actors = result.characters
-        this.items[index].description = result.description
+        this.items[index].scene = scene
 
-        //TODO 翻译场景关键词
-        this.items[index].prompt = ""
         //保存
         this.sync()
     }
@@ -218,11 +209,66 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
     handleTranslatePrompt = async (index: number, translateRepo: TranslateRepository) => {
         let api = await translateRepo.newClient()
         //翻译
-        let enResp = await api.translate(this.items[index].description)
+        let enResp = await api.translate(this.items[index].scene)
         this.items[index].prompt = enResp.result.trans_result.map(i => i.dst).join(",")
 
         this.sync()
     }
+
+
+    //批量图片放大
+    batchScaleImage = async (start_idx: number) => {
+        let scaleArray = [] as KeyImage[]
+        for (let i = start_idx; i < this.items.length; i++) {
+            let frame = this.items[i]
+            //未生成，或者已经放大
+            if (!frame.image.path || frame.image.path.includes("scale")) {
+                continue;
+            }
+            let output_name = "outputs" + path.sep + (frame.id + "-scale-" + uuid() + ".png")
+            scaleArray.push({
+                id: i,
+                image_path: await this.absulotePath(frame.image.path),
+                scale: 2,
+                output_name: output_name,
+                output_path: await this.absulotePath(output_name)
+            })
+        }
+        let results = await ImageScale(scaleArray);
+
+        //替换数据
+        for (let i = 0; i < results.length; i++) {
+            this.items[i].image.path = results[i].output_name
+        }
+
+        //更新
+        await this.sync()
+    }
+
+    //单张图片放大
+    handleScaleImage = async (index: number) => {
+        let frame = this.items[index]
+        if (!frame.image.path || frame.image.path.includes("scale")) {
+            throw new Error("当前图片已放大")
+        }
+
+        let output_name = "outputs" + path.sep + (frame.id + "-scale-" + uuid() + ".png")
+        let arg = {
+            id: frame.id,
+            image_path: await this.absulotePath(frame.image.path),
+            scale: 2,
+            output_name: output_name,
+            output_path: await this.absulotePath(output_name)
+        } as KeyImage
+
+        let results = await ImageScale([arg]);
+        this.items[index].image.path = results[0].output_name
+
+        this.sync()
+    }
+
+
+
     //生成图片
     handleGenerateImage = async (index: number, style: string, project: Project, comyuiRepo: ComfyUIRepository, actorRepo: ActorRepository) => {
         let chapter = this.items[index]

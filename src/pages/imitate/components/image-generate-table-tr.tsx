@@ -4,7 +4,7 @@ import React, { Fragment, useEffect, useState } from "react";
 import { generateImagesColumns } from "../data";
 import { KeyFrame, useKeyFrameRepository } from "@/repository/keyframe";
 import { useComfyUIRepository } from "@/repository/comfyui";
-import { AssetHistoryImages, AssetImage, ModalHistoryImages } from "@/components/history-image";
+import { AssetImage, KeyFrameHistoryImages, ModalHistoryImages } from "@/components/history-image";
 import VideoPlayerModal from "./video-player";
 
 interface GenerateImagesTRProps {
@@ -17,7 +17,7 @@ interface GenerateImagesTRProps {
 
 const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, mode, frame }) => {
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
-    const keyFreamRepo = useKeyFrameRepository(state => state)
+    const keyFrameRepo = useKeyFrameRepository(state => state)
     const comfyUIRepo = useComfyUIRepository(state => state)
 
     useEffect(() => {
@@ -30,37 +30,47 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
 
 
     const handleEditPrompt = async (e: any) => {
-        await keyFreamRepo.updateItem(index, { ...stateFrame, prompt: e.target.value }, false)
+        await keyFrameRepo.updateItem(index, { ...stateFrame, prompt: e.target.value }, false)
     }
 
-    const handleImage2TextCatch = async () => {
+    const handleImage2Text = async () => {
         Modal.info({
             content: <div style={{ color: '#fff' }}>反推关键词...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
         });
-        await keyFreamRepo.handleGeneratePrompt(index, comfyUIRepo).catch(err => { message.error(err.message) }).finally(Modal.destroyAll)
+        await keyFrameRepo.handleGeneratePrompt(index, comfyUIRepo).catch(err => { message.error(err.message) }).finally(Modal.destroyAll)
     }
 
-    const handleText2ImageCatch = async () => {
+    const handleText2Image = async () => {
         Modal.info({
             content: <div style={{ color: '#fff' }}>生成图片...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
         })
-        await keyFreamRepo.handleGenerateImage(index, mode, comfyUIRepo).catch(err => {message.error(err.message) }).finally(Modal.destroyAll)
+        await keyFrameRepo.handleGenerateImage(index, mode, comfyUIRepo).catch(err => {message.error(err.message) }).finally(Modal.destroyAll)
+    }
+
+    const handleScaleImage = async () => {
+        Modal.info({
+            content: <div style={{ color: '#fff' }}>图片放大...</div>,
+            footer: null,
+            mask: true,
+            maskClosable: false,
+        })
+        await keyFrameRepo.handleScaleImage(index).catch(err => { message.error(err.message) }).finally(Modal.destroyAll)
     }
 
     const handleDelKeyFrame = async () => {
-        await keyFreamRepo.delItem(index, true)
+        await keyFrameRepo.delItem(index, true)
     }
 
     const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
     const [videoPlayerUrl, setVideoPlayerUrl] = useState<string | undefined>();
     const startPlayerFrament = async () => {
-        setVideoPlayerUrl(await keyFreamRepo.absulotePath(stateFrame.srt_video_path!))
+        setVideoPlayerUrl(await keyFrameRepo.absulotePath(stateFrame.srt_video_path!))
         setIsVideoPlayerOpen(true);
     }
 
@@ -89,8 +99,9 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
     const renderOperate = () => {
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleImage2TextCatch}>反推关键词</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleText2ImageCatch} disabled={!stateFrame.prompt}>生成图片</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleImage2Text}>反推关键词</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleText2Image} disabled={!stateFrame.prompt}>{stateFrame.image.path ? "重新生成" :"生成图片"}</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleScaleImage} disabled={!stateFrame.image.path}>高清放大</Button>
             </Fragment>
         )
     }
@@ -98,25 +109,25 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
 
 
     const handleUpdateCurrentImage = async (path: string) => {
-        await keyFreamRepo.updateItem(index, { ...stateFrame, image: { ...stateFrame.image, path: path } }, true)
+        await keyFrameRepo.updateItem(index, { ...stateFrame, image: { ...stateFrame.image, path: path } }, true)
     }
 
     const [isOpen, setOpen] = useState(false)
     return (
         <div className='tr flexR' style={style} key={key}>
-            {generateImagesColumns.map((i, index) => {
+            {generateImagesColumns.map((i, idx) => {
                 return (
-                    <div className='td script-id flexC' key={i.key + index} style={{ flex: i.key === 'number' ? `0 0 124px` : `${i.space}` }}>
+                    <div className='td script-id flexC' key={i.key + idx} style={{ flex: i.key === 'number' ? `0 0 124px` : `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
-                        {i.key === 'path' && <AssetImage path={stateFrame.path} repo={keyFreamRepo} />}
+                        {i.key === 'path' && <AssetImage path={stateFrame.path} repo={keyFrameRepo} />}
                         {i.key === 'drawPrompt' ? renderPrompt() : null}
-                        {i.key === 'drawImage' && <AssetImage path={stateFrame.image?.path} repo={keyFreamRepo} />}
-                        {i.key === 'drawImageHistory' && <AssetHistoryImages setOpen={setOpen} path={stateFrame.image?.path} history={stateFrame.image?.history} repo={keyFreamRepo} />}
+                        {i.key === 'drawImage' && <AssetImage path={stateFrame.image?.path} repo={keyFrameRepo} />}
+                        {i.key === 'drawImageHistory' && <KeyFrameHistoryImages setOpen={setOpen} idx={index}/>}
                         {i.key === 'operate' ? renderOperate() : null}
                     </div>
                 )
             })}
-            <ModalHistoryImages isOpen={isOpen} setOpen={setOpen} path={stateFrame.image?.path} history={stateFrame.image?.history} repo={keyFreamRepo} onChange={handleUpdateCurrentImage} />
+            <ModalHistoryImages isOpen={isOpen} setOpen={setOpen} path={stateFrame.image?.path} history={stateFrame.image?.history} repo={keyFrameRepo} onChange={handleUpdateCurrentImage} />
             {isVideoPlayerOpen && <VideoPlayerModal videoPath={videoPlayerUrl!} isOpen={isVideoPlayerOpen} onClose={() => setIsVideoPlayerOpen(false)} />}
         </div>
     )

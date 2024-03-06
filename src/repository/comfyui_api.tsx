@@ -389,7 +389,7 @@ export interface Text2ImageParams {
     positive: string
     negative: string
     seed: number
-    pixel: string
+    image_pixel: string
 }
 
 //文生图
@@ -401,8 +401,8 @@ export const Text2ImageHandle: CompletionPromptParams<Text2ImageParams> = (api: 
     }
 
     //自定义LatentImage
-    if (params.pixel !== "default") {
-        script.setLatentImage(params.pixel)
+    if (params.image_pixel && params.image_pixel !== "default") {
+        script.setLatentImage(params.image_pixel)
     }
 
     script.setNegativePrompt(params.negative)
