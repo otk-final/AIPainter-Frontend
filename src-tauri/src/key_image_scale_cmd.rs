@@ -28,10 +28,18 @@ pub fn handle_image_scale(factor: u32, src_path: String, out_path: String) {
     resized_img.save(out_path).unwrap();
 }
 
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ImageDimensions {
+    width: u32,
+    height: u32,
+}
+
 #[tauri::command]
-pub fn measure_image_size(image_path: String) -> (u32, u32) {
+pub async fn measure_image_dimensions(image_path: String) -> ImageDimensions {
     let img = image::open(image_path).unwrap();
-    return img.dimensions();
+    let (width, height) = img.dimensions();
+    ImageDimensions { width, height }
 }
 
 
