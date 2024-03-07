@@ -68,13 +68,7 @@ export default function Layout(props: any) {
   return (
     <Fragment>
       <div className="navs flexR">
-        {
-          projectRepo.opened && <div className='left flexR'>
-            {`当前项目:  `}<span className="endtime">{projectRepo.opened.name}</span>
-          </div>
-        }
         <div></div>
-
         <div className="right flexR">
           {loginState.isLogin ?
             <Fragment>
