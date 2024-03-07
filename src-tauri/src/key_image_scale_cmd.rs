@@ -28,6 +28,12 @@ pub fn handle_image_scale(factor: u32, src_path: String, out_path: String) {
     resized_img.save(out_path).unwrap();
 }
 
+#[tauri::command]
+pub fn measure_image_size(image_path: String) -> (u32, u32) {
+    let img = image::open(image_path).unwrap();
+    return img.dimensions();
+}
+
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct KeyImageScale {

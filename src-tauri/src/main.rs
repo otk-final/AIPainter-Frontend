@@ -18,7 +18,7 @@ use tauri::{Manager};
 use crate::cmd::{async_execute, ExecuteOutput};
 use crate::key_export_cmd::{key_frames_dssim, key_frame_collect, KeyFrame};
 use crate::key_generate_cmd::key_video_generate;
-use crate::key_image_scale_cmd::{handle_image_scale, key_image_scale};
+use crate::key_image_scale_cmd::{handle_image_scale, key_image_scale, measure_image_size};
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
 #[tauri::command]
@@ -48,6 +48,7 @@ fn main() {
             key_video_generate,
             key_frame_collect,
             key_image_scale,
+            measure_image_size,
             seed_random,
             env_delay,
             env_current_dir,
