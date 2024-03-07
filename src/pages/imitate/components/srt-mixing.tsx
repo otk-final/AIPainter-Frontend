@@ -13,10 +13,12 @@ import { useTTSRepository } from "@/repository/tts";
 import { useGPTRepository } from "@/repository/gpt";
 import HandleProcessModal from "@/components/handle-process";
 import { event } from "@tauri-apps/api";
+import { Project } from "@/repository/workspace";
 // import { useJYDraftRepository } from "@/repository/draft";
 
 interface SRTMixingProps {
     pid: string,
+    project: Project
     handleChangeTab: (key: ImitateTabType) => void,
 }
 

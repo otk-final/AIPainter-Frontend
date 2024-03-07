@@ -142,7 +142,7 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ index, mode, chapter,
                         {i.key === 'description' ? renderEditScene() : null}
                         {i.key === 'drawPrompt' ? renderEditPrompt() : null}
                         {i.key === 'drawImage' && <AssetImage path={stateChapter.image?.path} repo={chapterRepo} />}
-                        {i.key === 'drawImageHistory' && <ChapterHistoryImages setOpen={setOpen} idx={index} />}
+                        {i.key === 'drawImageHistory' && <ChapterHistoryImages pid={project.id} setOpen={setOpen} idx={index} />}
                         {i.key === 'operate' ? renderOperate() : null}
                     </div>
                 )

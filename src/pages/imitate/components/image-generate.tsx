@@ -9,13 +9,15 @@ import { useKeyFrameRepository } from "@/repository/keyframe"
 import { useComfyUIRepository } from "@/repository/comfyui"
 import HandleProcessModal from "@/components/handle-process"
 import { event } from "@tauri-apps/api"
+import { Project } from "@/repository/workspace"
 
 interface ImageGenerateProps {
   pid: string,
+  project: Project
   handleChangeTab: (key: ImitateTabType) => void,
 }
 
-const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
+const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid, project }) => {
 
   const keyFrameRepo = useKeyFrameRepository(state => state)
   const comfyUIRepo = useComfyUIRepository(state => state)
@@ -33,7 +35,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid }) => {
 
   const _rowRenderer = ({ index, key, style }: ListRowProps) => {
     const items = keyFrameRepo.items;
-    return <GenerateImagesTR key={key} frame={items[index]} index={index} style={style} mode={mode} />
+    return <GenerateImagesTR key={key} frame={items[index]} index={index} style={style} mode={mode} project={project} />
   }
 
   const renderTable = () => {

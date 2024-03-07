@@ -31,7 +31,7 @@ const imitateTabs: TabsProps["items"] = [
   },
 ];
 
-const ImitateProject: React.FC<{ pid: string, project: Project }> = ({ pid }) => {
+const ImitateProject: React.FC<{ pid: string, project: Project }> = ({ pid, project }) => {
   const [currentTab, setCurrentTab] = useState<ImitateTabType>("import");
   const [tabs,] = useState(imitateTabs)
 
@@ -115,9 +115,9 @@ const ImitateProject: React.FC<{ pid: string, project: Project }> = ({ pid }) =>
   return (
     <div className="table-wrap">
       <Header onQuit={(handleQuit)} renderLeft={renderHeaderLeft()} renderRight={renderHeaderRight()} />
-      {currentTab === "import" ? < VideoImportTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
-      {currentTab === 'frames' ? <ImageGenerateTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
-      {currentTab === 'audio' ? <SRTMixingTab pid={pid} handleChangeTab={setCurrentTab} /> : null}
+      {currentTab === "import" ? < VideoImportTab pid={pid} project={project} handleChangeTab={setCurrentTab} /> : null}
+      {currentTab === 'frames' ? <ImageGenerateTab pid={pid} project={project} handleChangeTab={setCurrentTab} /> : null}
+      {currentTab === 'audio' ? <SRTMixingTab pid={pid} project={project} handleChangeTab={setCurrentTab} /> : null}
     </div>
   );
 };

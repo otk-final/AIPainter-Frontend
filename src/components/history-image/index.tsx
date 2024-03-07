@@ -87,12 +87,13 @@ export const AssetImage: React.FC<{ path?: string, repo: TauriRepo }> = ({ path,
 }
 
 export interface AssetHistoryImagesProps {
+    pid: string
     idx: number
     setOpen: (open: boolean) => void
 }
 
 
-export const KeyFrameHistoryImages: React.FC<AssetHistoryImagesProps> = ({ idx, setOpen}) => {
+export const KeyFrameHistoryImages: React.FC<AssetHistoryImagesProps> = ({ pid, idx, setOpen }) => {
 
     const [urls, setUrls] = useState<string[]>([])
     const repo = useKeyFrameRepository(state => state)
@@ -121,7 +122,7 @@ export const KeyFrameHistoryImages: React.FC<AssetHistoryImagesProps> = ({ idx, 
             { fireImmediately: true }
         )
         return unsub
-    }, [idx])
+    }, [pid, idx])
 
     return <div className="flexR"
         style={{ flexWrap: "wrap", justifyContent: "flex-start", width: '100%' }}
@@ -134,7 +135,7 @@ export const KeyFrameHistoryImages: React.FC<AssetHistoryImagesProps> = ({ idx, 
 }
 
 
-export const ChapterHistoryImages: React.FC<AssetHistoryImagesProps> = ({ idx, setOpen }) => {
+export const ChapterHistoryImages: React.FC<AssetHistoryImagesProps> = ({ pid, idx, setOpen }) => {
 
     const [urls, setUrls] = useState<string[]>([])
     const repo = useChapterRepository(state => state)
@@ -163,7 +164,7 @@ export const ChapterHistoryImages: React.FC<AssetHistoryImagesProps> = ({ idx, s
             { fireImmediately: true }
         )
         return unsub
-    }, [idx])
+    }, [pid, idx])
 
     return <div className="flexR"
         style={{ flexWrap: "wrap", justifyContent: "flex-start", width: '100%' }}

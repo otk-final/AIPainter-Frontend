@@ -6,6 +6,7 @@ import { KeyFrame, useKeyFrameRepository } from "@/repository/keyframe";
 import { useComfyUIRepository } from "@/repository/comfyui";
 import { AssetImage, KeyFrameHistoryImages, ModalHistoryImages } from "@/components/history-image";
 import VideoPlayerModal from "./video-player";
+import { Project } from "@/repository/workspace";
 
 interface GenerateImagesTRProps {
     key: string
@@ -13,9 +14,10 @@ interface GenerateImagesTRProps {
     mode: string
     style: React.CSSProperties
     frame: KeyFrame,
+    project: Project
 }
 
-const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, mode, frame }) => {
+const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, mode, frame, project }) => {
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
     const keyFrameRepo = useKeyFrameRepository(state => state)
     const comfyUIRepo = useComfyUIRepository(state => state)
@@ -50,7 +52,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
             mask: true,
             maskClosable: false,
         })
-        await keyFrameRepo.handleGenerateImage(index, mode, comfyUIRepo).catch(err => {message.error(err.message) }).finally(Modal.destroyAll)
+        await keyFrameRepo.handleGenerateImage(index, mode, comfyUIRepo).catch(err => { message.error(err.message) }).finally(Modal.destroyAll)
     }
 
     const handleScaleImage = async () => {
@@ -100,7 +102,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
         return (
             <Fragment>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleImage2Text}>反推关键词</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleText2Image} disabled={!stateFrame.prompt}>{stateFrame.image.path ? "重新生成" :"生成图片"}</Button>
+                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleText2Image} disabled={!stateFrame.prompt}>{stateFrame.image.path ? "重新生成" : "生成图片"}</Button>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleScaleImage} disabled={!stateFrame.image.path}>高清放大</Button>
             </Fragment>
         )
@@ -122,7 +124,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
                         {i.key === 'path' && <AssetImage path={stateFrame.path} repo={keyFrameRepo} />}
                         {i.key === 'drawPrompt' ? renderPrompt() : null}
                         {i.key === 'drawImage' && <AssetImage path={stateFrame.image?.path} repo={keyFrameRepo} />}
-                        {i.key === 'drawImageHistory' && <KeyFrameHistoryImages setOpen={setOpen} idx={index}/>}
+                        {i.key === 'drawImageHistory' && <KeyFrameHistoryImages pid={project.id} setOpen={setOpen} idx={index} />}
                         {i.key === 'operate' ? renderOperate() : null}
                     </div>
                 )
