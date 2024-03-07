@@ -30,8 +30,8 @@ export interface KeyFragment {
 
 
 
-let scale_offset = 0.15
-let scale = 1.5
+let scale_offset = 0.12
+let scale = 1.2
 
 const EffectChipConvert = (item: KeyFragment, chip_template: any) => {
     let orientation = item.effect.orientation
@@ -91,9 +91,22 @@ const EffectCommonKeyframesConvert = (item: KeyFragment, kf_template: any) => {
 }
 
 
+export interface JYDraftProjectParameter {
+    draft_path: string
+    srt_path: string
+    items: KeyFragment[]
+    canvas_size: {
+        width: number
+        height: number
+    }
+}
+
+
 //导出剪映草稿
-export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[], srtpath: string, settingRepo: JYDraftConfiguration) => {
+export const JYDraftExport = async (parameter: JYDraftProjectParameter, settingRepo: JYDraftConfiguration) => {
     console.info("setting", settingRepo)
+    let items = parameter.items
+
 
     let now = new Date();
     let now_time = now.getTime()
@@ -102,7 +115,7 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
 
 
     //草稿名称 = 目录名称
-    let draft_name = await path.basename(draft_dir)
+    let draft_name = await path.basename(parameter.draft_path)
     //素材模版
     let root_meta: any = await loadJYDraftTemplate("resources/jy_drafts/draft_meta_info.json")
 
@@ -157,8 +170,8 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
 
     //字幕
     let material_srt_template: any = await loadJYDraftTemplate("resources/jy_drafts/materials/srt.json")
-    material_srt_template.extra_info = await path.basename(srtpath)
-    material_srt_template.file_Path = srtpath
+    material_srt_template.extra_info = await path.basename(parameter.srt_path)
+    material_srt_template.file_Path = parameter.srt_path
     material_srt_template.id = uuid()
     material_srt_template.import_time = now_time_s
     material_srt_template.import_time_ms = -1
@@ -175,7 +188,7 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
         { type: 8, value: [] }
     ]
 
-    root_meta.draft_fold_path = draft_dir
+    root_meta.draft_fold_path = parameter.draft_path
     root_meta.draft_id = uuid()
     root_meta.draft_name = draft_name
     root_meta.draft_root_path = ""
@@ -186,7 +199,7 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
     /**
      * 写入文件
      */
-    await fs.writeTextFile(await path.join(draft_dir, "draft_meta_info.json"), JSON.stringify(root_meta), { append: false })
+    await fs.writeTextFile(await path.join(parameter.draft_path, "draft_meta_info.json"), JSON.stringify(root_meta), { append: false })
 
 
 
@@ -384,10 +397,15 @@ export const JYMetaDraftExport = async (draft_dir: string, items: KeyFragment[],
     root_content.tracks = [text_track, video_track, audio_track]
     root_content.id = uuid()
     root_content.duration = total_duration
+    root_content.canvas_config = {
+        height: parameter.canvas_size.height,
+        ratio: "custom",
+        width: parameter.canvas_size.width
+    }
 
-    await fs.writeTextFile(await path.join(draft_dir, "draft_content.json"), JSON.stringify(root_content), { append: false })
+    await fs.writeTextFile(await path.join(parameter.draft_path, "draft_content.json"), JSON.stringify(root_content), { append: false })
 
     //写入封面图
-    await fs.copyFile(items[0].image_path, draft_dir + path.sep + "draft_cover.jpg", { append: false })
+    await fs.copyFile(items[0].image_path, parameter.draft_path + path.sep + "draft_cover.jpg", { append: false })
 }
 

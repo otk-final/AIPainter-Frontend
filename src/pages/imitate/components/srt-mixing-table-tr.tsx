@@ -131,7 +131,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
 
     const renderRewriteContent = () => {
         return (
-            <TextArea rows={7} placeholder={"请输入改写台词"}
+            <TextArea rows={7} placeholder={stateFrame.srt}
                 maxLength={1000} className="text-area-auto"
                 value={stateFrame.srt_rewrite}
                 onChange={handleEditRewrite} />

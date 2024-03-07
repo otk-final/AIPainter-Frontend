@@ -36,10 +36,13 @@ pub struct ImageDimensions {
 }
 
 #[tauri::command]
-pub async fn measure_image_dimensions(image_path: String) -> ImageDimensions {
+pub async fn measure_image_dimensions(window: Window,image_path: String) -> Result<ImageDimensions, Error> {
+
+    println!("开始测量图片:{}", image_path.clone());
+
     let img = image::open(image_path).unwrap();
     let (width, height) = img.dimensions();
-    ImageDimensions { width, height }
+    Ok(ImageDimensions { width, height })
 }
 
 

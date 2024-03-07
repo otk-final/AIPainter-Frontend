@@ -6,9 +6,9 @@ import { ComfyUIRepository } from "./comfyui"
 import { v4 as uuid } from "uuid"
 import { AudioOption } from "./tts_api"
 import { GPTRepository } from "./gpt"
-import { ImageGenerate, ImageScale, KeyImage, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
+import { ImageGenerate, ImageGenerateParameter, ImageScale, KeyImage, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
 import { JYDraftRepository } from "./draft"
-import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./draft_utils"
+import { JYDraftExport, KeyFragment, KeyFragmentEffect } from "./draft_utils"
 import { TTSRepository } from "./tts"
 import { TranslateRepository } from "./translate"
 import { Project } from "./workspace"
@@ -93,7 +93,7 @@ export class ScriptRepository extends BaseRepository<ScriptRepository> {
                 image: {
                     history: [] as string[]
                 },
-                effect: { orientation: "default" }
+                effect: { orientation: "random" }
             } as Chapter
         })
     }
@@ -123,7 +123,7 @@ export class ScriptRepository extends BaseRepository<ScriptRepository> {
                 image: {
                     history: [] as string[]
                 },
-                effect: { orientation: "default" }
+                effect: { orientation: "random" }
             } as Chapter
         })
     }
@@ -148,7 +148,7 @@ export interface Chapter extends ItemIdentifiable {
     //字幕台词
     srt?: string
 
-    
+
     //场景关键词
     prompt?: string,
 
@@ -279,8 +279,17 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         //角色关键词 + 场景关键词
         let prompt = [actor_prompt, chapter.prompt].join(",")
 
+
+        //生成图片（以项目配置为准）
+        let cp: ImageGenerateParameter = {
+            prompt: prompt,
+            style: style,
+            canvas_size: project.canvas_size
+        }
+
+
         //生成图片
-        let outputs = await ImageGenerate(prompt, style, project.image_pixel, comyuiRepo, async (idx, fileBuffer) => {
+        let outputs = await ImageGenerate(cp, comyuiRepo, async (idx, fileBuffer) => {
             let fileName = index + "-" + uuid() + ".png"
             return await this.saveFile("outputs", fileName, fileBuffer)
         })
@@ -405,8 +414,8 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
     }
 
     //导出剪映草稿
-    handleConcatJYDraft = async (saveDir: string, settingRepo: JYDraftRepository) => {
-        let draft_name = await path.basename(saveDir)
+    handleConcatJYDraft = async (save_dir_path: string, settingRepo: JYDraftRepository) => {
+        let draft_name = await path.basename(save_dir_path)
         console.info("draft_name", draft_name)
 
         //有效帧片段
@@ -417,8 +426,22 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         let srt_path = await this.absulotePath("video.srt")
         await SRTGenerate(srt_path, fragments)
 
+
+        //根据第一张图确认导出尺寸
+        let { width, height } = await tauri.invoke("measure_image_dimensions", { imagePath: fragments[0].image_path }) as { width: number, height: number }
+
+        //参数
+        let param = {
+            draft_path: save_dir_path,
+            srt_path: srt_path,
+            items: fragments,
+            canvas_size: {
+                width: width,
+                height: height
+            }
+        }
         //导出
-        await JYMetaDraftExport(saveDir, fragments, srt_path, settingRepo)
+        await JYDraftExport(param, settingRepo)
     }
 }
 
@@ -486,8 +509,13 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
         let prompt = traits.map(item => item.value).join(",")
 
         //生成图片
-        let style = comyuiRepo.items[0].name;
-        let outputs = await ImageGenerate(prompt, style, "default", comyuiRepo, async (idx, fileBuffer) => {
+        let cp = {
+            prompt: prompt,
+            style: comyuiRepo.items[0].name
+        } as ImageGenerateParameter
+
+
+        let outputs = await ImageGenerate(cp, comyuiRepo, async (idx, fileBuffer) => {
             return await this.saveFile("outputs", "ac_" + uuid() + ".png", fileBuffer)
         })
 

@@ -33,3 +33,4 @@ export const ComyUIModeSelect: React.FC<StyleSelectProps> = ({ mode, onChange })
 
     </div>)
 }
+

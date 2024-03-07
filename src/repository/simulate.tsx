@@ -296,7 +296,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
                 srt_duration: item.srt_duration,
                 srt_audio_path: "audios" + path.sep + item.name + ".mp3",
                 srt_video_path: "videos" + path.sep + item.name + ".mp4",
-                effect: { orientation: "default" }
+                effect: { orientation: "random" }
             } as KeyFrame
         })
     }

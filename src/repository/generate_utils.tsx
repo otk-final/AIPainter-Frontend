@@ -9,7 +9,14 @@ import { SRTLine, formatTime } from "./srt"
 export type ImageGenerateCallback = (idx: number, fileBuffer: ArrayBuffer) => Promise<string>
 export type ImageUploadCallback = (api: ComfyUIApi) => Promise<ImageFileParams>
 
-
+export interface ImageGenerateParameter {
+    style: string
+    prompt: string
+    canvas_size?: {
+        width: number,
+        height: number
+    }
+}
 
 export interface KeyImage {
     id: number,
@@ -25,18 +32,18 @@ export const ImageScale = async (images: KeyImage[]) => {
 
 
 //图片生成
-export const ImageGenerate = async (prompt: string, style: string, image_pixel: string, comyuiRepo: ComfyUIRepository, callback: ImageGenerateCallback, upload?: ImageUploadCallback) => {
+export const ImageGenerate = async (parameter: ImageGenerateParameter, comyuiRepo: ComfyUIRepository, callback: ImageGenerateCallback, upload?: ImageUploadCallback) => {
 
     //comyui api
     let api = await comyuiRepo.newClient()
-    let text = await comyuiRepo.buildModePrompt(style)
+    let text = await comyuiRepo.buildModePrompt(parameter.style)
     let script = new WFScript(text)
 
     //判断流程中是否需要自定义宽高
 
     //生成随机
     let seed: number = await tauri.invoke('seed_random', {})
-    let parms = { seed: seed, positive: [comyuiRepo.positivePrompt, prompt].join(""), negative: comyuiRepo.negativePrompt || "", image_pixel: image_pixel } as Text2ImageParams
+    let parms = { seed: seed, positive: [comyuiRepo.positivePrompt, parameter.prompt].join(""), negative: comyuiRepo.negativePrompt || "", canvas_size: parameter.canvas_size } as Text2ImageParams
 
     //兼容有参考图片流程
     if (script.hasInputImageStep()) {

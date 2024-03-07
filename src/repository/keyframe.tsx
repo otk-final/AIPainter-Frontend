@@ -6,10 +6,10 @@ import { Image2TextHandle, WFScript } from "./comfyui_api"
 import { ComfyUIRepository } from "./comfyui"
 import { createWorker } from "tesseract.js"
 import { v4 as uuid } from "uuid"
-import { JYMetaDraftExport, KeyFragment, KeyFragmentEffect } from "./draft_utils"
+import { JYDraftExport, KeyFragment, KeyFragmentEffect } from "./draft_utils"
 import { JYDraftRepository } from "./draft"
 import { GPTRepository } from "./gpt"
-import { ImageGenerate, ImageScale, KeyImage, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
+import { ImageGenerate, ImageGenerateParameter, ImageScale, KeyImage, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
 import { TTSRepository } from "./tts"
 
 
@@ -166,8 +166,13 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     handleGenerateImage = async (index: number, style: string, comyuiRepo: ComfyUIRepository) => {
         let frame = this.items[index]
 
+        let fp = {
+            style: style,
+            prompt: frame.prompt
+        } as ImageGenerateParameter
+
         //生成图片
-        let outputs = await ImageGenerate(frame.prompt!, style, "default", comyuiRepo, async (idx, fileBuffer) => {
+        let outputs = await ImageGenerate(fp, comyuiRepo, async (idx, fileBuffer) => {
             //保存文件
             let fileName = frame.id + "-" + uuid() + ".png"
             return await this.saveFile("outputs", fileName, fileBuffer)
@@ -251,7 +256,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         return {
             id: item.id,
             name: item.name,
-            srt: item.srt_rewrite_audio_path ? item.srt_rewrite : item.srt,
+            srt: item.srt_rewrite_audio_path ? (item.srt_rewrite || item.srt) : item.srt,
             duration: item.srt_rewrite_audio_path ? item.srt_rewrite_duration : item.srt_duration,
             image_path: await this.absulotePath(item.image.path ? item.image.path : item.path),
             audio_path: await this.absulotePath(item.srt_rewrite_audio_path ? item.srt_rewrite_audio_path : item.srt_audio_path!),
@@ -285,8 +290,8 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
 
     //导出剪映草稿
-    handleConcatJYDraft = async (saveDir: string, settingRepo: JYDraftRepository) => {
-        let draft_name = await path.basename(saveDir)
+    handleConcatJYDraft = async (save_dir_path: string, settingRepo: JYDraftRepository) => {
+        let draft_name = await path.basename(save_dir_path)
         console.info("draft_name", draft_name)
 
         //有效帧片段
@@ -297,8 +302,23 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let srt_path = await this.absulotePath("video.srt")
         await SRTGenerate(srt_path, fragments)
 
+
+        //根据第一张图确认导出尺寸
+        let { width, height } = await tauri.invoke("measure_image_dimensions", { imagePath: fragments[0].image_path }) as { width: number, height: number }
+
+        //参数
+        let param = {
+            draft_path: save_dir_path,
+            srt_path: srt_path,
+            items: fragments,
+            canvas_size: {
+                width: width,
+                height: height
+            }
+        }
+
         //导出
-        await JYMetaDraftExport(saveDir, fragments, srt_path, settingRepo)
+        await JYDraftExport(param, settingRepo)
     }
 }
 

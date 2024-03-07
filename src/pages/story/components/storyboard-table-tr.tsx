@@ -25,7 +25,7 @@ const emptyChapter: Chapter = {
     image: {
         history: [] as string[]
     },
-    effect: { orientation: "default" }
+    effect: { orientation: "random" }
 }
 
 

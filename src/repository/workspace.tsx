@@ -10,7 +10,12 @@ export interface Project extends ItemIdentifiable {
     workPath: string
     step: string,
     createTime: string
-    image_pixel: string
+
+    //绘图比例
+    canvas_size?: {
+        height: number,
+        width: number
+    }
 }
 
 export class ProjectRepository extends BaseCRUDRepository<Project, ProjectRepository> {

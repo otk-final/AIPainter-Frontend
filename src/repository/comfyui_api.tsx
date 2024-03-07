@@ -325,10 +325,8 @@ export class WFScript {
     setNegativePrompt(prompt: string) {
         this.setPrompt("negative", prompt)
     }
-    setLatentImage(piexl: string) {
+    setLatentImage(width: number, height: number) {
         let latentImages = this.getNodes("EmptyLatentImage")
-        let width = piexl.split("x")[0]
-        let height = piexl.split("x")[1]
         latentImages.forEach(latent => {
             latent.node.inputs = { ...latent.node.inputs, width: Number(width), height: Number(height) }
         })
@@ -389,7 +387,10 @@ export interface Text2ImageParams {
     positive: string
     negative: string
     seed: number
-    image_pixel: string
+    canvas_size?: {
+        width: number
+        height: number
+    }
 }
 
 //文生图
@@ -401,8 +402,8 @@ export const Text2ImageHandle: CompletionPromptParams<Text2ImageParams> = (api: 
     }
 
     //自定义LatentImage
-    if (params.image_pixel && params.image_pixel !== "default") {
-        script.setLatentImage(params.image_pixel)
+    if (params.canvas_size) {
+        script.setLatentImage(params.canvas_size.width, params.canvas_size.height)
     }
 
     script.setNegativePrompt(params.negative)

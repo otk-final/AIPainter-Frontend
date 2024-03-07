@@ -14,28 +14,24 @@ interface ProjectProps {
     type: ProjectType
 }
 
-interface ImagePixel {
-    width: number,
-    height: number,
-}
-
-const size_options = [{
+//宽x高
+const canvas_options = [{
     label: "默认", value: "default"
 }, {
     label: "1:1", value: "1024x1024"
 }, {
     label: "3:4", value: "768x1024"
 }, {
-    label: "4:3", value: "768x1024"
+    label: "4:3", value: "1024x768"
 }, {
     label: "16:9", value: "1280x720",
 }, {
-    label: "16:9", value: "720x1280",
+    label: "9:16", value: "720x1280",
 }]
 
 export const ProjectModal: React.FC<ProjectProps> = ({ isOpen, onClose, type }) => {
     const [name, setName] = useState("")
-    const [imagePixel, setImagePixel] = useState<string>("default")
+    const [canvasMode, setCanvasMode] = useState<string>("default")
     const repo = useProjectRepository(state => state)
 
     const handleCreate = async () => {
@@ -46,7 +42,15 @@ export const ProjectModal: React.FC<ProjectProps> = ({ isOpen, onClose, type }) 
         if (repo.items.some(item => item.name === name)) {
             return message.error("项目名已存在");
         }
-        let newProject = { id: uuid(), name, type: type, createTime: dayjs(new Date()).format("YYYY-MM-DD HH:mm"), image_pixel: imagePixel } as Project
+
+        let newProject = {
+            id: uuid(),
+            name: name,
+            type: type,
+            createTime: dayjs(new Date()).format("YYYY-MM-DD HH:mm"),
+            canvas_size: canvasMode !== "default" ? { width: canvasMode.split("x")[0], height: canvasMode.split("x")[1] } : undefined
+        } as Project
+        
         //创建目录
         if (type === 'story') {
             await repo.appendItem(newProject, true).finally(() => { history.push("/story/" + newProject.id) })
@@ -67,12 +71,12 @@ export const ProjectModal: React.FC<ProjectProps> = ({ isOpen, onClose, type }) 
             {
                 type === "story" &&
                 <div>
-                    <div className="title">图片宽高</div>
+                    <div className="title">图片比例</div>
                     <Select
                         className={`select-auto`}
-                        value={imagePixel}
-                        onChange={(v) => setImagePixel(v)}
-                        options={size_options}
+                        value={canvasMode}
+                        onChange={(v) => setCanvasMode(v)}
+                        options={canvas_options}
                     />
                 </div>
             }
