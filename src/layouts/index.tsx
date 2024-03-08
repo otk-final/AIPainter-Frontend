@@ -4,11 +4,12 @@ import { useLogin } from '@/uses'
 import './index.less';
 import { Button, Popover } from 'antd';
 import { LoginModule, UserInfoModule, MemberRechargeModule, EnergyRechargeModule } from '@/components'
-import { checkUpdate, installUpdate, onUpdaterEvent } from '@tauri-apps/api/updater';
+import { UpdateStatusResult, checkUpdate, installUpdate, onUpdaterEvent } from '@tauri-apps/api/updater';
 import { relaunch } from '@tauri-apps/api/process';
 import assets from '@/assets';
 import { useProjectRepository } from '@/repository/workspace';
 import { LoginOutlined, UserOutlined } from '@ant-design/icons';
+import { UnlistenFn } from '@tauri-apps/api/event';
 
 export default function Layout(props: any) {
   let { pathname } = useLocation();
@@ -45,6 +46,18 @@ export default function Layout(props: any) {
       </div>
     )
   }
+
+  let unsub: UnlistenFn
+  const regUpdateEvent = async () => {
+    unsub = await onUpdaterEvent(({ error, status }) => {
+      console.info("update", error, status)
+    })
+  }
+
+  useEffect(() => {
+    regUpdateEvent()
+    return unsub!
+  }, [])
 
 
   const withUpdateHandler = async () => {
