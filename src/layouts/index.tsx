@@ -4,23 +4,26 @@ import { useLogin } from '@/uses'
 import './index.less';
 import { Button, Popover } from 'antd';
 import { LoginModule, UserInfoModule, MemberRechargeModule, EnergyRechargeModule } from '@/components'
-import { checkUpdate, installUpdate } from '@tauri-apps/api/updater';
+import { checkUpdate, installUpdate, onUpdaterEvent } from '@tauri-apps/api/updater';
 import { relaunch } from '@tauri-apps/api/process';
 import assets from '@/assets';
 import { useProjectRepository } from '@/repository/workspace';
+import { LoginOutlined, UserOutlined } from '@ant-design/icons';
 
 export default function Layout(props: any) {
   let { pathname } = useLocation();
+  console.info("layout", pathname)
+
   const { logout, loginState } = useLogin();
   const projectRepo = useProjectRepository(state => state)
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoginOpen, setLoginOpen] = useState(false);
   const [isMemberRechargeOpen, setIsMemberRechargeOpen] = useState(false);
   const [isEnergyRechargeOpen, setIsEnergyRechargeOpen] = useState(false);
 
   useEffect(() => {
     if (!loginState.isLogin) {
-      setIsModalOpen(true)
+      setLoginOpen(true)
     }
   }, [])
 
@@ -36,9 +39,9 @@ export default function Layout(props: any) {
   const renderPopoverContent = () => {
     return (
       <div className="flexC">
-        <Button type="text" onClick={() => setIsUserInfoOpen(true)}>个人信息</Button>
+        <Button type="text" onClick={() => setIsUserInfoOpen(true)} icon={<UserOutlined />}>个人信息</Button>
         {/* 缺少二次确认 */}
-        <Button type="text" onClick={logout}>退出登陆</Button>
+        <Button type="text" onClick={logout} icon={<LoginOutlined />}>退出登陆</Button>
       </div>
     )
   }
@@ -84,11 +87,11 @@ export default function Layout(props: any) {
             <Popover placement="bottomLeft" content={renderPopoverContent} arrow={false}>
               <img src={assets.userImg} className="user-img" />
             </Popover>
-            : <div className='login-btn' onClick={() => setIsModalOpen(true)}>登陆/注册</div>}
+            : <div className='login-btn' onClick={() => setLoginOpen(true)}>登陆/注册</div>}
         </div>
       </div>
       <div className='navs-placeholder'></div>
-      <LoginModule isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <LoginModule isOpen={isLoginOpen} onClose={() => setLoginOpen(false)} />
       <UserInfoModule isOpen={isUserInfoOpen} onClose={() => setIsUserInfoOpen(false)} openRecharge={openRecharge} />
       <MemberRechargeModule isOpen={isMemberRechargeOpen} onClose={() => setIsMemberRechargeOpen(false)} />
       <EnergyRechargeModule isOpen={isEnergyRechargeOpen} onClose={() => setIsEnergyRechargeOpen(false)} />
