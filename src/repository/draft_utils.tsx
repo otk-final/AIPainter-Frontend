@@ -252,10 +252,34 @@ export const JYDraftExport = async (parameter: JYDraftProjectParameter, settingR
                 }
             }
         }
+        //字幕 边框
+        let text_strokes = [
+            {
+                content: {
+                    solid: {
+                        color: [...settingRepo.srt.border_color_rgb]
+                    }
+                },
+                width: 0.08
+            }
+        ]
 
-        let text_style = { ...text_content_template.styles[0], range: [0, Math.max(10, item.srt.length)], fill: text_fill, size: settingRepo.srt.size }
+        let text_style = {
+            ...text_content_template.styles[0],
+            range: [0, Math.max(10, item.srt.length)],
+            fill: text_fill,
+            strokes: text_strokes,
+            size: settingRepo.srt.size,
+            useLetterColor: true
+        }
         let text_content = { ...text_content_template, text: item.srt, styles: [text_style] }
-        let text = { ...text_template, id: uuid(), content: JSON.stringify(text_content), text_color: settingRepo.srt.color }
+        let text = {
+            ...text_template,
+            id: uuid(),
+            content: JSON.stringify(text_content),
+            text_color: settingRepo.srt.color,
+            border_color: settingRepo.srt.border_color
+        }
         texts.push(text)
 
         //图片

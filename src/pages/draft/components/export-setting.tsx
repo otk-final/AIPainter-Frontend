@@ -146,7 +146,7 @@ const ExportSettingTab = forwardRef<ExportSettingRef, ExportSettingProps>((props
                 <div className="title">字幕设置</div>
                 <div className="form-wrap">
                     <div className="form-item">
-                        <div className="label">字体大小</div>
+                        <div className="label">文字大小</div>
                         <div className="flexR">
                             {fontSizeDatas.map((i, index) => {
                                 return <div
@@ -162,12 +162,26 @@ const ExportSettingTab = forwardRef<ExportSettingRef, ExportSettingProps>((props
 
                 <div className="form-wrap flexR" style={{ marginTop: '30px' }}>
                     <div className="form-item">
-                        <div className="label">字体颜色</div>
+                        <div className="label">文字颜色</div>
                         <div className="fontcf-wrap flexR">
                             {fontColorDatas.map((i) => {
                                 return <div className={`fontcf ${stateConfiguration.srt.color === i.color ? "cur" : ""}`}
                                     key={i.color} style={{ background: `${i.color}` }}
                                     onClick={() => setConfiguration({ ...stateConfiguration, srt: { ...stateConfiguration.srt, color: i.color, color_rgb: i.rgb } })}
+                                ></div>
+                            })}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="form-wrap flexR" style={{ marginTop: '30px' }}>
+                    <div className="form-item">
+                        <div className="label">边框颜色</div>
+                        <div className="fontcf-wrap flexR">
+                            {fontColorDatas.map((i) => {
+                                return <div className={`fontcf ${stateConfiguration.srt.border_color === i.color ? "cur" : ""}`}
+                                    key={i.color} style={{ background: `${i.color}` }}
+                                    onClick={() => setConfiguration({ ...stateConfiguration, srt: { ...stateConfiguration.srt, border_color: i.color, border_color_rgb: i.rgb } })}
                                 ></div>
                             })}
                         </div>

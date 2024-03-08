@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { BaseRepository, delay } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
-import { fs, path, shell, tauri } from "@tauri-apps/api"
+import { event, fs, path, shell, tauri } from "@tauri-apps/api"
 import { KeyFrame } from "./keyframe"
 import { TTSApi } from "./tts_api"
 import { SRTLine, formatTime } from "./srt"
@@ -140,58 +140,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     //     return this.handleCompareKeyFrames(tempKeyFrames)
     // }
 
-    //差异性
-    handleCompareKeyFrames = async (frames: KeyFrame[]) => {
-        const ssimNextCompare = (srcIndex: number, output: string) => {
-            let diffs = output.split("\n").filter(item => item).map(line => {
-                let result = line.split("\t")
-                return {
-                    score: parseFloat(result[0].trim()),
-                    target: result[1].trim()
-                }
-            })
-            //比较阈值 > 0.7 则不一致，并返回下次待比较的图片index
-            let matchIndex = diffs.findIndex((item) => item.score >= 0.65)
-            if (matchIndex === -1) {
-                return matchIndex
-            }
-            return srcIndex + matchIndex + 1
-        }
-        let repo_path = await path.join(await this.basePath(), this.repoDir)
 
-        //比对相识度 默认从第一张图片开始
-        let diffs = [frames[0]]
-        let index = 0
-        while (index < frames.length) {
-
-            //提高对比效率，和下10张图片做对比
-            let src = frames[index].path
-            //全路径
-            let dests = frames.slice(index + 1, index + 10).map(item => repo_path + path.sep + item.path)
-            if (dests.length === 0) {
-                break
-            }
-
-            //执行命令对比
-            let cmd = shell.Command.sidecar("bin/dssim", [src, ...dests])
-            let output = await cmd.execute()
-            console.info(output.stderr)
-            console.info(output.stdout)
-            let nextIndex = ssimNextCompare(index, output.stdout)
-
-            //均相似，则移动到目标尾部，继续比对
-            if (nextIndex === -1) {
-                index = index + dests.length
-                continue
-            }
-            console.info("有效图片", frames[nextIndex].path)
-            //有效图片
-            diffs.push(frames[nextIndex])
-            //从该张图片重新开始
-            index = nextIndex
-        }
-        return diffs
-    }
 
     //根据时间
     // handleCollectKeyFrameWithTime = async (videoPath: string, srtIdx: number, srt: SRTLine) => {
@@ -311,6 +260,15 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
             return JSON.parse(audioText).utterances as SRTLine[]
         }
 
+        //通知进度
+        await event.emit("key_frame_collect_process", {
+            title: "上传音频",
+            except: 100,
+            completed: 30,
+            current: 50
+        })
+
+        
         //在线 生成字幕文件
         console.info("上传音频")
         let jobResp: any = await api.submitAudio(audioPath)
@@ -318,6 +276,14 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
         console.info("已提交任务：", jobResp)
 
+
+        //通知进度
+        await event.emit("key_frame_collect_process", {
+            title: "下载音频字幕",
+            except: 100,
+            completed: 60,
+            current: 60
+        })
 
         //轮询查询结果
         let fatch = 0;
@@ -327,7 +293,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
             await delay(3000)
             fatch++;
             let respText: any = await api.queryResult(this.audioRecognitionJobId!);
-            console.info("查询任务结果：", fatch,respText)
+            console.info("查询任务结果：", fatch, respText)
             if (respText.code === 0) {
                 //成功
                 audioText = { ...respText }
@@ -342,8 +308,16 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         }
 
         if (!audioText) {
-            throw new Error("音频解析失败,稍后重试！")
+            throw new Error("音频字幕下载失败,稍后重试！")
         }
+
+        //通知进度
+        await event.emit("key_frame_collect_process", {
+            title: "识别音频字幕",
+            except: 100,
+            completed: 100,
+            current: 100
+        })
 
         //写入文件
         await fs.writeFile(audioRecognitionPath, JSON.stringify(audioText, null, "\t"), { append: false })

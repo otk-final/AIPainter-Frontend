@@ -7,6 +7,7 @@ import { useComfyUIRepository } from "@/repository/comfyui";
 import { AssetImage, KeyFrameHistoryImages, ModalHistoryImages } from "@/components/history-image";
 import VideoPlayerModal from "./video-player";
 import { Project } from "@/repository/workspace";
+import { dialog } from "@tauri-apps/api";
 
 interface GenerateImagesTRProps {
     key: string
@@ -66,7 +67,8 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
     }
 
     const handleDelKeyFrame = async () => {
-        await keyFrameRepo.delItem(index, true)
+        const ok = await dialog.confirm('删除当前画面时，对应原始字幕一并删除', { title: '删除画面', type: 'warning' });
+        if (ok) await keyFrameRepo.delItem(index, true)
     }
 
     const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
@@ -82,7 +84,7 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
             <Fragment>
                 <div className='index'>{index + 1}</div>
                 <Button type='default' className='btn-default-auto btn-default-98' style={{ width: '76px' }} onClick={handleDelKeyFrame}>删除</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' style={{ width: '76px' }} onClick={startPlayerFrament}>播放片段</Button>
+                {/* <Button type='default' className='btn-default-auto btn-default-98' style={{ width: '76px' }} onClick={startPlayerFrament}>播放片段</Button> */}
             </Fragment>
         )
     }

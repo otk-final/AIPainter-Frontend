@@ -20,8 +20,12 @@ export interface JYDraftConfiguration {
     }
     srt: {
         size: number,
+        //文字颜色
         color: string,
         color_rgb: number[],
+        //文字边框颜色
+        border_color: string,
+        border_color_rgb: number[],
     },
     draft_dir: string,
 }
@@ -36,6 +40,8 @@ export class JYDraftRepository extends BaseRepository<JYDraftRepository> impleme
         size: 5,
         color: "#ffffff",
         color_rgb: [1.0, 1.0, 1.0],
+        border_color: "#000000",
+        border_color_rgb: [0, 0, 0]
     }
     draft_dir = ""
 

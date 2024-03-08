@@ -122,7 +122,7 @@ const ComfyUISettingTab = forwardRef<ComfyUISettingRef, ComfyUISettingProps>((pr
             </div>
 
             <div className='setting-section no-padding-h'>
-                <div className='setting-title'>提示词设置（通用模版）</div>
+                <div className='setting-title'>默认提示词设置</div>
                 <div className='section-bottom flexR'>
                     <div className='item'>
                         <div className='setting-label'>{'正向提示词'}</div>
@@ -142,6 +142,20 @@ const ComfyUISettingTab = forwardRef<ComfyUISettingRef, ComfyUISettingProps>((pr
                     </div>
                 </div>
             </div>
+
+            <div className='setting-section no-padding-h'>
+                <div className='setting-title'>默认敏感词</div>
+                <div className='section-bottom flexR'>
+                    <div className='item'>
+                        <TextArea rows={10} placeholder={'敏感词以#分隔'}
+                            maxLength={1000}
+                            className="text-area-auto"
+                            value={stateComfyui?.sensitivePrompt}
+                            onChange={(e) => setComfyui({ ...stateComfyui!, sensitivePrompt: e.target.value })} />
+                    </div>
+                </div>
+            </div>
+
         </div >
     )
 })

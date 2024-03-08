@@ -154,10 +154,12 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let step = script.getWD14TaggerStep()
         //定位结果
         let reversePrompts = promptResult[promptId]!.outputs![step]!.tags! as string[]
-
+        reversePrompts = reversePrompts.join(",").split(",")
+        
         //存在返回结果，则更新
         if (reversePrompts) {
-            this.items[index].prompt = reversePrompts.join(",")
+            //基于敏感词做过滤
+            this.items[index].prompt = comyuiRepo.sensitivePromptsFilter(reversePrompts).join(",")
             this.sync()
         }
     }

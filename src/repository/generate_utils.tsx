@@ -39,11 +39,12 @@ export const ImageGenerate = async (parameter: ImageGenerateParameter, comyuiRep
     let text = await comyuiRepo.buildModePrompt(parameter.style)
     let script = new WFScript(text)
 
-    //判断流程中是否需要自定义宽高
+    //对输入提示词做敏感词过滤
+    let inputPrompt = comyuiRepo.sensitivePromptTextFilter(parameter.prompt)
 
     //生成随机
     let seed: number = await tauri.invoke('seed_random', {})
-    let parms = { seed: seed, positive: [comyuiRepo.positivePrompt, parameter.prompt].join(""), negative: comyuiRepo.negativePrompt || "", canvas_size: parameter.canvas_size } as Text2ImageParams
+    let parms = { seed: seed, positive: [comyuiRepo.positivePrompt, inputPrompt].join(""), negative: comyuiRepo.negativePrompt || "", canvas_size: parameter.canvas_size } as Text2ImageParams
 
     //兼容有参考图片流程
     if (script.hasInputImageStep()) {

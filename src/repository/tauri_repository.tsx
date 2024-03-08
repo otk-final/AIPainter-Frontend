@@ -1,4 +1,4 @@
-import { fs, path, tauri, } from "@tauri-apps/api"
+import { dialog, event, fs, path, tauri, } from "@tauri-apps/api"
 import { BaseDirectory } from "@tauri-apps/api/fs"
 
 

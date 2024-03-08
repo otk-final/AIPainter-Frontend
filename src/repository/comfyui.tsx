@@ -13,6 +13,7 @@ export interface ComfyUIConfiguration {
     items: ComfyUIWorkflow[]
     positivePrompt: string
     negativePrompt: string
+    sensitivePrompt: string
 }
 
 
@@ -31,6 +32,7 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
     reverseWF?: ComfyUIWorkflow
     positivePrompt: string = ""
     negativePrompt: string = ""
+    sensitivePrompt: string = ""
 
     newClient = async () => {
         this.destroyClient()
@@ -73,6 +75,22 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
     buildReversePrompt = async () => {
         let wfText = await fs.readTextFile(this.reverseWF!.path)
         return JSON.parse(wfText)
+    }
+
+    sensitivePromptsFilter = (prompts: string[]) => {
+        if (!this.sensitivePrompt) {
+            return prompts
+        }
+        let invalids = this.sensitivePrompt.split("#")
+        invalids = invalids.map(x => x.trim())
+        return prompts.filter(i => !invalids.includes(i.trim()))
+    }
+
+    sensitivePromptTextFilter = (prompts: string) => {
+        if (!this.sensitivePrompt) {
+            return prompts
+        }
+        return this.sensitivePromptsFilter(prompts.split(",")).join(",")
     }
 }
 

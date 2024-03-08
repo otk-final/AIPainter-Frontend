@@ -8,9 +8,11 @@ import { useSimulateRepository } from '@/repository/simulate';
 import { useKeyFrameRepository } from '@/repository/keyframe';
 import { useTTSRepository } from '@/repository/tts';
 import HandleProcessModal from '@/components/handle-process';
+import { Project } from '@/repository/workspace';
 
 interface VideoImportProps {
     pid: string
+    project: Project
     handleChangeTab: (key: ImitateTabType) => void,
 }
 

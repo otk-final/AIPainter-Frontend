@@ -76,7 +76,7 @@ export class TTSApi {
     submitAudio = async (audioPath: string) => {
         let bytes = await fs.readBinaryFile(audioPath)
         //基础参数
-        let baseRawQuery = "appid=" + this.appId + "&words_per_line=20&max_lines=2"
+        let baseRawQuery = "appid=" + this.appId + "&words_per_line=20&max_lines=1"
         return await this.api?.post(this.host + "/api/v1/vc/submit?" + baseRawQuery, Body.bytes(bytes), {
             headers: {
                 'Content-Type': 'audio/*',
