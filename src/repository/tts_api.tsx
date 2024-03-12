@@ -7,16 +7,22 @@ export interface AudioOption {
     voice_classify: string
     voice_type: string
     emotion: string
-    speed_ratio?: number,
-    volume_ratio?: number
+    speed_ratio: number,
+    volume_ratio: number
+}
+
+export const DEFAULT_AUDIO_OPTION: AudioOption = {
+    voice_classify: "3",
+    voice_type: "BV437_streaming",
+    emotion: "xiasha",
+    speed_ratio: 1,
+    volume_ratio: 1
 }
 
 export interface AudioData {
     data: Uint8Array
     duration: number
 }
-
-
 
 export class TTSApi {
 

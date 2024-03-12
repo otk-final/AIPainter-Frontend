@@ -4,7 +4,7 @@ import { create } from "zustand"
 import { fs, path, tauri } from "@tauri-apps/api"
 import { ComfyUIRepository } from "./comfyui"
 import { v4 as uuid } from "uuid"
-import { AudioOption } from "./tts_api"
+import { AudioOption, DEFAULT_AUDIO_OPTION } from "./tts_api"
 import { GPTRepository } from "./gpt"
 import { ImageGenerate, ImageGenerateParameter, ImageScale, KeyImage, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
 import { JYDraftRepository } from "./draft"
@@ -302,7 +302,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
         this.sync()
     }
 
-    handleGenerateAudio = async (index: number, actorRepo: ActorRepository, ttsRepo: TTSRepository) => {
+    handleGenerateAudio = async (index: number, audio: AudioOption, actorRepo: ActorRepository, ttsRepo: TTSRepository) => {
 
         let audioOption: AudioOption
         let chapter = this.items[index]
@@ -318,13 +318,8 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
             }
             audioOption = actor.voice!
         } else {
-            audioOption = { ...ttsRepo.audio_option }
+            audioOption = { ...audio }
         }
-
-        //merge 通用语速，和音量
-        audioOption.speed_ratio = ttsRepo.audio_speed
-        audioOption.volume_ratio = ttsRepo.audio_volume
-
 
         //生成音频
         let api = await ttsRepo.newClient()
@@ -477,7 +472,7 @@ export interface TraitsOption {
 export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> {
 
     override free() {
-        this.items = [{ id: uuid(), name: "角色1", alias: "角色1", style: "", traits: [] }]
+        this.items = [{ id: uuid(), name: "角色1", alias: "角色1", style: "", traits: [], voice: { ...DEFAULT_AUDIO_OPTION } }]
     }
 
     //初始化
@@ -503,7 +498,7 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
     }
 
     //生成图片
-    handleGenerateImage = async (index: number, traits: TraitsOption[], comyuiRepo: ComfyUIRepository) => {
+    handleGenerateImage = async (traits: TraitsOption[], comyuiRepo: ComfyUIRepository) => {
 
         // this.items[index]
         let prompt = traits.map(item => item.value).join(",")
@@ -519,11 +514,8 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
             return await this.saveFile("outputs", "ac_" + uuid() + ".png", fileBuffer)
         })
 
-        this.items[index].image = outputs[0];
-        this.sync()
-
         //渲染页面
-        return this.absulotePath(outputs[0])
+        return outputs[0]
     }
 
     toPrompt = (checkActors: string[]) => {

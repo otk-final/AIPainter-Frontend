@@ -1,6 +1,7 @@
 import { AudioOption } from "@/repository/tts_api";
-import { Cascader, } from "antd";
+import { Button, Cascader, Modal, } from "antd";
 import React, { useEffect, useState } from "react";
+import AddonNumberInput from "../addon-input";
 
 
 export interface Option {
@@ -306,36 +307,78 @@ const zhOptions: Option[] = [
 ];
 
 
-// const langs = [{ label: "中文", value: "zh" }, { label: "英文", value: "en" }]
+export interface TTSConfiguration {
 
-const TTSVoiceSelect: React.FC<{ option?: AudioOption, onChange: (audioOption: AudioOption) => void }> = ({ option, onChange }) => {
+    isOpen: boolean
+
+    setOpen: (open: boolean) => void
+
+    audio: AudioOption
+
+    onChange: (audio: AudioOption) => void
+}
+
+export const TTSVoiceModal: React.FC<TTSConfiguration> = ({ isOpen, setOpen, audio, onChange }) => {
+
+    const [stateConfiguration, setConfiguration] = useState<AudioOption>({ ...audio })
     const [value, setValue] = useState<string[]>([])
     useEffect(() => {
-        if (option) setValue([option.voice_classify, option.voice_type, option.emotion])
-    }, [option])
+        if (audio) setValue([audio.voice_classify, audio.voice_type, audio.emotion])
+    }, [audio])
 
-    const handleChange = (value: string[]) => {
-        onChange({
-            voice_classify: value[0],
-            voice_type: value[1],
-            emotion: value[2],
-        })
-    };
     const filter = (inputValue: string, path: any[]) => {
         return path.some((option) => (option.label as string).toLowerCase().indexOf(inputValue.toLowerCase()) > -1);
     }
 
-    return <Cascader
-        className={`select-auto`}
-        // style={{ width: '400px' }}
-        options={zhOptions}
-        value={value}
-        onChange={(value) => { handleChange(value as string[]) }}
-        placeholder="选择场景/音色/情感"
-        showSearch={{ filter }}
-        allowClear={false}
-    />
-}
+    const handleCascaderChange = (value: string[]) => {
+        setConfiguration({
+            ...stateConfiguration,
+            voice_classify: value[0],
+            voice_type: value[1],
+            emotion: value[2]
+        })
+    };
 
-export default TTSVoiceSelect
+    const handleChange = () => {
+        onChange({ ...stateConfiguration })
+    }
+
+    return <Modal title="配置音频参数"
+        open={isOpen}
+        onCancel={() => setOpen(false)}
+        footer={null}
+        width={800}
+        className="home-login-modal history-image-modal">
+
+        <div className="section">
+            <div className="title">配音设置</div>
+            <div className="form-wrap flexR">
+                <Cascader
+                    className={`select-auto`}
+                    options={zhOptions}
+                    value={value}
+                    onChange={(value) => { handleCascaderChange(value as string[]) }}
+                    placeholder="选择场景/音色/情感"
+                    showSearch={{ filter }}
+                    allowClear={false}
+                />
+            </div>
+        </div>
+        <div className="section">
+            <div className="form-wrap flexR">
+                <div className="form-item flexC">
+                    <AddonNumberInput label='音量调节' value={stateConfiguration.volume_ratio} onChange={(v) => { setConfiguration({ ...stateConfiguration, volume_ratio: v }) }} />
+                </div>
+                <div className="form-item flexC">
+                    <AddonNumberInput label='语速调节' value={stateConfiguration.speed_ratio} onChange={(v) => { setConfiguration({ ...stateConfiguration, speed_ratio: v }) }} />
+                </div>
+            </div>
+        </div>
+
+        <div className="flexR" style={{ justifyContent: 'space-between' }}>
+            <Button type="default" block className="btn btn-default-auto" onClick={() => setOpen(false)}>取消</Button>
+            <Button type="primary" block className="btn btn-primary-auto" onClick={handleChange}>确认</Button>
+        </div>
+    </Modal>
+}
 

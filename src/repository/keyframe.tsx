@@ -11,6 +11,7 @@ import { JYDraftRepository } from "./draft"
 import { GPTRepository } from "./gpt"
 import { ImageGenerate, ImageGenerateParameter, ImageScale, KeyImage, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
 import { TTSRepository } from "./tts"
+import { AudioOption } from "./tts_api"
 
 
 export interface KeyFrame extends ItemIdentifiable {
@@ -155,7 +156,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         //定位结果
         let reversePrompts = promptResult[promptId]!.outputs![step]!.tags! as string[]
         reversePrompts = reversePrompts.join(",").split(",")
-        
+
         //存在返回结果，则更新
         if (reversePrompts) {
             //基于敏感词做过滤
@@ -193,12 +194,11 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     }
 
     //在线生成音频
-    handleGenerateAudio = async (index: number, ttsRepo: TTSRepository) => {
+    handleGenerateAudio = async (index: number, audio: AudioOption, ttsRepo: TTSRepository) => {
         let api = await ttsRepo.newClient()
-
-        //生成音频参数
-        let audio = { ...ttsRepo.audio_option, speed_ratio: ttsRepo.audio_speed, volume_ratio: ttsRepo.audio_volume }
-
+        debugger;
+        console.info('audio', audio)
+        throw new Error("sssss")
         //生成音频
         let item = this.items[index]
         let srtText = item.srt_rewrite! || item.srt!

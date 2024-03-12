@@ -14,6 +14,8 @@ import { useGPTRepository } from "@/repository/gpt";
 import HandleProcessModal from "@/components/handle-process";
 import { event } from "@tauri-apps/api";
 import { Project } from "@/repository/workspace";
+import { TTSVoiceModal } from "@/components/voice-select";
+import { AudioOption, DEFAULT_AUDIO_OPTION } from "@/repository/tts_api";
 // import { useJYDraftRepository } from "@/repository/draft";
 
 interface SRTMixingProps {
@@ -28,6 +30,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
     const ttsRepo = useTTSRepository(state => state)
     const gptRepo = useGPTRepository(state => state)
     const [stateProcess, setProcess] = useState<{ open: boolean, title: string, run_event?: string, exit_event?: string }>({ open: false, title: "" });
+    const [stateTTS, setTTS] = useState<{ open: boolean, audio: AudioOption }>({ open: false, audio: DEFAULT_AUDIO_OPTION });
 
     // const handleExportSRTFile = async () => {
     //     let selected = await dialog.save({ title: "保存文件", filters: [{ name: "SRT文件", extensions: ["srt"] }] })
@@ -41,7 +44,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
 
     const _rowRenderer = ({ index, key, style }: ListRowProps) => {
         const items = keyFrameRepo.items;
-        return <SRTMixingTR key={key} frame={items[index]} style={style} index={index} />
+        return <SRTMixingTR key={key} frame={items[index]} style={style} audio={stateTTS.audio} index={index} />
     }
 
     //批量处理
@@ -94,7 +97,6 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
             return message.error("批量起始位置错误")
         }
 
-
         setProcess({ open: true, run_event: "batchRewrite", title: "批量重写字幕..." })
 
         keyFrameRepo.resetBatchExit()
@@ -120,7 +122,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
         })
 
         //执行任务
-        await keyFrameRepo.handleGenerateAudio(next_idx, ttsRepo).then(async () => {
+        await keyFrameRepo.handleGenerateAudio(next_idx, stateTTS.audio, ttsRepo).then(async () => {
             if (keyFrameRepo.isBatchExit()) {
                 return;
             }
@@ -205,10 +207,11 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
     }
 
 
+
     return (
         <div className="generate-image-wrap">
             <div className='generate-header flexR'>
-                {/* <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExportSRTFile}>导出新字幕文件</Button> */}
+                <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setTTS({ ...stateTTS, open: true })}>音频设置</Button>
                 <div className='flexR'></div>
                 <div className='flexR'>
                     <div className='flexR'>批量开始起点 <InputNumber controls={false} style={{ width: "54px", marginLeft: '10px', marginRight: '10px' }} className="inputnumber-auto" placeholder='1'
@@ -232,6 +235,12 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
                 running_event={stateProcess.run_event}
                 exit_event={stateProcess.exit_event}
                 onClose={destroyProcessModal} />}
+
+            {stateTTS.open && <TTSVoiceModal
+                isOpen={stateTTS.open}
+                audio={stateTTS.audio}
+                setOpen={(flag) => setTTS({ ...stateTTS, open: flag })}
+                onChange={(v) => setTTS({ open: false, audio: v })} />}
         </div>
     )
 }

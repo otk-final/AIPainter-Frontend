@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "aip",
-    "version": "0.0.24"
+    "version": "0.0.23"
   },
   "tauri": {
     "updater": {
@@ -116,12 +116,10 @@
         "decorations": true,
         "fullscreen": false,
         "resizable": true,
-        "title": "鹦鹉智绘-0.0.24",
+        "title": "鹦鹉智绘-0.0.23",
         "center": true,
-        "width": 1700,
-        "height": 1000,
-        "minWidth": 1700,
-        "minHeight": 848
+        "minWidth": 1500,
+        "minHeight": 860
       }
     ]
   }

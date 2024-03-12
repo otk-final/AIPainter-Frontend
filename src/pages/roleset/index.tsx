@@ -7,26 +7,29 @@ import { useParams } from "umi"
 import { Header } from '@/components';
 import { Actor, useActorRepository } from '@/repository/story';
 import { useComfyUIRepository } from '@/repository/comfyui';
-import TagModalContent from './components/tags-modal';
 import { v4 as uuid } from "uuid"
-import TTSVoiceSelect from '@/components/voice-select';
-import { AudioOption } from '@/repository/tts_api';
+import { AudioOption, DEFAULT_AUDIO_OPTION } from '@/repository/tts_api';
 import { useTTSRepository } from '@/repository/tts';
 import { useTranslateRepository } from '@/repository/translate';
+import { TTSVoiceModal } from '@/components/voice-select';
+import { TagModal } from './components/tags-modal';
 
 
 
 interface RoleItemProps {
   index: number,
   actor: Actor,
-  handleEdit: (index: number, actor: Actor) => void
 }
 
-export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) => {
+export const RoleItem: React.FC<RoleItemProps> = ({ index, actor }) => {
 
   const [stateActor, setActor] = useState<Actor>({ ...actor })
   const [statePreviewImage, setPreviewImage] = useState<string | undefined>()
   const actorRepo = useActorRepository(state => state)
+
+
+  const [tagOpen, setTagOpen] = useState<boolean>(false)
+  const [audioOpen, setAudioOpen] = useState<boolean>(false)
 
   useMemo(() => {
     const unsub = useActorRepository.subscribe(
@@ -54,13 +57,16 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) 
   }
 
   const handleEditVoice = async (option: AudioOption) => {
-    await actorRepo.updateItem(index, { ...stateActor, voice: option }, false)
+    await actorRepo.updateItem(index, { ...stateActor, voice: option }, false).finally(() => setAudioOpen(false))
   }
   const handleEditName = async (e: any) => {
     await actorRepo.updateItem(index, { ...stateActor, name: e.target.value }, false)
   }
   const handleEditAlias = async (e: any) => {
     await actorRepo.updateItem(index, { ...stateActor, alias: e.target.value }, false)
+  }
+  const handleEdit = async (newActor: Actor) => {
+    await actorRepo.updateItem(index, { ...newActor }, false).finally(() => setTagOpen(false))
   }
 
   return (
@@ -86,19 +92,22 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor, handleEdit }) 
           <div className='RB flexR'>
             <div className='content-title'>角色配音</div>
           </div>
-          <TTSVoiceSelect option={stateActor.voice} onChange={handleEditVoice} />
+          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => { setAudioOpen(true) }}>音频设置</Button>
         </div>
 
         <div className='content-i flexC'>
           <div className='RB flexR'>
             <div className='content-title'>角色描述</div>
           </div>
-          <div className='flexC role-tags-wrap' onClick={() => handleEdit(index, { ...stateActor })}>
+          <div className='flexC role-tags-wrap' onClick={() => { setTagOpen(true) }}>
             <PlusOutlined className="add-icon" />
             <div>请选择角色行的描述标签</div>
           </div>
         </div>
       </div>
+
+      {tagOpen && <TagModal isOpen={tagOpen} setOpen={setTagOpen} actor={stateActor} onChange={handleEdit} />}
+      {audioOpen && <TTSVoiceModal isOpen={audioOpen} setOpen={setAudioOpen} audio={stateActor.voice!} onChange={handleEditVoice} />}
 
     </div>
   )
@@ -128,7 +137,7 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
 
   const addActorHandle = async () => {
     let no = actorRepo.items.length + 1
-    await actorRepo.appendItem({ id: uuid(), name: "角色" + no, alias: "别名" + no, traits: [], style: "", image: "" }, true)
+    await actorRepo.appendItem({ id: uuid(), name: "角色" + no, alias: "别名" + no, style: "", traits: [], voice: { ...DEFAULT_AUDIO_OPTION } }, true)
   }
 
 
@@ -140,17 +149,6 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
     )
   }
 
-  const [isOpen, setOpen] = useState<boolean>(false)
-  const [displayActor, setDisplayActor] = useState<Actor>();
-  const [displayIndex, setDisplayIndex] = useState<number>(0);
-
-  const handleEdit = (index: number, actor: Actor) => {
-    setDisplayIndex(index)
-    setDisplayActor(actor)
-    setOpen(true)
-  }
-
-
   return (
     <div className="roleset-wrap">
 
@@ -158,18 +156,10 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
       <div className='sub-text'>建议角色设置不要超过2个,如剧本中无固定角色可跳过该步骤。SD在同画面的出现多个角色时，识别能力较差。同画面多人指定角色形象的功能在开发中。</div>
       <div className='roles-wrap flexR'>
         {actorRepo.items.map((actor, index) => {
-          return <RoleItem actor={actor} index={index} key={actor.id} handleEdit={handleEdit} />
+          return <RoleItem actor={actor} index={index} key={actor.id} />
         })}
       </div>
-      <Modal title="提示词生成器"
-        open={isOpen}
-        onCancel={() => setOpen(false)}
-        footer={null}
-        width={1160}
-        className="home-login-modal role-tags-modal"
-      >
-        {displayActor && <TagModalContent index={displayIndex} actor={displayActor} handleClose={() => setOpen(false)}></TagModalContent>}
-      </Modal>
+
     </div>
   );
 }

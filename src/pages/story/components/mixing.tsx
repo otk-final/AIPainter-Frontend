@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 import { useTTSRepository } from "@/repository/tts";
 import HandleProcessModal from "@/components/handle-process";
 import { Project } from "@/repository/workspace";
+import { TTSVoiceModal } from "@/components/voice-select";
+import { AudioOption, DEFAULT_AUDIO_OPTION } from "@/repository/tts_api";
 
 interface MixingTabProps {
     pid: string
@@ -24,6 +26,7 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid, project }) => {
     //批量处理
     const [batchPos, setBatchPos] = useState<number>(1)
     const [stateProcess, setProcess] = useState<{ open: boolean, title: string, run_event?: string, exit_event?: string }>({ open: false, title: "" });
+    const [stateTTS, setTTS] = useState<{ open: boolean, audio: AudioOption }>({ open: false, audio: DEFAULT_AUDIO_OPTION });
 
 
     const handleExportSRTFile = async () => {
@@ -38,7 +41,7 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid, project }) => {
 
     const _rowRenderer = ({ index, key, style }: ListRowProps) => {
         const items = chapterRepo.items;
-        return <MixingTableTR key={key} index={index} chapter={items[index]} style={style} />
+        return <MixingTableTR key={key} index={index} chapter={items[index]} style={style} audio={stateTTS.audio} />
     }
 
     const renderTable = () => {
@@ -105,7 +108,7 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid, project }) => {
         })
 
         //执行任务
-        await chapterRepo.handleGenerateAudio(next_idx, actorRepo, ttsRepo).then(async () => {
+        await chapterRepo.handleGenerateAudio(next_idx, stateTTS.audio, actorRepo, ttsRepo).then(async () => {
             if (chapterRepo.isBatchExit()) {
                 return;
             }
@@ -172,6 +175,12 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid, project }) => {
                 running_event={stateProcess.run_event}
                 exit_event={stateProcess.exit_event}
                 onClose={destroyProcessModal} />}
+
+            {stateTTS.open && <TTSVoiceModal
+                isOpen={stateTTS.open}
+                audio={stateTTS.audio}
+                setOpen={(flag) => setTTS({ ...stateTTS, open: flag })}
+                onChange={(v) => setTTS({ open: false, audio: v })} />}
         </div>
     )
 }

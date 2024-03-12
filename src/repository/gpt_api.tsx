@@ -12,7 +12,7 @@ export class GPTAssistantsApi {
     runId?: string
 
     constructor(host: string, apiKey: string) {
-        this.api = new OpenAI({ baseURL: host, apiKey: apiKey || "none", dangerouslyAllowBrowser: true, timeout: 600000 })
+        this.api = new OpenAI({ baseURL: host, apiKey: apiKey || "none", dangerouslyAllowBrowser: true, timeout: 60000 })
     }
 
     private retrieveMessages = async (threadId: string, runId: string) => {

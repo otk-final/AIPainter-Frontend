@@ -8,16 +8,18 @@ import { AssetImage } from "@/components/history-image";
 import ButtonGroup from "antd/es/button/button-group";
 import { useTTSRepository } from "@/repository/tts";
 import VideoPlayerModal from "@/pages/imitate/components/video-player";
-import {  SoundFilled } from "@ant-design/icons";
+import { SoundFilled } from "@ant-design/icons";
+import { AudioOption } from "@/repository/tts_api";
 
 interface MixingTableTRProps {
     index: number,
     chapter: Chapter,
+    audio: AudioOption
     style: React.CSSProperties,
     key: string
 }
 
-const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, key }) => {
+const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, key, audio }) => {
 
     //页面级状态
     const [stateChapter, setChapter] = useState<Chapter>({ ...chapter })
@@ -83,7 +85,7 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
             maskClosable: false,
         })
         //音频接口
-        let path = await chapterRepo.handleGenerateAudio(index, actorRepo, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        let path = await chapterRepo.handleGenerateAudio(index, audio, actorRepo, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
 
         //播放
         hanldePlayer(path as string)

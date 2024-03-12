@@ -47,18 +47,6 @@ export default function Layout(props: any) {
     )
   }
 
-  let unsub: UnlistenFn
-  const regUpdateEvent = async () => {
-    unsub = await onUpdaterEvent(({ error, status }) => {
-      console.info("update", error, status)
-    })
-  }
-
-  useEffect(() => {
-    regUpdateEvent()
-    return unsub!
-  }, [])
-
 
   const withUpdateHandler = async () => {
     const { shouldUpdate, manifest } = await checkUpdate()
@@ -69,13 +57,20 @@ export default function Layout(props: any) {
       console.log(
         `Installing update ${manifest?.version}, ${manifest?.date}, ${manifest?.body}`
       )
+      
+      installUpdate()
+
+
+      let unsub = await onUpdaterEvent(({ error, status }) => {
+        console.info("update", error, status)
+      })
 
       // Install the update. This will also restart the app on Windows!
-      await installUpdate()
+      
 
       // On macOS and Linux you will need to restart the app manually.
       // You could use this step to display another confirmation dialog.
-      await relaunch()
+      // await relaunch()
     } else {
       console.info('not updated')
     }

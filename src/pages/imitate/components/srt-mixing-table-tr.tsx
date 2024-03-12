@@ -10,15 +10,17 @@ import ButtonGroup from "antd/es/button/button-group";
 import VideoPlayerModal from "./video-player";
 import { EFFECT_DIRECTIONS } from "@/repository/draft";
 import { useGPTRepository } from "@/repository/gpt";
+import { AudioOption } from "@/repository/tts_api";
 
 interface SRTMixingTRProps {
     key: string,
     index: number,
     frame: KeyFrame,
+    audio: AudioOption,
     style: React.CSSProperties
 }
 
-const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) => {
+const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style, audio }) => {
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
     const keyFreamRepo = useKeyFrameRepository(state => state)
     const ttsRepo = useTTSRepository(state => state)
@@ -86,7 +88,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style }) =
         })
 
         //音频接口
-        let path = await keyFreamRepo.handleGenerateAudio(index, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        let path = await keyFreamRepo.handleGenerateAudio(index, audio, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
 
         //播放
         hanldePlayer(path as string)

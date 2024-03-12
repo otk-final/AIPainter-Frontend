@@ -2,8 +2,6 @@ import React, { forwardRef, useImperativeHandle } from 'react'
 import { Input } from "antd"
 import { useState } from "react"
 import { TTSConfiguration, useTTSRepository } from '@/repository/tts';
-import TTSVoiceSelect from '@/components/voice-select';
-import AddonNumberInput from '@/components/addon-input';
 
 
 export interface TTSSettingProps {
@@ -24,7 +22,6 @@ const TTSSettingTab = forwardRef<TTSSettingRef, TTSSettingProps>((props, ref) =>
     useImperativeHandle(ref, () => ({
         getConfiguration() { return stateConfiguration }
     }))
-
 
     return (
         <div className="videogeneration-wrap scrollbar">
@@ -49,19 +46,6 @@ const TTSSettingTab = forwardRef<TTSSettingRef, TTSSettingProps>((props, ref) =>
                     </div>
                 </div>
             </div>
-
-            <div className="section">
-                <div className="title">配音设置</div>
-                <div className="form-wrap flexR">
-                    <div className="form-item flexC">
-                        <div className="label">{"音色"}</div>
-                        <TTSVoiceSelect option={stateConfiguration.audio_option} onChange={(v) => { setConfiguration({ ...stateConfiguration, audio_option: { ...v } }) }} />
-                    </div>
-                    <AddonNumberInput label='音量调节' value={stateConfiguration.audio_volume} onChange={(v) => { setConfiguration({ ...stateConfiguration, audio_volume: v }) }} />
-                    <AddonNumberInput label='语速调节' value={stateConfiguration.audio_speed} onChange={(v) => { setConfiguration({ ...stateConfiguration, audio_speed: v }) }} />
-                </div>
-            </div>
-
         </div>
     )
 })

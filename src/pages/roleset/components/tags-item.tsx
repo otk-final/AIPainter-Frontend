@@ -139,15 +139,14 @@ export const OptionalTags: React.FC<RoleTagsProps> = ({ renderType, tags, hasTag
 
 
 interface CheckedTagsProps {
-    index: number
     tags?: TraitsOption[]
     image?: string
     handleCheckTag: (checked: boolean, item: any) => void
-    handleClose: () => void
+    onChange: (tags: TraitsOption[], image?: string) => void
 }
 
 
-export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, handleCheckTag, handleClose }) => {
+export const CheckedTags: React.FC<CheckedTagsProps> = ({ tags, image, handleCheckTag, onChange }) => {
 
     const [lang, setLang] = useState<TagLangType>("cn");
     const handleRemoveTag = (tag: any) => {
@@ -155,6 +154,7 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
     }
 
     const [isPreview, setPreview] = useState<boolean>(false)
+    const [statePath, setPath] = useState<string | undefined>(image)
     const [statePreviewPath, setPreviewPath] = useState<string | undefined>()
     const comfyuiRepo = useComfyUIRepository(state => state)
     const actorRepo = useActorRepository(state => state)
@@ -162,13 +162,13 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
     useEffect(() => {
         if (image) {
             actorRepo.absulotePath(image).then((imagePath) => { setPreviewPath(imagePath) })
-        }else{
+        } else {
             setPreviewPath(undefined)
         }
-    }, [index, image])
+    }, [image])
 
     //生成图片
-    const handleText2Image = async () => {
+    const handleGeneratePreview = async () => {
         if (!tags || tags.length === 0) {
             message.error("至少选择一个标签")
             return
@@ -179,18 +179,28 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
             mask: true,
             maskClosable: false,
         })
+        await handleGeneratePreviewRender(tags).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+    }
+
+    const handleGeneratePreviewRender = async (tags: TraitsOption[]) => {
+        //生图
+        let actor_path = await actorRepo.handleGenerateImage(tags, comfyuiRepo)
+        setPath(actor_path)
 
         //渲染
-        await actorRepo.handleGenerateImage(index, tags, comfyuiRepo).then((actor_path) => {
-            setPreviewPath(actor_path)
-            setPreview(true)
-        }).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        let abs_path = await actorRepo.absulotePath(actor_path)
+        setPreviewPath(abs_path)
+        setPreview(true)
     }
 
 
     //保存数据
     const handleConfirm = async () => {
-        await actorRepo.handleConfirmTraitsOption(index,tags || []).finally(handleClose)
+        if (!tags) {
+            message.error("至少选择一个标签")
+            return;
+        }
+        onChange(tags, statePath)
     }
 
 
@@ -220,7 +230,7 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ index, tags, image, ha
                     <div className="clean" onClick={() => setPreview(!isPreview)}>预览</div>
                 </div>
                 <div className="flexR" style={{ justifyContent: 'space-between' }}>
-                    <Button type="primary" block className="btn-primary-auto" style={{ width: '180px' }} onClick={handleText2Image} >生成</Button>
+                    <Button type="primary" block className="btn-primary-auto" style={{ width: '180px' }} onClick={handleGeneratePreview} >生成</Button>
                     <Button type="primary" block className="btn-primary-auto" style={{ width: '180px' }} onClick={handleConfirm}>保存</Button>
                 </div>
             </div>
