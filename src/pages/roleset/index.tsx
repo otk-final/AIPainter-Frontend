@@ -78,27 +78,17 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor }) => {
       </div>
       <div className='content flexR'>
         <div className='content-i  flexC'>
-
-          <div className='RB flexR'>
-            <div className='content-title'>角色姓名</div>
-          </div>
+          <div className='content-title'>角色姓名</div>
           <Input size="large" className='input' value={stateActor.name} onChange={handleEditName} />
-
-          <div className='RB flexR'>
-            <div className='content-title'>角色别名</div>
-          </div>
+          <div className='content-title'>角色别名</div>
           <Input size="large" className='input' value={stateActor.alias} onChange={handleEditAlias} />
-
-          <div className='RB flexR'>
-            <div className='content-title'>角色配音</div>
-          </div>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => { setAudioOpen(true) }}>音频设置</Button>
+          <div className='content-title'>角色配音</div>
+          <Button type="primary" className="btn-primary-auto" style={{height: '40px', width: '100%'}}
+           onClick={() => { setAudioOpen(true) }}>音频设置</Button>
         </div>
 
         <div className='content-i flexC'>
-          <div className='RB flexR'>
-            <div className='content-title'>角色描述</div>
-          </div>
+          <div className='content-title'>角色描述</div>
           <div className='flexC role-tags-wrap' onClick={() => { setTagOpen(true) }}>
             <PlusOutlined className="add-icon" />
             <div>请选择角色行的描述标签</div>
