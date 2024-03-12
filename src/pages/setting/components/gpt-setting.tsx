@@ -46,16 +46,12 @@ const GPTSettingTab = forwardRef<GPTSettingRef, GPTSettingProps>((props, ref) =>
             <div className='setting-section'>
                 <div className='setting-title'>GPT地址</div>
                 <div className='basic-subText'>GPT请求地址 <span></span> </div>
-                <div className="flexR">
-                    <Input size="large" placeholder="剪映草稿目录" value={stateConfiguration.host} onChange={(e) => setConfiguration({ ...stateConfiguration, host: e.target.value })} className='input-s ' style={{ width: '900px' }} />
-                </div>
+                <Input size="large" placeholder="剪映草稿目录" value={stateConfiguration.host} onChange={(e) => setConfiguration({ ...stateConfiguration, host: e.target.value })} className='input-s ' style={{ width: '900px' }} />
             </div>
 
-            <div className="section">
-                <div className="title">ApiKey</div>
-                <div className="form-wrap flexR">
-                    <Input size="large" placeholder="ApiKey" value={stateConfiguration.apiKey} onChange={(e) => setConfiguration({ ...stateConfiguration, apiKey: e.target.value })}  className='input-s ' style={{ width: '900px' }} />
-                </div>
+            <div className="setting-section">
+                <div className="setting-title">ApiKey</div>
+                <Input size="large" placeholder="ApiKey" value={stateConfiguration.apiKey} onChange={(e) => setConfiguration({ ...stateConfiguration, apiKey: e.target.value })}  className='input-s ' style={{ width: '900px' }} />
             </div>
 
             <div className="section">

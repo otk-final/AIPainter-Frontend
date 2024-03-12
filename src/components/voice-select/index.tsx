@@ -347,37 +347,25 @@ export const TTSVoiceModal: React.FC<TTSConfiguration> = ({ isOpen, setOpen, aud
         open={isOpen}
         onCancel={() => setOpen(false)}
         footer={null}
-        width={800}
-        className="home-login-modal history-image-modal">
-
-        <div className="section">
-            <div className="title">配音设置</div>
-            <div className="form-wrap flexR">
-                <Cascader
-                    className={`select-auto`}
-                    options={zhOptions}
-                    value={value}
-                    onChange={(value) => { handleCascaderChange(value as string[]) }}
-                    placeholder="选择场景/音色/情感"
-                    showSearch={{ filter }}
-                    allowClear={false}
-                />
-            </div>
+        width={700} 
+        className="voice-select-wrap">
+        <div className="title">配音设置</div>
+        <Cascader
+            className={`select-auto`}
+            options={zhOptions}
+            value={value}
+            onChange={(value) => { handleCascaderChange(value as string[]) }}
+            placeholder="选择场景/音色/情感"
+            showSearch={{ filter }}
+            allowClear={false}
+        />
+        <div className="voice-select-ratio-wrap flexR">
+            <AddonNumberInput label='音量调节' value={stateConfiguration.volume_ratio} onChange={(v) => { setConfiguration({ ...stateConfiguration, volume_ratio: v }) }} />
+            <AddonNumberInput label='语速调节' value={stateConfiguration.speed_ratio} onChange={(v) => { setConfiguration({ ...stateConfiguration, speed_ratio: v }) }} />
         </div>
-        <div className="section">
-            <div className="form-wrap flexR">
-                <div className="form-item flexC">
-                    <AddonNumberInput label='音量调节' value={stateConfiguration.volume_ratio} onChange={(v) => { setConfiguration({ ...stateConfiguration, volume_ratio: v }) }} />
-                </div>
-                <div className="form-item flexC">
-                    <AddonNumberInput label='语速调节' value={stateConfiguration.speed_ratio} onChange={(v) => { setConfiguration({ ...stateConfiguration, speed_ratio: v }) }} />
-                </div>
-            </div>
-        </div>
-
-        <div className="flexR" style={{ justifyContent: 'space-between' }}>
-            <Button type="default" block className="btn btn-default-auto" onClick={() => setOpen(false)}>取消</Button>
-            <Button type="primary" block className="btn btn-primary-auto" onClick={handleChange}>确认</Button>
+        <div className="flexRB">
+            <Button type="default" block className="btn btn-default-auto" style={{width: '280px'}} onClick={() => setOpen(false)}>取消</Button>
+            <Button type="primary" block className="btn btn-primary-auto" style={{width: '280px'}} onClick={handleChange}>确认</Button>
         </div>
     </Modal>
 }
