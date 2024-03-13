@@ -134,10 +134,10 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ index, mode, chapter,
     }
     const [isOpen, setOpen] = useState(false)
     return (
-        <div className='tr flexR' style={style} key={key}>
+        <div className='list-tr flexR' style={style} key={key}>
             {stateChapter && drawbatchColumns.map((i, idx) => {
                 return (
-                    <div className='td script-id flexC' key={i.key + idx} style={{ flex: `${i.space}` }}>
+                    <div className='list-td script-id flexC' key={i.key + idx} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
                         {i.key === 'description' ? renderEditScene() : null}
                         {i.key === 'drawPrompt' ? renderEditPrompt() : null}

@@ -41,9 +41,9 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid, project }) => {
   const renderTable = () => {
     return (
       <div className='script-table-wrap' style={{ height: 'calc(100% - 60px)', display: "flex", flexDirection: 'column', overflow: 'hidden' }}>
-        <div className='th flexR'>
+        <div className='list-th flexR'>
           {generateImagesColumns.map((i) => {
-            return <div className='th-td' style={{ flex: i.key === 'number' ? `0 0 124px` : `${i.space}` }} key={i.key}>{i.title}</div>
+            return <div className='list-th-td' style={{ flex: i.key === 'number' ? `0 0 124px` : `${i.space}` }} key={i.key}>{i.title}</div>
           })}
         </div>
         <div style={{ flex: 1 }} >

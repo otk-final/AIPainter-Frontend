@@ -139,10 +139,10 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
     }
 
     return (
-        <div className='tr flexR' style={style} key={key}>
+        <div className='list-tr flexR' style={style} key={key}>
             {stateChapter && mixingColumns.map((i, index) => {
                 return (
-                    <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
+                    <div className='list-td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
                         {i.key === 'draft' ? stateChapter.draft : null}
                         {i.key === 'actors' ? renderActors() : null}

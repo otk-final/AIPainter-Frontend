@@ -40,9 +40,9 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid, project }) => {
     const renderTable = () => {
         return (
             <div className='script-table-wrap' style={{ height: 'calc(100% - 60px)', display: "flex", flexDirection: 'column' }}>
-                <div className='th flexR'>
+                <div className='list-th flexR'>
                     {drawbatchColumns.map((i) => {
-                        return <div className='th-td' style={{ flex: `${i.space}` }} key={i.key}>{i.title}</div>
+                        return <div className='list-th-td' style={{ flex: `${i.space}` }} key={i.key}>{i.title}</div>
                     })}
                 </div>
                 <div style={{ flex: 1 }} >

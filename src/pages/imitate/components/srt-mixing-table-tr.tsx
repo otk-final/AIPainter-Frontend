@@ -158,10 +158,10 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style, aud
 
 
     return (
-        <div className='tr flexR' style={style} key={key}>
+        <div className='list-tr flexR' style={style} key={key}>
             {srtMixingColumns.map((i, index) => {
                 return (
-                    <div className='td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
+                    <div className='list-td script-id flexC' key={i.key + index} style={{ flex: `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
                         {i.key === 'srcImage' && <AssetImage path={stateFrame.path} repo={keyFreamRepo} />}
                         {i.key === 'newImage' && <AssetImage path={stateFrame.image.path} repo={keyFreamRepo} />}

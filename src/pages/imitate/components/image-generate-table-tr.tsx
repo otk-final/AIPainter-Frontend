@@ -118,10 +118,10 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
 
     const [isOpen, setOpen] = useState(false)
     return (
-        <div className='tr flexR' style={style} key={key}>
+        <div className='list-tr flexR' style={style} key={key}>
             {generateImagesColumns.map((i, idx) => {
                 return (
-                    <div className='td script-id flexC' key={i.key + idx} style={{ flex: i.key === 'number' ? `0 0 124px` : `${i.space}` }}>
+                    <div className='list-td script-id flexC' key={i.key + idx} style={{ flex: i.key === 'number' ? `0 0 124px` : `${i.space}` }}>
                         {i.key === 'number' ? renderNumber() : null}
                         {i.key === 'path' && <AssetImage path={stateFrame.path} repo={keyFrameRepo} />}
                         {i.key === 'drawPrompt' ? renderPrompt() : null}
