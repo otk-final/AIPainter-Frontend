@@ -1,22 +1,17 @@
 import { srtMixingColumns } from "../data"
 import { ImitateTabType } from ".."
 import SRTMixingTR from "./srt-mixing-table-tr"
-// import { dialog } from "@tauri-apps/api"
 import { List, AutoSizer, ListRowProps } from 'react-virtualized';
 
 import 'react-virtualized/styles.css'; // 导入样式文件
 import { Button, InputNumber, message } from "antd"
 import React, { useEffect, useState } from "react"
 import { useKeyFrameRepository } from "@/repository/keyframe";
-// import { SRTGenerate } from "@/repository/generate_utils";
-import { useTTSRepository } from "@/repository/tts";
-import { useGPTRepository } from "@/repository/gpt";
 import HandleProcessModal from "@/components/handle-process";
 import { event } from "@tauri-apps/api";
 import { Project } from "@/repository/workspace";
 import { TTSVoiceModal } from "@/components/voice-select";
-import { AudioOption, DEFAULT_AUDIO_OPTION } from "@/repository/tts_api";
-// import { useJYDraftRepository } from "@/repository/draft";
+import { AudioOption, DEFAULT_AUDIO_OPTION } from "@/api/bytedance_api";
 
 interface SRTMixingProps {
     pid: string,
@@ -27,8 +22,6 @@ interface SRTMixingProps {
 const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
     const keyFrameRepo = useKeyFrameRepository(state => state)
     // const draftRepo = useJYDraftRepository(state => state)
-    const ttsRepo = useTTSRepository(state => state)
-    const gptRepo = useGPTRepository(state => state)
     const [stateProcess, setProcess] = useState<{ open: boolean, title: string, run_event?: string, exit_event?: string }>({ open: false, title: "" });
     const [stateTTS, setTTS] = useState<{ open: boolean, audio: AudioOption }>({ open: false, audio: DEFAULT_AUDIO_OPTION });
 
@@ -84,7 +77,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
 
 
         //执行任务
-        await keyFrameRepo.handleRewriteContent(next_idx, gptRepo).then(async () => {
+        await keyFrameRepo.handleRewriteContent(next_idx).then(async () => {
             if (keyFrameRepo.isBatchExit()) {
                 return;
             }
@@ -122,7 +115,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
         })
 
         //执行任务
-        await keyFrameRepo.handleGenerateAudio(next_idx, stateTTS.audio, ttsRepo).then(async () => {
+        await keyFrameRepo.handleGenerateAudio(next_idx, stateTTS.audio).then(async () => {
             if (keyFrameRepo.isBatchExit()) {
                 return;
             }

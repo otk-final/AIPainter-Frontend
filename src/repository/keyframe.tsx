@@ -1,17 +1,19 @@
 import { create } from "zustand"
 import { BaseCRUDRepository, ItemIdentifiable } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
-import { fs, path, tauri } from "@tauri-apps/api"
-import { Image2TextHandle, WFScript } from "./comfyui_api"
-import { ComfyUIRepository } from "./comfyui"
-import { createWorker } from "tesseract.js"
+import { Image2TextHandle, ApiPrompt, ComfyUIApi, ComfyUIImageLocation, ComfyUIImageDimensions } from "../api/comfyui_api"
+import { ComfyUIRepository, KeyImage } from "./comfyui"
 import { v4 as uuid } from "uuid"
 import { JYDraftExport, KeyFragment, KeyFragmentEffect } from "./draft_utils"
 import { JYDraftRepository } from "./draft"
-import { GPTRepository } from "./gpt"
-import { ImageGenerate, ImageGenerateParameter, ImageScale, KeyImage, SRTGenerate, VideoFragmentConcat } from "./generate_utils"
-import { TTSRepository } from "./tts"
-import { AudioOption } from "./tts_api"
+import { AudioOption, BytedanceApi } from "../api/bytedance_api"
+
+import { path } from "@tauri-apps/api";
+import tauri from "@tauri-apps/api/core";
+import fs from "@tauri-apps/plugin-fs";
+import { GPTAssistantsApi } from "@/api/gpt_api"
+import { SRTGenerate } from "./srt"
+import { ConcatFragments } from "./video"
 
 
 export interface KeyFrame extends ItemIdentifiable {
@@ -55,38 +57,38 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     }
 
     //重写台词
-    handleRewriteContent = async (index: number, gptRepo: GPTRepository) => {
-        let gptApi = await gptRepo.newClient();
-        let rewrite = await gptApi.rewritePrompt(this.items[index].srt!, gptRepo)
+    handleRewriteContent = async (index: number) => {
+        let api = new GPTAssistantsApi()
+        let rewrite = await api.rewritePrompt(this.items[index].srt!)
         this.items[index].srt_rewrite = rewrite
         await this.sync()
     }
 
     //识别图片字幕
-    recognizeContent = async (index: number) => {
-        let targetPath = this.items[index].path
+    // recognizeContent = async (index: number) => {
+    //     let targetPath = this.items[index].path
 
-        let worker = await createWorker('chi_sim')
-        let imageBytes = await fs.readBinaryFile(await this.absulotePath(targetPath))
-
-
-        //添加矩阵后，效果不好，后期优化
-        // let size = 1024
-        //导出帧均以1024*1024为准，计算有效字幕比例
-        // let rectangle = {
-        //     left: size * 0.1,
-        //     top: size * 0.5,
-        //     width: size * 0.9,
-        //     height: size * 0.5,
-        // }
+    //     let worker = await createWorker('chi_sim')
+    //     let imageBytes = await fs.readBinaryFile(await this.absulotePath(targetPath))
 
 
-        const ret = await worker.recognize(Buffer.from(imageBytes.buffer), { rectangle: undefined })
-        this.items[index].srt = ret.data.text.replaceAll('\n', "").replaceAll(' ', '')
+    //     //添加矩阵后，效果不好，后期优化
+    //     // let size = 1024
+    //     //导出帧均以1024*1024为准，计算有效字幕比例
+    //     // let rectangle = {
+    //     //     left: size * 0.1,
+    //     //     top: size * 0.5,
+    //     //     width: size * 0.9,
+    //     //     height: size * 0.5,
+    //     // }
 
-        await this.sync()
-        await worker.terminate();
-    }
+
+    //     const ret = await worker.recognize(Buffer.from(imageBytes.buffer), { rectangle: undefined })
+    //     this.items[index].srt = ret.data.text.replaceAll('\n', "").replaceAll(' ', '')
+
+    //     await this.sync()
+    //     await worker.terminate();
+    // }
 
     //批量图片放大
     batchScaleImage = async (start_idx: number) => {
@@ -106,7 +108,8 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
                 output_path: await this.absulotePath(output_name)
             })
         }
-        let results = await ImageScale(scaleArray);
+
+        let results =  await tauri.invoke('key_image_scale_handler', { parameters: scaleArray }) as KeyImage[]
 
         //替换数据
         for (let i = 0; i < results.length; i++) {
@@ -133,7 +136,8 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
             output_path: await this.absulotePath(output_name)
         } as KeyImage
 
-        let results = await ImageScale([arg]);
+
+        let results = await tauri.invoke('key_image_scale_handler', { parameters: [arg] }) as KeyImage[]
         this.items[index].image.path = results[0].output_name
 
         this.sync()
@@ -141,16 +145,21 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
     //反推关键词
     handleGeneratePrompt = async (index: number, comyuiRepo: ComfyUIRepository) => {
-        let frame = this.items[index]
-        let api = await comyuiRepo.newClient()
-        let text = await comyuiRepo.buildReversePrompt()
-        let script = new WFScript(text)
 
-        //上传文件
-        await api.upload(api.clientId, await this.absulotePath(frame.path), frame.name)
+        let frame = this.items[index]
+        let api = new ComfyUIApi()
+
+        //根据模型选择脚本
+        let text = await comyuiRepo.buildReversePrompt()
+        let script = new ApiPrompt(text)
+
+        //上传文件，子目录使用当前用户ID
+        let locate = { filename: frame.name, type: "input", subfolder: api.clientId };
+        await api.upload(locate, await this.absulotePath(frame.path))
 
         //提交任务
-        let { promptId, promptResult } = await api.prompt(script, { subfolder: api.clientId, filename: frame.name }, Image2TextHandle)
+        let { promptId, promptResult } = await api.prompt(script, locate, Image2TextHandle)
+
         //关键词所在的节点数
         let step = script.getWD14TaggerStep()
         //定位结果
@@ -169,36 +178,44 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     handleGenerateImage = async (index: number, style: string, comyuiRepo: ComfyUIRepository) => {
         let frame = this.items[index]
 
-        let fp = {
-            style: style,
-            prompt: frame.prompt
-        } as ImageGenerateParameter
+        let api = new ComfyUIApi()
 
+        //加载脚本
+        let text = await comyuiRepo.buildModePrompt(style)
+        let script = new ApiPrompt(text)
+
+        let locate: ComfyUIImageLocation;
+        //判断流程是否需要上传默认图片
+        if (script.hasInputImageStep()) {
+            //上传文件，子目录使用当前用户ID
+            locate = { filename: frame.name, type: "input", subfolder: api.clientId };
+            await api.upload(locate, await this.absulotePath(frame.path))
+        }
         //生成图片
-        let outputs = await ImageGenerate(fp, comyuiRepo, async (idx, fileBuffer) => {
-            //保存文件
-            let fileName = frame.id + "-" + uuid() + ".png"
-            return await this.saveFile("outputs", fileName, fileBuffer)
-        }, async (api) => {
-            //上传文件
-            await api.upload(api.clientId, await this.absulotePath(frame.path), frame.name)
-            return { subfolder: api.clientId, filename: frame.name }
-        })
+        let outputs = await comyuiRepo.generateImage(script, frame.prompt!, undefined, locate!)
+
+        //下载图片
+        let downloads = [] as string[]
+        for (let i = 0; i < outputs.length; i++) {
+            //相对路径
+            let savepath = "image-outputs/" + frame.id + "-new-" + uuid() + outputs[i].filename;
+            //下载图片并存储
+            await api.download(outputs[i], await this.absulotePath(savepath))
+            downloads.push(savepath);
+        }
 
         //记录当前图片，和历史图片
-        frame.image.path = outputs[0]
-        frame.image.history = [...frame.image.history.concat(...outputs)]
+        frame.image.path = downloads[0]
+        frame.image.history = [...frame.image.history.concat(...downloads)]
 
         //save
         this.sync()
     }
 
     //在线生成音频
-    handleGenerateAudio = async (index: number, audio: AudioOption, ttsRepo: TTSRepository) => {
-        let api = await ttsRepo.newClient()
-        debugger;
-        console.info('audio', audio)
-        throw new Error("sssss")
+    handleGenerateAudio = async (index: number, audio: AudioOption) => {
+        let api = new BytedanceApi()
+
         //生成音频
         let item = this.items[index]
         let srtText = item.srt_rewrite! || item.srt!
@@ -206,12 +223,12 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         //保存音频
         let audioName = item.id + "-new-" + uuid() + ".mp3"
-        let audioPath = await this.saveFile("temp-audios", audioName, resp.data)
+        let audioPath = await this.saveFile("audio-outputs", audioName, resp.data)
 
         //记录时长
         this.items[index].srt_rewrite_duration = resp.duration
         this.items[index].srt_rewrite_audio_path = audioPath
-
+        
         this.sync()
         return audioPath
     }
@@ -222,7 +239,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         //临时存储目录
         let videoDir = await path.join(this.repoDir, "temp-videos")
-        await fs.createDir(videoDir, { dir: this.baseDir(), recursive: true })
+        await fs.mkdir(videoDir, { recursive: true })
 
         //参数
         let videoPath = "temp-videos" + path.sep + item.name + "-" + uuid() + ".mp4";
@@ -287,7 +304,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         //临时存储目录
         let concats_path = await this.absulotePath("video.concats")
         let video_path = await this.absulotePath("output-" + uuid() + ".mp4")
-        return await VideoFragmentConcat(concats_path, srt_path, video_path, savePath, fragments)
+        return await ConcatFragments(concats_path, srt_path, video_path, savePath, fragments)
     }
 
 
@@ -306,7 +323,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
 
         //根据第一张图确认导出尺寸
-        let { width, height } = await tauri.invoke("measure_image_dimensions", { imagePath: fragments[0].image_path }) as { width: number, height: number }
+        let { width, height } = await tauri.invoke("measure_image_dimensions", { imagePath: fragments[0].image_path }) as ComfyUIImageDimensions
 
         //参数
         let param = {

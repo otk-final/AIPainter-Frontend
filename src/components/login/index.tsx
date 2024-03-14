@@ -1,5 +1,5 @@
 import { useLogin } from "@/uses";
-import { Button, Input, InputNumber, message, Modal, Radio } from "antd"
+import { Button, Input, InputNumber, message, Modal } from "antd"
 import { useEffect, useRef, useState } from "react";
 import "./index.less"
 
@@ -14,7 +14,6 @@ const LoginModule: React.FC<LoginModuleProps> = ({ isOpen, onClose }) => {
     const [count, setCount] = useState(0);
     const [phone, setPhone] = useState("13476259563");
     const [verify, setVerify] = useState("");
-    const [checked, setChecked] = useState(false);
     const timeId = useRef()
 
     useEffect(() => {

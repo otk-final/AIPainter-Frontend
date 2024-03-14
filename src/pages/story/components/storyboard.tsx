@@ -4,7 +4,8 @@ import { storyboardColumns } from '../data';
 import StoryboardTableTR from './storyboard-table-tr'
 import assets from '@/assets';
 import FileImportModal from '../story-import';
-import { useActorRepository, useChapterRepository } from '@/repository/story';
+import { useActorRepository } from '@/repository/actor';
+import { useChapterRepository } from '@/repository/chapter';
 import { history } from 'umi';
 import { AutoSizer, ListRowProps, List } from 'react-virtualized';
 import { Project } from '@/repository/workspace';
@@ -15,7 +16,7 @@ interface StoryboardTabProps {
     project: Project
 }
 
-const StoryboardTab: React.FC<StoryboardTabProps> = ({ pid, project }) => {
+const StoryboardTab: React.FC<StoryboardTabProps> = ({ pid }) => {
     const [isOpen, setOpen] = useState(false);
     const chapterRepo = useChapterRepository(state => state)
     const actorRepo = useActorRepository(state => state)

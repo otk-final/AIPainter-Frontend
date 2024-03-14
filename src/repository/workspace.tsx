@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { BaseCRUDRepository, ItemIdentifiable } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
+import { ComfyUIImageDimensions } from "@/api/comfyui_api"
 
 
 export interface Project extends ItemIdentifiable {
@@ -12,10 +13,7 @@ export interface Project extends ItemIdentifiable {
     createTime: string
 
     //绘图比例
-    canvas_size?: {
-        height: number,
-        width: number
-    }
+    dimensions?: ComfyUIImageDimensions
 }
 
 export class ProjectRepository extends BaseCRUDRepository<Project, ProjectRepository> {

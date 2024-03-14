@@ -73,6 +73,7 @@ const HomePage = () => {
 
 
   useEffect(() => {
+
     projectRepo.load('env')
 
     window.addEventListener('resize', function () {
@@ -84,7 +85,7 @@ const HomePage = () => {
 
 
 
-  const handleBtn = (i: homeDataProps) => {
+  const handleBtn = async (i: homeDataProps) => {
     // if (!loginState.isLogin) {
     //   return message.warning("请先登陆～")
     // }

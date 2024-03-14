@@ -2,14 +2,14 @@ import { Button, Modal, Select, Switch, message } from "antd"
 import { Fragment, useEffect, useState } from "react";
 import { mixingColumns } from "../data";
 import TextArea from "antd/es/input/TextArea";
-import { Chapter, useActorRepository, useChapterRepository } from "@/repository/story";
+import { Chapter, useChapterRepository } from "@/repository/chapter";
+import { useActorRepository } from "@/repository/actor";
 import { EFFECT_DIRECTIONS } from "@/repository/draft";
 import { AssetImage } from "@/components/history-image";
 import ButtonGroup from "antd/es/button/button-group";
-import { useTTSRepository } from "@/repository/tts";
 import VideoPlayerModal from "@/pages/imitate/components/video-player";
 import { SoundFilled } from "@ant-design/icons";
-import { AudioOption } from "@/repository/tts_api";
+import { AudioOption } from "@/api/bytedance_api";
 
 interface MixingTableTRProps {
     index: number,
@@ -24,7 +24,6 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
     //页面级状态
     const [stateChapter, setChapter] = useState<Chapter>({ ...chapter })
     const chapterRepo = useChapterRepository(state => state)
-    const ttsRepo = useTTSRepository(state => state)
     const actorRepo = useActorRepository(state => state)
 
     useEffect(() => {
@@ -85,7 +84,7 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
             maskClosable: false,
         })
         //音频接口
-        let path = await chapterRepo.handleGenerateAudio(index, audio, actorRepo, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        let path = await chapterRepo.handleGenerateAudio(index, audio, actorRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
 
         //播放
         hanldePlayer(path as string)

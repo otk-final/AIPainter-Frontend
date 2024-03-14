@@ -1,10 +1,10 @@
-import { tauri } from "@tauri-apps/api";
+import tauri from "@tauri-apps/api/core";
 import { Button, Image, Modal } from "antd"
 import { useEffect, useState } from "react";
 import './index.less'
 import { TauriRepo } from "@/repository/tauri_repository";
 import { useKeyFrameRepository } from "@/repository/keyframe";
-import { useChapterRepository } from "@/repository/story";
+import { useChapterRepository } from "@/repository/chapter";
 
 
 export interface ModalHistoryImageProps {

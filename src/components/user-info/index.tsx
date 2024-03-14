@@ -1,7 +1,7 @@
 import { useLogin } from "@/uses";
 import { Button,  Input,  Modal, } from "antd"
 import "./index.less"
-import { writeText } from '@tauri-apps/api/clipboard';
+import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { Fragment, useEffect, useState } from "react";
 
 

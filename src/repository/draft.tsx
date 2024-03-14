@@ -32,6 +32,11 @@ export interface JYDraftConfiguration {
 
 
 export class JYDraftRepository extends BaseRepository<JYDraftRepository> implements JYDraftConfiguration {
+    
+    protected free(): void {
+        throw new Error("Method not implemented.")
+    }
+
     video = {
         effect: "up",
         fps: 25,
@@ -44,10 +49,6 @@ export class JYDraftRepository extends BaseRepository<JYDraftRepository> impleme
         border_color_rgb: [0, 0, 0]
     }
     draft_dir = ""
-
-    free() {
-
-    }
 
     formatEffectOrientation = (orientation: string) => {
         let x = orientation;

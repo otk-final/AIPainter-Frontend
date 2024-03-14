@@ -3,14 +3,12 @@ import TextArea from "antd/es/input/TextArea";
 import React, { Fragment, useMemo, useState } from "react";
 import { srtMixingColumns } from "../data";
 import { KeyFrame, useKeyFrameRepository } from "@/repository/keyframe";
-import { useTTSRepository } from "@/repository/tts";
 import { SoundFilled } from "@ant-design/icons";
 import { AssetImage } from "@/components/history-image";
 import ButtonGroup from "antd/es/button/button-group";
 import VideoPlayerModal from "./video-player";
 import { EFFECT_DIRECTIONS } from "@/repository/draft";
-import { useGPTRepository } from "@/repository/gpt";
-import { AudioOption } from "@/repository/tts_api";
+import { AudioOption } from "@/api/bytedance_api";
 
 interface SRTMixingTRProps {
     key: string,
@@ -23,9 +21,6 @@ interface SRTMixingTRProps {
 const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style, audio }) => {
     const [stateFrame, setFrame] = useState<KeyFrame>({ ...frame })
     const keyFreamRepo = useKeyFrameRepository(state => state)
-    const ttsRepo = useTTSRepository(state => state)
-    const gptRepo = useGPTRepository(state => state)
-    // const draftRepo = useJYDraftRepository(state => state)
 
     useMemo(() => {
         const unsub = useKeyFrameRepository.subscribe(
@@ -66,7 +61,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style, aud
             mask: true,
             maskClosable: false,
         })
-        await keyFreamRepo.handleRewriteContent(index, gptRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        await keyFreamRepo.handleRewriteContent(index).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
     // const handleRecognize = async () => {
@@ -88,7 +83,7 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style, aud
         })
 
         //音频接口
-        let path = await keyFreamRepo.handleGenerateAudio(index, audio, ttsRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        let path = await keyFreamRepo.handleGenerateAudio(index, audio).catch(err => message.error(err.message)).finally(Modal.destroyAll)
 
         //播放
         hanldePlayer(path as string)

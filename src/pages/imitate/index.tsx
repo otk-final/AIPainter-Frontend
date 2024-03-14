@@ -1,5 +1,5 @@
 import { Button, Modal, Tabs, TabsProps, message } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import './index.less'
 import { history, useParams } from "umi"
 import VideoImportTab from './components/video-import';
@@ -9,11 +9,10 @@ import { useSimulateRepository } from '@/repository/simulate';
 import { useComfyUIRepository } from '@/repository/comfyui';
 import SRTMixingTab from './components/srt-mixing';
 import { useKeyFrameRepository } from '@/repository/keyframe';
-import { dialog, path } from '@tauri-apps/api';
-import { useTTSRepository } from '@/repository/tts';
-import { useTranslateRepository } from '@/repository/translate';
+import dialog from '@tauri-apps/plugin-dialog';
 import { useJYDraftRepository } from '@/repository/draft';
 import { Project, useProjectRepository } from '@/repository/workspace';
+import { path } from '@tauri-apps/api';
 
 export type ImitateTabType = "import" | "frames" | "audio"
 const imitateTabs: TabsProps["items"] = [
@@ -39,9 +38,6 @@ const ImitateProject: React.FC<{ pid: string, project: Project }> = ({ pid, proj
   const keyFreamRepo = useKeyFrameRepository(state => state)
   const comfyuiRepo = useComfyUIRepository(state => state)
   const draftRepo = useJYDraftRepository(state => state)
-  const ttsRepo = useTTSRepository(state => state)
-  const translateRepo = useTranslateRepository(state => state)
-  const projectRepo = useProjectRepository(state => state)
 
   //加载配置项
   useEffect(() => {
@@ -52,8 +48,6 @@ const ImitateProject: React.FC<{ pid: string, project: Project }> = ({ pid, proj
 
     comfyuiRepo.load("env")
     draftRepo.load('env')
-    ttsRepo.load("env")
-    translateRepo.load("env")
 
     return () => {
       simulateRepo.sync()
@@ -79,7 +73,13 @@ const ImitateProject: React.FC<{ pid: string, project: Project }> = ({ pid, proj
   //导出
   const handleJYDraft = async () => {
 
-    let selected = await dialog.open({ directory: true, title: "选择剪映草稿目录", defaultPath: draftRepo.draft_dir || await path.desktopDir(), recursive: true })
+    let selected = await dialog.open({
+      directory: true,
+      title: "选择剪映草稿目录",
+      defaultPath: draftRepo.draft_dir || await path.desktopDir(),
+      recursive: true
+    })
+    
     if (!selected) {
       return
     }

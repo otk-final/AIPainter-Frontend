@@ -1,63 +1,93 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod cmd;
-mod key_export_cmd;
-mod key_generate_cmd;
-mod key_image_scale_cmd;
+mod handle;
+mod execute;
+mod http;
 
-use std::cmp::{max, min};
-use futures::task::SpawnExt;
-use serde::{Deserialize, Serialize};
 use std::{env, thread};
 use std::path::PathBuf;
-use std::sync::mpsc::channel;
 use std::time::Duration;
+use futures::executor::block_on;
 use rand::Rng;
-use tauri::{Manager};
-use crate::cmd::{async_execute, ExecuteOutput};
-use crate::key_export_cmd::{key_frames_dssim, key_frame_collect, KeyFrame};
-use crate::key_generate_cmd::key_video_generate;
-use crate::key_image_scale_cmd::{handle_image_scale, key_image_scale, measure_image_dimensions};
+use tauri::{Window};
+use tauri_plugin_shell::ShellExt;
+use crate::handle::export::key_frame_export_handler;
+use crate::handle::generate::key_video_generate_handler;
+use crate::handle::scale::{key_image_scale_handler, measure_image_handler};
+use crate::http::ApiConfig;
+use crate::http::download::http_download_handler;
+use crate::http::upload::{http_upload_handler, UploadParameter};
+
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
 #[tauri::command]
-async fn env_current_dir() -> PathBuf {
+async fn env_current_dir_cmd(window: Window) -> PathBuf {
     env::current_dir().unwrap()
 }
 
 #[tauri::command]
-async fn env_current_exe() -> PathBuf {
+async fn env_current_exe_handler(window: Window) -> PathBuf {
     env::current_exe().unwrap()
 }
 
 #[tauri::command]
-async fn seed_random() -> u64 {
+async fn env_delay_handler(window: Window,ms: u64) {
+    thread::sleep(Duration::from_millis(ms));
+}
+
+#[tauri::command]
+fn seed_random_handler(window: Window) -> u64 {
     let mut rng = rand::thread_rng();
     rng.gen_range(10u64.pow(14)..10u64.pow(15) - 1)
 }
 
-#[tauri::command]
-async fn env_delay(ms: u64) {
-    thread::sleep(Duration::from_millis(ms));
-}
-
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_http::init())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
-            key_video_generate,
-            key_frame_collect,
-            key_image_scale,
-            measure_image_dimensions,
-            seed_random,
-            env_delay,
-            env_current_dir,
-            env_current_exe])
-        .plugin(tauri_plugin_websocket::init())
+            key_frame_export_handler,
+            key_video_generate_handler,
+            key_image_scale_handler,
+            measure_image_handler,
+            env_current_dir_cmd,
+            env_current_exe_handler,
+            env_delay_handler,
+            seed_random_handler,
+            http_upload_handler,
+            http_download_handler,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
-// fn main() {
-//     handle_image_scale(,"/Users/hxy/Desktop/图片/2641692240020_.pic.jpg".to_string(),"/Users/hxy/Desktop/图片/2641692240020_up.pic.jpg".to_string())
-// }
+
+#[tokio::main]
+async fn main2() {
+    let mut u = url::Url::options().parse("http://192.168.50.137:8188/view").unwrap();
+    u.query_pairs_mut()
+        .append_pair("subfolder", "hxy")
+        .append_pair("filename", "image.png")
+        .append_pair("type", "input");
+
+    let config = ApiConfig {
+        method: "GET".to_string(),
+        url: u,
+        headers: vec![],
+        data: None,
+        connect_timeout: None,
+        max_redirections: None,
+    };
+
+    let run = async {
+        let resp = http_download_handler(config, PathBuf::from("/Users/hxy/Desktop/图片/reqs.png")).await.unwrap();
+    };
+    block_on(run);
+}

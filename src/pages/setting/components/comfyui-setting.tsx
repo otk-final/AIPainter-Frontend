@@ -2,8 +2,9 @@ import { Button, Input } from 'antd';
 import React, { forwardRef, useImperativeHandle, useState } from 'react'
 import TextArea from 'antd/es/input/TextArea';
 import { DeleteFilled, PlusOutlined, } from '@ant-design/icons';
-import { dialog, path } from '@tauri-apps/api';
 import { ComfyUIConfiguration, useComfyUIRepository } from '@/repository/comfyui';
+import dialog from '@tauri-apps/plugin-dialog';
+import { path } from '@tauri-apps/api';
 
 
 
@@ -36,22 +37,21 @@ const ComfyUISettingTab = forwardRef<ComfyUISettingRef, ComfyUISettingProps>((pr
         if (!selected) {
             return
         }
+        let selectedPath = selected.path
+        stateComfyui.generates[idx].name = await path.basename(selectedPath)
+        stateComfyui.generates[idx].path = selectedPath
 
-        let selectedPath = selected as string
-        stateComfyui.items[idx].name = await path.basename(selectedPath)
-        stateComfyui.items[idx].path = selectedPath
-
-        setComfyui({ ...stateComfyui, items: stateComfyui.items })
+        setComfyui({ ...stateComfyui, generates: stateComfyui.generates })
     }
 
     const handleRemoveMode = async (idx: number) => {
-        stateComfyui.items.splice(idx, 1)
-        setComfyui({ ...stateComfyui, items: stateComfyui.items })
+        stateComfyui.generates.splice(idx, 1)
+        setComfyui({ ...stateComfyui, generates: stateComfyui.generates })
     }
 
     const handleAppendMode = async () => {
-        stateComfyui.items.push({ id: 0, name: "", path: "" })
-        setComfyui({ ...stateComfyui, items: stateComfyui.items })
+        stateComfyui.generates.push({ id: 0, name: "", path: "" })
+        setComfyui({ ...stateComfyui, generates: stateComfyui.generates })
     }
 
     const handleUploadReverse = async () => {
@@ -63,8 +63,8 @@ const ComfyUISettingTab = forwardRef<ComfyUISettingRef, ComfyUISettingProps>((pr
         if (!selected) {
             return
         }
-        let selectedPath = selected as string
-        setComfyui({ ...stateComfyui, reverseWF: { id: 0, name: await path.basename(selectedPath), path: selectedPath } })
+        let selectedPath = selected.path
+        setComfyui({ ...stateComfyui, reverse: { id: 0, name: await path.basename(selectedPath), path: selectedPath } })
     }
 
     return (
@@ -72,12 +72,7 @@ const ComfyUISettingTab = forwardRef<ComfyUISettingRef, ComfyUISettingProps>((pr
             <div className='setting-section'>
                 <div className='setting-title'>ComfyUI 环境配置</div>
 
-                <div className='flexR'>
-                    <Input size="large" placeholder="http://127.0.0.1:8188" className='input-s'
-                        value={stateComfyui?.host.url}
-                        onChange={(e) => setComfyui({ ...stateComfyui, host: { ...stateComfyui.host, url: e.target.value } })}
-                    />
-                </div>
+ 
 
                 {/* <div className='flexR half-width'>
                     <div className='flexR'>
@@ -104,10 +99,10 @@ const ComfyUISettingTab = forwardRef<ComfyUISettingRef, ComfyUISettingProps>((pr
                     </div>
                 </div>
 
-                {stateComfyui?.items.map((item, idx) => {
+                {stateComfyui?.generates.map((item, idx) => {
                     return (<div className='setting-form flexR' key={idx}>
                         <Input size="large" placeholder="点击更换 workflow json 文件" className='input-s' value={item.path} readOnly onClick={() => handleUploadMode(idx)} />
-                        <Button type="primary" className="btn-primary-auto btn-primary-108" icon={<DeleteFilled />} disabled={stateComfyui.items.length === 1} onClick={() => handleRemoveMode(idx)}>删除模型</Button>
+                        <Button type="primary" className="btn-primary-auto btn-primary-108" icon={<DeleteFilled />} disabled={stateComfyui.generates.length === 1} onClick={() => handleRemoveMode(idx)}>删除模型</Button>
                     </div>)
                 })}
 
@@ -117,7 +112,7 @@ const ComfyUISettingTab = forwardRef<ComfyUISettingRef, ComfyUISettingProps>((pr
                     <div className='setting-title'>反推关键词</div>
                 </div>
                 <div className='setting-form flexR'>
-                    <Input size="large" placeholder="点击更换 workflow json 文件" className='input-s' value={stateComfyui?.reverseWF?.path} readOnly onClick={handleUploadReverse} />
+                    <Input size="large" placeholder="点击更换 workflow json 文件" className='input-s' value={stateComfyui?.reverse?.path} readOnly onClick={handleUploadReverse} />
                 </div>
             </div>
 

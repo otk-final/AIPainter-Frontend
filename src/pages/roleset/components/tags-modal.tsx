@@ -3,7 +3,7 @@ import { Modal, Tabs, TabsProps } from "antd"
 import { useMemo, useState } from "react";
 import { CustomTags, OptionalTags, CheckedTags, TagRenderType } from "./tags-item";
 import { TraitsConfig, TraitsOption, traitsConfigs } from "./traits";
-import { Actor } from "@/repository/story";
+import { Actor } from "@/repository/actor";
 
 export interface TagModalProps {
 

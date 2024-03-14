@@ -1,4 +1,5 @@
-import { fs } from "@tauri-apps/api"
+import fs from "@tauri-apps/plugin-fs";
+import { KeyFragment } from "./draft_utils";
 
 
 export interface SRTLine {
@@ -7,11 +8,6 @@ export interface SRTLine {
     end_time: number
     text: string
 }
-
-
-
-
-
 
 
 //转换为毫秒
@@ -80,4 +76,29 @@ export const formatTime = (ms: number, sep: string) => {
     // 将小时、分钟、秒、毫秒格式化为字符串
     let timeString = pad(hours) + ':' + pad(minutes) + ':' + pad(seconds) + sep + pad3(milliseconds);
     return timeString;
+}
+
+
+
+//字幕生成
+export const SRTGenerate = async (srtfile: string, fragments: KeyFragment[]) => {
+    let srts = []
+    for (let i = 0; i < fragments.length; i++) {
+        let item = fragments[i]
+        let srt = {
+            id: srts.length + 1,
+            start_time: srts.length === 0 ? 0 : srts[srts.length - 1].end_time,
+            end_time: srts.length === 0 ? (item.duration * 1) : srts[srts.length - 1].start_time + (item.duration * 1),
+            text: item.srt
+        } as SRTLine
+        srts.push(srt)
+    }
+    let strText = srts.map((item, idx) => {
+        let line =
+            (idx + 1) + "\n"
+            + formatTime(item.start_time, ",") + " --> " + formatTime(item.end_time, ",") + "\n"
+            + (item.text || '') + "\n"
+        return line
+    }).join("\n")
+    await fs.writeTextFile(srtfile, strText, { append: false })
 }

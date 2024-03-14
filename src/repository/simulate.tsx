@@ -1,10 +1,18 @@
 import { create } from "zustand"
 import { BaseRepository, delay } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
-import { event, fs, path, shell, tauri } from "@tauri-apps/api"
+
+import { path } from "@tauri-apps/api";
+import event from "@tauri-apps/api/event";
+import tauri from "@tauri-apps/api/core";
+import fs from "@tauri-apps/plugin-fs";
+import shell from "@tauri-apps/plugin-shell"
+
+
 import { KeyFrame } from "./keyframe"
-import { TTSApi } from "./tts_api"
 import { SRTLine, formatTime } from "./srt"
+import { BytedanceApi } from "@/api/bytedance_api";
+
 
 interface KeyFrameJob {
     id: number,
@@ -34,7 +42,6 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         this.payload = undefined
         this.audioPath = undefined
         this.audioRecognition = false
-        this.audioRecognitionJobId = undefined
     }
 
     // 导入视频地址
@@ -48,8 +55,6 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
     // 导出音频文字
     audioRecognition: boolean = false
-
-    audioRecognitionJobId?: string
 
 
     handleImportVideo = async (videoPath: string) => {
@@ -92,7 +97,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
     handleExportVideo = async (savePath: string) => {
         let audioPath = await this.absulotePath("audio.mp3")
-        await fs.copyFile(audioPath, savePath, { append: false })
+        await fs.copyFile(audioPath, savePath)
     }
 
     //根据帧率
@@ -180,22 +185,23 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
 
     //抽帧关键帧
-    handleCollectFrames = async (api: TTSApi) => {
+    
+    handleCollectFrames = async () => {
 
         //临时存储目录
         let framesDir = await path.join(this.repoDir, "frames")
-        await fs.createDir(framesDir, { dir: this.baseDir(), recursive: true })
+        await fs.mkdir(framesDir, { recursive: true })
         let audiosDir = await path.join(this.repoDir, "audios")
-        await fs.createDir(audiosDir, { dir: this.baseDir(), recursive: true })
+        await fs.mkdir(audiosDir, { recursive: true })
         let videosDir = await path.join(this.repoDir, "videos")
-        await fs.createDir(videosDir, { dir: this.baseDir(), recursive: true })
+        await fs.mkdir(videosDir, { recursive: true })
 
 
         //音频文件
         let exportAudioPath = await this.absulotePath("audio.mp3")
 
         //根据字幕文件抽取关键帧
-        let srtLines = await this.handleRecognitionAudio(api, exportAudioPath)
+        let srtLines = await this.handleRecognitionAudio(exportAudioPath)
 
         //关键帧参数
         let jobs = [] as KeyFrameJob[]
@@ -251,7 +257,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     }
 
     //识别音频
-    handleRecognitionAudio = async (api: TTSApi, audioPath: string) => {
+    handleRecognitionAudio = async (audioPath: string) => {
 
         //是否已经识别
         let audioRecognitionPath = await this.absulotePath("audio.json")
@@ -268,14 +274,14 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
             current: 50
         })
 
-        
+
+        let api = new BytedanceApi()
+
         //在线 生成字幕文件
         console.info("上传音频")
         let jobResp: any = await api.submitAudio(audioPath)
-        this.audioRecognitionJobId = jobResp.id
-
+        
         console.info("已提交任务：", jobResp)
-
 
         //通知进度
         await event.emit("key_frame_collect_process", {
@@ -292,7 +298,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
             //处理中
             await delay(3000)
             fatch++;
-            let respText: any = await api.queryResult(this.audioRecognitionJobId!);
+            let respText: any = await api.statusQuery(jobResp.id);
             console.info("查询任务结果：", fatch, respText)
             if (respText.code === 0) {
                 //成功
@@ -320,21 +326,13 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         })
 
         //写入文件
-        await fs.writeFile(audioRecognitionPath, JSON.stringify(audioText, null, "\t"), { append: false })
+        await fs.writeTextFile(audioRecognitionPath, JSON.stringify(audioText, null, "\t"), { append: false })
         this.audioRecognition = true
         this.sync()
 
         //提取字幕
         return audioText.utterances as SRTLine[]
     }
-
-
-    handleCollectSrtFile = async (savePath: string) => {
-        console.info(savePath)
-        await delay(3000)
-        await fs.writeTextFile(savePath, "xxx", { append: false })
-    }
-
 }
 export const useSimulateRepository = create<SimulateRepository>()(subscribeWithSelector((set, get) => new SimulateRepository("simulate.json", set, get)))
 

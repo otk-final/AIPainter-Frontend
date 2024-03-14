@@ -4,14 +4,15 @@ import './index.less'
 import { createTabs } from './data'
 import { useParams } from "umi"
 import { Header } from '@/components';
-import { useActorRepository, useChapterRepository, useScriptRepository } from '@/repository/story';
+import { useScriptRepository } from '@/repository/story';
+import { useChapterRepository } from '@/repository/chapter';
+import { useActorRepository } from '@/repository/actor';
 import MixingTab from './components/mixing';
 import DrawbatchTab from './components/drawbatch';
 import StoryboardTab from './components/storyboard';
-import { dialog, path } from '@tauri-apps/api';
-import { useTranslateRepository } from '@/repository/translate';
+import { path } from '@tauri-apps/api';
+import dialog from "@tauri-apps/plugin-dialog";
 import { useComfyUIRepository } from '@/repository/comfyui';
-import { useTTSRepository } from '@/repository/tts';
 import { useJYDraftRepository } from '@/repository/draft';
 import { Project, useProjectRepository } from '@/repository/workspace';
 
@@ -28,8 +29,6 @@ const StoryProject: React.FC<{ pid: string, project: Project }> = ({ pid, projec
 
   const draftRepo = useJYDraftRepository(state => state)
   const comfyuiRepo = useComfyUIRepository(state => state)
-  const ttsRepo = useTTSRepository(state => state)
-  const translateRepo = useTranslateRepository(state => state)
 
   //加载配置项
   useEffect(() => {
@@ -43,10 +42,8 @@ const StoryProject: React.FC<{ pid: string, project: Project }> = ({ pid, projec
       await chaptersRepo.load(pid)
 
       //系统文件加载
-      await translateRepo.load("env")
       await comfyuiRepo.load("env")
       await draftRepo.load('env')
-      await ttsRepo.load("env")
     }
 
     initializeContext().catch(err => message.error(err.message))
@@ -119,8 +116,8 @@ const StoryProject: React.FC<{ pid: string, project: Project }> = ({ pid, projec
         renderLeft={<Tabs defaultActiveKey="paint" activeKey={cur} items={tabs} onChange={(key) => setCur(key as ActionTabType)} />}
         renderRight={customButtons()}
       />
-      {cur === "storyboard" ? <StoryboardTab pid={pid} project={project}/> : null}
-      {cur === 'drawbatch' ? <DrawbatchTab pid={pid} project={project}/> : null}
+      {cur === "storyboard" ? <StoryboardTab pid={pid} project={project} /> : null}
+      {cur === 'drawbatch' ? <DrawbatchTab pid={pid} project={project} /> : null}
       {cur === 'mixing' ? <MixingTab pid={pid} project={project} /> : null}
     </div>
   );

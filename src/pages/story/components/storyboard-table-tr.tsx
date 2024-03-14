@@ -2,8 +2,8 @@ import { Button, Modal, Switch, message } from "antd"
 import { Fragment, useEffect, useState } from "react";
 import { storyboardColumns } from "../data";
 import TextArea from "antd/es/input/TextArea";
-import { Actor, Chapter, useChapterRepository } from "@/repository/story";
-import { useGPTRepository } from "@/repository/gpt";
+import { Chapter, useChapterRepository } from "@/repository/chapter";
+import { Actor, } from "@/repository/actor";
 import ButtonGroup from "antd/es/button/button-group";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 
@@ -33,9 +33,7 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
 
     //页面级状态
     const [stateChapter, setChapter] = useState<Chapter>({ ...chapter })
-
     const chapterRepo = useChapterRepository(state => state)
-    const gptRepo = useGPTRepository(state => state)
 
     useEffect(() => {
         const unsub = useChapterRepository.subscribe(
@@ -77,7 +75,7 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
                 <div className='index'>{idx + 1}</div>
                 <Button type='default' className='btn-default-auto btn-default-98' onClick={handleDelChapter} disabled={chapterRepo.items!.length === 1}>删除</Button>
                 <ButtonGroup>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleAddBeforeChapter} icon={<ArrowUpOutlined/>}>添加分镜</Button>
+                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleAddBeforeChapter} icon={<ArrowUpOutlined />}>添加分镜</Button>
                     <Button type='default' className='btn-default-auto btn-default-98' onClick={handleAddAfterChapter} icon={<ArrowDownOutlined />}>添加分镜</Button>
                 </ButtonGroup>
             </Fragment >
@@ -135,14 +133,14 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
         )
     }
 
-    const handleResloveChapter = async () => { 
+    const handleResloveChapter = async () => {
         Modal.info({
             content: <div style={{ color: '#fff' }}>推理关键词中...</div>,
             footer: null,
             mask: true,
             maskClosable: false,
         })
-        await chapterRepo.handleResolveChapter(idx, gptRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        await chapterRepo.handleResolveChapter(idx).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
     const renderOperate = () => {

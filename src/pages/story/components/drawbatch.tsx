@@ -1,14 +1,14 @@
 import DrawTableTR from "./drawbatch-table-tr"
 import { drawbatchColumns } from "../data"
 import { useEffect, useState } from "react"
-import { useActorRepository, useChapterRepository } from "@/repository/story"
+import { useChapterRepository } from "@/repository/chapter"
+import { useActorRepository } from "@/repository/actor"
 import { ComyUIModeSelect } from "@/components/mode-select"
 import { Button, InputNumber, message } from "antd"
 import { List, AutoSizer, ListRowProps } from 'react-virtualized';
 import { useComfyUIRepository } from "@/repository/comfyui"
 import HandleProcessModal from "@/components/handle-process"
 import { event } from "@tauri-apps/api"
-import { useTranslateRepository } from "@/repository/translate"
 import { Project } from "@/repository/workspace"
 
 interface DrawbatchTabProps {
@@ -21,7 +21,6 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid, project }) => {
     const chapterRepo = useChapterRepository(state => state)
     const comfyuiRepo = useComfyUIRepository(state => state)
     const actorRepo = useActorRepository(state => state)
-    const translateRepo = useTranslateRepository(state => state)
 
     const [mode, setOption] = useState<string>("")
     const [batchPos, setBatchPos] = useState<number>(1)
@@ -113,8 +112,6 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid, project }) => {
         //重置
         setProcess({ open: true, run_event: "batchGenerateImage", title: "批量生成音频..." })
 
-
-
         chapterRepo.resetBatchExit()
         await batchGenerateImage(batchPos - 1, chapterRepo.items.length).catch(err => { message.error(err.message) }).finally(destroyProcessModal)
     }
@@ -141,7 +138,7 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid, project }) => {
         })
 
         //执行任务
-        await chapterRepo.handleTranslatePrompt(next_idx, translateRepo).then(async () => {
+        await chapterRepo.handleTranslatePrompt(next_idx).then(async () => {
             if (chapterRepo.isBatchExit()) {
                 return;
             }
@@ -167,7 +164,7 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid, project }) => {
     const handleBatchScaleImage = async () => {
         setProcess({ open: true, run_event: "key_image_scale_process", exit_event: "", title: "正在高清放大..." })
         //按音频
-        await chapterRepo.batchScaleImage(batchPos - 1).catch(err => message.error(err.message)).finally(destroyProcessModal)
+        await chapterRepo.batchScaleImage(batchPos - 1, comfyuiRepo).catch(err => message.error(err.message)).finally(destroyProcessModal)
     }
 
     return (

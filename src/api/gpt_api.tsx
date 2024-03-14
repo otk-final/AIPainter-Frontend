@@ -1,18 +1,18 @@
-import { fs } from "@tauri-apps/api"
+import fs from "@tauri-apps/plugin-fs";
 import OpenAI, { toFile } from "openai"
 import { MessageContentText } from "openai/resources/beta/threads/messages/messages"
-import { delay } from "./tauri_repository"
-import { GPTRepository } from "./gpt"
+import { delay } from "../repository/tauri_repository"
+import { ClientAuthenticationStore } from ".";
 
 
 export class GPTAssistantsApi {
-
     api: OpenAI
-    threadId?: string
-    runId?: string
+    assistantId = process.env.OPENAI_ASSISTANT_ID!
+    mode = process.env.OPENAI_MODE!
 
-    constructor(host: string, apiKey: string) {
-        this.api = new OpenAI({ baseURL: host, apiKey: apiKey || "none", dangerouslyAllowBrowser: true, timeout: 60000 })
+    constructor() {
+        let { header } = ClientAuthenticationStore.getState()
+        this.api = new OpenAI({ baseURL: process.env.OPENAI_HOST, apiKey: "", defaultHeaders: { ...header }, dangerouslyAllowBrowser: true, timeout: Number(process.env.OPENAI_TIMEOUT || 60000) })
     }
 
     private retrieveMessages = async (threadId: string, runId: string) => {
@@ -53,14 +53,15 @@ export class GPTAssistantsApi {
         return chapterContents.map(text => { try { console.info("messageText", text); return JSON.parse(text) } catch (err) { return null } }).filter(item => item)
     }
 
+    //上传文件
     async fileUpload(filename: string, filepath: string): Promise<string> {
-        //上传文件
-        let scriptBytes = await fs.readBinaryFile(filepath)
-        let uploadFile = await toFile(Buffer.from(scriptBytes.buffer), filename)
+        let file = await fs.readFile(filepath)
+        let uploadFile = await toFile(Buffer.from(file.buffer), filename)
         let assistantsFile = await this.api.files.create({ purpose: 'assistants', file: uploadFile })
         return assistantsFile.id
     }
 
+    //脚本上传
     async scriptUpload(filename: string, text: string): Promise<string> {
         //上传自定义脚本
         const encoder = new TextEncoder();
@@ -70,73 +71,69 @@ export class GPTAssistantsApi {
         let assistantsFile = await this.api.files.create({ purpose: 'assistants', file: uploadFile })
         return assistantsFile.id
     }
-    //脚本分镜
-    async scriptBoarding(fileId: string, repo: GPTRepository): Promise<any[]> {
 
+
+    //脚本分镜
+    async scriptBoarding(fileId: string): Promise<any[]> {
         //重新创建 并且 启动 thread and run
         let threadRun = await this.api.beta.threads.createAndRun({
-            assistant_id: repo.assistantId!,
+            assistant_id: this.assistantId,
             thread: {
                 messages: [{
                     role: "user",
                     content: `Create a storyboard based on the script file I provide, including scene original script, scene names, character names, scene descriptions keyword . 
                     The return data format is as follows: "[{"original": "场景原始剧本","scene": "场景名称","characters": ["角色名称"],"description": "场景描述关键词"}]",
                     Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation.`,
-                    file_ids: [fileId]
+                    file_ids: fileId ? [fileId] : []
                 }]
             },
-            model: repo.mode
+            model: this.mode
         })
-        this.threadId = threadRun.thread_id
-        this.runId = threadRun.id
 
-        //数组
         return await this.retrieveMessages(threadRun.thread_id, threadRun.id)
     }
 
     //角色收集
-    async characterCollecting(fileId: string, repo: GPTRepository): Promise<any[]> {
+    async characterCollecting(fileId: string): Promise<any[]> {
         //添加分析规则
         let threadRun = await this.api.beta.threads.createAndRun({
-            assistant_id: repo.assistantId!,
+            assistant_id: this.assistantId,
             thread: {
                 messages: [{
                     role: "user",
                     content: `Analyzing all character information based on the script file I provide, including character name, character alias, and character traits.
                     The return data format is as follows:"[{"name": "角色名称","alias": "角色别名","traits": ["角色特征"]}]".
                     Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation.`,
-                    file_ids: [fileId]
+                    file_ids: fileId ? [fileId] : []
                 }]
             },
         })
-
         //检索响应
         return this.retrieveMessages(threadRun.thread_id, threadRun.id)
     }
 
     //章节独立分镜分析
-    async chapterBoarding(chapterText: string, repo: GPTRepository): Promise<string> {
+    async chapterBoarding(chapterText: string): Promise<string> {
         let resp = await this.api.chat.completions.create({
             messages: [
                 { content: chapterText, role: 'user' },
                 { content: "基于以上提供的脚本片段分析当前场景，并分析场景关键词用于stable diffusion文生图，以逗号分隔。", role: 'user' }
             ],
             stream: false,
-            model: repo.mode
+            model: this.mode
         })
         return resp.choices[0].message.content!
     }
 
     //台词重写
-    async rewritePrompt(input: string, repo: GPTRepository): Promise<string> {
+    async rewritePrompt(input: string): Promise<string> {
         let resp = await this.api.chat.completions.create({
             messages: [
                 { content: input, role: 'user' },
-                // { content: "Help me rewrite the above content while keeping the language unchanged, with a word count difference of around 10 words, and try to closely align with the original meaning.", role: 'user' }
                 { content: "帮我改写上述内容，保持语种不变，尽量贴合原文意思。", role: 'user' }
             ],
             stream: false,
-            model: repo.mode
+            model: this.mode
         })
         return resp.choices[0].message.content!
     }

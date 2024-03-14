@@ -3,12 +3,27 @@ use image::{DynamicImage, GenericImage};
 use image::imageops::interpolate_nearest;
 use imageproc::drawing::Canvas;
 use serde::{Deserialize, Serialize};
-use tauri::{Error, Window};
-use crate::cmd::{HandleProcess, POOL};
+use tauri::{Error, Manager, Window};
+use crate::execute::command::HandleProcess;
+use crate::execute::pool::POOL;
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ImageDimensions {
+    width: u32,
+    height: u32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct KeyImage {
+    id: usize,
+    scale: u32,
+    image_path: String,
+    output_name: String,
+    output_path: String,
+}
 
 //图片缩放
-pub fn handle_image_scale(factor: u32, src_path: String, out_path: String) {
+fn image_scale(factor: u32, src_path: String, out_path: String) {
     let img = image::open(src_path).unwrap();
     let (width, height) = img.dimensions();
 
@@ -29,14 +44,8 @@ pub fn handle_image_scale(factor: u32, src_path: String, out_path: String) {
 }
 
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ImageDimensions {
-    width: u32,
-    height: u32,
-}
-
 #[tauri::command]
-pub async fn measure_image_dimensions(window: Window,image_path: String) -> Result<ImageDimensions, Error> {
+pub async fn measure_image_handler(window: Window,image_path: String) -> Result<ImageDimensions, Error> {
 
     println!("开始测量图片:{}", image_path.clone());
 
@@ -46,20 +55,10 @@ pub async fn measure_image_dimensions(window: Window,image_path: String) -> Resu
 }
 
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct KeyImageScale {
-    id: usize,
-    scale: u32,
-    image_path: String,
-    output_name: String,
-    output_path: String,
-}
-
-
 #[tauri::command]
-pub async fn key_image_scale(window: Window, parameters: Vec<KeyImageScale>) -> Result<Vec<KeyImageScale>, Error> {
+pub async fn key_image_scale_handler(window: Window, parameters: Vec<KeyImage>) -> Result<Vec<KeyImage>, Error> {
     let except_count = parameters.len();
-    let (tx, rv) = channel::<KeyImageScale>();
+    let (tx, rv) = channel::<KeyImage>();
 
     //分发任务
     let _tasks = parameters
@@ -69,7 +68,7 @@ pub async fn key_image_scale(window: Window, parameters: Vec<KeyImageScale>) -> 
             let _item = item.clone();
             //独立线程
             POOL.spawn(move || {
-                let _ = handle_image_scale(_item.scale, _item.image_path, _item.output_path);
+                let _ = image_scale(_item.scale, _item.image_path, _item.output_path);
                 _tx.send(item).unwrap();
             })
         })

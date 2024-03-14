@@ -2,10 +2,10 @@ import { Button, message, Modal } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import { Fragment, useEffect, useState } from "react";
 import { drawbatchColumns } from "../data";
-import { Actor, Chapter, useActorRepository, useChapterRepository } from "@/repository/story";
+import { Chapter, useChapterRepository } from "@/repository/chapter";
+import { Actor, useActorRepository } from "@/repository/actor";
 import { useComfyUIRepository } from "@/repository/comfyui";
 import { AssetImage, ChapterHistoryImages, ModalHistoryImages } from "@/components/history-image";
-import { useTranslateRepository } from "@/repository/translate";
 import { Project } from "@/repository/workspace";
 
 interface ChapterTableTRProps {
@@ -23,7 +23,6 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ index, mode, chapter,
     const chapterRepo = useChapterRepository(state => state)
     const actorRepo = useActorRepository(state => state)
     const comfyuiRepo = useComfyUIRepository(state => state)
-    const translateRepo = useTranslateRepository(state => state)
     const [stateChapter, setChapter] = useState<Chapter>({ ...chapter })
 
     useEffect(() => {
@@ -103,7 +102,7 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ index, mode, chapter,
             mask: true,
             maskClosable: false,
         })
-        await chapterRepo.handleScaleImage(index).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        await chapterRepo.handleScaleImage(index, comfyuiRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
 
@@ -114,7 +113,7 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ index, mode, chapter,
             mask: true,
             maskClosable: false,
         })
-        await chapterRepo.handleTranslatePrompt(index, translateRepo).catch(err => message.error(err.message)).finally(Modal.destroyAll)
+        await chapterRepo.handleTranslatePrompt(index).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
 

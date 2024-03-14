@@ -4,19 +4,17 @@ import { useLogin } from '@/uses'
 import './index.less';
 import { Button, Popover } from 'antd';
 import { LoginModule, UserInfoModule, MemberRechargeModule, EnergyRechargeModule } from '@/components'
-import { UpdateStatusResult, checkUpdate, installUpdate, onUpdaterEvent } from '@tauri-apps/api/updater';
-import { relaunch } from '@tauri-apps/api/process';
+import updater from '@tauri-apps/plugin-updater';
 import assets from '@/assets';
-import { useProjectRepository } from '@/repository/workspace';
 import { LoginOutlined, UserOutlined } from '@ant-design/icons';
-import { UnlistenFn } from '@tauri-apps/api/event';
+import { BaseDirectory, exists, readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 
 export default function Layout(props: any) {
+
   let { pathname } = useLocation();
   console.info("layout", pathname)
 
   const { logout, loginState } = useLogin();
-  const projectRepo = useProjectRepository(state => state)
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
   const [isLoginOpen, setLoginOpen] = useState(false);
   const [isMemberRechargeOpen, setIsMemberRechargeOpen] = useState(false);
@@ -47,33 +45,35 @@ export default function Layout(props: any) {
     )
   }
 
+  const [updateProgress, setUpdateProgress] = useState<{ total?: number, complated?: number }>()
+  const onUpdateEvent = (progress: updater.DownloadEvent) => {
+    if (progress.event === "Started") {
+      setUpdateProgress({ total: progress.data.contentLength })
+    } else if (progress.event === "Progress") {
+      setUpdateProgress({ ...updateProgress, complated: progress.data.chunkLength })
+    } else if (progress.event === "Finished") {
+      //TODO 
+    }
+  }
 
   const withUpdateHandler = async () => {
-    const { shouldUpdate, manifest } = await checkUpdate()
-    console.info('not updated', shouldUpdate, manifest)
 
-    if (shouldUpdate) {
-      // You could show a dialog asking the user if they want to install the update here.
-      console.log(
-        `Installing update ${manifest?.version}, ${manifest?.date}, ${manifest?.body}`
-      )
-      
-      installUpdate()
+    let content = await readTextFile("sdw.txt", { baseDir: BaseDirectory.Desktop })
+    console.info(content)
+    
+    // let flag = await exists("/sd", { baseDir: BaseDirectory.Desktop })
+    // console.info(flag)
+    let flag = await exists("ss.aa", { baseDir: BaseDirectory.Desktop })
+    console.info(flag);
 
+    await writeTextFile("sdw.txt", "abcd", { baseDir: BaseDirectory.Desktop, append: true })
 
-      let unsub = await onUpdaterEvent(({ error, status }) => {
-        console.info("update", error, status)
-      })
-
-      // Install the update. This will also restart the app on Windows!
-      
-
-      // On macOS and Linux you will need to restart the app manually.
-      // You could use this step to display another confirmation dialog.
-      // await relaunch()
-    } else {
-      console.info('not updated')
-    }
+    // const update = await updater.check()
+    // if (update?.available) {
+    //   await update.downloadAndInstall(onUpdateEvent)
+    // } else {
+    //   console.info('not updated')
+    // }
   }
 
   return (

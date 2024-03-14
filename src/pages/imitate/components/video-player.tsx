@@ -1,4 +1,4 @@
-import { tauri } from "@tauri-apps/api";
+import tauri from '@tauri-apps/api/core';
 import { Modal } from "antd"
 import ReactPlayer from "react-player";
 

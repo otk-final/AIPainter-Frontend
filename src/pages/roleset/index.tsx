@@ -1,18 +1,17 @@
-import { Avatar, Button, Input, Modal } from 'antd';
+import { Avatar, Button, Input } from 'antd';
 import './index.less'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useEffect, useMemo, useState } from 'react';
-import { dialog, tauri } from '@tauri-apps/api';
+import tauri from '@tauri-apps/api/core';
 import { useParams } from "umi"
 import { Header } from '@/components';
-import { Actor, useActorRepository } from '@/repository/story';
+import { Actor, useActorRepository } from '@/repository/actor';
 import { useComfyUIRepository } from '@/repository/comfyui';
 import { v4 as uuid } from "uuid"
-import { AudioOption, DEFAULT_AUDIO_OPTION } from '@/repository/tts_api';
-import { useTTSRepository } from '@/repository/tts';
-import { useTranslateRepository } from '@/repository/translate';
+import { AudioOption, DEFAULT_AUDIO_OPTION } from '@/api/bytedance_api';
 import { TTSVoiceModal } from '@/components/voice-select';
 import { TagModal } from './components/tags-modal';
+import dialog from '@tauri-apps/plugin-dialog';
 
 
 
@@ -49,7 +48,7 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor }) => {
 
   //删除
   const handleDel = async () => {
-    let ok = await dialog.ask("确认删除角色?", { title: "删除角色?", type: "warning" })
+    let ok = await dialog.ask("确认删除角色?", { title: "删除角色?", kind: "warning" })
     if (!ok) {
       return
     }
@@ -110,16 +109,10 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
   const actorRepo = useActorRepository(state => state)
   const comfyuiRepo = useComfyUIRepository(state => state)
 
-  const ttsRepo = useTTSRepository(state => state)
-  const translateRepo = useTranslateRepository(state => state)
 
   //加载数据
   useEffect(() => {
-
     comfyuiRepo.load("env")
-    ttsRepo.load("env")
-    translateRepo.load("env")
-
     actorRepo.load(pid)
     return () => { actorRepo.sync() }
   }, [pid])

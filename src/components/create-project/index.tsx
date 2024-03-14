@@ -6,7 +6,6 @@ import { v4 as uuid } from "uuid"
 import { ProjectType } from "@/pages/index";
 import { Project, useProjectRepository } from "@/repository/workspace";
 import dayjs from "dayjs";
-import { tauri } from "@tauri-apps/api";
 
 interface ProjectProps {
     isOpen: boolean,
@@ -48,7 +47,7 @@ export const ProjectModal: React.FC<ProjectProps> = ({ isOpen, onClose, type }) 
             name: name,
             type: type,
             createTime: dayjs(new Date()).format("YYYY-MM-DD HH:mm"),
-            canvas_size: canvasMode !== "default" ? { width: canvasMode.split("x")[0], height: canvasMode.split("x")[1] } : undefined
+            dimensions: canvasMode !== "default" ? { width: canvasMode.split("x")[0], height: canvasMode.split("x")[1] } : undefined
         } as Project
         
         //创建目录

@@ -1,11 +1,13 @@
 import { Button, Divider, Input, Modal, Select, Tabs, TabsProps, message } from "antd"
 import { useState } from "react";
 import "./index.less"
-import { dialog, path } from "@tauri-apps/api";
+import { path } from "@tauri-apps/api";
 import TextArea from "antd/es/input/TextArea";
-import { Actor, BoardType, ImportType, useActorRepository, useChapterRepository, useScriptRepository } from "@/repository/story";
-import { useGPTRepository } from "@/repository/gpt";
+import { BoardType, ImportType, useScriptRepository } from "@/repository/story";
+import { Actor, useActorRepository } from "@/repository/actor";
+import { useChapterRepository } from "@/repository/chapter";
 import { v4 } from "uuid";
+import dialog from "@tauri-apps/plugin-dialog";
 
 const importTabItems: TabsProps['items'] = [
     {
@@ -37,7 +39,6 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
     const scriptRepo = useScriptRepository(state => state)
     const chapterRepo = useChapterRepository(state => state)
     const actorRepo = useActorRepository(state => state)
-    const gptRepo = useGPTRepository(state => state)
 
 
 
@@ -45,13 +46,14 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
         //选择文件
         let selected = await dialog.open({
             title: "导入脚本文件",
+            multiple: false,
             defaultPath: await path.desktopDir(),
             filters: [{ name: "文本文件", extensions: ["txt"] }, { name: "PDF文件", extensions: ["pdf"] }]
         })
         if (!selected) {
             return
         }
-        setPath(selected as string)
+        setPath(selected.path)
     }
 
 
@@ -62,7 +64,7 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
         //分镜
         let chapters = []
         if (boardType === "ai") {
-            chapters = await scriptRepo.boardWithAi(gptRepo, importType, scriptPath, scriptInput)
+            chapters = await scriptRepo.boardWithAi(importType, scriptPath, scriptInput)
         } else {
             chapters = await scriptRepo.boardWithLine(importType, scriptPath, scriptInput)
         }

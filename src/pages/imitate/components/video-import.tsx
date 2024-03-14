@@ -1,14 +1,15 @@
 import { Button, message } from 'antd';
 import React, { useState } from 'react'
 import ReactPlayer from 'react-player';
-import { dialog, tauri } from '@tauri-apps/api';
 import { ImitateTabType } from '../index';
 import VideoPlayerModal from './video-player';
 import { useSimulateRepository } from '@/repository/simulate';
 import { useKeyFrameRepository } from '@/repository/keyframe';
-import { useTTSRepository } from '@/repository/tts';
 import HandleProcessModal from '@/components/handle-process';
 import { Project } from '@/repository/workspace';
+import dialog from '@tauri-apps/plugin-dialog';
+import tauri from '@tauri-apps/api/core';
+
 
 interface VideoImportProps {
     pid: string
@@ -23,7 +24,6 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
     const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
     const simulateRepo = useSimulateRepository(state => state)
     const keyFrameRepo = useKeyFrameRepository(state => state)
-    const ttsRepo = useTTSRepository(state => state)
     const [stateProcess, setProcess] = useState<{ open: boolean, title: string, run_event?: string, exit_event?: string }>({ open: false, title: "" });
 
 
@@ -34,21 +34,21 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
     //导入
     const handleImported = async () => {
         let selected = await dialog.open({
-            title: '选择视频文件'
+            title: '选择视频文件',
+            multiple:false
         })
         if (!selected) {
             return
         }
         setProcess({ open: true, title: "正在导入视频提取音频..." })
-        await simulateRepo.handleImportVideo(selected as string).catch(err => message.error(err.message)).finally(destroyProcessModal);
+        await simulateRepo.handleImportVideo(selected.path).catch(err => message.error(err.message)).finally(destroyProcessModal);
     }
 
 
     const handleCollectFrames = async () => {
         setProcess({ open: true, run_event: "key_frame_collect_process", exit_event: "", title: "正在抽帧关键帧..." })
         //按音频
-        let api = await ttsRepo.newClient()
-        let keyFrames = await simulateRepo.handleCollectFrames(api)
+        let keyFrames = await simulateRepo.handleCollectFrames()
         await keyFrameRepo.initialization(keyFrames).then(() => { handleChangeTab("frames") }).catch(err => message.error(err.message)).finally(destroyProcessModal)
     }
 

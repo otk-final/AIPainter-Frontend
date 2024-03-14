@@ -1,6 +1,6 @@
 export const setCache = (key: string, value: any) => {
   let params: any = value;
-  if (typeof value == 'object') {
+  if (typeof value === 'object') {
     params = JSON.stringify(value);
   }
   return window.localStorage.setItem(key, params);
@@ -25,7 +25,7 @@ export const removeCache = (key: string) => {
 // 是否是 json 字符串
 function isJsonString(str: string) {
   try {
-    if (typeof JSON.parse(str) == 'object') {
+    if (typeof JSON.parse(str) === 'object') {
       return true;
     }
   } catch (e) {

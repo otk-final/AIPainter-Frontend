@@ -1,26 +1,26 @@
 import { mixingColumns } from "../data"
-import { useActorRepository, useChapterRepository } from "@/repository/story"
+import { useChapterRepository } from "@/repository/chapter"
+import { useActorRepository } from "@/repository/actor"
 import { Button, InputNumber, message } from "antd"
 import { List, AutoSizer, ListRowProps } from 'react-virtualized';
 import MixingTableTR from "./mixing-table-tr"
-import { dialog, event } from "@tauri-apps/api";
-import { SRTGenerate } from "@/repository/generate_utils";
 import { useEffect, useState } from "react";
-import { useTTSRepository } from "@/repository/tts";
 import HandleProcessModal from "@/components/handle-process";
 import { Project } from "@/repository/workspace";
 import { TTSVoiceModal } from "@/components/voice-select";
-import { AudioOption, DEFAULT_AUDIO_OPTION } from "@/repository/tts_api";
+import { AudioOption, DEFAULT_AUDIO_OPTION } from "@/api/bytedance_api";
+import dialog from "@tauri-apps/plugin-dialog";
+import { SRTGenerate } from "@/repository/srt";
+import { event } from "@tauri-apps/api";
 
 interface MixingTabProps {
     pid: string
     project: Project
 }
 
-const MixingTab: React.FC<MixingTabProps> = ({ pid, project }) => {
+const MixingTab: React.FC<MixingTabProps> = ({ pid}) => {
     console.info(pid)
     const chapterRepo = useChapterRepository(state => state)
-    const ttsRepo = useTTSRepository(state => state)
     const actorRepo = useActorRepository(state => state)
 
     //批量处理
@@ -108,7 +108,7 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid, project }) => {
         })
 
         //执行任务
-        await chapterRepo.handleGenerateAudio(next_idx, stateTTS.audio, actorRepo, ttsRepo).then(async () => {
+        await chapterRepo.handleGenerateAudio(next_idx, stateTTS.audio, actorRepo).then(async () => {
             if (chapterRepo.isBatchExit()) {
                 return;
             }

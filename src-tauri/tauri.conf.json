@@ -1,126 +1,59 @@
 {
+  "productName": "aipainter-frontend",
+  "version": "0.0.0",
+  "identifier": "com.tauri.pollyai",
   "build": {
     "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:8000",
     "beforeBuildCommand": "npm run build",
-    "devPath": "http://localhost:8000",
-    "distDir": "../dist"
+    "frontendDist": "../dist"
   },
-  "package": {
-    "productName": "aip",
-    "version": "0.0.23"
+  "app": {
+    "windows": [
+      {
+        "title": "aipainter-frontend",
+        "width": 1500,
+        "height": 860
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' asset: http://asset.localhost",
+      "assetProtocol":{
+        "enable": true,
+        "scope": ["**"]
+      }
+    }
   },
-  "tauri": {
+  "plugins": {
     "updater": {
-      "active": true,
       "endpoints": [
         "https://wx.yryz3.com/tauri-updater/check/{{target}}/{{arch}}/{{current_version}}"
       ],
       "windows": {
         "installMode": "passive"
       },
-      "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEY3OUQ4MjlDNzgyMjEzRTkKUldUcEV5SjRuSUtkOXlkTDhoQWM3WDIwSGNERlNuZFFUUjBSbUhZY29iKzRVZXpUeHdVSWRmRlMK"
-    },
-    "allowlist": {
-      "all": false,
-      "http": {
-        "all": true,
-        "request": true,
-        "scope": [
-          "http://**",
-          "https://**",
-          "ws://**",
-          "wss://**"
-        ]
-      },
-      "shell": {
-        "all": true,
-        "execute": true,
-        "sidecar": true,
-        "open": true,
-        "scope": [
-          {
-            "name": "bin/ffmpeg",
-            "args": true,
-            "sidecar": true
-          },
-          {
-            "name": "bin/ffprobe",
-            "args": true,
-            "sidecar": true
-          },
-          {
-            "name": "bin/dssim",
-            "args": true,
-            "sidecar": true
-          }
-        ]
-      },
-      "fs": {
-        "all": true,
-        "scope": [
-          "**"
-        ]
-      },
-      "path": {
-        "all": true
-      },
-      "dialog": {
-        "all": true
-      },
-      "protocol": {
-        "all": true,
-        "asset": true,
-        "assetScope": [
-          "**"
-        ]
-      },
-      "clipboard": {
-        "all": true,
-        "writeText": true,
-        "readText": true
-      }
-    },
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "com.tauri.aip",
-      "icon": [
-        "icons.iconset/icon_16x16.png",
-        "icons.iconset/icon_16x16@2x.png",
-        "icons.iconset/icon_32x32.png",
-        "icons.iconset/icon_32x32@2x.png",
-        "icons.iconset/icon_128x128.png",
-        "icons.iconset/icon_128x128@2x.png",
-        "icons.iconset/icon_256x256.png",
-        "icons.iconset/icon_256x256@2x.png",
-        "icons.iconset/icon_512x512.png",
-        "icons.iconset/icon_512x512@2x.png",
-        "icons.iconset/icon.icns",
-        "icons.iconset/icon.ico"
-      ],
-      "externalBin": [
-        "bin/ffmpeg",
-        "bin/ffprobe",
-        "bin/dssim"
-      ],
-      "resources":[
-        "resources/**"
-      ]
-    },
-    "security": {
-      "csp": null
-    },
-    "windows": [
-      {
-        "decorations": true,
-        "fullscreen": false,
-        "resizable": true,
-        "title": "鹦鹉智绘-0.0.23",
-        "center": true,
-        "minWidth": 1500,
-        "minHeight": 860
-      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/icon_16x16.png",
+      "icons/icon_16x16@2x.png",
+      "icons/icon_32x32.png",
+      "icons/icon_32x32@2x.png",
+      "icons/icon_128x128.png",
+      "icons/icon_128x128@2x.png",
+      "icons/icon_256x256.png",
+      "icons/icon_256x256@2x.png",
+      "icons/icon_512x512.png",
+      "icons/icon_512x512@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "externalBin":[
+      "bin/ffmpeg"
     ]
   }
 }

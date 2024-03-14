@@ -2,9 +2,9 @@ import { CaretDownFilled, CaretUpFilled, CloseOutlined } from "@ant-design/icons
 import { Button, Input, message, Modal } from "antd"
 import { useEffect, useState } from "react"
 import { TraitsConfig, TraitsOption } from "./traits"
-import { tauri } from "@tauri-apps/api"
+import tauri from "@tauri-apps/api/core"
 import { useComfyUIRepository } from "@/repository/comfyui"
-import { useActorRepository } from "@/repository/story"
+import { useActorRepository } from "@/repository/actor"
 
 export type TagRenderType = "text" | "image"
 export type TagLangType = "en" | "cn"
@@ -167,6 +167,17 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ tags, image, handleChe
         }
     }, [image])
 
+    const handleGeneratePreviewRender = async (tags: TraitsOption[]) => {
+        //生图
+        let actor_path = await actorRepo.handleGenerateImage(tags, comfyuiRepo)
+        setPath(actor_path)
+
+        //渲染
+        let abs_path = await actorRepo.absulotePath(actor_path)
+        setPreviewPath(abs_path)
+        setPreview(true)
+    }
+    
     //生成图片
     const handleGeneratePreview = async () => {
         if (!tags || tags.length === 0) {
@@ -182,16 +193,7 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ tags, image, handleChe
         await handleGeneratePreviewRender(tags).catch(err => message.error(err.message)).finally(Modal.destroyAll)
     }
 
-    const handleGeneratePreviewRender = async (tags: TraitsOption[]) => {
-        //生图
-        let actor_path = await actorRepo.handleGenerateImage(tags, comfyuiRepo)
-        setPath(actor_path)
 
-        //渲染
-        let abs_path = await actorRepo.absulotePath(actor_path)
-        setPreviewPath(abs_path)
-        setPreview(true)
-    }
 
 
     //保存数据

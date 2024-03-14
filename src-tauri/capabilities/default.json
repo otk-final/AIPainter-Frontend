@@ -1,0 +1,66 @@
+{
+  "$schema": "../schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "path:default",
+    "event:default",
+    "window:default",
+    "app:default",
+    "image:default",
+    "resources:default",
+    "menu:default",
+    "tray:default",
+    "shell:allow-open",
+    "shell:allow-execute",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "bin/ffmpeg",
+          "args": true,
+          "sidecar": true
+        },
+        {
+          "name": "bin/dssim",
+          "args": true,
+          "sidecar": true
+        }
+      ]
+    },
+    "updater:allow-check",
+    "updater:default",
+    "http:default",
+    {
+      "identifier": "http:default",
+      "allow": [
+        {
+          "url": "*://*/*"
+        }
+      ]
+    },
+    "fs:default",
+    "fs:read-all",
+    "fs:read-dirs",
+    "fs:read-files",
+    "fs:read-meta",
+    "fs:write-all",
+    "fs:write-files",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        {
+          "path": "**"
+        }
+      ]
+    },
+    "dialog:allow-confirm",
+    "dialog:allow-ask",
+    "dialog:allow-message",
+    "dialog:allow-open",
+    "dialog:allow-save"
+  ]
+}

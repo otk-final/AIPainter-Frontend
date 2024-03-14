@@ -1,79 +1,58 @@
 import { subscribeWithSelector } from "zustand/middleware";
-import { BaseCRUDRepository, trimApiHost } from "./tauri_repository";
+import { BaseRepository } from "./tauri_repository";
 import { create } from "zustand";
-import { ComfyUIApi, ComfyUIHost, ComfyUIWorkflow } from "./comfyui_api";
-import { fs } from "@tauri-apps/api";
+import { ApiPrompt, ComfyUIApi, ComfyUIImageDimensions, ComfyUIImageLocation, ComfyUIWorkflow, Text2ImageHandle, Text2ImageParams } from "../api/comfyui_api";
+import fs from "@tauri-apps/plugin-fs";
+import tauri from "@tauri-apps/api/core"
 
-let _baseApi: ComfyUIApi | undefined = undefined
-// let _basePipe: ComfyUIPipe | undefined = undefined
+export interface KeyImage {
+    id: number,
+    scale: number,
+    image_path: string,
+    output_name: string,
+    output_path: string,
+}
 
 export interface ComfyUIConfiguration {
-    host: ComfyUIHost
-    reverseWF?: ComfyUIWorkflow
-    items: ComfyUIWorkflow[]
+    //反推流程
+    reverse?: ComfyUIWorkflow
+    //生成流程
+    generates: ComfyUIWorkflow[]
+
     positivePrompt: string
     negativePrompt: string
     sensitivePrompt: string
 }
 
 
-
-
 //ComfyUI 配置
-export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, ComfyUIRepository> implements ComfyUIConfiguration {
-
-    free() {
-
-    }
-    host: ComfyUIHost = {
-        url: "http://127.0.0.1:8188",
-        websocket: "ws://127.0.0.1:8188/ws",
-    }
-    reverseWF?: ComfyUIWorkflow
-    positivePrompt: string = ""
-    negativePrompt: string = ""
-    sensitivePrompt: string = ""
-
-    newClient = async () => {
-        this.destroyClient()
-
-        let newClientId = "test"
-        let authorization = "test"
-        //api
-        if (!_baseApi) {
-            _baseApi = new ComfyUIApi(trimApiHost(this.host.url), newClientId, authorization)
-        }
-        await _baseApi.connect()
-
-        //pipe
-        // if (!_basePipe) {
-        //     _basePipe = new ComfyUIPipe(_baseApi)
-        // }
-        // await _basePipe.connect(this.host, newClientId, authorization)
-
-        return _baseApi
+export class ComfyUIRepository extends BaseRepository<ComfyUIRepository> implements ComfyUIConfiguration {
+    
+    protected free(): void {
+        throw new Error("Method not implemented.");
     }
 
-    destroyClient = () => {
-        if (_baseApi) {
-            _baseApi.disconnect()
-        }
-        _baseApi = undefined
-
-        // if (_basePipe) {
-        //     _basePipe.disconnect()
-        // }
-        // _basePipe = undefined
-    }
+    reverse?: ComfyUIWorkflow
+    generates = [] as ComfyUIWorkflow[]
+    positivePrompt = ""
+    negativePrompt = ""
+    sensitivePrompt = ""
 
     buildModePrompt = async (mode: string) => {
-        let modeApi = this.items.find(item => item.name === mode)
-        let wfText = await fs.readTextFile(modeApi!.path)
+        let modeApi = this.generates.find(item => item.name === mode)
+        if (!modeApi) {
+            throw new Error("not found image generate script")
+        }
+        let wfText = await fs.readTextFile(modeApi.path)
         return JSON.parse(wfText)
     }
 
     buildReversePrompt = async () => {
-        let wfText = await fs.readTextFile(this.reverseWF!.path)
+        if (!this.reverse){
+            throw new Error("not found image reverse script")
+        }
+
+        let wfText = await fs.readTextFile(this.reverse.path)
         return JSON.parse(wfText)
     }
 
@@ -92,6 +71,40 @@ export class ComfyUIRepository extends BaseCRUDRepository<ComfyUIWorkflow, Comfy
         }
         return this.sensitivePromptsFilter(prompts.split(",")).join(",")
     }
+
+    //生成图片
+    generateImage = async (script: ApiPrompt, prompt: string, dimensions?: ComfyUIImageDimensions, location?: ComfyUIImageLocation) => {
+        let api = new ComfyUIApi()
+
+        //对输入提示词做敏感词过滤
+        let inputPrompt = this.sensitivePromptTextFilter(prompt)
+
+        //生成随机值
+        let seed: number = await tauri.invoke('seed_random', {})
+
+        let parms = {
+            seed: seed,
+            positive: [this.positivePrompt, inputPrompt].join(""),
+            negative: this.negativePrompt || "",
+            image_dimensions: dimensions,
+            image_location: location,
+        } as Text2ImageParams
+
+        //add prompt task
+        let { promptId, promptResult } = await api.prompt(script, parms, Text2ImageHandle)
+
+        //获取 当前流程中 输出图片节点位置
+        let step = script.getOutputImageStep()
+
+        //返回文件路径
+        return promptResult[promptId]!.outputs![step].images as ComfyUIImageLocation[]
+    }
+
+    //放大图片
+    scaleImage = async (images: KeyImage[]) => {
+        return await tauri.invoke('key_image_scale_handler', { parameters: images }) as KeyImage[]
+    }
+
 }
 
 export const useComfyUIRepository = create<ComfyUIRepository>()(subscribeWithSelector((set, get) => new ComfyUIRepository("comfyui.json", set, get)))

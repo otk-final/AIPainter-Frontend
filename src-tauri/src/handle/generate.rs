@@ -1,10 +1,12 @@
 use std::collections::HashMap;
+use std::sync::Arc;
 use std::sync::mpsc::{channel};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
-use tauri::{Error, Window};
-use crate::cmd::{execute, HandleProcess, POOL};
-
+use tauri::{Error, Manager, Window, window};
+use tauri_plugin_shell::ShellExt;
+use crate::execute::command::{execute, HandleProcess};
+use crate::execute::pool::POOL;
 
 //滤镜
 lazy_static! {
@@ -34,16 +36,14 @@ pub struct KeyFragmentEffect {
 
 //并发处理生成视频
 #[tauri::command]
-pub async fn key_video_generate(window: Window, parameters: Vec<KeyFragment>) -> Result<Vec<KeyFragment>, Error> {
+pub async fn key_video_generate_handler(window: Window, parameters: Vec<KeyFragment>) -> Result<Vec<KeyFragment>, Error> {
     let except_count = parameters.len();
     let (tx, rv) = channel::<KeyFragment>();
-
     //分发任务
     let _tasks = parameters
         .into_iter()
         .map(move |item| {
             let _tx = tx.clone();
-            let name = item.id.to_string();
             let effect = EFFECT_DIRECTION.get(item.effect.orientation.as_str()).unwrap();
 
             //参数
@@ -56,9 +56,10 @@ pub async fn key_video_generate(window: Window, parameters: Vec<KeyFragment>) ->
             ].iter().map(|item| { item.to_string() }).collect();
 
             let _item = item.clone();
+
             //独立线程
             POOL.spawn(move || {
-                let _ = execute(name, String::from("ffmpeg"), args, item);
+                let _ = execute("ffmpeg", args, item);
                 _tx.send(_item).unwrap();
             })
         })
@@ -66,12 +67,11 @@ pub async fn key_video_generate(window: Window, parameters: Vec<KeyFragment>) ->
 
     //主线程同步监听消息
     let mut out = vec![];
+
     for msg in rv {
         out.push(msg.clone());
-
         //通知前端进度
-        window.emit("key_audio_generate_process", HandleProcess { title: "生成视频".to_string(), except: except_count, completed: out.len(), current: msg.clone() }).expect("send err");
-
+        window.emit(&"key_audio_generate_process", HandleProcess { title: "生成视频".to_string(), except: except_count, completed: out.len(), current: msg.clone() }).expect("send err");
         //所有任务完成退出
         if out.len() == except_count { break; }
     }

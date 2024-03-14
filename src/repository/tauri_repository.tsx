@@ -1,5 +1,7 @@
-import { dialog, event, fs, path, tauri, } from "@tauri-apps/api"
-import { BaseDirectory } from "@tauri-apps/api/fs"
+import { path } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api/core";
+import { BaseDirectory } from "@tauri-apps/api/path";
+import { exists, mkdir, readTextFile, writeFile, writeTextFile } from "@tauri-apps/plugin-fs";
 
 
 export const trimApiHost = (host: string) => {
@@ -17,11 +19,14 @@ export interface TauriRepo {
     absulotePath: (assetPath: string) => Promise<string>
 }
 
+const RepoDirectory = BaseDirectory.Resource
 
 export abstract class BaseRepository<T> implements TauriRepo {
 
     setHold: (T: any, noshallow?: boolean) => void
     getHold: () => T
+
+
     constructor(repo: string, set: (T: any, noshallow?: boolean) => void, get: () => T) {
         this.setHold = set
         this.getHold = get
@@ -34,10 +39,8 @@ export abstract class BaseRepository<T> implements TauriRepo {
 
     protected abstract free(): void
 
-    //基础目录
-    baseDir(): BaseDirectory {
-        return BaseDirectory.Resource
-    }
+
+
     basePath = async () => {
         let base_path = await path.resourceDir()
         //兼容 windows 路径 \\?\
@@ -45,33 +48,29 @@ export abstract class BaseRepository<T> implements TauriRepo {
     }
 
     load = async (repoDir: string) => {
-        this.free()
-
-        console.info('runtime dir', await this.basePath())
         this.repoDir = repoDir
+        
 
-        //目录是否存在
-        if (!await fs.exists(this.repoDir, { dir: this.baseDir() })) {
+        // 目录是否存在
+        if (!await exists(this.repoDir, { baseDir: RepoDirectory })) {
             //创建空项目
-            await fs.createDir(this.repoDir, { dir: this.baseDir(), recursive: true })
+            await mkdir(this.repoDir, { baseDir: RepoDirectory, recursive: true })
             this.setHold(this, true)
             return
         }
 
-
         let filePath = this.repoDir + path.sep + this.repo
         console.info('load script', filePath)
 
-        //文件是否存在
-        if (!await fs.exists(filePath, { dir: this.baseDir() })) {
+        // 文件是否存在
+        if (!await exists(filePath, { baseDir: RepoDirectory })) {
             this.setHold(this, true)
             return
         }
 
         //read file
-        let text = await fs.readTextFile(filePath, { dir: this.baseDir(), append: false })
+        let text = await readTextFile(filePath, { baseDir: RepoDirectory })
         let thisData = JSON.parse(text) as Partial<T>
-
 
         //属性赋值
         Object.assign(this, thisData)
@@ -79,7 +78,6 @@ export abstract class BaseRepository<T> implements TauriRepo {
         //初始化状态
         this.setHold({ ...thisData })
     }
-
 
 
     reload = async (thisData: Partial<T>) => {
@@ -111,28 +109,27 @@ export abstract class BaseRepository<T> implements TauriRepo {
         let that = { ...this }
 
         //创建目录
-        await fs.createDir(this.repoDir, { dir: this.baseDir(), recursive: true })
+        await mkdir(this.repoDir, { baseDir: RepoDirectory, recursive: true })
         let filePath = this.repoDir + path.sep + this.repo
 
         console.info("save script", filePath, that)
         // save file
-        await fs.writeFile(filePath, JSON.stringify(that, null, "\t"), { dir: this.baseDir(), append: false })
+        await writeTextFile(filePath, JSON.stringify(that, null, "\t"), { baseDir: RepoDirectory, append: false })
     }
 
     saveFile = async (subfolder: string, filename: string, fileBuffer: ArrayBuffer) => {
 
         //目录
         let outputDir = await path.join(this.repoDir as string, subfolder)
-        await fs.createDir(outputDir, { dir: this.baseDir(), recursive: true })
+        await mkdir(outputDir, { baseDir: RepoDirectory, recursive: true })
 
         //文件
         let newFilePath = await path.join(outputDir, filename)
-        await fs.writeBinaryFile(newFilePath, fileBuffer, { dir: this.baseDir(), append: false })
+        await writeFile(newFilePath, new Uint8Array(fileBuffer), { baseDir: RepoDirectory, append: false })
 
         //返回相对路径
         return subfolder + path.sep + filename
     }
-
 
     absulotePath = async (assetPath: string) => {
         return await path.join(await this.basePath(), this.repoDir, assetPath)
@@ -140,8 +137,9 @@ export abstract class BaseRepository<T> implements TauriRepo {
 }
 
 export const delay = async (ms: number) => {
-    await tauri.invoke("env_delay", { ms: ms });
+    await invoke("env_delay", { ms: ms });
 }
+
 
 export interface ItemIdentifiable {
     id: any
