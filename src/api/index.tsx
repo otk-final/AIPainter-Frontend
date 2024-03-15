@@ -1,4 +1,4 @@
-import { BaseDirectory, exists, mkdir, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
+import { BaseDirectory, exists, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { hostname, platform, type, version } from "@tauri-apps/plugin-os";
 import axios, { InternalAxiosRequestConfig } from "axios";
 import { createStore } from "zustand";
@@ -52,10 +52,11 @@ export const ClientAuthenticationStore = createStore<ClientAuthorization>((set, 
             "x-dev-version": await version(),
         } as any
 
-        //读取文件
-        let exist = await exists(".pollyai/.author.json", { baseDir: BaseDirectory.Home })
+
+        //追加认证信息
+        let exist = await exists(process.env.APP_ID + "/author.json", { baseDir: BaseDirectory.Home })
         if (exist) {
-            let jwtText = await readTextFile(".pollyai/.author.json", { baseDir: BaseDirectory.Home })
+            let jwtText = await readTextFile(process.env.APP_ID + "/author.json", { baseDir: BaseDirectory.Home })
             let userAuthor = JSON.parse(jwtText) as UserAuthorization
             header["x-user-id"] = userAuthor.principal.id
             header["x-user-type"] = userAuthor.principal.type
@@ -68,16 +69,17 @@ export const ClientAuthenticationStore = createStore<ClientAuthorization>((set, 
 
     refresh: async (newAuthor: UserAuthorization) => {
 
-        //创建目录
-        await mkdir(".pollyai", { baseDir: BaseDirectory.Home, recursive: true })
-
         //保存登陆信息
-        await writeTextFile(".pollyai/.author.json", JSON.stringify(newAuthor), { baseDir: BaseDirectory.Home, append: false })
+        await writeTextFile(process.env.APP_ID + "/author.json", JSON.stringify(newAuthor), { baseDir: BaseDirectory.Home, append: false })
 
-        //更新accessToken
+        //更新accessToken 和用户信息
         let { header } = get()
-        header = { ...header, Authentication: newAuthor.tokenType + " " + newAuthor.accessToken }
-
+        header = {
+            ...header,
+            "x-user-id": newAuthor.principal.id,
+            "x-user-type": newAuthor.principal.type,
+            Authentication: newAuthor.tokenType + " " + newAuthor.accessToken
+        }
         set({ header: { ...header }, user: newAuthor.principal })
     }
 }))
@@ -92,20 +94,26 @@ const requestHeaderInterceptor = (config: InternalAxiosRequestConfig<any>) => {
     Object.keys(header).forEach(key => {
         config.headers[key] = header[key]
     })
+
     return config;
 }
 
 export const AuthClient = axios.create({
     baseURL: process.env.AUTH_HOST,
     headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: "Basic " + process.env.AUTH_CLIENT_BASIC
+        //认证统一使用form提交
+        'Content-Type': 'application/x-www-form-urlencoded'
     },
     timeout: Number(process.env.AUTH_TIMEOUT || 60000),
     withCredentials: false
 })
-AuthClient.interceptors.request.use(requestHeaderInterceptor)
 
+AuthClient.interceptors.request.use((config) => {
+    //覆盖Authorization 使用 Basic 认证
+    let baseConfig = requestHeaderInterceptor(config)
+    baseConfig.headers.Authorization = "Basic " + process.env.AUTH_CLIENT_BASIC
+    return baseConfig;
+})
 
 export const DefaultClient = axios.create({
     baseURL: process.env.DEFAULT_HOST,
