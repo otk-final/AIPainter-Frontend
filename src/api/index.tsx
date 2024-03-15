@@ -1,18 +1,18 @@
-import { BaseDirectory, exists, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
+import { BaseDirectory, exists, mkdir, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { hostname, platform, type, version } from "@tauri-apps/plugin-os";
 import axios, { InternalAxiosRequestConfig } from "axios";
 import { createStore } from "zustand";
 
 
 
-export interface ClientAuthentication {
+export interface ClientAuthorization {
     header: any
     user?: UserPrincipal
     init: () => Promise<void>
-    refresh: (author: UserAuthentication) => Promise<void>
+    refresh: (author: UserAuthorization) => Promise<void>
 }
 
-export interface UserAuthentication {
+export interface UserAuthorization {
     accessToken: string
     accessExpiresIn: number,
     refreshToken: string,
@@ -30,7 +30,7 @@ export interface UserPrincipal {
 }
 
 
-export const ClientAuthenticationStore = createStore<ClientAuthentication>((set, get) => ({
+export const ClientAuthenticationStore = createStore<ClientAuthorization>((set, get) => ({
 
     header: {
         //应用信息
@@ -56,25 +56,29 @@ export const ClientAuthenticationStore = createStore<ClientAuthentication>((set,
         let exist = await exists(".pollyai/.author.json", { baseDir: BaseDirectory.Home })
         if (exist) {
             let jwtText = await readTextFile(".pollyai/.author.json", { baseDir: BaseDirectory.Home })
-            let userAuthor = JSON.parse(jwtText) as UserAuthentication
+            let userAuthor = JSON.parse(jwtText) as UserAuthorization
             header["x-user-id"] = userAuthor.principal.id
             header["x-user-type"] = userAuthor.principal.type
-            header["Authentication"] = userAuthor.accessToken
+            header["Authorization"] = userAuthor.tokenType + " " + userAuthor.accessToken
             set({ header: header, user: userAuthor.principal })
         } else {
             set({ header: header })
         }
     },
 
-    refresh: async (author: UserAuthentication) => {
+    refresh: async (newAuthor: UserAuthorization) => {
+
+        //创建目录
+        await mkdir(".pollyai", { baseDir: BaseDirectory.Home, recursive: true })
+
         //保存登陆信息
-        await writeTextFile(".pollyai/.author.json", JSON.stringify(author), { baseDir: BaseDirectory.Home, append: false })
+        await writeTextFile(".pollyai/.author.json", JSON.stringify(newAuthor), { baseDir: BaseDirectory.Home, append: false })
 
         //更新accessToken
         let { header } = get()
-        header = { ...header, Authentication: author.accessToken }
+        header = { ...header, Authentication: newAuthor.tokenType + " " + newAuthor.accessToken }
 
-        set({ header: { ...header }, user: author.principal })
+        set({ header: { ...header }, user: newAuthor.principal })
     }
 }))
 
@@ -101,6 +105,20 @@ export const AuthClient = axios.create({
     withCredentials: false
 })
 AuthClient.interceptors.request.use(requestHeaderInterceptor)
+
+
+export const DefaultClient = axios.create({
+    baseURL: process.env.DEFAULT_HOST,
+    headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        Authorization: "Basic " + process.env.AUTH_CLIENT_BASIC
+    },
+    timeout: Number(process.env.DEFAULT_TIMEOUT || 60000),
+    withCredentials: false
+})
+DefaultClient.interceptors.request.use(requestHeaderInterceptor)
+
+
 
 export const BaiduClient = axios.create({
     baseURL: process.env.BAIDU_HOST,

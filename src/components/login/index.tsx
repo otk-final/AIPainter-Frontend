@@ -2,7 +2,7 @@ import { useLogin } from "@/uses";
 import { Button, Input, InputNumber, message, Modal } from "antd"
 import { useEffect, useRef, useState } from "react";
 import "./index.less"
-import { AuthClient } from "@/api";
+import { AuthClient, ClientAuthenticationStore, DefaultClient, UserAuthorization } from "@/api";
 
 interface LoginModuleProps {
     isOpen: boolean,
@@ -34,15 +34,21 @@ const LoginModule: React.FC<LoginModuleProps> = ({ isOpen, onClose }) => {
     }, [count])
 
 
-    const handleGetVerifyCode = () => {
+    const handleGetVerifyCode = async () => {
         if (count) return;
         if (!/^[0-9]{11}$/.test(phone)) {
             message.error('请填写正确手机号');
             return;
         }
+
+        //发生验证码
+        let resp = await DefaultClient.post('/pb/user/login/sendCode', { key: "+86", value: phone }).then(resp => resp.data)
+        console.info(resp)
+
         setCount(initSecond)
     }
 
+    let { refresh } = ClientAuthenticationStore.getState()
     const handleSumbit = async () => {
         if (!phone) {
             return message.error('请填写正确手机号');
@@ -50,15 +56,6 @@ const LoginModule: React.FC<LoginModuleProps> = ({ isOpen, onClose }) => {
         if (!verify) {
             return message.error('请填写验证码');
         }
-        let res = {
-            isLogin: true,
-            nickName: "用户001",
-            inviteCode: "wuioOO",
-            endTime: '2024-01-26',
-            phone: phone
-        }
-        // login(res);
-
 
         //认证
         let resp = await AuthClient.post('/oauth2/token', {
@@ -66,9 +63,19 @@ const LoginModule: React.FC<LoginModuleProps> = ({ isOpen, onClose }) => {
             phone: phone,
             smsCode: verify
         }).then(resp => resp.data)
+        let author = resp.data as UserAuthorization
 
-        
+        //存储认证信息
+        await refresh(author)
 
+        //添加用户信息
+        login({
+            isLogin: true,
+            nickName: author.principal.name,
+            inviteCode: author.principal.profile["inviteCode"],
+            endTime: author.principal.profile["vipExpiredTime"],
+            phone: phone
+        });
 
         onClose();
     }

@@ -32,6 +32,7 @@ export default defineConfig({
   define: {
     "process.env.TENANT_ID": process.env.TENANT_ID,
     "process.env.APP_ID": process.env.APP_ID,
+    "process.env.DEFAULT_HOST": process.env.DEFAULT_HOST,
     "process.env.BAIDU_HOST": process.env.BAIDU_HOST,
     "process.env.BYTEDANCE_HOST": process.env.BYTEDANCE_HOST,
     "process.env.BYTEDANCE_APP_ID": process.env.BYTEDANCE_APP_ID,

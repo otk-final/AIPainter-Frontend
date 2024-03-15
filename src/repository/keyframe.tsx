@@ -7,13 +7,12 @@ import { v4 as uuid } from "uuid"
 import { JYDraftExport, KeyFragment, KeyFragmentEffect } from "./draft_utils"
 import { JYDraftRepository } from "./draft"
 import { AudioOption, BytedanceApi } from "../api/bytedance_api"
-
 import { path } from "@tauri-apps/api";
-import tauri from "@tauri-apps/api/core";
-import fs from "@tauri-apps/plugin-fs";
 import { GPTAssistantsApi } from "@/api/gpt_api"
 import { SRTGenerate } from "./srt"
 import { ConcatFragments } from "./video"
+import { invoke } from "@tauri-apps/api/core"
+import { mkdir } from "@tauri-apps/plugin-fs"
 
 
 export interface KeyFrame extends ItemIdentifiable {
@@ -109,7 +108,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
             })
         }
 
-        let results =  await tauri.invoke('key_image_scale_handler', { parameters: scaleArray }) as KeyImage[]
+        let results = await invoke('key_image_scale_handler', { parameters: scaleArray }) as KeyImage[]
 
         //替换数据
         for (let i = 0; i < results.length; i++) {
@@ -137,7 +136,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         } as KeyImage
 
 
-        let results = await tauri.invoke('key_image_scale_handler', { parameters: [arg] }) as KeyImage[]
+        let results = await invoke('key_image_scale_handler', { parameters: [arg] }) as KeyImage[]
         this.items[index].image.path = results[0].output_name
 
         this.sync()
@@ -228,7 +227,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         //记录时长
         this.items[index].srt_rewrite_duration = resp.duration
         this.items[index].srt_rewrite_audio_path = audioPath
-        
+
         this.sync()
         return audioPath
     }
@@ -239,7 +238,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
         //临时存储目录
         let videoDir = await path.join(this.repoDir, "temp-videos")
-        await fs.mkdir(videoDir, { recursive: true })
+        await mkdir(videoDir, { recursive: true })
 
         //参数
         let videoPath = "temp-videos" + path.sep() + item.name + "-" + uuid() + ".mp4";
@@ -250,7 +249,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         fragment.effect.orientation = settingRepo.formatEffectOrientation(fragment.effect.orientation);
 
         //图片+音频 合成视频
-        let outputs = await tauri.invoke("key_video_generate", { parameters: [fragment] })
+        let outputs = await invoke("key_video_generate", { parameters: [fragment] })
         console.info("outputs", outputs);
 
         //更新
@@ -323,7 +322,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
 
 
         //根据第一张图确认导出尺寸
-        let { width, height } = await tauri.invoke("measure_image_dimensions", { imagePath: fragments[0].image_path }) as ComfyUIImageDimensions
+        let { width, height } = await invoke("measure_image_dimensions", { imagePath: fragments[0].image_path }) as ComfyUIImageDimensions
 
         //参数
         let param = {
