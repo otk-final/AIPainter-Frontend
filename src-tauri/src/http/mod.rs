@@ -1,5 +1,5 @@
 use std::time::Duration;
-use reqwest::{Method, RequestBuilder};
+use reqwest::{Method, RequestBuilder, StatusCode};
 use reqwest::redirect::Policy;
 use serde::{Deserialize, Serialize};
 
@@ -10,14 +10,19 @@ pub mod download;
 pub struct ApiConfig {
     pub method: String,
     pub url: url::Url,
-    pub headers: serde_json::Map<String,serde_json::Value>,
+    pub headers: serde_json::Map<String, serde_json::Value>,
     pub data: Option<Vec<u8>>,
     pub connect_timeout: Option<u64>,
     pub max_redirections: Option<usize>,
 }
 
-fn build_request(client: ApiConfig) -> RequestBuilder {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ApiErr {
+    pub status: u16,
+    pub status_text: String,
+}
 
+fn build_request(client: ApiConfig) -> RequestBuilder {
     let mut builder = reqwest::ClientBuilder::new();
     let ApiConfig {
         method,

@@ -1,8 +1,10 @@
 use std::borrow::Cow;
 use std::path::PathBuf;
+use std::sync::Arc;
 use reqwest::multipart::Part;
 use serde::{Deserialize, Deserializer, Serialize};
-use crate::http::{ApiConfig, build_request};
+use tauri::Error;
+use crate::http::{ApiConfig, ApiErr, build_request};
 
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -14,7 +16,7 @@ pub struct UploadParameter {
 }
 
 #[tauri::command]
-pub async fn http_upload_multipart_handler(client: ApiConfig, parameter: UploadParameter) -> tauri_plugin_http::Result<tauri::ipc::Response> {
+pub async fn http_upload_multipart_handler(client: ApiConfig, parameter: UploadParameter) -> Result<String,ApiErr> {
     let file_path = parameter.file_path;
     let file_name = parameter.file_name;
     let file_part = parameter.file_part.unwrap_or(String::from("file"));
@@ -38,14 +40,19 @@ pub async fn http_upload_multipart_handler(client: ApiConfig, parameter: UploadP
     let request = build_request(client);
 
     //封装响应
-    let res = request.multipart(form).send().await?;
-    println!("Status: {}", res.text().await.unwrap());
-    Ok(tauri::ipc::Response::new(vec![]))
+    let res = request.multipart(form).send().await.unwrap();
+    let res_code = res.status();
+    let res_text = res.text().await.unwrap();
+    if res_code.is_success(){
+        Ok(res_text)
+    }else {
+        Err(ApiErr{status: u16::from(res_code), status_text:res_text})
+    }
 }
 
 
 #[tauri::command]
-pub async fn http_upload_handler(mut client: ApiConfig, file_path: String) -> tauri_plugin_http::Result<tauri::ipc::Response> {
+pub async fn http_upload_handler(mut client: ApiConfig, file_path: String) -> Result<String,ApiErr> {
 
     //读取本地文件，进行上传
     let file_byte = std::fs::read(file_path).unwrap();
@@ -55,9 +62,14 @@ pub async fn http_upload_handler(mut client: ApiConfig, file_path: String) -> ta
     let request = build_request(client);
 
     //封装响应
-    let res = request.send().await?;
-    println!("Status: {}", res.text().await.unwrap());
-    Ok(tauri::ipc::Response::new(vec![]))
+    let res = request.send().await.unwrap();
+    let res_code = res.status();
+    let res_text = res.text().await.unwrap();
+    if res_code.is_success(){
+        Ok(res_text)
+    }else {
+        Err(ApiErr{status: u16::from(res_code), status_text:res_text})
+    }
 }
 
 
