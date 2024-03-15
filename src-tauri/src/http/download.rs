@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::fs::{create_dir_all, File};
 use std::io::{Write};
 use std::path::PathBuf;
 use crate::http::{ApiConfig, build_request};
@@ -10,6 +10,9 @@ pub async fn http_download_handler(client: ApiConfig, file_path: PathBuf) -> tau
     let res = request.send().await?;
 
     println!("{}",file_path.to_str().unwrap());
+
+    //创建上级目录
+    create_dir_all(file_path.parent().unwrap())?;
 
     //后置处理
     let mut resp_bytes;
