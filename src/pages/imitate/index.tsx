@@ -13,6 +13,7 @@ import { useJYDraftRepository } from '@/repository/draft';
 import { Project, useProjectRepository } from '@/repository/workspace';
 import { path } from '@tauri-apps/api';
 import { open, save } from '@tauri-apps/plugin-dialog';
+import { ClientAuthenticationStore } from '@/api';
 
 export type ImitateTabType = "import" | "frames" | "audio"
 const imitateTabs: TabsProps["items"] = [
@@ -127,14 +128,16 @@ const ImitateProjectPage: React.FC = () => {
   const params = useParams()
   const pid = params.pid as string
   const projectRepo = useProjectRepository(state => state)
-  const [project, setProject] = useState<Project>()
+  const project = projectRepo.items.filter(item => item.id === pid)[0]
+  
+  let {init} = ClientAuthenticationStore.getState();
 
   useEffect(() => {
-    setProject(projectRepo.items.filter(item => item.id === pid)[0])
+    init()
   }, [pid])
 
 
-  return <ImitateProject pid={params.pid as string} project={project!} />
+  return <ImitateProject pid={params.pid as string} project={project}/>
 }
 
 export default ImitateProjectPage
