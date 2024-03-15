@@ -223,6 +223,13 @@ export class ApiPrompt {
             loader.node.inputs = { ...loader.node.inputs, image: name }
         })
     }
+    //设置存储图片信息
+    setOutputImage(name: string) {
+        let loadImages = this.getNodes("SaveImage")
+        loadImages.forEach(loader => {
+            loader.node.inputs = { ...loader.node.inputs, filename_prefix: name }
+        })
+    }
     //设置随机值
     setSeed(seed: number) {
         let samplers = this.getNodes("KSampler")
@@ -289,9 +296,13 @@ export const Text2ImageHandle: CompletionPromptParams<Text2ImageParams> = (api: 
     if (params.image_dimensions) {
         script.setLatentImage(params.image_dimensions.width, params.image_dimensions.height)
     }
-
     script.setNegativePrompt(params.negative)
     script.setPositivePrompt(params.positive)
     script.setSeed(params.seed)
+
+    // 存储路径
+    script.setOutputImage(api.clientId + "/ComfyUI")
+
+
     return script.toObject()
 }

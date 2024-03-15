@@ -73,8 +73,8 @@ export class ComfyUIRepository extends BaseRepository<ComfyUIRepository> impleme
     }
 
     //生成图片
-    generateImage = async(api:ComfyUIApi,script: ApiPrompt, prompt: string, dimensions?: ComfyUIImageDimensions, location?: ComfyUIImageLocation) => {
-        
+    generateImage = async (api: ComfyUIApi, script: ApiPrompt, prompt: string, dimensions?: ComfyUIImageDimensions, location?: ComfyUIImageLocation) => {
+
         //对输入提示词做敏感词过滤
         let inputPrompt = this.sensitivePromptTextFilter(prompt)
         //生成随机值

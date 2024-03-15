@@ -93,7 +93,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
         setProcess({ open: true, run_event: "batchRewrite", title: "批量重写字幕..." })
 
         keyFrameRepo.resetBatchExit()
-        await batchRewrite(batchPos - 1, keyFrameRepo.items.length).finally(destroyProcessModal)
+        await batchRewrite(batchPos - 1, keyFrameRepo.items.length).catch(err => message.error(err.message)).finally(destroyProcessModal)
     }
 
     //-------------------------------批量生成音频-----------------------------
