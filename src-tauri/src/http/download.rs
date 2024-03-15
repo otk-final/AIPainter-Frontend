@@ -9,6 +9,8 @@ pub async fn http_download_handler(client: ApiConfig, file_path: PathBuf) -> tau
     let request = build_request(client);
     let res = request.send().await?;
 
+    println!("{}",file_path.to_str().unwrap());
+
     //后置处理
     let mut resp_bytes;
     if res.status().is_success() {
@@ -20,6 +22,8 @@ pub async fn http_download_handler(client: ApiConfig, file_path: PathBuf) -> tau
 
         resp_bytes = res.bytes().await?;
         file.write_all(&resp_bytes)?;
+        file.flush().unwrap();
+
     } else {
         //直接响应输出
         resp_bytes = res.bytes().await?;
