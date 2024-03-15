@@ -42,11 +42,10 @@ pub async fn http_upload_multipart_handler(client: ApiConfig, parameter: UploadP
     //封装响应
     let res = request.multipart(form).send().await.unwrap();
     let res_code = res.status();
-    let res_text = res.text().await.unwrap();
     if res_code.is_success(){
-        Ok(res_text)
+        Ok(res.text().await.unwrap())
     }else {
-        Err(ApiErr{status: u16::from(res_code), status_text:res_text})
+        Err(ApiErr{status: u16::from(res_code), status_text:res.status().canonical_reason().unwrap().to_string()})
     }
 }
 
@@ -64,11 +63,10 @@ pub async fn http_upload_handler(mut client: ApiConfig, file_path: String) -> Re
     //封装响应
     let res = request.send().await.unwrap();
     let res_code = res.status();
-    let res_text = res.text().await.unwrap();
     if res_code.is_success(){
-        Ok(res_text)
+        Ok(res.text().await.unwrap())
     }else {
-        Err(ApiErr{status: u16::from(res_code), status_text:res_text})
+        Err(ApiErr{status: u16::from(res_code), status_text:res.status().canonical_reason().unwrap().to_string()})
     }
 }
 

@@ -23,7 +23,7 @@ pub async fn http_download_handler(client: ApiConfig, file_path: PathBuf) -> Res
 
         Ok("OK".to_string())
     } else {
-        Err(ApiErr{status: u16::from(res.status()),status_text:res.text().await.unwrap()})
+        Err(ApiErr{status: u16::from(res.status()),status_text:res.status().canonical_reason().unwrap().to_string()})
     }
 }
 
