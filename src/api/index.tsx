@@ -1,6 +1,6 @@
 import { BaseDirectory, exists, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { hostname, platform, type, version } from "@tauri-apps/plugin-os";
-import axios, { Axios, InternalAxiosRequestConfig } from "axios";
+import axios, { InternalAxiosRequestConfig } from "axios";
 import { createStore } from "zustand";
 
 
@@ -95,7 +95,7 @@ export const AuthClient = axios.create({
     baseURL: process.env.AUTH_HOST,
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: "Basic " + process.env.AUH_BASIC
+        Authorization: "Basic " + process.env.AUTH_CLIENT_BASIC
     },
     timeout: Number(process.env.AUTH_TIMEOUT || 60000),
     withCredentials: false

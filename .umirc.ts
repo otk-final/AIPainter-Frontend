@@ -40,8 +40,7 @@ export default defineConfig({
     "process.env.OPENAI_ASSISTANT_ID": process.env.OPENAI_ASSISTANT_ID,
     "process.env.COMFYUI_HOST": process.env.COMFYUI_HOST,
     "process.env.AUTH_HOST": process.env.AUTH_HOST,
-    "process.env.AUTH_CLIENT_ID": process.env.AUTH_CLIENT_ID,
-    "process.env.AUTH_CLIENT_SECRET": process.env.AUTH_CLIENT_SECRET,
+    "process.env.AUTH_CLIENT_BASIC": process.env.AUTH_CLIENT_BASIC,
   }
 });
 
