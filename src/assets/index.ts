@@ -21,6 +21,10 @@ const assets = {
     emptyH: require("@/assets/empty-h.png"),
     emptyC: require("@/assets/empty-c.png"),
     actor: require("@/assets/actor.png"),
+    ai1: require("@/assets/ai1.png"),
+    ai2: require("@/assets/ai2.png"),
+    avatar: require("@/assets/avatar.png"),
+    avatar1: require("@/assets/avatar1.png"),
 }
 
 export default assets
