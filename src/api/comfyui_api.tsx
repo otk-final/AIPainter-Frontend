@@ -81,7 +81,7 @@ export class ComfyUIApi {
             await delay(1000)
 
             //查询状态
-            let resp = await ComfyUIClient.get('/history/' + prompt_id)
+            let resp = await this.status(prompt_id)
             if (resp.status !== 200) {
                 continue
             }
@@ -102,8 +102,8 @@ export class ComfyUIApi {
     }
 
     //任务状态
-    async status(prompt_id: string): Promise<any> {
-        await ComfyUIClient.get('/history/' + prompt_id, {
+    async status(prompt_id: string) {
+        return await ComfyUIClient.get('/history/' + prompt_id, {
             headers: {
                 "x-trace-id": this.traceId
             }

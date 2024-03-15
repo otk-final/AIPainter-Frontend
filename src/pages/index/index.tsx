@@ -184,8 +184,8 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-      {/* <div className="home-section flexR">
-        {data.map((i, index) => {
+      <div className="home-section flexR">
+        {/* {data.map((i, index) => {
           return (
             <div className="home-item-wrap flexR" key={index} >
               <div className="left flexC">
@@ -199,8 +199,8 @@ const HomePage = () => {
                 onClick={() => handleBtn(i)}>{i.btnText}</Button>
             </div>
           )
-        })}
-      </div> */}
+        })} */}
+      </div>
       <div className="section-title-wrap">我的草稿<span>（生成素材特为您保留30天）</span></div>
       {projectRepo.items.length ? renderMyCreation() : renderMyCreationEmpty()}
       <ProjectModal isOpen={!!isProjectOpen} onClose={() => setIsProjectOpen("")} type={isProjectOpen} />
