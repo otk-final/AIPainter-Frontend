@@ -11,7 +11,7 @@ import MixingTab from './components/mixing';
 import DrawbatchTab from './components/drawbatch';
 import StoryboardTab from './components/storyboard';
 import { path } from '@tauri-apps/api';
-import dialog from "@tauri-apps/plugin-dialog";
+import dialog, { open, save } from "@tauri-apps/plugin-dialog";
 import { useComfyUIRepository } from '@/repository/comfyui';
 import { useJYDraftRepository } from '@/repository/draft';
 import { Project, useProjectRepository } from '@/repository/workspace';
@@ -67,7 +67,7 @@ const StoryProject: React.FC<{ pid: string, project: Project }> = ({ pid, projec
 
 
   const handleExport = async () => {
-    let selected = await dialog.save({ title: "保存文件", filters: [{ name: "视频文件", extensions: ["mp4"] }] })
+    let selected = await save({ title: "保存文件", filters: [{ name: "视频文件", extensions: ["mp4"] }] })
     if (!selected) {
       return
     }
@@ -83,7 +83,7 @@ const StoryProject: React.FC<{ pid: string, project: Project }> = ({ pid, projec
   //导出
   const handleJYDraft = async () => {
 
-    let selected = await dialog.open({ directory: true, title: "剪映草稿目录", defaultPath: draftRepo.draft_dir || await path.desktopDir(), recursive: true })
+    let selected = await open({ directory: true, title: "剪映草稿目录", defaultPath: draftRepo.draft_dir || await path.desktopDir(), recursive: true })
     if (!selected) {
       return
     }

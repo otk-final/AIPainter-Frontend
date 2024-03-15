@@ -133,7 +133,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     //         return {
     //             id: Number.parseInt(seq!),
     //             name: file.name,
-    //             path: "frames" + path.sep + file.name,
+    //             path: "frames" + path.sep() + file.name,
     //             image: {
     //                 prompt: "",
     //                 history: []
@@ -151,7 +151,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
     // handleCollectKeyFrameWithTime = async (videoPath: string, srtIdx: number, srt: SRTLine) => {
 
     //     let name = srtIdx + ".png"
-    //     let output_name = "frames" + path.sep + name
+    //     let output_name = "frames" + path.sep() + name
     //     let absulotePath = await this.absulotePath(output_name)
 
     //     //抽帧 关键帧
@@ -208,9 +208,9 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         for (let i = 0; i < srtLines.length; i++) {
 
             let name = i + "-org"
-            let image_path = await this.absulotePath("frames" + path.sep + name + ".png")
-            let audio_path = await this.absulotePath("audios" + path.sep + name + ".mp3")
-            let video_path = await this.absulotePath("videos" + path.sep + name + ".mp4")
+            let image_path = await this.absulotePath("frames" + path.sep() + name + ".png")
+            let audio_path = await this.absulotePath("audios" + path.sep() + name + ".mp3")
+            let video_path = await this.absulotePath("videos" + path.sep() + name + ".mp4")
 
             let srt = srtLines[i]
 
@@ -242,15 +242,15 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
             return {
                 id: item.id,
                 name: item.name,
-                path: "frames" + path.sep + item.name + ".png",
+                path: "frames" + path.sep() + item.name + ".png",
                 image: {
                     prompt: "",
                     history: []
                 },
                 srt: item.srt,
                 srt_duration: item.srt_duration,
-                srt_audio_path: "audios" + path.sep + item.name + ".mp3",
-                srt_video_path: "videos" + path.sep + item.name + ".mp4",
+                srt_audio_path: "audios" + path.sep() + item.name + ".mp3",
+                srt_video_path: "videos" + path.sep() + item.name + ".mp4",
                 effect: { orientation: "random" }
             } as KeyFrame
         })

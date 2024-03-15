@@ -7,7 +7,7 @@ import { BoardType, ImportType, useScriptRepository } from "@/repository/story";
 import { Actor, useActorRepository } from "@/repository/actor";
 import { useChapterRepository } from "@/repository/chapter";
 import { v4 } from "uuid";
-import dialog from "@tauri-apps/plugin-dialog";
+import { open } from "@tauri-apps/plugin-dialog";
 
 const importTabItems: TabsProps['items'] = [
     {
@@ -44,7 +44,7 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
 
     const handleChooseFile = async () => {
         //选择文件
-        let selected = await dialog.open({
+        let selected = await open({
             title: "导入脚本文件",
             multiple: false,
             defaultPath: await path.desktopDir(),

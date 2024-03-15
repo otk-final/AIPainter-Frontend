@@ -3,8 +3,8 @@ import React, { forwardRef, useImperativeHandle, useState } from 'react'
 import TextArea from 'antd/es/input/TextArea';
 import { DeleteFilled, PlusOutlined, } from '@ant-design/icons';
 import { ComfyUIConfiguration, useComfyUIRepository } from '@/repository/comfyui';
-import dialog from '@tauri-apps/plugin-dialog';
 import { path } from '@tauri-apps/api';
+import { open } from '@tauri-apps/plugin-dialog';
 
 
 
@@ -29,7 +29,7 @@ const ComfyUISettingTab = forwardRef<ComfyUISettingRef, ComfyUISettingProps>((pr
     }))
 
     const handleUploadMode = async (idx: number) => {
-        let selected = await dialog.open({
+        let selected = await open({
             title: "选择ComfyUI Workflow Api 文件",
             multiple: false,
             filters: [{ name: "api文件", extensions: ["json"] }]
@@ -55,7 +55,7 @@ const ComfyUISettingTab = forwardRef<ComfyUISettingRef, ComfyUISettingProps>((pr
     }
 
     const handleUploadReverse = async () => {
-        let selected = await dialog.open({
+        let selected = await open({
             title: "选择ComfyUI Workflow Api 文件",
             multiple: false,
             filters: [{ name: "api文件", extensions: ["json"] }]

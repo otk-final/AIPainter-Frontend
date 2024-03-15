@@ -1,4 +1,4 @@
-import tauri from '@tauri-apps/api/core';
+import tauri, { convertFileSrc } from '@tauri-apps/api/core';
 import { Modal } from "antd"
 import ReactPlayer from "react-player";
 
@@ -16,7 +16,7 @@ const VideoPlayerModal: React.FC<VideoPlayerProps> = ({ videoPath, isOpen, onClo
             footer={null}
             width={'50%'}
             className="home-login-modal energy-recharge">
-            <ReactPlayer url={tauri.convertFileSrc(videoPath)}
+            <ReactPlayer url={convertFileSrc(videoPath)}
                 playing
                 controls
                 width="100%"

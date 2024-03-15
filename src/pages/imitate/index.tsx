@@ -9,10 +9,10 @@ import { useSimulateRepository } from '@/repository/simulate';
 import { useComfyUIRepository } from '@/repository/comfyui';
 import SRTMixingTab from './components/srt-mixing';
 import { useKeyFrameRepository } from '@/repository/keyframe';
-import dialog from '@tauri-apps/plugin-dialog';
 import { useJYDraftRepository } from '@/repository/draft';
 import { Project, useProjectRepository } from '@/repository/workspace';
 import { path } from '@tauri-apps/api';
+import { open, save } from '@tauri-apps/plugin-dialog';
 
 export type ImitateTabType = "import" | "frames" | "audio"
 const imitateTabs: TabsProps["items"] = [
@@ -57,7 +57,7 @@ const ImitateProject: React.FC<{ pid: string, project: Project }> = ({ pid, proj
 
   const handleExport = async () => {
 
-    let selected = await dialog.save({ title: "保存文件", filters: [{ name: "视频文件", extensions: ["mp4"] }] })
+    let selected = await save({ title: "保存文件", filters: [{ name: "视频文件", extensions: ["mp4"] }] })
     if (!selected) {
       return
     }
@@ -73,7 +73,7 @@ const ImitateProject: React.FC<{ pid: string, project: Project }> = ({ pid, proj
   //导出
   const handleJYDraft = async () => {
 
-    let selected = await dialog.open({
+    let selected = await open({
       directory: true,
       title: "选择剪映草稿目录",
       defaultPath: draftRepo.draft_dir || await path.desktopDir(),

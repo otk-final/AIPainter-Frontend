@@ -1,10 +1,10 @@
-import tauri from "@tauri-apps/api/core";
 import { Button, Image, Modal } from "antd"
 import { useEffect, useState } from "react";
 import './index.less'
 import { TauriRepo } from "@/repository/tauri_repository";
 import { useKeyFrameRepository } from "@/repository/keyframe";
 import { useChapterRepository } from "@/repository/chapter";
+import { convertFileSrc } from "@tauri-apps/api/core";
 
 
 export interface ModalHistoryImageProps {
@@ -24,13 +24,13 @@ export const ModalHistoryImages: React.FC<ModalHistoryImageProps> = ({ isOpen, s
     const renderHistory = async (history: string[]) => {
         let historyUrls = [] as string[]
         history.forEach(async (item) => {
-            let url = tauri.convertFileSrc(await repo.absulotePath(item))
+            let url = convertFileSrc(await repo.absulotePath(item))
             historyUrls.push(url)
         })
         setUrls(historyUrls)
     }
     const renderPath = async (path: string) => {
-        setUrl(tauri.convertFileSrc(await repo.absulotePath(path)))
+        setUrl(convertFileSrc(await repo.absulotePath(path)))
     }
 
     useEffect(() => {
@@ -74,7 +74,7 @@ export const ModalHistoryImages: React.FC<ModalHistoryImageProps> = ({ isOpen, s
 export const AssetImage: React.FC<{ path?: string, repo: TauriRepo }> = ({ path, repo }) => {
     const [url, setUrl] = useState<string | undefined>()
     const render = async (path: string) => {
-        setUrl(tauri.convertFileSrc(await repo.absulotePath(path)))
+        setUrl(convertFileSrc(await repo.absulotePath(path)))
     }
     useEffect(() => {
         if (path) render(path)
@@ -108,7 +108,7 @@ export const KeyFrameHistoryImages: React.FC<AssetHistoryImagesProps> = ({ pid, 
 
         let historyUrls = [] as string[]
         history.forEach(async (item) => {
-            let url = tauri.convertFileSrc(await repo.absulotePath(item))
+            let url = convertFileSrc(await repo.absulotePath(item))
             historyUrls.push(url)
         })
         setUrls(historyUrls)
@@ -150,7 +150,7 @@ export const ChapterHistoryImages: React.FC<AssetHistoryImagesProps> = ({ pid, i
 
         let historyUrls = [] as string[]
         history.forEach(async (item) => {
-            let url = tauri.convertFileSrc(await repo.absulotePath(item))
+            let url = convertFileSrc(await repo.absulotePath(item))
             historyUrls.push(url)
         })
         setUrls(historyUrls)

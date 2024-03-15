@@ -2,7 +2,7 @@ import { Avatar, Button, Input } from 'antd';
 import './index.less'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useEffect, useMemo, useState } from 'react';
-import tauri from '@tauri-apps/api/core';
+import tauri, { convertFileSrc } from '@tauri-apps/api/core';
 import { useParams } from "umi"
 import { Header } from '@/components';
 import { Actor, useActorRepository } from '@/repository/actor';
@@ -11,7 +11,8 @@ import { v4 as uuid } from "uuid"
 import { AudioOption, DEFAULT_AUDIO_OPTION } from '@/api/bytedance_api';
 import { TTSVoiceModal } from '@/components/voice-select';
 import { TagModal } from './components/tags-modal';
-import dialog from '@tauri-apps/plugin-dialog';
+import { ask } from '@tauri-apps/plugin-dialog';
+
 
 
 
@@ -48,7 +49,7 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor }) => {
 
   //删除
   const handleDel = async () => {
-    let ok = await dialog.ask("确认删除角色?", { title: "删除角色?", kind: "warning" })
+    let ok = await ask("确认删除角色?", { title: "删除角色?", kind: "warning" })
     if (!ok) {
       return
     }
@@ -71,7 +72,7 @@ export const RoleItem: React.FC<RoleItemProps> = ({ index, actor }) => {
   return (
     <div className='role-item'>
       <div className='top flexR'>
-        {statePreviewImage && <Avatar src={tauri.convertFileSrc(statePreviewImage)} size={'large'}></Avatar>}
+        {statePreviewImage && <Avatar src={convertFileSrc(statePreviewImage)} size={'large'}></Avatar>}
         <div className='text'>角色{index + 1}</div>
         <DeleteOutlined onClick={handleDel} />
       </div>

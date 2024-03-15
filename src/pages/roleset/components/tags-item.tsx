@@ -212,7 +212,7 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ tags, image, handleChe
                 {
                     isPreview &&
                     <div className="content flexR">
-                        {statePreviewPath && <img src={tauri.convertFileSrc(statePreviewPath)} width={'100%'}></img>}
+                        {statePreviewPath && <img src={tauriconvertFileSrc(statePreviewPath)} width={'100%'}></img>}
                     </div>
                 }
                 {

@@ -7,9 +7,8 @@ import { useSimulateRepository } from '@/repository/simulate';
 import { useKeyFrameRepository } from '@/repository/keyframe';
 import HandleProcessModal from '@/components/handle-process';
 import { Project } from '@/repository/workspace';
-import dialog from '@tauri-apps/plugin-dialog';
-import tauri from '@tauri-apps/api/core';
-
+import { convertFileSrc } from '@tauri-apps/api/core';
+import { open } from '@tauri-apps/plugin-dialog';
 
 interface VideoImportProps {
     pid: string
@@ -33,7 +32,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
 
     //导入
     const handleImported = async () => {
-        let selected = await dialog.open({
+        let selected = await open({
             title: '选择视频文件',
             multiple:false
         })
@@ -53,7 +52,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
     }
 
     // const handleCollectAudio = async () => {
-    //     let savePath = await dialog.save({ title: "导出音频文件", filters: [{ extensions: ["mp3"], name: "音频文件" }] })
+    //     let savePath = await save({ title: "导出音频文件", filters: [{ extensions: ["mp3"], name: "音频文件" }] })
     //     if (!savePath) {
     //         return
     //     }
@@ -72,7 +71,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
 
             {simulateRepo.videoPath &&
                 <div className='video-wrap' onClick={() => setIsVideoPlayerOpen(true)}>
-                    <ReactPlayer url={tauri.convertFileSrc(simulateRepo.videoPath!)}
+                    <ReactPlayer url={convertFileSrc(simulateRepo.videoPath!)}
                         width="200px"
                         height="200px"
                         style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '6px' }}

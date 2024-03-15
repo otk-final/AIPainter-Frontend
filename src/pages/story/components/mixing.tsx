@@ -9,9 +9,9 @@ import HandleProcessModal from "@/components/handle-process";
 import { Project } from "@/repository/workspace";
 import { TTSVoiceModal } from "@/components/voice-select";
 import { AudioOption, DEFAULT_AUDIO_OPTION } from "@/api/bytedance_api";
-import dialog from "@tauri-apps/plugin-dialog";
 import { SRTGenerate } from "@/repository/srt";
 import { event } from "@tauri-apps/api";
+import { save } from "@tauri-apps/plugin-dialog";
 
 interface MixingTabProps {
     pid: string
@@ -30,7 +30,7 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid}) => {
 
 
     const handleExportSRTFile = async () => {
-        let selected = await dialog.save({ title: "保存文件", filters: [{ name: "SRT文件", extensions: ["srt"] }] })
+        let selected = await save({ title: "保存文件", filters: [{ name: "SRT文件", extensions: ["srt"] }] })
         if (!selected) {
             return
         }

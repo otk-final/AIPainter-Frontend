@@ -3,8 +3,8 @@ import { Button, Input, Select } from "antd"
 import { useState } from "react"
 import { JYDraftConfiguration, useJYDraftRepository } from '@/repository/draft';
 import AddonNumberInput from '@/components/addon-input';
-import dialog from '@tauri-apps/plugin-dialog';
 import { path } from '@tauri-apps/api';
+import { open } from '@tauri-apps/plugin-dialog';
 
 
 const fontSizeDatas = [
@@ -92,7 +92,7 @@ const ExportSettingTab = forwardRef<ExportSettingRef, ExportSettingProps>((props
 
     const handleChangePosition = async () => {
         //选择文件
-        let selected = await dialog.open({
+        let selected = await open({
             title: "选择剪映草稿存放目录",
             directory: true,
             defaultPath: stateConfiguration.draft_dir || await path.desktopDir()

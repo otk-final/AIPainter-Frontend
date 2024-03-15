@@ -99,7 +99,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
             if (!frame.image.path || frame.image.path.includes("scale")) {
                 continue;
             }
-            let output_name = "outputs" + path.sep + (frame.id + "-scale-" + uuid() + ".png")
+            let output_name = "outputs" + path.sep() + (frame.id + "-scale-" + uuid() + ".png")
             scaleArray.push({
                 id: i,
                 image_path: await this.absulotePath(frame.image.path),
@@ -127,7 +127,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
             throw new Error("当前图片已放大")
         }
 
-        let output_name = "outputs" + path.sep + (frame.id + "-scale-" + uuid() + ".png")
+        let output_name = "outputs" + path.sep() + (frame.id + "-scale-" + uuid() + ".png")
         let arg = {
             id: frame.id,
             image_path: await this.absulotePath(frame.image.path),
@@ -242,7 +242,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         await fs.mkdir(videoDir, { recursive: true })
 
         //参数
-        let videoPath = "temp-videos" + path.sep + item.name + "-" + uuid() + ".mp4";
+        let videoPath = "temp-videos" + path.sep() + item.name + "-" + uuid() + ".mp4";
         let fragment = await this.convertFragment(item);
 
         //rewrite 参数
@@ -294,7 +294,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         //rewrite 参数
         for (let i = 0; i < fragments.length; i++) {
             fragments[i].effect.orientation = settingRepo.formatEffectOrientation(fragments[i].effect.orientation);
-            fragments[i].video_path = await this.absulotePath("temp-videos" + path.sep + fragments[i].name + ".mp4")
+            fragments[i].video_path = await this.absulotePath("temp-videos" + path.sep() + fragments[i].name + ".mp4")
         }
 
         //生成字幕文件

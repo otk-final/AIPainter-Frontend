@@ -26,7 +26,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
     const [stateTTS, setTTS] = useState<{ open: boolean, audio: AudioOption }>({ open: false, audio: DEFAULT_AUDIO_OPTION });
 
     // const handleExportSRTFile = async () => {
-    //     let selected = await dialog.save({ title: "保存文件", filters: [{ name: "SRT文件", extensions: ["srt"] }] })
+    //     let selected = await save({ title: "保存文件", filters: [{ name: "SRT文件", extensions: ["srt"] }] })
     //     if (!selected) {
     //         return
     //     }

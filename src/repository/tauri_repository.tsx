@@ -59,7 +59,7 @@ export abstract class BaseRepository<T> implements TauriRepo {
             return
         }
 
-        let filePath = this.repoDir + path.sep + this.repo
+        let filePath = this.repoDir + path.sep() + this.repo
         console.info('load script', filePath)
 
         // 文件是否存在
@@ -110,7 +110,7 @@ export abstract class BaseRepository<T> implements TauriRepo {
 
         //创建目录
         await mkdir(this.repoDir, { baseDir: RepoDirectory, recursive: true })
-        let filePath = this.repoDir + path.sep + this.repo
+        let filePath = this.repoDir + path.sep() + this.repo
 
         console.info("save script", filePath, that)
         // save file
@@ -128,7 +128,7 @@ export abstract class BaseRepository<T> implements TauriRepo {
         await writeFile(newFilePath, new Uint8Array(fileBuffer), { baseDir: RepoDirectory, append: false })
 
         //返回相对路径
-        return subfolder + path.sep + filename
+        return subfolder + path.sep() + filename
     }
 
     absulotePath = async (assetPath: string) => {
