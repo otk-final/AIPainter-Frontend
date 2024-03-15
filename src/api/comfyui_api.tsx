@@ -1,6 +1,6 @@
 import { ItemIdentifiable, delay } from "../repository/tauri_repository"
-import tauri from "@tauri-apps/api/core"
 import { ClientAuthenticationStore, ComfyUIClient } from "."
+import { invoke } from "@tauri-apps/api/core"
 
 export interface ComfyUIWorkflow extends ItemIdentifiable {
     name: string
@@ -98,10 +98,11 @@ export class ComfyUIApi {
     async upload(locate: ComfyUIImageLocation, filepath: string): Promise<any> {
 
         let { header } = ClientAuthenticationStore.getState()
-        return await tauri.invoke('http_multipart_handler', {
+        debugger;
+        return await invoke('http_multipart_handler', {
             client: {
                 method: "POST",
-                url: "/image/upload",
+                url: process.env.COMFYUI_HOST + "/image/upload",
                 headers: header,
             },
             parameter: {
@@ -119,10 +120,10 @@ export class ComfyUIApi {
     //download
     async download(locate: ComfyUIImageLocation, filepath: string): Promise<ArrayBuffer> {
         let { header } = ClientAuthenticationStore.getState()
-        return await tauri.invoke('http_download_handler', {
+        return await invoke('http_download_handler', {
             client: {
                 method: "GET",
-                url: "/view?subfolder=" + locate.subfolder + "&filename=" + locate.filename + "&type=" + locate.type,
+                url: process.env.COMFYUI_HOST + "/view?subfolder=" + locate.subfolder + "&filename=" + locate.filename + "&type=" + locate.type,
                 headers: header,
             },
             filePath: filepath
@@ -253,7 +254,7 @@ export interface Text2ImageParams {
     positive: string
     negative: string
     seed: number
-    
+
 }
 
 //文生图

@@ -5,13 +5,13 @@ import { subscribeWithSelector } from "zustand/middleware"
 import { path } from "@tauri-apps/api";
 import event from "@tauri-apps/api/event";
 import tauri from "@tauri-apps/api/core";
-import fs from "@tauri-apps/plugin-fs";
 import shell from "@tauri-apps/plugin-shell"
 
 
 import { KeyFrame } from "./keyframe"
 import { SRTLine, formatTime } from "./srt"
 import { BytedanceApi } from "@/api/bytedance_api";
+import { copyFile, mkdir, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 
 
 interface KeyFrameJob {
@@ -97,7 +97,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
     handleExportVideo = async (savePath: string) => {
         let audioPath = await this.absulotePath("audio.mp3")
-        await fs.copyFile(audioPath, savePath)
+        await copyFile(audioPath, savePath)
     }
 
     //根据帧率
@@ -190,11 +190,11 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
         //临时存储目录
         let framesDir = await path.join(this.repoDir, "frames")
-        await fs.mkdir(framesDir, { recursive: true })
+        await mkdir(framesDir, { recursive: true })
         let audiosDir = await path.join(this.repoDir, "audios")
-        await fs.mkdir(audiosDir, { recursive: true })
+        await mkdir(audiosDir, { recursive: true })
         let videosDir = await path.join(this.repoDir, "videos")
-        await fs.mkdir(videosDir, { recursive: true })
+        await mkdir(videosDir, { recursive: true })
 
 
         //音频文件
@@ -262,7 +262,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         //是否已经识别
         let audioRecognitionPath = await this.absulotePath("audio.json")
         if (this.audioRecognition) {
-            let audioText = await fs.readTextFile(audioRecognitionPath)
+            let audioText = await readTextFile(audioRecognitionPath)
             return JSON.parse(audioText).utterances as SRTLine[]
         }
 
@@ -326,7 +326,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         })
 
         //写入文件
-        await fs.writeTextFile(audioRecognitionPath, JSON.stringify(audioText, null, "\t"), { append: false })
+        await writeTextFile(audioRecognitionPath, JSON.stringify(audioText, null, "\t"), { append: false })
         this.audioRecognition = true
         this.sync()
 

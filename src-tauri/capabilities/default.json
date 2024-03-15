@@ -5,6 +5,7 @@
   "windows": [
     "main"
   ],
+  "platforms": ["linux", "macOS", "windows"],
   "permissions": [
     "path:default",
     "event:default",
@@ -43,6 +44,10 @@
       ]
     },
     "fs:default",
+    "fs:allow-mkdir",
+    "fs:allow-exists",
+    "fs:allow-read-file",
+    "fs:allow-read-text-file",
     "fs:read-all",
     "fs:read-dirs",
     "fs:read-files",
@@ -61,6 +66,10 @@
     "dialog:allow-ask",
     "dialog:allow-message",
     "dialog:allow-open",
-    "dialog:allow-save"
+    "dialog:allow-save",
+    "os:allow-platform",
+    "os:allow-os-type",
+    "os:allow-hostname",
+    "os:allow-version"
   ]
 }

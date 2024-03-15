@@ -8,6 +8,7 @@ import updater from '@tauri-apps/plugin-updater';
 import assets from '@/assets';
 import { LoginOutlined, UserOutlined } from '@ant-design/icons';
 import { BaseDirectory, exists, readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
+import { ClientAuthenticationStore } from '@/api';
 
 export default function Layout(props: any) {
 
@@ -24,6 +25,8 @@ export default function Layout(props: any) {
     if (!loginState.isLogin) {
       setLoginOpen(true)
     }
+    //初始化
+    ClientAuthenticationStore.getState().init()
   }, [])
 
   const openRecharge = (type: "energy" | 'member') => {
@@ -60,7 +63,7 @@ export default function Layout(props: any) {
 
     let content = await readTextFile("sdw.txt", { baseDir: BaseDirectory.Desktop })
     console.info(content)
-    
+
     // let flag = await exists("/sd", { baseDir: BaseDirectory.Desktop })
     // console.info(flag)
     let flag = await exists("ss.aa", { baseDir: BaseDirectory.Desktop })

@@ -1,8 +1,8 @@
-import fs from "@tauri-apps/plugin-fs";
 import OpenAI, { toFile } from "openai"
 import { MessageContentText } from "openai/resources/beta/threads/messages/messages"
 import { delay } from "../repository/tauri_repository"
 import { ClientAuthenticationStore } from ".";
+import { readFile } from "@tauri-apps/plugin-fs";
 
 
 export class GPTAssistantsApi {
@@ -55,7 +55,7 @@ export class GPTAssistantsApi {
 
     //上传文件
     async fileUpload(filename: string, filepath: string): Promise<string> {
-        let file = await fs.readFile(filepath)
+        let file = await readFile(filepath)
         let uploadFile = await toFile(Buffer.from(file.buffer), filename)
         let assistantsFile = await this.api.files.create({ purpose: 'assistants', file: uploadFile })
         return assistantsFile.id
