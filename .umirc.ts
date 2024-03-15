@@ -30,6 +30,8 @@ export default defineConfig({
     "@font-primary-color": "#aa95ff"
   },
   define: {
+    "process.env.TENANT_ID": process.env.TENANT_ID,
+    "process.env.APP_ID": process.env.APP_ID,
     "process.env.BAIDU_HOST": process.env.BAIDU_HOST,
     "process.env.BYTEDANCE_HOST": process.env.BYTEDANCE_HOST,
     "process.env.BYTEDANCE_APP_ID": process.env.BYTEDANCE_APP_ID,
@@ -37,9 +39,9 @@ export default defineConfig({
     "process.env.OPENAI_MODE": process.env.OPENAI_MODE,
     "process.env.OPENAI_ASSISTANT_ID": process.env.OPENAI_ASSISTANT_ID,
     "process.env.COMFYUI_HOST": process.env.COMFYUI_HOST,
-    "process.env.BASE_HOST": process.env.BASE_HOST,
-    "process.env.BASE_CLIENT_ID": process.env.BASE_CLIENT_ID,
-    "process.env.BASE_CLIENT_SECRET": process.env.BASE_CLIENT_SECRET,
+    "process.env.AUTH_HOST": process.env.AUTH_HOST,
+    "process.env.AUTH_CLIENT_ID": process.env.AUTH_CLIENT_ID,
+    "process.env.AUTH_CLIENT_SECRET": process.env.AUTH_CLIENT_SECRET,
   }
 });
 

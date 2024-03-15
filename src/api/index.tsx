@@ -1,6 +1,6 @@
-import fs, { BaseDirectory } from "@tauri-apps/plugin-fs";
-import os from "@tauri-apps/plugin-os";
-import axios, { InternalAxiosRequestConfig } from "axios";
+import { BaseDirectory, exists, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
+import { hostname, platform, type, version } from "@tauri-apps/plugin-os";
+import axios, { Axios, InternalAxiosRequestConfig } from "axios";
 import { createStore } from "zustand";
 
 
@@ -8,6 +8,8 @@ import { createStore } from "zustand";
 export interface ClientAuthentication {
     header: any
     user?: UserPrincipal
+    init: () => Promise<void>
+    refresh: (author: UserAuthentication) => Promise<void>
 }
 
 export interface UserAuthentication {
@@ -44,17 +46,16 @@ export const ClientAuthenticationStore = createStore<ClientAuthentication>((set,
             "x-app-id": process.env.APP_ID,
 
             // 设备信息
-            "x-dev-arch": await os.arch(),
-            "x-dev-platform": await os.platform(),
-            "x-dev-type": await os.type(),
-            "x-dev-hostname": await os.hostname(),
-            "x-dev-version": await os.version(),
+            "x-dev-platform": await platform(),
+            "x-dev-type": await type(),
+            "x-dev-hostname": await hostname(),
+            "x-dev-version": await version(),
         } as any
 
         //读取文件
-        let exist = await fs.exists(".pollyai/.author.json", { baseDir: BaseDirectory.Home })
+        let exist = await exists(".pollyai/.author.json", { baseDir: BaseDirectory.Home })
         if (exist) {
-            let jwtText = await fs.readTextFile(".pollyai/.author.json", { baseDir: BaseDirectory.Home })
+            let jwtText = await readTextFile(".pollyai/.author.json", { baseDir: BaseDirectory.Home })
             let userAuthor = JSON.parse(jwtText) as UserAuthentication
             header["x-user-id"] = userAuthor.principal.id
             header["x-user-type"] = userAuthor.principal.type
@@ -67,7 +68,7 @@ export const ClientAuthenticationStore = createStore<ClientAuthentication>((set,
 
     refresh: async (author: UserAuthentication) => {
         //保存登陆信息
-        await fs.writeTextFile(".pollyai/.author.json", JSON.stringify(author), { baseDir: BaseDirectory.Home, append: false })
+        await writeTextFile(".pollyai/.author.json", JSON.stringify(author), { baseDir: BaseDirectory.Home, append: false })
 
         //更新accessToken
         let { header } = get()
@@ -90,17 +91,16 @@ const requestHeaderInterceptor = (config: InternalAxiosRequestConfig<any>) => {
     return config;
 }
 
-export const BaseClient = axios.create({
-    baseURL: process.env.BASE_HOST,
+export const AuthClient = axios.create({
+    baseURL: process.env.AUTH_HOST,
     headers: {
-        'Content-Type': 'application/json;charset=utf-8',
-        'Accept': 'application/json'
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: "Basic " + process.env.AUH_BASIC
     },
-    timeout: Number(process.env.BASE_TIMEOUT || 60000),
+    timeout: Number(process.env.AUTH_TIMEOUT || 60000),
     withCredentials: false
 })
-BaseClient.interceptors.request.use(requestHeaderInterceptor)
-
+AuthClient.interceptors.request.use(requestHeaderInterceptor)
 
 export const BaiduClient = axios.create({
     baseURL: process.env.BAIDU_HOST,

@@ -2,6 +2,7 @@ import { useLogin } from "@/uses";
 import { Button, Input, InputNumber, message, Modal } from "antd"
 import { useEffect, useRef, useState } from "react";
 import "./index.less"
+import { AuthClient } from "@/api";
 
 interface LoginModuleProps {
     isOpen: boolean,
@@ -56,12 +57,17 @@ const LoginModule: React.FC<LoginModuleProps> = ({ isOpen, onClose }) => {
             endTime: '2024-01-26',
             phone: phone
         }
-        login(res);
-        //下载最新配置文件
+        // login(res);
 
 
+        //认证
+        let resp = await AuthClient.post('/oauth2/token', {
+            grant_type: "sms",
+            phone: phone,
+            smsCode: verify
+        }).then(resp => resp.data)
 
-
+        
 
 
         onClose();

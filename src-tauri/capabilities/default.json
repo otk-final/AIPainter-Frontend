@@ -61,6 +61,10 @@
     "dialog:allow-ask",
     "dialog:allow-message",
     "dialog:allow-open",
-    "dialog:allow-save"
+    "dialog:allow-save",
+    "os:allow-platform",
+    "os:allow-os-type",
+    "os:allow-hostname",
+    "os:allow-version"
   ]
 }
