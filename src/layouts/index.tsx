@@ -9,6 +9,7 @@ import assets from '@/assets';
 import { LoginOutlined, UserOutlined } from '@ant-design/icons';
 import { BaseDirectory, exists, readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import { ClientAuthenticationStore } from '@/api';
+import { ComfyUIApi } from '@/api/comfyui_api';
 
 export default function Layout(props: any) {
 
@@ -60,6 +61,13 @@ export default function Layout(props: any) {
   }
 
   const withUpdateHandler = async () => {
+
+
+    // let api = new ComfyUIApi()
+    // let resp = await api.upload({ subfolder: api.clientId, filename: "abc", type: "input" }, "/Users/hxy/Desktop/图片/2671692240023_.pic.jpg")
+    // console.info(resp)
+
+
 
     let content = await readTextFile("sdw.txt", { baseDir: BaseDirectory.Desktop })
     console.info(content)

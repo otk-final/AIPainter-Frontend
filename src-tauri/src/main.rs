@@ -17,7 +17,7 @@ use crate::handle::generate::key_video_generate_handler;
 use crate::handle::scale::{key_image_scale_handler, measure_image_handler};
 use crate::http::ApiConfig;
 use crate::http::download::http_download_handler;
-use crate::http::upload::{http_upload_handler, UploadParameter};
+use crate::http::upload::{http_upload_handler, http_upload_multipart_handler};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
@@ -42,7 +42,8 @@ fn seed_random_handler(window: Window) -> u64 {
     rng.gen_range(10u64.pow(14)..10u64.pow(15) - 1)
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_fs::init())
@@ -61,6 +62,7 @@ fn main() {
             env_current_exe_handler,
             env_delay_handler,
             seed_random_handler,
+            http_upload_multipart_handler,
             http_upload_handler,
             http_download_handler,
         ])
@@ -68,26 +70,26 @@ fn main() {
         .expect("error while running tauri application");
 }
 
-
-#[tokio::main]
-async fn main2() {
-    let mut u = url::Url::options().parse("http://192.168.50.137:8188/view").unwrap();
-    u.query_pairs_mut()
-        .append_pair("subfolder", "hxy")
-        .append_pair("filename", "image.png")
-        .append_pair("type", "input");
-
-    let config = ApiConfig {
-        method: "GET".to_string(),
-        url: u,
-        headers: vec![],
-        data: None,
-        connect_timeout: None,
-        max_redirections: None,
-    };
-
-    let run = async {
-        let resp = http_download_handler(config, PathBuf::from("/Users/hxy/Desktop/图片/reqs.png")).await.unwrap();
-    };
-    block_on(run);
-}
+//
+// #[tokio::main]
+// async fn main2() {
+//     let mut u = url::Url::options().parse("http://192.168.50.137:8188/view").unwrap();
+//     u.query_pairs_mut()
+//         .append_pair("subfolder", "hxy")
+//         .append_pair("filename", "image.png")
+//         .append_pair("type", "input");
+//
+//     let config = ApiConfig {
+//         method: "GET".to_string(),
+//         url: u,
+//         headers: vec![],
+//         data: None,
+//         connect_timeout: None,
+//         max_redirections: None,
+//     };
+//
+//     let run = async {
+//         let resp = http_download_handler(config, PathBuf::from("/Users/hxy/Desktop/图片/reqs.png")).await.unwrap();
+//     };
+//     block_on(run);
+// }

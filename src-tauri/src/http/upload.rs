@@ -1,9 +1,7 @@
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::path::PathBuf;
-use futures::executor::block_on;
 use reqwest::multipart::Part;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use crate::http::{ApiConfig, build_request};
 
 
@@ -12,11 +10,11 @@ pub struct UploadParameter {
     pub file_path: PathBuf,
     pub file_name: String,
     pub file_part: Option<String>,
-    pub payload: Vec<(String, String)>,
+    pub payload: serde_json::Map<String, serde_json::Value>,
 }
 
 #[tauri::command]
-pub async fn http_multipart_handler(client: ApiConfig, parameter: UploadParameter) -> tauri_plugin_http::Result<tauri::ipc::Response> {
+pub async fn http_upload_multipart_handler(client: ApiConfig, parameter: UploadParameter) -> tauri_plugin_http::Result<tauri::ipc::Response> {
     let file_path = parameter.file_path;
     let file_name = parameter.file_name;
     let file_part = parameter.file_part.unwrap_or(String::from("file"));
@@ -30,9 +28,10 @@ pub async fn http_multipart_handler(client: ApiConfig, parameter: UploadParamete
     let mut form = form.part(Cow::from(file_part), part);
 
     //扩展参数
-    let payloads: HashMap<String, String> = HashMap::from_iter(parameter.payload);
+    let payloads = parameter.payload;
     for (name, value) in &payloads {
-        form = form.text(name.clone(), value.clone());
+        let v = value.clone().as_str().unwrap().to_string();
+        form = form.text(name.clone(), v);
     }
 
     //请求参数
@@ -62,28 +61,27 @@ pub async fn http_upload_handler(mut client: ApiConfig, file_path: String) -> ta
 }
 
 
-
-#[tokio::test]
-async fn test() {
-    let config = ApiConfig {
-        method: "POST".to_string(),
-        url: url::Url::options().parse("http://192.168.50.137:8188/upload/image").unwrap(),
-        // headers: vec![("Content-Type".to_string(), "multipart/form-data".to_string())],
-        headers: vec![],
-        data: None,
-        connect_timeout: None,
-        max_redirections: None,
-    };
-
-    let parameter = UploadParameter {
-        file_path: PathBuf::from("/Users/hxy/Desktop/图片/2641692240020_.pic.jpg"),
-        file_part: Some("image".to_string()),
-        file_name: "2641692240020_.pic.jpg".to_string(),
-        payload: vec![("subfolder".to_string(), "hxy".to_string()), ("overwrite".to_string(), "true".to_string())],
-    };
-
-    let run = async {
-        let resp = http_upload_handler(config, parameter).await.unwrap();
-    };
-    block_on(run);
-}
+// #[tokio::test]
+// async fn test() {
+//     let config = ApiConfig {
+//         method: "POST".to_string(),
+//         url: url::Url::options().parse("http://192.168.50.137:8188/upload/image").unwrap(),
+//         // headers: vec![("Content-Type".to_string(), "multipart/form-data".to_string())],
+//         headers: vec![],
+//         data: None,
+//         connect_timeout: None,
+//         max_redirections: None,
+//     };
+//
+//     let parameter = UploadParameter {
+//         file_path: PathBuf::from("/Users/hxy/Desktop/图片/2641692240020_.pic.jpg"),
+//         file_part: Some("image".to_string()),
+//         file_name: "2641692240020_.pic.jpg".to_string(),
+//         payload: vec![("subfolder".to_string(), "hxy".to_string()), ("overwrite".to_string(), "true".to_string())],
+//     };
+//
+//     let run = async {
+//         let resp = http_upload_handler(config, parameter).await.unwrap();
+//     };
+//     block_on(run);
+// }

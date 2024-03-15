@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::time::Duration;
 use reqwest::{Method, RequestBuilder};
 use reqwest::redirect::Policy;
@@ -11,7 +10,7 @@ pub mod download;
 pub struct ApiConfig {
     pub method: String,
     pub url: url::Url,
-    pub headers: Vec<(String, String)>,
+    pub headers: serde_json::Map<String,serde_json::Value>,
     pub data: Option<Vec<u8>>,
     pub connect_timeout: Option<u64>,
     pub max_redirections: Option<usize>,
@@ -45,9 +44,9 @@ fn build_request(client: ApiConfig) -> RequestBuilder {
     let method = Method::from_bytes(method.as_bytes()).unwrap();
     let mut request = builder.build().expect("build err").request(method.clone(), url);
 
-    let headers: HashMap<String, String> = HashMap::from_iter(headers);
+    // let headers: HashMap<String, String> = HashMap::from_iter(headers);
     for (name, value) in &headers {
-        request = request.header(name, value);
+        request = request.header(name, value.as_str().unwrap_or(""));
     }
 
     if let Some(data) = data {
