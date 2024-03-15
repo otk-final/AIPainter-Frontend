@@ -5,6 +5,9 @@ import assets from '@/assets'
 import { history } from "umi"
 import { ProjectModal } from '@/components/create-project';
 import { Project, useProjectRepository } from '@/repository/workspace';
+import { DeleteOutlined, RightOutlined } from '@ant-design/icons';
+import { LoginModule, UserInfoModule, MemberRechargeModule, EnergyRechargeModule } from '@/components'
+import { useLogin } from '@/uses';
 
 
 export type ProjectType = "story" | "imitate" | ""
@@ -64,26 +67,23 @@ const HomePage = () => {
   //加载项目
   const projectRepo = useProjectRepository(state => state)
   const [isProjectOpen, setIsProjectOpen] = useState<ProjectType>("");
-  const bannerRef = useRef(null);
-  let [bannerW, setBannerW] = useState(0);
-
-  useLayoutEffect(() => {
-    setBannerW(bannerRef.current.offsetWidth);
-  }, []);
-
+  const [isLoginOpen, setLoginOpen] = useState(false);
+  const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
+  const [isMemberRechargeOpen, setIsMemberRechargeOpen] = useState(false);
+  const { logout, loginState } = useLogin();
 
   useEffect(() => {
-
     projectRepo.load('env')
-
-    window.addEventListener('resize', function () {
-      if (bannerRef.current) {
-        setBannerW(bannerRef.current.offsetWidth);
-      }
-    })
   }, [])
 
-
+  const openRecharge = (type: "energy" | 'member') => {
+    setIsUserInfoOpen(false);
+    if (type === 'energy') {
+      // setIsEnergyRechargeOpen(true);
+    } else {
+      setIsMemberRechargeOpen(true)
+    }
+  }
 
   const handleBtn = async (i: homeDataProps) => {
     // if (!loginState.isLogin) {
@@ -96,9 +96,6 @@ const HomePage = () => {
       setIsProjectOpen(i.key)
     }
   }
-
-
-
 
   const handleGoon = (project: Project) => {
     history.push(project.type === "story" ? "/story/" + project.id : "/imitate/" + project.id)
@@ -123,19 +120,14 @@ const HomePage = () => {
 
   const renderMyCreation = () => {
     return (
-      <div className="section-create-wrap flexR">
+      <div className="flexR" style={{flexWrap: 'wrap'}}>
         {projectRepo.items.map((item, index) => {
           return (
-            <div className="home-item-wrap flexR" key={index}>
-              <div className="left flexC">
+            <div className="home-item-wrap" key={index}>
+              <img src={ assets.avatar} className="create-img" onClick={() => { handleGoon(item!)}}/>
+              <div className='flexRB'>
                 <div className="title one-line">{item?.name}</div>
-                <div className="describe" style={{ marginTop: '-10px' }}>类型: {item.type === "story" ? "创造视频" : "一键追爆款"}</div>
-                <div className="describe">开始时间: {item?.createTime}</div>
-                <div className="describe">当前环节: {item?.step}</div>
-              </div>
-              <div className="right flexC">
-                <Button type="default" className="btn-default-auto btn-default-100" onClick={() => { handleGoon(item!) }}>继续创作</Button>
-                <Button type="default" className="btn-default-auto btn-default-100" style={{ marginTop: '10px' }} onClick={() => handleDel(index, item)}>删除</Button>
+                <DeleteOutlined  style={{fontSize: '14px'}} onClick={() => handleDel(index, item)}/>
               </div>
             </div>
           )
@@ -156,18 +148,43 @@ const HomePage = () => {
 
   return (
     <div className="home-wrap scrollbar">
-      <Carousel className="carousel-wrap" autoplay>
-        {carouselData.map((i, index) => {
-          return (
-            <div key={index} ref={bannerRef}>
-              <Image src={i.url} width="100%" height={bannerW / 9 * 1.8} preview={false} />
-            </div>
-          )
-        })}
-      </Carousel>
+      <div className='flexR'>
+        <div className='login-section' onClick={() => !loginState.isLogin && setLoginOpen(true)}>
+          <div className='flexR' onClick={()=> {loginState.isLogin ? setIsUserInfoOpen(true): setLoginOpen(true)} }>
+            <img src={loginState.isLogin ? assets.avatar1: assets.avatar} className="user-img" />
+            <div className='text'>{loginState.isLogin ? loginState.nickName:  "点击登录账户"}</div>
+          </div>
+          <div className='vip flexRB' onClick={()=> loginState.isLogin && setIsMemberRechargeOpen(true)}>
+           {loginState.endTime ? <div><span className='vip-cur'>VIP</span>{loginState.endTime}到期</div> : "开通VIP可无限使用"} 
+          <RightOutlined />
+          </div>
+        </div>
+        <Carousel className="carousel-wrap" autoplay>
+          {carouselData.map((i, index) => {
+            return (
+              <Image src={i.url} key={index}  preview={false} />
+            )
+          })}
+        </Carousel>
+      </div>
 
-
-      <div className="home-section flexR">
+      <div className='flexR'>
+        <div className='ai-item flexR' onClick={()=> setIsProjectOpen("story")}>
+          <img src={assets.ai1} className="ai-img" />
+          <div>
+            <div className='title'>AI原创</div>
+            <div className='text'>智能分镜、中文提示词帮您快速完成原创</div>
+          </div>
+        </div>
+        <div className='ai-item flexR' onClick={()=> setIsProjectOpen("imitate")}>
+          <img src={assets.ai2} className="ai-img" />
+          <div>
+            <div className='title'>AI翻拍</div>
+            <div className='text'>三步完成AI视频翻拍</div>
+          </div>
+        </div>
+      </div>
+      {/* <div className="home-section flexR">
         {data.map((i, index) => {
           return (
             <div className="home-item-wrap flexR" key={index} >
@@ -183,12 +200,13 @@ const HomePage = () => {
             </div>
           )
         })}
-      </div>
-
-      <div className="section-title-wrap">我的创作<span>（生成素材特为您保留30天）</span></div>
-
+      </div> */}
+      <div className="section-title-wrap">我的草稿<span>（生成素材特为您保留30天）</span></div>
       {projectRepo.items.length ? renderMyCreation() : renderMyCreationEmpty()}
       <ProjectModal isOpen={!!isProjectOpen} onClose={() => setIsProjectOpen("")} type={isProjectOpen} />
+      <LoginModule isOpen={isLoginOpen} onClose={() => setLoginOpen(false)} />
+      <UserInfoModule isOpen={isUserInfoOpen} onClose={() => setIsUserInfoOpen(false)} openRecharge={openRecharge} />
+      <MemberRechargeModule isOpen={isMemberRechargeOpen} onClose={() => setIsMemberRechargeOpen(false)} />
     </div>
   );
 }
