@@ -39,12 +39,15 @@ export class ComfyUIApi {
 
     clientId: string
 
+    traceId: string
+
     // storage:
-    constructor() {
+    constructor(traceId: string) {
         let { user } = ClientAuthenticationStore.getState()
         if (!user) {
             throw new Error("no found login user")
         }
+        this.traceId = traceId
         this.clientId = user.id
     }
 
@@ -56,6 +59,10 @@ export class ComfyUIApi {
         let response = await ComfyUIClient.post("/prompt", {
             clientId: this.clientId,
             prompt: prompt,
+        }, {
+            headers: {
+                "x-trace-id": this.traceId
+            }
         })
         if (response.status !== 200) {
             throw new Error(response.data as string);
@@ -96,7 +103,11 @@ export class ComfyUIApi {
 
     //任务状态
     async status(prompt_id: string): Promise<any> {
-        await ComfyUIClient.get('/history/' + prompt_id)
+        await ComfyUIClient.get('/history/' + prompt_id, {
+            headers: {
+                "x-trace-id": this.traceId
+            }
+        })
     }
 
     //upload
@@ -106,7 +117,7 @@ export class ComfyUIApi {
             client: {
                 method: "POST",
                 url: process.env.COMFYUI_HOST + "/upload/image",
-                headers: header,
+                headers: { ...header, "x-trace-id": this.traceId },
             },
             parameter: {
                 file_part: "image",
@@ -130,7 +141,7 @@ export class ComfyUIApi {
             client: {
                 method: "GET",
                 url: process.env.COMFYUI_HOST + "/view?subfolder=" + locate.subfolder + "&filename=" + locate.filename + "&type=" + locate.type,
-                headers: header,
+                headers: { ...header, "x-trace-id": this.traceId },
             },
             filePath: filepath
         }).catch(err => {

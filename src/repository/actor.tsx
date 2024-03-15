@@ -67,7 +67,7 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
 
         // this.items[index]
         let prompt = traits.map(item => item.value).join(",")
-        let api = new ComfyUIApi()
+        let api = new ComfyUIApi(uuid())
         
         //加载脚本
         let style = comyuiRepo.generates[0].name

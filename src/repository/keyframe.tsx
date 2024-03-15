@@ -146,7 +146,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     handleGeneratePrompt = async (index: number, comyuiRepo: ComfyUIRepository) => {
 
         let frame = this.items[index]
-        let api = new ComfyUIApi()
+        let api = new ComfyUIApi(uuid())
 
         //根据模型选择脚本
         let text = await comyuiRepo.buildReversePrompt()
@@ -177,13 +177,12 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
     handleGenerateImage = async (index: number, style: string, comyuiRepo: ComfyUIRepository) => {
         let frame = this.items[index]
 
-        let api = new ComfyUIApi()
+        let api = new ComfyUIApi(uuid())
 
         //加载脚本
         let text = await comyuiRepo.buildModePrompt(style)
         let script = new ApiPrompt(text)
 
-        debugger
         let locate: ComfyUIImageLocation;
         //判断流程是否需要上传默认图片
         if (script.hasInputImageStep()) {
@@ -192,7 +191,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
             await api.upload(locate, await this.absulotePath(frame.path))
         }
         //生成图片
-        let outputs = await comyuiRepo.generateImage(script, frame.prompt!, undefined, locate!)
+        let outputs = await comyuiRepo.generateImage(api, script, frame.prompt!, undefined, locate!)
 
         //下载图片
         let downloads = [] as string[]

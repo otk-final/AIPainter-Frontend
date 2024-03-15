@@ -156,7 +156,7 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
 
     //生成图片
     handleGenerateImage = async (index: number, style: string, project: Project, comyuiRepo: ComfyUIRepository, actorRepo: ActorRepository) => {
-        let api = new ComfyUIApi()
+        let api = new ComfyUIApi(uuid())
         
         
 

@@ -73,12 +73,10 @@ export class ComfyUIRepository extends BaseRepository<ComfyUIRepository> impleme
     }
 
     //生成图片
-    generateImage = async (script: ApiPrompt, prompt: string, dimensions?: ComfyUIImageDimensions, location?: ComfyUIImageLocation) => {
-        let api = new ComfyUIApi()
-
+    generateImage = async(api:ComfyUIApi,script: ApiPrompt, prompt: string, dimensions?: ComfyUIImageDimensions, location?: ComfyUIImageLocation) => {
+        
         //对输入提示词做敏感词过滤
         let inputPrompt = this.sensitivePromptTextFilter(prompt)
-        debugger
         //生成随机值
         let seed: number = await invoke('seed_random_handler', {})
 

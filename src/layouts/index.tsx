@@ -7,9 +7,9 @@ import { LoginModule, UserInfoModule, MemberRechargeModule, EnergyRechargeModule
 import updater from '@tauri-apps/plugin-updater';
 import assets from '@/assets';
 import { LoginOutlined, UserOutlined } from '@ant-design/icons';
-import { BaseDirectory, exists, readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import { ClientAuthenticationStore } from '@/api';
 import { ComfyUIApi } from '@/api/comfyui_api';
+import { v4 as uuid } from 'uuid';
 
 export default function Layout(props: any) {
 
@@ -63,21 +63,21 @@ export default function Layout(props: any) {
   const withUpdateHandler = async () => {
 
 
-    // let api = new ComfyUIApi()
-    // let resp = await api.upload({ subfolder: api.clientId, filename: "abc", type: "input" }, "/Users/hxy/Desktop/图片/2671692240023_.pic.jpg")
-    // console.info(resp)
+    let api = new ComfyUIApi(uuid())
+    let resp = await api.upload({ subfolder: api.clientId, filename: "abc", type: "input" }, "/Users/hxy/Desktop/图片/2671692240023_.pic.jpg")
+    console.info(resp)
 
 
 
-    let content = await readTextFile("sdw.txt", { baseDir: BaseDirectory.Desktop })
-    console.info(content)
+    // let content = await readTextFile("sdw.txt", { baseDir: BaseDirectory.Desktop })
+    // console.info(content)
 
-    // let flag = await exists("/sd", { baseDir: BaseDirectory.Desktop })
-    // console.info(flag)
-    let flag = await exists("ss.aa", { baseDir: BaseDirectory.Desktop })
-    console.info(flag);
+    // // let flag = await exists("/sd", { baseDir: BaseDirectory.Desktop })
+    // // console.info(flag)
+    // let flag = await exists("ss.aa", { baseDir: BaseDirectory.Desktop })
+    // console.info(flag);
 
-    await writeTextFile("sdw.txt", "abcd", { baseDir: BaseDirectory.Desktop, append: true })
+    // await writeTextFile("sdw.txt", "abcd", { baseDir: BaseDirectory.Desktop, append: true })
 
     // const update = await updater.check()
     // if (update?.available) {
