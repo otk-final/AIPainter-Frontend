@@ -71,13 +71,18 @@ export class ComfyUIApi {
         let respData: any;
         while (count < 10) {
 
-            await delay(3000)
+            await delay(1000)
 
             //查询状态
-            let tempData = await this.status(prompt_id)
-            console.log("查询结果:", prompt_id, count, tempData)
-            if (tempData && Object.keys(tempData).length > 0) {
-                respData = tempData;
+            let resp = await ComfyUIClient.get('/history/' + prompt_id)
+            if (resp.status !== 200) {
+                continue
+            }
+
+            let statusResp = resp.data;
+            console.log("查询结果:", prompt_id, count, statusResp)
+            if (statusResp && Object.keys(statusResp).length > 0) {
+                respData = statusResp;
                 break
             }
             count++;
@@ -91,14 +96,13 @@ export class ComfyUIApi {
 
     //任务状态
     async status(prompt_id: string): Promise<any> {
-        return ComfyUIClient.get('/history/' + prompt_id);
+        await ComfyUIClient.get('/history/' + prompt_id)
     }
 
     //upload
-    async upload(locate: ComfyUIImageLocation, filepath: string): Promise<any> {
-
+    async upload(locate: ComfyUIImageLocation, filepath: string) {
         let { header } = ClientAuthenticationStore.getState()
-        return await invoke('http_upload_multipart_handler', {
+        let resp = await invoke('http_upload_multipart_handler', {
             client: {
                 method: "POST",
                 url: process.env.COMFYUI_HOST + "/upload/image",
@@ -113,20 +117,26 @@ export class ComfyUIApi {
                     subfolder: locate.subfolder
                 }
             }
+        }).catch(err => {
+            throw new Error(err)
         })
+        console.info(resp)
     }
 
     //download
-    async download(locate: ComfyUIImageLocation, filepath: string): Promise<ArrayBuffer> {
+    async download(locate: ComfyUIImageLocation, filepath: string) {
         let { header } = ClientAuthenticationStore.getState()
-        return await invoke('http_download_handler', {
+        let resp = await invoke('http_download_handler', {
             client: {
                 method: "GET",
                 url: process.env.COMFYUI_HOST + "/view?subfolder=" + locate.subfolder + "&filename=" + locate.filename + "&type=" + locate.type,
                 headers: header,
             },
             filePath: filepath
-        });
+        }).catch(err => {
+            throw new Error(err)
+        })
+        console.info(resp)
     }
 }
 

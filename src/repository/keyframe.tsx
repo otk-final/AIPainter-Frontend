@@ -183,6 +183,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let text = await comyuiRepo.buildModePrompt(style)
         let script = new ApiPrompt(text)
 
+        debugger
         let locate: ComfyUIImageLocation;
         //判断流程是否需要上传默认图片
         if (script.hasInputImageStep()) {

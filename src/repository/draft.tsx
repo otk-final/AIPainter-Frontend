@@ -32,9 +32,9 @@ export interface JYDraftConfiguration {
 
 
 export class JYDraftRepository extends BaseRepository<JYDraftRepository> implements JYDraftConfiguration {
-    
-    protected free(): void {
-        throw new Error("Method not implemented.")
+
+    free(): void {
+
     }
 
     video = {

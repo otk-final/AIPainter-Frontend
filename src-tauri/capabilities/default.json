@@ -21,6 +21,11 @@
       "identifier": "shell:allow-execute",
       "allow": [
         {
+          "name": "bin/ffprobe",
+          "args": true,
+          "sidecar": true
+        },
+        {
           "name": "bin/ffmpeg",
           "args": true,
           "sidecar": true

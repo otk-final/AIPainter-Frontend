@@ -2,8 +2,8 @@ import { subscribeWithSelector } from "zustand/middleware";
 import { BaseRepository } from "./tauri_repository";
 import { create } from "zustand";
 import { ApiPrompt, ComfyUIApi, ComfyUIImageDimensions, ComfyUIImageLocation, ComfyUIWorkflow, Text2ImageHandle, Text2ImageParams } from "../api/comfyui_api";
-import tauri from "@tauri-apps/api/core"
 import { readTextFile } from "@tauri-apps/plugin-fs";
+import { invoke } from "@tauri-apps/api/core";
 
 export interface KeyImage {
     id: number,
@@ -28,8 +28,8 @@ export interface ComfyUIConfiguration {
 //ComfyUI 配置
 export class ComfyUIRepository extends BaseRepository<ComfyUIRepository> implements ComfyUIConfiguration {
 
-    protected free(): void {
-        throw new Error("Method not implemented.");
+    free(): void {
+
     }
 
     reverse?: ComfyUIWorkflow
@@ -78,9 +78,9 @@ export class ComfyUIRepository extends BaseRepository<ComfyUIRepository> impleme
 
         //对输入提示词做敏感词过滤
         let inputPrompt = this.sensitivePromptTextFilter(prompt)
-
+        debugger
         //生成随机值
-        let seed: number = await tauri.invoke('seed_random', {})
+        let seed: number = await invoke('seed_random_handler', {})
 
         let parms = {
             seed: seed,
@@ -102,7 +102,7 @@ export class ComfyUIRepository extends BaseRepository<ComfyUIRepository> impleme
 
     //放大图片
     scaleImage = async (images: KeyImage[]) => {
-        return await tauri.invoke('key_image_scale_handler', { parameters: images }) as KeyImage[]
+        return await invoke('key_image_scale_handler', { parameters: images }) as KeyImage[]
     }
 
 }

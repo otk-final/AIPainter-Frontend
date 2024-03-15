@@ -3,15 +3,14 @@ import { BaseRepository, delay } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
 
 import { path } from "@tauri-apps/api";
-import event from "@tauri-apps/api/event";
-import tauri from "@tauri-apps/api/core";
-import shell from "@tauri-apps/plugin-shell"
-
 
 import { KeyFrame } from "./keyframe"
 import { SRTLine, formatTime } from "./srt"
 import { BytedanceApi } from "@/api/bytedance_api";
 import { copyFile, mkdir, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
+import { Command } from "@tauri-apps/plugin-shell";
+import { invoke } from "@tauri-apps/api/core";
+import { emit } from "@tauri-apps/api/event";
 
 
 interface KeyFrameJob {
@@ -62,31 +61,30 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
         //视频信息
 
-        //解析视频参数
-        let cmd = shell.Command.sidecar('bin/ffprobe', [
-            "-v", "quiet",
-            "-show_streams",
-            "-select_streams", "0", //视频
-            "-output_format", "json",
-            "-i", videoPath
-        ])
+        // //解析视频参数
+        // let output = await Command.sidecar('bin/ffprobe', [
+        //     "-v", "quiet",
+        //     "-show_streams",
+        //     "-select_streams", "0", //视频
+        //     "-output_format", "json",
+        //     "-i", videoPath
+        // ]).execute()
+        // console.info(output)
 
-        let output = await cmd.execute();
-        this.payload = JSON.parse(output.stdout)
+        // this.payload = JSON.parse(output.stdout)
 
         let audioPath = await this.absulotePath("audio.mp3")
 
         //导出音频
-        cmd = shell.Command.sidecar("bin/ffmpeg", [
+        let output = await Command.sidecar("bin/ffmpeg", [
             "-y",
             "-i", videoPath,
             "-vn",
             "-ab", "128k",  //音频格式
             "-f", "mp3",
             audioPath
-        ])
+        ]).execute()
 
-        output = await cmd.execute()
         console.info("提取音频 err", output.stderr)
         console.info("提取音频 out", output.stdout)
         this.audioPath = "audio.mp3"
@@ -185,16 +183,17 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
 
     //抽帧关键帧
-    
+
     handleCollectFrames = async () => {
 
         //临时存储目录
-        let framesDir = await path.join(this.repoDir, "frames")
+        let framesDir = await path.join(await this.basePath(), this.repoDir, "frames")
         await mkdir(framesDir, { recursive: true })
-        let audiosDir = await path.join(this.repoDir, "audios")
+        let audiosDir = await path.join(await this.basePath(), this.repoDir, "audios")
         await mkdir(audiosDir, { recursive: true })
-        let videosDir = await path.join(this.repoDir, "videos")
+        let videosDir = await path.join(await this.basePath(), this.repoDir, "videos")
         await mkdir(videosDir, { recursive: true })
+
 
 
         //音频文件
@@ -202,7 +201,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
         //根据字幕文件抽取关键帧
         let srtLines = await this.handleRecognitionAudio(exportAudioPath)
-
+        debugger;
         //关键帧参数
         let jobs = [] as KeyFrameJob[]
         for (let i = 0; i < srtLines.length; i++) {
@@ -235,7 +234,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         }
 
         //并发执行
-        let results: KeyFrameJob[] = await tauri.invoke('key_frame_collect', { videoPath: this.videoPath!, audioPath: exportAudioPath, parameters: jobs })
+        let results: KeyFrameJob[] = await invoke('key_frame_export_handler', { videoPath: this.videoPath!, audioPath: exportAudioPath, parameters: jobs })
 
         //转换关键帧对象
         return results.map((item: KeyFrameJob) => {
@@ -267,7 +266,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         }
 
         //通知进度
-        await event.emit("key_frame_collect_process", {
+        await emit("key_frame_collect_process", {
             title: "上传音频",
             except: 100,
             completed: 30,
@@ -279,12 +278,12 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
         //在线 生成字幕文件
         console.info("上传音频")
-        let jobResp: any = await api.submitAudio(audioPath)
-        
-        console.info("已提交任务：", jobResp)
+        let respText: any = await api.submitAudio(audioPath)
+        let respJob = JSON.parse(respText)
+        console.info("已提交任务：", respText)
 
         //通知进度
-        await event.emit("key_frame_collect_process", {
+        await emit("key_frame_collect_process", {
             title: "下载音频字幕",
             except: 100,
             completed: 60,
@@ -298,7 +297,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
             //处理中
             await delay(3000)
             fatch++;
-            let respText: any = await api.statusQuery(jobResp.id);
+            let respText: any = await api.statusQuery(respJob.id);
             console.info("查询任务结果：", fatch, respText)
             if (respText.code === 0) {
                 //成功
@@ -318,7 +317,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
         }
 
         //通知进度
-        await event.emit("key_frame_collect_process", {
+        await emit("key_frame_collect_process", {
             title: "识别音频字幕",
             except: 100,
             completed: 100,

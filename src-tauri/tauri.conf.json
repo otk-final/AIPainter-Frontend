@@ -53,7 +53,9 @@
       "icons/icon.ico"
     ],
     "externalBin":[
-      "bin/ffmpeg"
+      "bin/ffmpeg",
+      "bin/ffprobe",
+      "bin/dssim"
     ]
   }
 }

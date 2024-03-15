@@ -1,6 +1,6 @@
-import tauri from "@tauri-apps/api/core"
 import { v4 as uuid } from "uuid"
 import { BytedanceClient, ClientAuthenticationStore } from "."
+import { invoke } from "@tauri-apps/api/core"
 
 //音频参数
 export interface AudioOption {
@@ -65,16 +65,18 @@ export class BytedanceApi {
     //提交音频
     submitAudio = async (audioPath: string) => {
         let { header } = ClientAuthenticationStore.getState()
-        return await tauri.invoke('http_upload_handler', {
+        return await invoke('http_upload_handler', {
             client: {
                 method: "POST",
-                url: "?appid=" + this.appId + "&words_per_line=20&max_lines=1",
+                url: process.env.BYTEDANCE_HOST + "/api/v1/vc/submit?appid=" + this.appId + "&words_per_line=20&max_lines=1",
                 headers: {
                     ...header,
                     "Content-Type": "audio/*"
                 },
             },
             filePath: audioPath
+        }).catch(err => {
+            throw new Error(err)
         })
     }
 

@@ -266,5 +266,5 @@ pub async fn key_frame_export_handler(window: Window,
     // let outputs = step_audio(window.clone(), video_path.clone(), audio_path.clone(), diffs2);
 
     //通知前端
-    Ok(vec![])
+    Ok(images)
 }

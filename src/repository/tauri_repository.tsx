@@ -49,6 +49,8 @@ export abstract class BaseRepository<T> implements TauriRepo {
 
     load = async (repoDir: string) => {
         this.repoDir = repoDir
+
+        this.free()
         
 
         // 目录是否存在
@@ -137,7 +139,7 @@ export abstract class BaseRepository<T> implements TauriRepo {
 }
 
 export const delay = async (ms: number) => {
-    await invoke("env_delay", { ms: ms });
+    await invoke("env_delay_handler", { ms: ms });
 }
 
 

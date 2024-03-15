@@ -116,7 +116,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid, project }) => {
     setProcess({ open: true, run_event: "batchGenerateImage", title: "正在生成图片..." })
 
     keyFrameRepo.resetBatchExit()
-    await batchGenerateImage(batchPos - 1, keyFrameRepo.items.length).finally(destroyProcessModal)
+    await batchGenerateImage(batchPos - 1, keyFrameRepo.items.length).catch(err => { message.error(err.message) }).finally(destroyProcessModal)
   }
 
 
@@ -148,7 +148,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid, project }) => {
       }
       console.info("开始下一个任务", next_idx + 1)
       await batchGeneratePrompt(next_idx + 1, end_idx)
-    }).finally(() => { console.info("递归任务退出"); keyFrameRepo.resetBatchExit() })
+    }).finally(() => { keyFrameRepo.resetBatchExit() })
   }
 
   const handleBatchGeneratePrompt = async () => {
@@ -161,7 +161,7 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid, project }) => {
     setProcess({ open: true, run_event: "batchGeneratePrompt", title: "正在反推关键词..." })
     keyFrameRepo.resetBatchExit()
 
-    await batchGeneratePrompt(batchPos - 1, keyFrameRepo.items.length).finally(destroyProcessModal)
+    await batchGeneratePrompt(batchPos - 1, keyFrameRepo.items.length).catch(err => { message.error(err.message) }).finally(destroyProcessModal)
   }
 
 
