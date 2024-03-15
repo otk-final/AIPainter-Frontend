@@ -1,7 +1,7 @@
+import { writeTextFile } from "@tauri-apps/plugin-fs"
 import { KeyFragment } from "./draft_utils"
 import { delay } from "./tauri_repository"
 import tauri from "@tauri-apps/api/core"
-import fs from "@tauri-apps/plugin-fs";
 import shell from "@tauri-apps/plugin-shell"
 
 
@@ -14,7 +14,7 @@ export const ConcatFragments = async (concats_path: string, srt_path: string, vi
 
     //生成拼接文件
     let concats_content: string[] = results.map(i => "file " + "'" + i.video_path + "'")
-    await fs.writeTextFile(concats_path, concats_content.join("\n"), { append: false })
+    await writeTextFile(concats_path, concats_content.join("\n"), { append: false })
 
     //1合成视频
     let cmd = shell.Command.sidecar("bin/ffmpeg", [

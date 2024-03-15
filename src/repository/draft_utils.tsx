@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid"
 import { JYDraftConfiguration } from "./draft";
 import path from "@tauri-apps/api/path";
-import fs from "@tauri-apps/plugin-fs";
+import { writeTextFile } from "@tauri-apps/plugin-fs";
 
 /**
  * 加载剪映草稿模版
@@ -201,7 +201,7 @@ export const JYDraftExport = async (parameter: JYDraftProjectParameter, settingR
     /**
      * 写入文件
      */
-    await fs.writeTextFile(await path.join(parameter.draft_path, "draft_meta_info.json"), JSON.stringify(root_meta), { append: false })
+    await writeTextFile(await path.join(parameter.draft_path, "draft_meta_info.json"), JSON.stringify(root_meta), { append: false })
 
 
 

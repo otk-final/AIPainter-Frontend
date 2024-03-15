@@ -2,10 +2,10 @@ import { subscribeWithSelector } from "zustand/middleware"
 import { BaseRepository } from "./tauri_repository"
 import { create } from "zustand"
 
-import fs from "@tauri-apps/plugin-fs";
 
 import { GPTAssistantsApi } from "@/api/gpt_api";
 import { Chapter } from "./chapter";
+import { readTextFile } from "@tauri-apps/plugin-fs";
 
 export type ImportType = "input" | "file"
 
@@ -96,7 +96,7 @@ export class ScriptRepository extends BaseRepository<ScriptRepository> {
         //换行 本地解析
         let scriptText = ""
         if (importType === "file") {
-            scriptText = await fs.readTextFile(path)
+            scriptText = await readTextFile(path)
             this.path = path
         } else {
             scriptText = text

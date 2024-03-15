@@ -2,8 +2,8 @@ import { subscribeWithSelector } from "zustand/middleware";
 import { BaseRepository } from "./tauri_repository";
 import { create } from "zustand";
 import { ApiPrompt, ComfyUIApi, ComfyUIImageDimensions, ComfyUIImageLocation, ComfyUIWorkflow, Text2ImageHandle, Text2ImageParams } from "../api/comfyui_api";
-import fs from "@tauri-apps/plugin-fs";
 import tauri from "@tauri-apps/api/core"
+import { readTextFile } from "@tauri-apps/plugin-fs";
 
 export interface KeyImage {
     id: number,
@@ -27,7 +27,7 @@ export interface ComfyUIConfiguration {
 
 //ComfyUI 配置
 export class ComfyUIRepository extends BaseRepository<ComfyUIRepository> implements ComfyUIConfiguration {
-    
+
     protected free(): void {
         throw new Error("Method not implemented.");
     }
@@ -43,16 +43,16 @@ export class ComfyUIRepository extends BaseRepository<ComfyUIRepository> impleme
         if (!modeApi) {
             throw new Error("not found image generate script")
         }
-        let wfText = await fs.readTextFile(modeApi.path)
+        let wfText = await readTextFile(modeApi.path)
         return JSON.parse(wfText)
     }
 
     buildReversePrompt = async () => {
-        if (!this.reverse){
+        if (!this.reverse) {
             throw new Error("not found image reverse script")
         }
 
-        let wfText = await fs.readTextFile(this.reverse.path)
+        let wfText = await readTextFile(this.reverse.path)
         return JSON.parse(wfText)
     }
 

@@ -98,6 +98,7 @@ export class ComfyUIApi {
     async upload(locate: ComfyUIImageLocation, filepath: string): Promise<any> {
 
         let { header } = ClientAuthenticationStore.getState()
+        debugger;
         return await invoke('http_multipart_handler', {
             client: {
                 method: "POST",

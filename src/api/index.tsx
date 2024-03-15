@@ -1,4 +1,4 @@
-import { BaseDirectory, exists, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
+import { BaseDirectory, exists, mkdir, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { hostname, platform, type, version } from "@tauri-apps/plugin-os";
 import axios, { InternalAxiosRequestConfig } from "axios";
 import { createStore } from "zustand";
@@ -70,6 +70,7 @@ export const ClientAuthenticationStore = createStore<ClientAuthorization>((set, 
     refresh: async (newAuthor: UserAuthorization) => {
 
         //保存登陆信息
+        await mkdir(process.env.APP_ID!, { baseDir: BaseDirectory.Home, recursive: true });
         await writeTextFile(process.env.APP_ID + "/author.json", JSON.stringify(newAuthor), { baseDir: BaseDirectory.Home, append: false })
 
         //更新accessToken 和用户信息
