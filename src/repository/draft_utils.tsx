@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid"
 import { JYDraftConfiguration } from "./draft";
 import path from "@tauri-apps/api/path";
-import { writeTextFile } from "@tauri-apps/plugin-fs";
+import { copyFile, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 
 /**
  * 加载剪映草稿模版
@@ -10,7 +10,7 @@ import { writeTextFile } from "@tauri-apps/plugin-fs";
  */
 const loadJYDraftTemplate = async (filepath: string) => {
     let template_path = await path.resolveResource(filepath)
-    return JSON.parse(await fs.readTextFile(template_path))
+    return JSON.parse(await readTextFile(template_path))
 }
 
 export interface KeyFragmentEffect {
@@ -429,9 +429,9 @@ export const JYDraftExport = async (parameter: JYDraftProjectParameter, settingR
         width: parameter.canvas_size.width
     }
 
-    await fs.writeTextFile(await path.join(parameter.draft_path, "draft_content.json"), JSON.stringify(root_content), { append: false })
+    await writeTextFile(await path.join(parameter.draft_path, "draft_content.json"), JSON.stringify(root_content), { append: false })
 
     //写入封面图
-    await fs.copyFile(items[0].image_path, parameter.draft_path + path.sep() + "draft_cover.jpg", {})
+    await copyFile(items[0].image_path, parameter.draft_path + path.sep() + "draft_cover.jpg", {})
 }
 

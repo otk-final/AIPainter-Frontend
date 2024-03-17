@@ -157,21 +157,20 @@ export class ChapterRepository extends BaseCRUDRepository<Chapter, ChapterReposi
     //生成图片
     handleGenerateImage = async (index: number, style: string, project: Project, comyuiRepo: ComfyUIRepository, actorRepo: ActorRepository) => {
         let api = new ComfyUIApi(uuid())
-        
-        
+
+
 
         //获取所有 角色关键词 + 场景关键词
         let chapter = this.items[index]
         let actor_prompt = actorRepo.toPrompt(chapter.actors)
         let prompt = [actor_prompt, chapter.prompt].join(",")
 
-
         //加载脚本
-        let text = await comyuiRepo.buildModePrompt(style)
+        let text = await comyuiRepo.imagePrompt(style)
         let script = new ApiPrompt(text)
 
         //生成图片
-        let outputs = await comyuiRepo.generateImage(script, prompt, undefined, undefined)
+        let outputs = await comyuiRepo.submitImageGeneratePrompt(api, script, prompt, undefined, undefined)
 
         //下载图片
         let downloads = [] as string[]

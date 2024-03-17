@@ -70,12 +70,12 @@ export class ActorRepository extends BaseCRUDRepository<Actor, ActorRepository> 
         let api = new ComfyUIApi(uuid())
         
         //加载脚本
-        let style = comyuiRepo.generates[0].name
-        let text = await comyuiRepo.buildModePrompt(style)
+        let style = comyuiRepo.prompts[0].name
+        let text = await comyuiRepo.imagePrompt(style)
         let script = new ApiPrompt(text)
 
         //生成图片
-        let outputs = await comyuiRepo.generateImage(script, prompt)
+        let outputs = await comyuiRepo.submitImageGeneratePrompt(api,script, prompt)
 
         //下载图片
         let downloads = [] as string[]

@@ -58,11 +58,14 @@ const LoginModule: React.FC<LoginModuleProps> = ({ isOpen, onClose }) => {
         }
 
         //认证
-        let resp = await AuthClient.post('/oauth2/token', {
+        let resp: any = await AuthClient.post('/oauth2/token', {
             grant_type: "sms",
             phone: phone,
             smsCode: verify
-        }).then(resp => resp.data)
+        }).catch(() => { })
+        if (!resp){
+            return
+        }
         let author = resp.data as UserAuthorization
 
         //存储认证信息
@@ -88,6 +91,7 @@ const LoginModule: React.FC<LoginModuleProps> = ({ isOpen, onClose }) => {
     return (
         <Modal title="验证码登陆/注册"
             open={isOpen}
+            onCancel={onClose}
             footer={null}
             keyboard={false}
             closeIcon={false}

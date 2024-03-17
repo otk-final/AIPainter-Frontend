@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { BaseCRUDRepository, ItemIdentifiable } from "./tauri_repository"
 import { subscribeWithSelector } from "zustand/middleware"
-import { Image2TextHandle, ApiPrompt, ComfyUIApi, ComfyUIImageLocation, ComfyUIImageDimensions } from "../api/comfyui_api"
+import { ApiPrompt, ComfyUIApi, ComfyUIImageLocation, ComfyUIImageDimensions } from "../api/comfyui_api"
 import { ComfyUIRepository, KeyImage } from "./comfyui"
 import { v4 as uuid } from "uuid"
 import { JYDraftExport, KeyFragment, KeyFragmentEffect } from "./draft_utils"
@@ -148,29 +148,15 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let frame = this.items[index]
         let api = new ComfyUIApi(uuid())
 
-        //根据模型选择脚本
-        let text = await comyuiRepo.buildReversePrompt()
-        let script = new ApiPrompt(text)
-
         //上传文件，子目录使用当前用户ID
         let locate = { filename: frame.name, type: "input", subfolder: api.clientId };
         await api.upload(locate, await this.absulotePath(frame.path))
 
-        //提交任务
-        let { promptId, promptResult } = await api.prompt(script, locate, Image2TextHandle)
+        //反推
+        let reversText = await comyuiRepo.submitImageReversePrompt(api, locate)
+        this.items[index].prompt = reversText
 
-        //关键词所在的节点数
-        let step = script.getWD14TaggerStep()
-        //定位结果
-        let reversePrompts = promptResult[promptId]!.outputs![step]!.tags! as string[]
-        reversePrompts = reversePrompts.join(",").split(",")
-
-        //存在返回结果，则更新
-        if (reversePrompts) {
-            //基于敏感词做过滤
-            this.items[index].prompt = comyuiRepo.sensitivePromptsFilter(reversePrompts).join(",")
-            this.sync()
-        }
+        this.sync()
     }
 
     //生成图片
@@ -180,7 +166,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
         let api = new ComfyUIApi(uuid())
 
         //加载脚本
-        let text = await comyuiRepo.buildModePrompt(style)
+        let text = await comyuiRepo.imagePrompt(style)
         let script = new ApiPrompt(text)
 
         let locate: ComfyUIImageLocation;
@@ -191,7 +177,7 @@ export class KeyFrameRepository extends BaseCRUDRepository<KeyFrame, KeyFrameRep
             await api.upload(locate, await this.absulotePath(frame.path))
         }
         //生成图片
-        let outputs = await comyuiRepo.generateImage(api, script, frame.prompt!, undefined, locate!)
+        let outputs = await comyuiRepo.submitImageGeneratePrompt(api, script, frame.prompt!, undefined, locate!)
 
         //下载图片
         let downloads = [] as string[]

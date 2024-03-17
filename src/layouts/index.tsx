@@ -10,7 +10,9 @@ import { LoginOutlined, UserOutlined } from '@ant-design/icons';
 import { ClientAuthenticationStore } from '@/api';
 import { ComfyUIApi } from '@/api/comfyui_api';
 import { v4 as uuid } from 'uuid';
-
+import { useComfyUIRepository } from '@/repository/comfyui';
+import { event } from '@tauri-apps/api';
+import { history } from "umi"
 export default function Layout(props: any) {
 
   let { pathname } = useLocation();
@@ -21,6 +23,24 @@ export default function Layout(props: any) {
   const [isLoginOpen, setLoginOpen] = useState(false);
   const [isMemberRechargeOpen, setIsMemberRechargeOpen] = useState(false);
   const [isEnergyRechargeOpen, setIsEnergyRechargeOpen] = useState(false);
+  
+  const comfyuiRepo = useComfyUIRepository(state => state)
+
+
+
+  useEffect(() => {
+
+    //注册运行事件
+    const unsub = event.once('tauri://focus', async (event) => {
+      await comfyuiRepo.download()
+    })
+
+    return () => {
+      unsub.then(f => f())
+    }
+  }, [])
+
+
 
   useEffect(() => {
     if (!loginState.isLogin) {
@@ -69,6 +89,7 @@ export default function Layout(props: any) {
 
 
 
+
     // let content = await readTextFile("sdw.txt", { baseDir: BaseDirectory.Desktop })
     // console.info(content)
 
@@ -101,6 +122,8 @@ export default function Layout(props: any) {
             </Fragment>
             : null}
           <div className="help" onClick={withUpdateHandler}>?</div>
+
+          <div className="help" onClick={() => { history.push("/draft")}}>剪</div>
 
           {loginState.isLogin ?
             <Popover placement="bottomLeft" content={renderPopoverContent} arrow={false}>

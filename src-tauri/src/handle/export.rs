@@ -39,7 +39,7 @@ fn export_video(tx: Sender<KeyFrame>, video_path: String, audio_path: String, it
         "-i", video_path.as_str(), "-vcodec", "copy", "-an",
         item.video_output.as_str()
     ].iter().map(|item| { item.to_string() }).collect();
-    let _ = execute( "ffmpeg", video_args, item.clone());
+    let _ = execute("ffmpeg", video_args, item.clone());
 
     //通知
     tx.send(item).unwrap()
@@ -92,7 +92,7 @@ fn batch_export_image(window: Window, video_path: String, audio_path: String, pa
         let _video_path = video_path.clone();
         let _audio_path = audio_path.clone();
         //独立线程
-        POOL.spawn(move || { export_image( _tx, _video_path, item); })
+        POOL.spawn(move || { export_image(_tx, _video_path, item); })
     });
 
     //主线程同步监听消息 待抽帧完成
@@ -238,16 +238,12 @@ fn diff_images(sources: Vec<KeyFrame>, threshold: f64, step: usize) -> Vec<KeyFr
 }
 
 
-
 //导出关键帧
 #[tauri::command]
 pub async fn key_frame_export_handler(window: Window,
                                       video_path: String,
                                       audio_path: String,
                                       parameters: Vec<KeyFrame>) -> Result<Vec<KeyFrame>, Error> {
-
-    // method2(window);
-
     // println!("第一步:抽取关键帧");
     let images = batch_export_image(window, video_path.clone(), audio_path.clone(), parameters);
 

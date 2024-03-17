@@ -15,8 +15,8 @@ export const ComyUIModeSelect: React.FC<StyleSelectProps> = ({ mode, onChange })
 
     useEffect(() => {
         //模型
-        let styleOptions = comfyuiRepo.generates.map(item => {
-            return { label: item.name.split(".")[0], value: item.name }
+        let styleOptions = comfyuiRepo.prompts.map(item => {
+            return { label: item.name, value: item.name }
         })
         setOptions(styleOptions)
         if (styleOptions.length > 0) onChange(styleOptions[0].value)

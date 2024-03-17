@@ -1,16 +1,6 @@
-import { ItemIdentifiable, delay } from "../repository/tauri_repository"
+import { delay } from "../repository/tauri_repository"
 import { ClientAuthenticationStore, ComfyUIClient } from "."
 import { invoke } from "@tauri-apps/api/core"
-
-export interface ComfyUIWorkflow extends ItemIdentifiable {
-    name: string
-    path: string
-}
-
-export interface ComfyUIHost {
-    url: string
-    websocket: string
-}
 
 export interface ComfyUIPromptTask {
     prompt_id: string

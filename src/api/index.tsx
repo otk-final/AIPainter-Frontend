@@ -1,6 +1,7 @@
 import { BaseDirectory, exists, mkdir, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { hostname, platform, type, version } from "@tauri-apps/plugin-os";
-import axios, { InternalAxiosRequestConfig } from "axios";
+import { message } from "antd";
+import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { createStore } from "zustand";
 
 
@@ -27,6 +28,32 @@ export interface UserPrincipal {
     id: string
     name: string
     profile: any
+}
+
+
+export interface ApiResult<T> {
+    status: boolean
+    code: string
+    msg: string
+    err: string
+    data: T
+    currentTime: number
+}
+
+const responseInterceptor = (response: AxiosResponse<any, any>) => {
+    //协议
+    if (response.status !== 200) {
+        message.error(response.statusText);
+        return Promise.reject(new Error(response.statusText))
+    }
+    //业务
+    let apiResult = response.data as ApiResult<any>
+    if (!apiResult.status) {
+        message.error(apiResult.err);
+        return Promise.reject(new Error(apiResult.err))
+    }
+    //直接处理业务数据
+    return apiResult
 }
 
 
@@ -68,7 +95,6 @@ export const ClientAuthenticationStore = createStore<ClientAuthorization>((set, 
     },
 
     refresh: async (newAuthor: UserAuthorization) => {
-
         //保存登陆信息
         await mkdir(process.env.APP_ID!, { baseDir: BaseDirectory.Home, recursive: true });
         await writeTextFile(process.env.APP_ID + "/author.json", JSON.stringify(newAuthor), { baseDir: BaseDirectory.Home, append: false })
@@ -99,10 +125,15 @@ const requestHeaderInterceptor = (config: InternalAxiosRequestConfig<any>) => {
     return config;
 }
 
+/**
+ * 统一认证接口
+ */
 export const AuthClient = axios.create({
     baseURL: process.env.AUTH_HOST,
     headers: {
         //认证统一使用form提交
+        "x-tenant-id": process.env.TENANT_ID,
+        "x-app-id": process.env.APP_ID,
         'Content-Type': 'application/x-www-form-urlencoded'
     },
     timeout: Number(process.env.AUTH_TIMEOUT || 60000),
@@ -110,25 +141,30 @@ export const AuthClient = axios.create({
 })
 
 AuthClient.interceptors.request.use((config) => {
-    //覆盖Authorization 使用 Basic 认证
-    let baseConfig = requestHeaderInterceptor(config)
-    baseConfig.headers.Authorization = "Basic " + process.env.AUTH_CLIENT_BASIC
-    return baseConfig;
+    config.headers.Authorization = "Basic " + process.env.AUTH_CLIENT_BASIC
+    return config;
 })
+AuthClient.interceptors.response.use(responseInterceptor)
 
+
+/**
+ * 统一业务接口
+ */
 export const DefaultClient = axios.create({
     baseURL: process.env.DEFAULT_HOST,
     headers: {
         'Content-Type': 'application/json;charset=utf-8',
-        Authorization: "Basic " + process.env.AUTH_CLIENT_BASIC
     },
     timeout: Number(process.env.DEFAULT_TIMEOUT || 60000),
     withCredentials: false
 })
 DefaultClient.interceptors.request.use(requestHeaderInterceptor)
+DefaultClient.interceptors.response.use(responseInterceptor)
 
 
-
+/**
+ * 百度翻译
+ */
 export const BaiduClient = axios.create({
     baseURL: process.env.BAIDU_HOST,
     headers: {
@@ -140,6 +176,9 @@ export const BaiduClient = axios.create({
 })
 BaiduClient.interceptors.request.use(requestHeaderInterceptor)
 
+/**
+ * 火山引擎
+ */
 export const BytedanceClient = axios.create({
     baseURL: process.env.BYTEDANCE_HOST,
     headers: {
@@ -152,6 +191,9 @@ export const BytedanceClient = axios.create({
 BytedanceClient.interceptors.request.use(requestHeaderInterceptor)
 
 
+/**
+ * 绘图接口
+ */
 export const ComfyUIClient = axios.create({
     baseURL: process.env.COMFYUI_HOST,
     headers: {

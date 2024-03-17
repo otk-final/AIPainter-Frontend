@@ -201,7 +201,7 @@ export class SimulateRepository extends BaseRepository<SimulateRepository> {
 
         //根据字幕文件抽取关键帧
         let srtLines = await this.handleRecognitionAudio(exportAudioPath)
-        debugger;
+
         //关键帧参数
         let jobs = [] as KeyFrameJob[]
         for (let i = 0; i < srtLines.length; i++) {
