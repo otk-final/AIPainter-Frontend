@@ -1,6 +1,6 @@
 import { Button, Tabs, TabsProps, message } from 'antd';
 import { createRef, useEffect, useState } from 'react'
-import './index.less'
+import '../setting/index.less'
 import { Header } from '@/components';
 import { useJYDraftRepository } from '@/repository/draft';
 import ExportSettingTab, { ExportSettingRef } from './components/export-setting';

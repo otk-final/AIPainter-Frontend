@@ -536,3 +536,27 @@ body {
     
   }
 }
+
+// switch 自定义样式
+.switch-auto.ant-switch {
+  background-color: #666;
+  min-width: 38px;
+  width: 38px;
+  height: 20px;
+  border: none;
+
+  & .ant-switch-handle,
+  & .ant-switch-handle::before {
+      width: 16px;
+      height: 16px;
+      border-radius: 16px;
+  }
+
+  &.ant-switch-checked {
+      background-color: @primary-color;
+
+      & .ant-switch-handle {
+          inset-inline-start: calc(100% - 18px)
+      }
+  }
+}
