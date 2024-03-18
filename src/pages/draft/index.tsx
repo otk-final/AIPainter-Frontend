@@ -40,7 +40,7 @@ const JYDraftPage = () => {
     <div className="setting-wrap">
       <Header
         renderLeft={<Tabs defaultActiveKey={cur} items={setTabItems} onChange={onChange} />}
-        renderRight={<Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleSave}>保存设置</Button>}
+        renderRight={<Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleSave}>保存设置</Button>}
       />
       {cur === "export" ? <ExportSettingTab ref={settingRef} name="" /> : null}
     </div>

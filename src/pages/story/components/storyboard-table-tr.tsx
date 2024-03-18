@@ -73,10 +73,10 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
         return (
             <Fragment>
                 <div className='index'>{idx + 1}</div>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleDelChapter} disabled={chapterRepo.items!.length === 1}>删除</Button>
+                <Button type='default' className='btn-default-auto btn-default-68' onClick={handleDelChapter} disabled={chapterRepo.items!.length === 1}>删除</Button>
                 <ButtonGroup>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleAddBeforeChapter} icon={<ArrowUpOutlined />}>添加分镜</Button>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleAddAfterChapter} icon={<ArrowDownOutlined />}>添加分镜</Button>
+                    <Button type='default' className='btn-default-auto btn-default-68' onClick={handleAddBeforeChapter} icon={<ArrowUpOutlined />}>添加分镜</Button>
+                    <Button type='default' className='btn-default-auto btn-default-68' onClick={handleAddAfterChapter} icon={<ArrowDownOutlined />}>添加分镜</Button>
                 </ButtonGroup>
             </Fragment >
         )
@@ -146,7 +146,7 @@ const StoryboardTableTR: React.FC<StoryboardTableTRProps> = ({ idx, chapter, act
     const renderOperate = () => {
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateChapter.draft} onClick={handleResloveChapter}>推理关键词</Button>
+                <Button type='default' className='btn-default-auto btn-default-68' disabled={!stateChapter.draft} onClick={handleResloveChapter}>推理关键词</Button>
             </Fragment>
         )
     }

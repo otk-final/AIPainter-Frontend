@@ -197,7 +197,7 @@ const HomePage = () => {
                 </div>
                 <div className="describe one-line">{i.describe}</div>
               </div>
-              <Button type="default" className="btn-default-auto btn-default-100"
+              <Button type="default" className="btn-default-auto btn-default-88"
                 style={{ margin: 0 }}
                 onClick={() => handleBtn(i)}>{i.btnText}</Button>
             </div>

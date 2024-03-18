@@ -83,8 +83,8 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
         return (
             <Fragment>
                 <div className='index'>{index + 1}</div>
-                <Button type='default' className='btn-default-auto btn-default-98' style={{ width: '76px' }} onClick={handleDelKeyFrame}>删除</Button>
-                {/* <Button type='default' className='btn-default-auto btn-default-98' style={{ width: '76px' }} onClick={startPlayerFrament}>播放片段</Button> */}
+                <Button type='default' className='btn-default-auto btn-default-68' style={{ width: '76px' }} onClick={handleDelKeyFrame}>删除</Button>
+                {/* <Button type='default' className='btn-default-auto btn-default-68' style={{ width: '76px' }} onClick={startPlayerFrament}>播放片段</Button> */}
             </Fragment>
         )
     }
@@ -103,9 +103,9 @@ const GenerateImagesTR: React.FC<GenerateImagesTRProps> = ({ key, index, style, 
     const renderOperate = () => {
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleImage2Text}>反推关键词</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleText2Image} disabled={!stateFrame.prompt}>{stateFrame.image.path ? "重新生成" : "生成图片"}</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleScaleImage} disabled={!stateFrame.image.path}>高清放大</Button>
+                <Button type='default' className='btn-default-auto btn-default-68' onClick={handleImage2Text}>反推关键词</Button>
+                <Button type='default' className='btn-default-auto btn-default-68' onClick={handleText2Image} disabled={!stateFrame.prompt}>{stateFrame.image.path ? "重新生成" : "生成图片"}</Button>
+                <Button type='default' className='btn-default-auto btn-default-68' onClick={handleScaleImage} disabled={!stateFrame.image.path}>高清放大</Button>
             </Fragment>
         )
     }

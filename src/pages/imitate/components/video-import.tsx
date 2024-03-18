@@ -64,9 +64,9 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
         <div className="generate-image-wrap">
             <div className='flexR'>
                 <div>请导入视频：</div>
-                <Button type="default" className="btn-default-auto btn-default-100" onClick={handleImported} >导入</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '130px' }} disabled={!simulateRepo.videoPath} onClick={handleCollectFrames}>抽帧关键帧</Button>
-                {/* <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '100px' }} disabled={!simulateRepo.videoPath} onClick={handleCollectAudio}>导出音频</Button> */}
+                <Button type="default" className="btn-default-auto btn-default-88" onClick={handleImported} >导入</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-88" style={{ width: '130px' }} disabled={!simulateRepo.videoPath} onClick={handleCollectFrames}>抽帧关键帧</Button>
+                {/* <Button type="primary" className="btn-primary-auto btn-primary-88" style={{ width: '100px' }} disabled={!simulateRepo.videoPath} onClick={handleCollectAudio}>导出音频</Button> */}
             </div>
 
             {simulateRepo.videoPath &&

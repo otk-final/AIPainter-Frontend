@@ -185,9 +185,9 @@ const ImageGenerateTab: React.FC<ImageGenerateProps> = ({ pid, project }) => {
             value={batchPos}
             required
             onChange={(e) => setBatchPos(e!)} /> 镜</div>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGeneratePrompt} >批量反推关键词</Button>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateImage}  >批量生图</Button>
-          <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchScaleImage}  >批量高清放大</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleBatchGeneratePrompt} >批量反推关键词</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleBatchGenerateImage}  >批量生图</Button>
+          <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleBatchScaleImage}  >批量高清放大</Button>
         </div>
       </div>
       {renderTable()}

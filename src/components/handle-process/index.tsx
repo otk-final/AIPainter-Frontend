@@ -65,8 +65,8 @@ const HandleProcessModal: React.FC<HandleProcessModalProps> = ({ pid, open, titl
         return <div className='content'>
             <div className='title'>确认要终止任务吗？</div>
             <div className='btn-wrap flexR'>
-                <Button type="default" className="btn-default-auto btn-default-100" style={{ width: '130px' }} onClick={onClose} >确认</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" style={{ width: '130px' }} onClick={() => setCancelReady(false)}>取消</Button>
+                <Button type="default" className="btn-default-auto btn-default-88" style={{ width: '130px' }} onClick={onClose} >确认</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-88" style={{ width: '130px' }} onClick={() => setCancelReady(false)}>取消</Button>
             </div>
         </div>
     }

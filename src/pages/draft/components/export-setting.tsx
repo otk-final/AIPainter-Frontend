@@ -110,7 +110,7 @@ const ExportSettingTab = forwardRef<ExportSettingRef, ExportSettingProps>((props
                 <div className='basic-subText'>剪映草稿存放目录文件夹存储位置 <span>更改项目素材文件夹的存储位置， 将影响己创建的小说项目的图片、视频等素材的使用，请详慎操作</span> </div>
                 <div className="flexR">
                     <Input size="large" disabled placeholder="剪映草稿目录" value={stateConfiguration.draft_dir} className='input-s' style={{ width: '900px' }} />
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleChangePosition}>更改存储位蛋</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleChangePosition}>更改存储位蛋</Button>
                 </div>
             </div>
 

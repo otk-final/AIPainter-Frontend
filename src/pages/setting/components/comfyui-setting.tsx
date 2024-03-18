@@ -95,14 +95,14 @@ const ComfyUISettingTab = forwardRef<ComfyUISettingRef, ComfyUISettingProps>((pr
                 <div className='setting-title'>ComfyUI Api配置</div>
                 <div className='content flexR'>
                     <div className='setting-title'>生图模型
-                        <Button type="primary" size={'small'} className="btn-primary-auto btn-primary-108" icon={<PlusOutlined />} onClick={handleAppendMode}>添加模型</Button>
+                        <Button type="primary" size={'small'} className="btn-primary-auto btn-primary-88" icon={<PlusOutlined />} onClick={handleAppendMode}>添加模型</Button>
                     </div>
                 </div>
 
                 {stateComfyui?.generates.map((item, idx) => {
                     return (<div className='setting-form flexR' key={idx}>
                         <Input size="large" placeholder="点击更换 workflow json 文件" className='input-s' value={item.path} readOnly onClick={() => handleUploadMode(idx)} />
-                        <Button type="primary" className="btn-primary-auto btn-primary-108" icon={<DeleteFilled />} disabled={stateComfyui.generates.length === 1} onClick={() => handleRemoveMode(idx)}>删除模型</Button>
+                        <Button type="primary" className="btn-primary-auto btn-primary-88" icon={<DeleteFilled />} disabled={stateComfyui.generates.length === 1} onClick={() => handleRemoveMode(idx)}>删除模型</Button>
                     </div>)
                 })}
 

@@ -107,8 +107,8 @@ const ImitateProject: React.FC<{ pid: string, project: Project }> = ({ pid, proj
 
   const renderHeaderRight = () => {
     return <div>
-      {/* <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!keyFreamRepo.items || keyFreamRepo.items.length === 0} onClick={handleExport}> 导出视频</Button> */}
-      <Button type="primary" className="btn-primary-auto btn-primary-108" disabled={!keyFreamRepo.items || keyFreamRepo.items.length === 0} onClick={handleJYDraft}> 导出剪映草稿</Button>
+      {/* <Button type="primary" className="btn-primary-auto btn-primary-88" disabled={!keyFreamRepo.items || keyFreamRepo.items.length === 0} onClick={handleExport}> 导出视频</Button> */}
+      <Button type="primary" className="btn-primary-auto btn-primary-88" disabled={!keyFreamRepo.items || keyFreamRepo.items.length === 0} onClick={handleJYDraft}> 导出剪映草稿</Button>
     </div>
   }
 

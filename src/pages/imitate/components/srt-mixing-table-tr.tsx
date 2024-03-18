@@ -138,14 +138,14 @@ const SRTMixingTR: React.FC<SRTMixingTRProps> = ({ index, frame, key, style, aud
     const renderOperate = () => {
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleRewriteContent} disabled={!stateFrame.srt}>AI改写</Button>
+                <Button type='default' className='btn-default-auto btn-default-68' onClick={handleRewriteContent} disabled={!stateFrame.srt}>AI改写</Button>
                 <ButtonGroup>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateAudio} disabled={!stateFrame.srt_rewrite && !stateFrame.srt}>生成音频</Button>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={() => hanldePlayer(stateFrame.srt_rewrite_audio_path!)} disabled={!stateFrame.srt_rewrite_audio_path} icon={<SoundFilled />}>播放</Button>
+                    <Button type='default' className='btn-default-auto btn-default-68' onClick={handleGenerateAudio} disabled={!stateFrame.srt_rewrite && !stateFrame.srt}>生成音频</Button>
+                    <Button type='default' className='btn-default-auto btn-default-68' onClick={() => hanldePlayer(stateFrame.srt_rewrite_audio_path!)} disabled={!stateFrame.srt_rewrite_audio_path} icon={<SoundFilled />}>播放</Button>
                 </ButtonGroup>
                 {/* <ButtonGroup>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateVideo} disabled={!(stateFrame.srt_rewrite_audio_path && stateFrame.image.path)}>生成视频</Button>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={() => hanldePlayer(stateFrame.srt_rewrite_video_path!)} disabled={!stateFrame.srt_rewrite_video_path} icon={<CameraFilled />}>播放</Button>
+                    <Button type='default' className='btn-default-auto btn-default-68' onClick={handleGenerateVideo} disabled={!(stateFrame.srt_rewrite_audio_path && stateFrame.image.path)}>生成视频</Button>
+                    <Button type='default' className='btn-default-auto btn-default-68' onClick={() => hanldePlayer(stateFrame.srt_rewrite_video_path!)} disabled={!stateFrame.srt_rewrite_video_path} icon={<CameraFilled />}>播放</Button>
                 </ButtonGroup> */}
             </Fragment>
         )

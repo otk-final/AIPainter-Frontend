@@ -121,9 +121,9 @@ const ImageGenerateTab: React.FC<ChapterTableTRProps> = ({ index, mode, chapter,
     const renderOperate = () => {
         return (
             <Fragment>
-                <Button type='default' className='btn-default-auto btn-default-98' onClick={handleText2Image} disabled={!stateChapter.prompt}>{stateChapter.image?.path ? "重绘本镜" : "生成图片"}</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateChapter.image?.path} onClick={handleImageScale}>高清放大</Button>
-                <Button type='default' className='btn-default-auto btn-default-98' disabled={!stateChapter.scene} onClick={handleTranslatePrompt}>翻译描述</Button>
+                <Button type='default' className='btn-default-auto btn-default-68' onClick={handleText2Image} disabled={!stateChapter.prompt}>{stateChapter.image?.path ? "重绘本镜" : "生成图片"}</Button>
+                <Button type='default' className='btn-default-auto btn-default-68' disabled={!stateChapter.image?.path} onClick={handleImageScale}>高清放大</Button>
+                <Button type='default' className='btn-default-auto btn-default-68' disabled={!stateChapter.scene} onClick={handleTranslatePrompt}>翻译描述</Button>
             </Fragment>
         )
     }

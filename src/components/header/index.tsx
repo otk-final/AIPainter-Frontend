@@ -1,4 +1,4 @@
-import { LeftOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import React, { Fragment } from "react";
 import './index.less'
 
@@ -21,7 +21,7 @@ const Header:React.FC<HeaderProps> = ({renderLeft, renderRight, onQuit})=>{
         <Fragment>
             <div className='page-header flexR'>
                 <div className="flexR">
-                    <div className="nav-back" onClick={handleQuit}><LeftOutlined twoToneColor="#fff" /></div>
+                    <div className="nav-back" onClick={handleQuit}><ArrowLeftOutlined twoToneColor="#fff" /></div>
                     {renderLeft ? renderLeft: null}
                 </div>
                 {renderRight ? renderRight : null}

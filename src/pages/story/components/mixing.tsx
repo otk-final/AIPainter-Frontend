@@ -154,7 +154,7 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid}) => {
         <div className="storyboard-wrap">
             <div className='script-header flexR'>
                 <div className='flexR'>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExportSRTFile}>导出新字幕文件</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleExportSRTFile}>导出新字幕文件</Button>
                 </div>
                 <div className='flexR'>
                     <div className='flexR'>批量开始起点 <InputNumber controls={false} style={{ width: "54px", marginLeft: '10px', marginRight: '10px' }} className="inputnumber-auto" placeholder='1'
@@ -164,7 +164,7 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid}) => {
                         value={batchPos}
                         required
                         onChange={(e) => setBatchPos(e!)} /> 镜</div>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateAudio}>批量生成音频</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleBatchGenerateAudio}>批量生成音频</Button>
                 </div>
             </div>
             {renderTable()}

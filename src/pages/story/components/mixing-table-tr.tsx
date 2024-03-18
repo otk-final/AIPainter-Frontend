@@ -126,12 +126,12 @@ const MixingTableTR: React.FC<MixingTableTRProps> = ({ index, chapter, style, ke
         return (
             <Fragment>
                 <ButtonGroup>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateAudio} disabled={!stateChapter.srt}>生成音频</Button>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={() => hanldePlayer(stateChapter.srt_audio_path!)} disabled={!stateChapter.srt_audio_path} icon={<SoundFilled />}>播放</Button>
+                    <Button type='default' className='btn-default-auto btn-default-68' onClick={handleGenerateAudio} disabled={!stateChapter.srt}>生成音频</Button>
+                    <Button type='default' className='btn-default-auto btn-default-68' onClick={() => hanldePlayer(stateChapter.srt_audio_path!)} disabled={!stateChapter.srt_audio_path} icon={<SoundFilled />}>播放</Button>
                 </ButtonGroup>
                 {/* <ButtonGroup>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={handleGenerateVideo} disabled={!(stateChapter.srt_audio_path && stateChapter.image.path)}>生成视频</Button>
-                    <Button type='default' className='btn-default-auto btn-default-98' onClick={() => hanldePlayer(stateChapter.srt_video_path!)} disabled={!stateChapter.srt_video_path} icon={<CameraFilled />}>播放</Button>
+                    <Button type='default' className='btn-default-auto btn-default-68' onClick={handleGenerateVideo} disabled={!(stateChapter.srt_audio_path && stateChapter.image.path)}>生成视频</Button>
+                    <Button type='default' className='btn-default-auto btn-default-68' onClick={() => hanldePlayer(stateChapter.srt_video_path!)} disabled={!stateChapter.srt_video_path} icon={<CameraFilled />}>播放</Button>
                 </ButtonGroup> */}
             </Fragment>
         )

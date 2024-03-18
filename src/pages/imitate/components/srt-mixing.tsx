@@ -204,7 +204,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
     return (
         <div className="generate-image-wrap">
             <div className='generate-header flexR'>
-                <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={() => setTTS({ ...stateTTS, open: true })}>音频设置</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={() => setTTS({ ...stateTTS, open: true })}>音频设置</Button>
                 <div className='flexR'></div>
                 <div className='flexR'>
                     <div className='flexR'>批量开始起点 <InputNumber controls={false} style={{ width: "54px", marginLeft: '10px', marginRight: '10px' }} className="inputnumber-auto" placeholder='1'
@@ -214,9 +214,9 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
                         value={batchPos}
                         required
                         onChange={(e) => setBatchPos(e!)} /> 镜</div>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchRewrite}>一键改写</Button>
-                    <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateAudio}>批量生成音频</Button>
-                    {/* <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleBatchGenerateVideo} loading={batchVideoLoading} >批量生成视频</Button> */}
+                    <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleBatchRewrite}>一键改写</Button>
+                    <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleBatchGenerateAudio}>批量生成音频</Button>
+                    {/* <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleBatchGenerateVideo} loading={batchVideoLoading} >批量生成视频</Button> */}
                 </div>
             </div>
             {renderTable()}

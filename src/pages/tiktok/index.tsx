@@ -41,7 +41,7 @@ const TikTokPage = () => {
     return (
         <div className="tiktok-wrap scrollbar">
             <Header renderLeft={renderHeaderLeft()}
-                renderRight={<Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleLoad}>下载</Button>}
+                renderRight={<Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleLoad}>下载</Button>}
             />
             <div className='video-wrap flexR' style={{ height: "calc(100% - 78px)", overflow: 'scroll' }}>
                 {['', '', '', '', '',].map((i, index) => {

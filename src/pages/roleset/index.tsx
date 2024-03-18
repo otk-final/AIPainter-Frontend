@@ -128,7 +128,7 @@ const RoleSetPage: React.FC<{ pid: string }> = ({ pid }) => {
   const renderHeaderRight = () => {
     return (
       <div className='flexR'>
-        <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={addActorHandle}>新增角色</Button>
+        <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={addActorHandle}>新增角色</Button>
       </div>
     )
   }

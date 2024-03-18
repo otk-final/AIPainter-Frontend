@@ -103,8 +103,8 @@ const StoryProject: React.FC<{ pid: string, project: Project }> = ({ pid, projec
 
     return (
       <div className='flexR'>
-        {/* <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleExport} disabled={!chaptersRepo.items || chaptersRepo.items?.length === 0}>导出视频</Button> */}
-        <Button type="primary" className="btn-primary-auto btn-primary-108" onClick={handleJYDraft} disabled={!chaptersRepo.items || chaptersRepo.items?.length === 0}>导出剪映草稿</Button>
+        {/* <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleExport} disabled={!chaptersRepo.items || chaptersRepo.items?.length === 0}>导出视频</Button> */}
+        <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleJYDraft} disabled={!chaptersRepo.items || chaptersRepo.items?.length === 0}>导出剪映草稿</Button>
       </div>
     )
   }
