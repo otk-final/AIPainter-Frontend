@@ -96,13 +96,12 @@ export default function Layout(props: any) {
 
   return (
     <Fragment>
-      <div className="navs flexR">
+      {/* <div className="navs flexR">
         <div className='flexR'>
           <img src={assets.logo} className="logo" />
           <div className='logo-text'>鹦鹉智绘</div>
         </div>
         <div className="right flexR">
-          {/* <div className="help" onClick={withUpdateHandler}>?</div> */}
           <Popover placement="bottomLeft" content={renderPopoverContent} arrow={false}>
             <img src={assets.setIcon} className="popover-icon" />
           </Popover>
@@ -110,8 +109,8 @@ export default function Layout(props: any) {
           <img src={assets.unfoldIcon} className="popover-icon" />
           <img src={assets.closeIcon} className="popover-icon" />
         </div>
-      </div>
-      <div className='navs-placeholder'></div>
+      </div> */}
+      {/* <div className='navs-placeholder'></div> */}
       {/* <EnergyRechargeModule isOpen={isEnergyRechargeOpen} onClose={() => setIsEnergyRechargeOpen(false)} /> */}
       <Outlet />
     </Fragment>

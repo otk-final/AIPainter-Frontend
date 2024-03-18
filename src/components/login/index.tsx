@@ -1,9 +1,10 @@
 import { useLogin } from "@/uses";
-import { Button, InputNumber, message, Modal } from "antd"
+import { Button, InputNumber, message, Modal, Radio } from "antd"
 import { Fragment, useEffect, useRef, useState } from "react";
 import "./index.less"
 import { AuthClient, ClientAuthenticationStore, DefaultClient, UserAuthorization } from "@/api";
 import assets from "@/assets";
+import { history } from "umi"
 
 interface LoginModuleProps {
     isOpen: boolean,
@@ -17,6 +18,7 @@ const LoginModule: React.FC<LoginModuleProps> = ({ isOpen, onClose }) => {
     const [phone, setPhone] = useState("13476259563");
     const [verify, setVerify] = useState("");
     const [isQrCode, setIsQrCode] = useState(false)
+    const [agreement, setAgreement] = useState(false);
     const timeId = useRef()
 
     useEffect(() => {
@@ -111,7 +113,8 @@ const LoginModule: React.FC<LoginModuleProps> = ({ isOpen, onClose }) => {
                     onChange={(v) => setVerify(`${v}`)}  addonAfter={renderAddon()} />
                 <Button type="primary" className="btn-primary-auto" block onClick={handleSumbit} style={{ marginTop: '40px' }}> 登录 </Button>
                 <Button type="default" className="btn-default-auto flexR" block onClick={()=> setIsQrCode(true)} style={{ marginTop: '16px', justifyContent: 'center'}} >
-                <img src={assets.wechat} className="wechat" /> 微信登录 </Button>
+                <img src={assets.wechat} className="wechat"/> 微信登录 </Button>
+                <div className="agreement flexR" onClick={()=> setAgreement(!agreement)} ><div className={`check ${agreement ? 'cur' : ''}`}></div> 已阅读并同意<span onClick={()=> history.push("/agreement")}>鹦鹉智绘用户协议</span>和<span onClick={()=> history.push("/privatepage")}>鹦鹉智绘隐私政策</span> </div>
             </Fragment>
         )
     }

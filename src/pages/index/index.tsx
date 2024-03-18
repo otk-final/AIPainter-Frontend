@@ -153,7 +153,7 @@ const HomePage = () => {
     <div className="home-wrap scrollbar">
       <div className='flexR'>
         <div className='login-section' onClick={() => !loginState.isLogin && setLoginOpen(true)}>
-          <div className='flexR' onClick={() => { loginState.isLogin ? setIsUserInfoOpen(true) : setLoginOpen(true) }}>
+          <div className='flexR' onClick={() => { !loginState.isLogin ? setIsUserInfoOpen(true) : setLoginOpen(true) }}>
             <img src={loginState.isLogin ? assets.avatar1 : assets.avatar} className="user-img" />
             <div className='text'>{loginState.isLogin ? loginState.nickName : "点击登录账户"}</div>
           </div>
@@ -204,7 +204,13 @@ const HomePage = () => {
           )
         })} */}
       </div>
-      <div className="section-title-wrap">我的草稿<span>（生成素材特为您保留30天）</span></div>
+      <div className="section-title-wrap flexRB">
+        <div>我的草稿<span>（生成素材特为您保留30天）</span></div>
+        <div className='jy-set flexR' onClick={() => {history.push("/draft")}}>
+          <img src={assets.setIcon} className="set-icon" />
+          剪映设置
+        </div>
+      </div>
       {projectRepo.items.length ? renderMyCreation() : renderMyCreationEmpty()}
       <ProjectModal isOpen={!!isProjectOpen} onClose={() => setIsProjectOpen("")} type={isProjectOpen} />
       <LoginModule isOpen={isLoginOpen} onClose={() => setLoginOpen(false)} />
