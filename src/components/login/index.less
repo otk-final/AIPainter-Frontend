@@ -1,73 +1,36 @@
-.home-login-modal{
-    & .prefix-wrap {
-        font-size: 14px;
-        color: @l-font-color;
-        & .line {
-            width: 1px;
-            height: 20px;
-            background-color: @l-font-color;
-            margin: 0 20px;
-        }
-    }
+.home-login-modal {
+    & .ant-modal-content {
+        padding: 0 28px 40px;
 
-    & .verify-wrap {
-        width: 100%;
-        margin: 20px 0;
-        justify-content: space-between;
-    }
-
-    & .btn-getCode {
-        width: 180px;
-        height: 56px;
-        font-size: 14px;
-        color: @l-font-color;
-        text-align: center;
-        line-height: 56px;
-        margin-left: 20px;
-        background-color: @bg-input;
-        border-radius: 6px;
-        cursor: pointer;
-    }
-
-    & .agreement-wrap {
-        margin: 30px 0;
-
-        & .ant-radio-checked .ant-radio-inner {
-            border-color: @primary-color;
-        }
-        & .ant-radio-inner {
-            background-color: @bg-modal;
-        }
-
-        & .label {
+        & .header {
             font-size: 12px;
-            color: @xs-font-color;
-            & span {
-                color: @font-primary-color;
-            }
+            color: @l-font-color;
+            margin: 0 -28px 30px;
+            padding-left: 16px;
         }
-
+        & .header-icon {
+            width: 36px;
+            height: 32px;
+        }
     }
-
-    & .ant-input-affix-wrapper.ant-input-affix-wrapper-lg {
-        padding: 0 11px;
-        background-color: @bg-input;
-        border: none;
-    }
-
 
     & .inputnumber-auto {
         width: 100%;
-        background-color: @bg-input;
-        height: 56px;
-        line-height: 56px;
-        border: 1px solid @border-line-color;
+        background: #29292D;
+        height: 44px;
+        line-height: 44px;
+        border: none;
+
+        & + .inputnumber-auto{
+            margin-top: 16px;
+         }
 
         &  .ant-input-number  {
-            background-color: @bg-input;
-            height: 54px;
-            line-height: 54px;
+            background: #29292D;
+            height: 44px;
+            line-height: 44px;
             box-sizing: border-box;
+            border: none;
         }
         & .ant-input-number-input {
             font-size: 14px;
@@ -76,9 +39,39 @@
               color: @xs-font-color;
             }
         }
+
+        & .ant-input-number-group .ant-input-number-group-addon {
+            border: none;
+
+            & .btn-getCode {
+                font-size: 14px;
+                color: #BD61E9;
+                line-height: 20px;
+                text-align: center;
+            }
+        }
     }
     &.ant-modal {
         top: 30%;
+    }
+
+    & .wechat {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+    }
+
+    & .qrcode-img {
+        width: 168px;
+        height: 168px;
+        margin-bottom: 10px;
+    }
+
+    & .assist-text {
+        font-size: 14px;
+        color: rgba(255,255,255,0.4);
+        line-height: 20px;
+        margin-bottom: 24px;
     }
 }
 

@@ -88,7 +88,7 @@ const HandleProcessModal: React.FC<HandleProcessModalProps> = ({ pid, open, titl
         footer={null}
         keyboard={false}
         width={'50%'}
-        className="home-login-modal energy-recharge">
+        className="energy-recharge">
         {isCancelReady ? renderCancelContent() : renderRuningContent()}
     </Modal>
 }

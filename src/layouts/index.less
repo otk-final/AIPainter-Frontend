@@ -53,15 +53,15 @@ body {
 
 
 .navs-placeholder {
-  flex: 0 0 90px;
-  height: 90px;
+  flex: 0 0 32px;
+  height: 32px;
   width: 100%;
 }
 
 .navs {
   box-sizing: border-box;
   width: 100%;
-  height: 90px;
+  height: 32px;
   background-color: @bg-primary;
   justify-content: space-between;
   position: fixed;
@@ -69,8 +69,29 @@ body {
   left: 0;
   right: 0;
   z-index: 99;
+  background-color: #1B1B1C;
 
-  & .left {}
+  & .left {
+    height: 32px;
+    align-items: center;
+  }
+
+  & .logo {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    margin-left: 16px;
+  }
+
+  & .logo-text {
+    font-family: MicrosoftYaHei, MicrosoftYaHei;
+    font-weight: bold;
+    font-size: 12px;
+    color: rgba(255,255,255,0.9);
+    line-height: 16px;
+    text-align: left;
+    font-style: normal;
+  }
 
   & .right {
     justify-content: flex-end;
@@ -112,12 +133,9 @@ body {
     cursor: pointer;
   }
 
-  & .user-img {
+  & .popover-icon {
     width: 36px;
-    height: 36px;
-    border-radius: 18px;
-    background-color: #AA95F1;
-    margin-right: 48px;
+    height: 32px;
   }
 
   & .login-btn {
@@ -150,12 +168,12 @@ body {
 // 全局弹出框 样式覆盖
 .ant-modal {
   & .ant-modal-header {
-    background-color: @bg-modal;
+    background-color: #1B1B1C;
     margin-bottom: 20px;
   }
 
   & .ant-modal-content {
-    background-color: @bg-modal;
+    background-color: #1B1B1C;
     padding: 40px;
   }
 
@@ -212,7 +230,7 @@ body {
 
 // button 自定义样式 覆盖 primary颜色值
 .btn-primary-auto.ant-btn.ant-btn-primary {
-  height: 56px;
+  height: 44px;
   background-color: @primary-color;
   font-size: 16px;
 
@@ -236,7 +254,7 @@ body {
 }
 
 .btn-default-auto.ant-btn.ant-btn-default {
-  height: 56px;
+  height: 44px;
   font-size: 16px;
   background-color: @bg-btn;
   color: @l-font-color;
@@ -261,7 +279,6 @@ body {
     height: 40px;
     min-width: 100px;
     font-size: 14px;
-    margin: 5px;
   }
 }
 
@@ -463,5 +480,56 @@ body {
             border-color: @m-font-color;
         }
     }
+  }
+}
+
+         
+         
+.ant-popover .ant-popover-inner {
+  background: #1B1B1C;
+  box-shadow: 0px 0px 40px 0px rgba(0,0,0,0.8);
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+& .popver-wrap {
+  justify-content: flex-start;
+  color: @l-font-color;
+  font-size: 12px;
+  width: 168px;
+  text-align: left;
+
+  & .line {
+    width: 100%;
+    height: 1px;
+    background-color: #fff;
+    opacity: 0.1;
+    margin: 5px 0;
+  }
+  & .ant-btn.ant-btn-text {
+    color: @l-font-color;
+    text-align: left;
+    width: 100%;
+    padding: 4px 0;
+    font-size: 12px;
+    &:hover, & {
+      color: @l-font-color;
+    }
+  }
+
+  & .version {
+    padding: 8px 0 4px;
+    width: 168px;
+  }
+
+  & .version-btn {
+    width: 48px;
+    height: 16px;
+    background: #BA2BFF;
+    border-radius: 4px;
+    font-size: 10px;
+    color: @l-font-color;
+    text-align: center;
+    
   }
 }

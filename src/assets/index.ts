@@ -25,6 +25,12 @@ const assets = {
     ai2: require("@/assets/ai2.png"),
     avatar: require("@/assets/avatar.png"),
     avatar1: require("@/assets/avatar1.png"),
+    setIcon: require("@/assets/set-icon.png"),
+    unfoldIcon: require("@/assets/unfold-icon.png"),
+    foldIcon: require("@/assets/fold-icon.png"),
+    closeIcon: require("@/assets/close-icon.png"),
+    logo: require("@/assets/logo.png"),
+    wechat: require("@/assets/wechat.png")
 }
 
 export default assets

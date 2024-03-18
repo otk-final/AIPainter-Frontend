@@ -6,7 +6,7 @@ import { Button, Popover } from 'antd';
 import { LoginModule, UserInfoModule, MemberRechargeModule, EnergyRechargeModule } from '@/components'
 import updater from '@tauri-apps/plugin-updater';
 import assets from '@/assets';
-import { LoginOutlined, UserOutlined } from '@ant-design/icons';
+import { LoginOutlined, RightOutlined, UserOutlined } from '@ant-design/icons';
 import { ClientAuthenticationStore } from '@/api';
 import { ComfyUIApi } from '@/api/comfyui_api';
 import { v4 as uuid } from 'uuid';
@@ -19,10 +19,6 @@ export default function Layout(props: any) {
   console.info("layout", pathname)
 
   const { logout, loginState } = useLogin();
-  const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
-  const [isLoginOpen, setLoginOpen] = useState(false);
-  const [isMemberRechargeOpen, setIsMemberRechargeOpen] = useState(false);
-  const [isEnergyRechargeOpen, setIsEnergyRechargeOpen] = useState(false);
   
   const comfyuiRepo = useComfyUIRepository(state => state)
 
@@ -43,28 +39,18 @@ export default function Layout(props: any) {
 
 
   useEffect(() => {
-    if (!loginState.isLogin) {
-      setLoginOpen(true)
-    }
     //初始化
     ClientAuthenticationStore.getState().init()
   }, [])
 
-  const openRecharge = (type: "energy" | 'member') => {
-    setIsUserInfoOpen(false);
-    if (type === 'energy') {
-      setIsEnergyRechargeOpen(true);
-    } else {
-      setIsMemberRechargeOpen(true)
-    }
-  }
-
   const renderPopoverContent = () => {
     return (
-      <div className="flexC">
-        <Button type="text" onClick={() => setIsUserInfoOpen(true)} icon={<UserOutlined />}>个人信息</Button>
-        {/* 缺少二次确认 */}
-        <Button type="text" onClick={logout} icon={<LoginOutlined />}>退出登陆</Button>
+      <div className="popver-wrap flexC ">
+        {/* <Button type="text" onClick={() => {history.push("/setting")}} >通用设置</Button> */}
+        <Button type="text" onClick={() => {history.push("/draft")}} >剪映设置</Button>
+        <div className='line'></div>
+        <div className='flexRB version'>{`版本号(1.0)`} <div className='version-btn' onClick={()=>{}}>点击更新</div></div>
+        {loginState.isLogin ? <Button type="text" onClick={logout} >退出登陆 <RightOutlined /></Button> : null}
       </div>
     )
   }
@@ -111,32 +97,22 @@ export default function Layout(props: any) {
   return (
     <Fragment>
       <div className="navs flexR">
-        <div></div>
+        <div className='flexR'>
+          <img src={assets.logo} className="logo" />
+          <div className='logo-text'>鹦鹉智绘</div>
+        </div>
         <div className="right flexR">
-          {loginState.isLogin ?
-            <Fragment>
-              <div className="endtime-wrap flexR">
-                {`账号到期时间:  `}<span className="endtime">{loginState.endTime}</span>
-              </div>
-              <div className="member" onClick={() => setIsMemberRechargeOpen(true)}>续费超级会员</div>
-            </Fragment>
-            : null}
-          <div className="help" onClick={withUpdateHandler}>?</div>
-
-          <div className="help" onClick={() => { history.push("/draft")}}>剪</div>
-
-          {loginState.isLogin ?
-            <Popover placement="bottomLeft" content={renderPopoverContent} arrow={false}>
-              <img src={assets.userImg} className="user-img" />
-            </Popover>
-            : <div className='login-btn' onClick={() => setLoginOpen(true)}>登陆/注册</div>}
+          {/* <div className="help" onClick={withUpdateHandler}>?</div> */}
+          <Popover placement="bottomLeft" content={renderPopoverContent} arrow={false}>
+            <img src={assets.setIcon} className="popover-icon" />
+          </Popover>
+          <img src={assets.foldIcon} className="popover-icon" />
+          <img src={assets.unfoldIcon} className="popover-icon" />
+          <img src={assets.closeIcon} className="popover-icon" />
         </div>
       </div>
       <div className='navs-placeholder'></div>
-      <LoginModule isOpen={isLoginOpen} onClose={() => setLoginOpen(false)} />
-      <UserInfoModule isOpen={isUserInfoOpen} onClose={() => setIsUserInfoOpen(false)} openRecharge={openRecharge} />
-      <MemberRechargeModule isOpen={isMemberRechargeOpen} onClose={() => setIsMemberRechargeOpen(false)} />
-      <EnergyRechargeModule isOpen={isEnergyRechargeOpen} onClose={() => setIsEnergyRechargeOpen(false)} />
+      {/* <EnergyRechargeModule isOpen={isEnergyRechargeOpen} onClose={() => setIsEnergyRechargeOpen(false)} /> */}
       <Outlet />
     </Fragment>
   );

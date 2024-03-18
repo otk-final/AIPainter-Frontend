@@ -1,8 +1,9 @@
 import { useLogin } from "@/uses";
-import { Button, Input, InputNumber, message, Modal } from "antd"
-import { useEffect, useRef, useState } from "react";
+import { Button, InputNumber, message, Modal } from "antd"
+import { Fragment, useEffect, useRef, useState } from "react";
 import "./index.less"
 import { AuthClient, ClientAuthenticationStore, DefaultClient, UserAuthorization } from "@/api";
+import assets from "@/assets";
 
 interface LoginModuleProps {
     isOpen: boolean,
@@ -15,6 +16,7 @@ const LoginModule: React.FC<LoginModuleProps> = ({ isOpen, onClose }) => {
     const [count, setCount] = useState(0);
     const [phone, setPhone] = useState("13476259563");
     const [verify, setVerify] = useState("");
+    const [isQrCode, setIsQrCode] = useState(false)
     const timeId = useRef()
 
     useEffect(() => {
@@ -83,30 +85,56 @@ const LoginModule: React.FC<LoginModuleProps> = ({ isOpen, onClose }) => {
         onClose();
     }
 
-    const renderPrefix = () => {
+
+    const renderAddon = () =>{
         return (
-            <div className="prefix-wrap flexR">+86 <span className="line" /></div>
+            <div className="btn-getCode" onClick={handleGetVerifyCode}>{!count ? "荻取验证码" : `${count}秒后获取`}</div>
         )
     }
+
+    const renderQrCode = ()=>{
+        return (
+            <div className="flexC"> 
+                 <img src={assets.avatar1} className="qrcode-img" />
+                 <div className="assist-text">请使用手机微信扫码登录</div>
+                 <Button type="default" className="btn-default-auto" block onClick={()=> setIsQrCode(false)} style={{width: '148px'}} >返回</Button>
+            </div>
+        )
+    }
+
+    const renderMessage = ()=>{
+        return (
+            <Fragment>
+                 <InputNumber value={phone} className="inputnumber-auto" size="large" controls={false} maxLength={11} placeholder="请输入手机号" 
+                    onChange={(v) => setPhone(`${v}`)} />
+                <InputNumber className="inputnumber-auto" size="large" controls={false} maxLength={4}  placeholder="请输入手机验证码" 
+                    onChange={(v) => setVerify(`${v}`)}  addonAfter={renderAddon()} />
+                <Button type="primary" className="btn-primary-auto" block onClick={handleSumbit} style={{ marginTop: '40px' }}> 登录 </Button>
+                <Button type="default" className="btn-default-auto flexR" block onClick={()=> setIsQrCode(true)} style={{ marginTop: '16px', justifyContent: 'center'}} >
+                <img src={assets.wechat} className="wechat" /> 微信登录 </Button>
+            </Fragment>
+        )
+    }
+
     return (
-        <Modal title="验证码登陆/注册"
+        <Modal 
             open={isOpen}
             onCancel={onClose}
             footer={null}
             keyboard={false}
             closeIcon={false}
             className="home-login-modal"
-            width={600}>
-            <InputNumber value={phone} className="inputnumber-auto" size="large" controls={false} maxLength={11} placeholder="请输入手机号" prefix={renderPrefix()}
-                onChange={(v) => setPhone(`${v}`)} />
-            <div className="verify-wrap flexR">
-                <InputNumber className="inputnumber-auto" size="large" controls={false} placeholder="请输入手机验证码" maxLength={4} onChange={(v) => setVerify(`${v}`)} />
-                <div className="btn-getCode" onClick={handleGetVerifyCode}>{!count ? "荻取验证码" : `${count}秒后获取`}</div>
-            </div>
-            <Input size="large" placeholder="请输入邀请码(可为空）" />
-
-            {/* <Radio className="agreement-wrap flexR" onChange={(v)=> setChecked(v.target.checked)}><div className="label">我已阅读并同意 <span>《用户协议》</span></div></Radio> */}
-            <Button type="primary" className="btn-primary-auto" block onClick={handleSumbit} style={{ marginTop: '30px' }}> 确定 </Button>
+            width={400}>
+                <div className="header flexRB">
+                    <div>登陆</div>
+                    <div>
+                        <img src={assets.foldIcon} className="header-icon" />
+                        <img src={assets.closeIcon} className="header-icon" onClick={onClose} />
+                    </div> 
+                </div>
+                {
+                    isQrCode ? renderQrCode() : renderMessage()
+                }
         </Modal>
     )
 }

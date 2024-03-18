@@ -50,7 +50,7 @@ export const ModalHistoryImages: React.FC<ModalHistoryImageProps> = ({ isOpen, s
             onCancel={() => setOpen(false)}
             footer={null}
             width={700}
-            className="home-login-modal history-image-modal">
+            className="history-image-modal">
             <div className="cur-wrap flexC">
                 <img src={url} className="img-l" />
             </div>

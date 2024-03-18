@@ -15,7 +15,7 @@ const VideoPlayerModal: React.FC<VideoPlayerProps> = ({ videoPath, isOpen, onClo
             onCancel={onClose}
             footer={null}
             width={'50%'}
-            className="home-login-modal energy-recharge">
+            className="energy-recharge">
             <ReactPlayer url={convertFileSrc(videoPath)}
                 playing
                 controls

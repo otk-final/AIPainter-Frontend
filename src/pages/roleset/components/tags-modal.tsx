@@ -130,7 +130,7 @@ export const TagModal: React.FC<TagModalProps> = ({ actor, isOpen, setOpen, onCh
             onCancel={() => setOpen(false)}
             footer={null}
             width={1160}
-            className="home-login-modal role-tags-modal"
+            className="role-tags-modal"
         >
             <div className={`role-tags-wrap flexC`}>
                 <div className="choose-wrap flexR" style={{ marginBottom: '20px' }}>
