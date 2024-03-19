@@ -14,14 +14,17 @@
         "title": "aipainter-frontend",
         "width": 1000,
         "height": 860,
-        "decorations":true
+        "decorations": true,
+        "theme": "Dark"
       }
     ],
     "security": {
       "csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' asset: http://asset.localhost",
-      "assetProtocol":{
+      "assetProtocol": {
         "enable": true,
-        "scope": ["**"]
+        "scope": [
+          "**"
+        ]
       }
     }
   },
@@ -53,7 +56,7 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "externalBin":[
+    "externalBin": [
       "bin/ffmpeg",
       "bin/ffprobe",
       "bin/dssim"
