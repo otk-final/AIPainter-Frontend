@@ -1,1 +1,1 @@
-export {getLoginInfo, useLogin, LOGIN_INFO, LoginProvider} from './useLogin'
+export {useLogin, LoginProvider} from './useLogin'

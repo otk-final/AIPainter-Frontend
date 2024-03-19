@@ -1,6 +1,6 @@
 import { CloseOutlined } from "@ant-design/icons";
 import { Button, Input, message, Modal, Select, Tabs, TabsProps } from "antd";
-import React, { createRef, forwardRef, useEffect, useImperativeHandle,useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { JYDraftConfiguration, useJYDraftRepository } from '@/repository/draft';
 import AddonNumberInput from '@/components/addon-input';
 import { path } from '@tauri-apps/api';
@@ -87,13 +87,13 @@ export const setTabItems: TabsProps['items'] = [
       }
 ];
 
-export interface SetModalProps {
+export interface JYConfigProps {
     // name: string,
     isOpen: boolean,
     onClose: ()=>void,
 }
 
-const SetModal:React.FC<SetModalProps> = ({isOpen, onClose})=>{
+const JYConfigModal:React.FC<JYConfigProps> = ({isOpen, onClose})=>{
     const [cur, setCur] = useState<setTabType>("jydraft");
     const onChange = (key: string) => {
       setCur(key as setTabType);
@@ -221,4 +221,4 @@ const SetModal:React.FC<SetModalProps> = ({isOpen, onClose})=>{
     )
 }
 
-export default SetModal;
+export default JYConfigModal;

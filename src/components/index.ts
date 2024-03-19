@@ -1,5 +1,5 @@
 export {default as EnergyRechargeModule} from './energy-recharge'
-export {default as LoginModule} from './login'
-export {default as MemberRechargeModule} from './member-recharge'
-export {default as UserInfoModule} from './user-info'
+export {default as LoginModal} from './login'
+export { default as RechargeModal} from './recharge'
+export {default as UserInfoModal} from './user-info'
 export {default as Header } from './header';

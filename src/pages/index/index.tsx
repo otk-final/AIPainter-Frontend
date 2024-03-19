@@ -1,53 +1,18 @@
-import React, { useEffect, useState } from 'react'
-import { Button, Carousel, Image, Modal } from 'antd';
+import { useEffect, useState } from 'react'
+import { Carousel, Image, Modal } from 'antd';
 import './index.less'
 import assets from '@/assets'
 import { history } from "umi"
 import { ProjectModal } from '@/components/create-project';
 import { Project, useProjectRepository } from '@/repository/workspace';
 import { DeleteOutlined, RightOutlined } from '@ant-design/icons';
-import { LoginModule, UserInfoModule, MemberRechargeModule } from '@/components'
+import { LoginModal, UserInfoModal } from '@/components'
 import { useLogin } from '@/uses';
-import SetModal from '@/components/set-modal';
+import JYConfigModal from '@/components/jydraft';
+import RechargeModal from '@/components/recharge';
 
 
-export type ProjectType = "story" | "imitate" | ""
-interface homeDataProps {
-  key: string,
-  title: string,
-  describe: string,
-  btnText: string,
-  pageUrl?: string
-}
-
-const data: homeDataProps[] = [
-  {
-    key: "story",
-    title: "创作视频",
-    describe: "三步完成批量绘图&音视频生成",
-    btnText: "开始创作"
-  },
-  {
-    key: "imitate",
-    title: "一键追爆款",
-    describe: "导入爆款视频&快速生成AI同款视频",
-    btnText: "开始创作"
-  },
-  {
-    key: "set",
-    title: "通用设置",
-    describe: "快速设置绘画接口、音频生成、翻译等配置",
-    btnText: "去设置",
-    pageUrl: '/setting'
-  },
-  {
-    key: "draft",
-    title: "剪映设置",
-    describe: "快速设置剪映草稿、下载等参数",
-    btnText: "去设置",
-    pageUrl: '/draft'
-  }
-]
+export type ProjectType = "story" | "imitate"
 
 const carouselData = [
   {
@@ -67,40 +32,26 @@ const carouselData = [
 const HomePage = () => {
   //加载项目
   const projectRepo = useProjectRepository(state => state)
-  
 
-  const [isProjectOpen, setIsProjectOpen] = useState<ProjectType>("");
+
+  const [isProjectOpen, setIsProjectOpen] = useState<ProjectType | undefined>();
   const [isLoginOpen, setLoginOpen] = useState(false);
-  const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
-  const [isMemberRechargeOpen, setIsMemberRechargeOpen] = useState(false);
-  const [isSet, setSetOpen] = useState(false)
-  const { logout, loginState } = useLogin();
+  const [isUserProfileOpen, setUserProfileOpen] = useState(false);
+  const [isRechargeOpen, setRechargeOpen] = useState(false);
+  const [isJYDraft, setJYDraftOpen] = useState(false)
 
-  
+  const login = useLogin();
+
+
   useEffect(() => {
     projectRepo.load('env')
   }, [])
 
   const openRecharge = (type: "energy" | 'member') => {
-    setIsUserInfoOpen(false);
-    if (type === 'energy') {
-      // setIsEnergyRechargeOpen(true);
-    } else {
-      setIsMemberRechargeOpen(true)
-    }
+    setUserProfileOpen(false);
+    setRechargeOpen(true)
   }
 
-  const handleBtn = async (i: homeDataProps) => {
-    // if (!loginState.isLogin) {
-    //   return message.warning("请先登陆～")
-    // }
-
-    if (i?.pageUrl) {
-      history.push(i.pageUrl)
-    } else if (i.key === "story" || i.key === "imitate") {
-      setIsProjectOpen(i.key)
-    }
-  }
 
   const handleGoon = (project: Project) => {
     history.push(project.type === "story" ? "/story/" + project.id : "/imitate/" + project.id)
@@ -151,16 +102,25 @@ const HomePage = () => {
     )
   }
 
+  const handleReayLogin = () => {
+    if (login.isLogin()) {
+      setUserProfileOpen(true);
+    } else {
+      setLoginOpen(true)
+    }
+
+  }
+
   return (
     <div className="home-wrap scrollbar">
       <div className='flexR'>
-        <div className='login-section' onClick={() => !loginState.isLogin && setLoginOpen(true)}>
-          <div className='flexR' onClick={() => {loginState.isLogin ? setIsUserInfoOpen(true) : setLoginOpen(true) }}>
-            <img src={loginState.isLogin ? assets.avatar1 : assets.avatar} className="user-img" />
-            <div className='text'>{loginState.isLogin ? loginState.nickName : "点击登录账户"}</div>
+        <div className='login-section' onClick={() => !login.isLogin() && setLoginOpen(true)}>
+          <div className='flexR' onClick={handleReayLogin}>
+            <img src={login.isLogin() ? assets.avatar1 : assets.avatar} className="user-img" />
+            <div className='text'>{login.isLogin() ? login.user!.name : "点击登录账户"}</div>
           </div>
-          <div className='vip flexRB' onClick={() => loginState.isLogin && setIsMemberRechargeOpen(true)}>
-            {loginState.endTime ? <div><span className='vip-cur'>VIP</span>{loginState.endTime}到期</div> : "开通VIP可无限使用"}
+          <div className='vip flexRB' onClick={() => login.isLogin() && setRechargeOpen(true)}>
+            {login.isVip() ? <div><span className='vip-cur'>VIP</span>{login.getVipExpridTime()}到期</div> : "开通VIP可无限使用"}
             <RightOutlined />
           </div>
         </div>
@@ -208,17 +168,17 @@ const HomePage = () => {
       </div>
       <div className="section-title-wrap flexRB">
         <div>我的草稿<span>（生成素材特为您保留30天）</span></div>
-        <div className='jy-set flexR' onClick={() => setSetOpen(true)}>
+        <div className='jy-set flexR' onClick={() => setJYDraftOpen(true)}>
           <img src={assets.setIcon} className="set-icon" />
           剪映设置
         </div>
       </div>
       {projectRepo.items.length ? renderMyCreation() : renderMyCreationEmpty()}
-      <ProjectModal isOpen={!!isProjectOpen} onClose={() => setIsProjectOpen("")} type={isProjectOpen} />
-      <LoginModule isOpen={isLoginOpen} onClose={() => setLoginOpen(false)} />
-      <UserInfoModule isOpen={isUserInfoOpen} onClose={() => setIsUserInfoOpen(false)} openRecharge={openRecharge} />
-      <MemberRechargeModule isOpen={isMemberRechargeOpen} onClose={() => setIsMemberRechargeOpen(false)} />
-      <SetModal isOpen={isSet} onClose={() => setSetOpen(false)} />
+      {isProjectOpen && <ProjectModal isOpen={true} onClose={() => setIsProjectOpen(undefined)} type={isProjectOpen} />}
+      <LoginModal isOpen={isLoginOpen} onClose={() => setLoginOpen(false)} />
+      {login.isLogin() && <UserInfoModal user={login.user!} isOpen={isUserProfileOpen} onClose={() => setUserProfileOpen(false)} openRecharge={openRecharge} />}
+      {login.isLogin() && <RechargeModal user={login.user!} isOpen={isRechargeOpen} onClose={() => setRechargeOpen(false)} />}
+      <JYConfigModal isOpen={isJYDraft} onClose={() => setJYDraftOpen(false)} />
     </div>
   );
 }

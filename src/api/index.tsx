@@ -1,4 +1,4 @@
-import { BaseDirectory, exists, mkdir, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
+import { BaseDirectory, exists, mkdir, readTextFile, remove, writeTextFile } from "@tauri-apps/plugin-fs";
 import { hostname, platform, type, version } from "@tauri-apps/plugin-os";
 import { message } from "antd";
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
@@ -9,8 +9,9 @@ import { createStore } from "zustand";
 export interface ClientAuthorization {
     header: any
     user?: UserPrincipal
-    init: () => Promise<void>
+    init: () => Promise<UserAuthorization | undefined>
     refresh: (author: UserAuthorization) => Promise<void>
+    reset: () => Promise<void>
 }
 
 export interface UserAuthorization {
@@ -27,7 +28,12 @@ export interface UserPrincipal {
     type: string
     id: string
     name: string
-    profile: any
+    profile: {
+        vip: string,
+        vipExpriedTime: string
+        inviteCode: string,
+        phone: string
+    }
 }
 
 
@@ -56,6 +62,20 @@ const responseInterceptor = (response: AxiosResponse<any, any>) => {
     return apiResult
 }
 
+const initHeader = async () => {
+    return {
+        //应用信息
+        "x-tenant-id": process.env.TENANT_ID,
+        "x-app-id": process.env.APP_ID,
+
+        // 设备信息
+        "x-dev-platform": await platform(),
+        "x-dev-type": await type(),
+        "x-dev-hostname": await hostname(),
+        "x-dev-version": await version(),
+    } as any
+}
+
 
 export const ClientAuthenticationStore = createStore<ClientAuthorization>((set, get) => ({
 
@@ -64,24 +84,10 @@ export const ClientAuthenticationStore = createStore<ClientAuthorization>((set, 
         "x-tenant-id": process.env.TENANT_ID,
         "x-app-id": process.env.APP_ID,
     },
-
     init: async () => {
-
-        let header = {
-            //应用信息
-            "x-tenant-id": process.env.TENANT_ID,
-            "x-app-id": process.env.APP_ID,
-
-            // 设备信息
-            "x-dev-platform": await platform(),
-            "x-dev-type": await type(),
-            "x-dev-hostname": await hostname(),
-            "x-dev-version": await version(),
-        } as any
-
-
+        let header = await initHeader()
         //追加认证信息
-        let exist = await exists(process.env.APP_ID + "/author.json", { baseDir: BaseDirectory.Home })
+        let exist = await exists(process.env.APP_ID + "/author1.json", { baseDir: BaseDirectory.Home })
         if (exist) {
             let jwtText = await readTextFile(process.env.APP_ID + "/author.json", { baseDir: BaseDirectory.Home })
             let userAuthor = JSON.parse(jwtText) as UserAuthorization
@@ -89,9 +95,12 @@ export const ClientAuthenticationStore = createStore<ClientAuthorization>((set, 
             header["x-user-type"] = userAuthor.principal.type
             header["Authorization"] = userAuthor.tokenType + " " + userAuthor.accessToken
             set({ header: header, user: userAuthor.principal })
+
+            return userAuthor;
         } else {
             set({ header: header })
         }
+        return undefined
     },
 
     refresh: async (newAuthor: UserAuthorization) => {
@@ -101,6 +110,7 @@ export const ClientAuthenticationStore = createStore<ClientAuthorization>((set, 
 
         //更新accessToken 和用户信息
         let { header } = get()
+
         header = {
             ...header,
             "x-user-id": newAuthor.principal.id,
@@ -108,6 +118,12 @@ export const ClientAuthenticationStore = createStore<ClientAuthorization>((set, 
             Authentication: newAuthor.tokenType + " " + newAuthor.accessToken
         }
         set({ header: { ...header }, user: newAuthor.principal })
+    },
+
+    reset: async () => {
+        //删除文件
+        await remove(process.env.APP_ID + "/author.json", { baseDir: BaseDirectory.Home })
+        set({ header: await initHeader(), user: undefined })
     }
 }))
 
@@ -124,6 +140,7 @@ const requestHeaderInterceptor = (config: InternalAxiosRequestConfig<any>) => {
 
     return config;
 }
+
 
 /**
  * 统一认证接口

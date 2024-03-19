@@ -1,18 +1,17 @@
-import React, { useEffect, useState, Fragment } from 'react'
+import { useEffect, useState, Fragment } from 'react'
 import { useLocation, Outlet } from 'umi';
 import { useLogin } from '@/uses'
 import './index.less';
-import { Button, Popover } from 'antd';
-import { LoginModule, UserInfoModule, MemberRechargeModule, EnergyRechargeModule } from '@/components'
+import { Button } from 'antd';
 import updater from '@tauri-apps/plugin-updater';
-import assets from '@/assets';
-import { LoginOutlined, RightOutlined, UserOutlined } from '@ant-design/icons';
+import { RightOutlined } from '@ant-design/icons';
 import { ClientAuthenticationStore } from '@/api';
 import { ComfyUIApi } from '@/api/comfyui_api';
 import { v4 as uuid } from 'uuid';
 import { useComfyUIRepository } from '@/repository/comfyui';
-import { event } from '@tauri-apps/api';
 import { history } from "umi"
+
+
 export default function Layout(props: any) {
 
   let { pathname } = useLocation();
@@ -21,20 +20,6 @@ export default function Layout(props: any) {
   const { logout, loginState } = useLogin();
   
   const comfyuiRepo = useComfyUIRepository(state => state)
-
-
-
-  useEffect(() => {
-
-    //注册运行事件
-    const unsub = event.once('tauri://focus', async (event) => {
-      await comfyuiRepo.download()
-    })
-
-    return () => {
-      unsub.then(f => f())
-    }
-  }, [])
 
 
 
