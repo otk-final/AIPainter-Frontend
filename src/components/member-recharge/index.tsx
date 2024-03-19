@@ -1,6 +1,7 @@
 import assets from "@/assets";
 import { useLogin } from "@/uses";
 import { getPriceInt } from "@/utils";
+import { CloseOutlined } from "@ant-design/icons";
 import { Button, Modal,  } from "antd"
 import { useState } from "react";
 import "./index.less"
@@ -51,31 +52,34 @@ const MemberRechargeModule:React.FC<MemberRechargeModuleProps> = ({isOpen, onClo
    ]
 
     return (
-        <Modal title="会员充值" 
+        <Modal 
             open={isOpen} 
             onCancel={onClose} 
             footer={null}
-            width={900}
+            width={712}
+            closeIcon={false}
             className="member-recharge">
-                <div className="section">
-                    <div className="name-wrap flexR">
-                        <div className="flexR">
-                            <img src={assets.userImg} className="user-img"/>
-                            <div>{loginState.nickName}</div>
-                        </div>
-                        <div>VIP 到期时间：{loginState.endTime}</div>
+                <div className="header flexRB">
+                    <div className="text">我的</div>
+                    <CloseOutlined onClick={onClose}/>
+               </div>
+               <div className="name-wrap flexR">
+                    <div className="flexR">
+                        <img src={assets.avatar1} className="user-img"/>
+                        <div>{loginState.nickName}</div>
                     </div>
-                    <div className="user-content-wrap flexR">
-                        {contentDatas.map((i, index)=>{
-                            return (
-                                <div className="content-wrap flexC" key={index}>
-                                    <img src={i.url} className="icon-img"/>
-                                    <div className="title">{i.title}</div>
-                                    <div className="text">{i.text}</div>
-                                </div>
-                            )
-                        })}
-                    </div>
+                    <div>VIP 到期时间：{loginState.endTime}</div>
+                </div>
+                <div className="user-content-wrap flexR">
+                    {contentDatas.map((i, index)=>{
+                        return (
+                            <div className="content-wrap flexC" key={index}>
+                                <img src={i.url} className="icon-img"/>
+                                <div className="title">{i.title}</div>
+                                <div className="text">{i.text}</div>
+                            </div>
+                        )
+                    })}
                 </div>
                 <div className="flexR">
                     {memberDatas.map((i,idx)=>{

@@ -1,33 +1,30 @@
 .home-user-info {
+    &.ant-modal .ant-modal-content {
+        height: 412px;
+        padding: 0 20px 0;
+    }
+    & .header {
+        background-color: #29292D;
+        height: 32px;
+        font-size: 12px;
+        color: @l-font-color;
+        line-height: 16px;
+        text-align: left;
+        margin: 0 -20px;
+        padding: 0 16px;
+    }
     & .user-info-title {
-        justify-content: space-between;
-        border-top: 1px solid @line-color;
         margin-top: 20px;
-        margin-bottom: 20px;
-        font-size: 20px;
+        font-size: 14px;
         color: @l-font-color;
     }
 
-    & .section-item {
-        margin-bottom: 10px;
-        line-height: 1;
-        justify-content: space-between;
-        font-size: 16px;
-        height: 28px;
-    }
-
-    & .section-item-left {
-        flex: 1;
-        margin-right: 20px;
-    }
-
-    & .section-item-right {
-        flex: 1;
-    }
-
-    & .left-text {
+    & .text-item {
+        height: 26px;
         color: @s-font-color;
-        justify-content: space-between;
+        margin-top: 12px;
+        font-size: 12px;
+        line-height: 16px;
     }
 
     & .edit {
@@ -57,25 +54,30 @@
 
     & .user-info-qrCode-wrap {
         justify-content: space-between;
-        padding: 50px 220px 0;
+        padding: 16px 40px 0;
     }
 
     & .qrcode-img {
-        width: 120px;
-        height: 120px;
+        width: 84px;
+        height: 84px;
         background-color: #111;
         margin-bottom: 14px;
     }
 
     & .qrcode-text {
-        font-size: 14px;
+        font-size: 12px;
         color: @m-font-color;
     }
 
 
     & .btn-primary-auto.info-btn {
-        font-size: 14px;
-        width: 88px;
-        height: 32px;
+        width: 60px;
+        padding: 0;
+        height: 22px;
+        background: #35312B;
+        border-radius: 4px;
+        font-size: 11px;
+        color: #F8D59F;
+        line-height: 16px
     }
 }

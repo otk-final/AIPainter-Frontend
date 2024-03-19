@@ -3,6 +3,7 @@ import { Button,  Input,  Modal, } from "antd"
 import "./index.less"
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { Fragment, useEffect, useState } from "react";
+import { CloseOutlined } from "@ant-design/icons";
 
 
 interface UserInfoModuleProps {
@@ -59,34 +60,34 @@ const UserInfoModule:React.FC<UserInfoModuleProps> = ({isOpen, onClose, openRech
     }
    
     return (
-        <Modal title="我的" 
+        <Modal
             open={isOpen} 
             onCancel={onClose} 
             footer={null}
-            width={900}
+            width={320}
+            closeIcon={false}
             className="home-user-info">
+                <div className="header flexRB">
+                    <div className="text">我的</div>
+                    <CloseOutlined onClick={onClose}/>
+               </div>
                 <div className="user-info-title">个人信息</div>
-                <div className="section-item flexR">
-                    <div className="section-item-left left-text flexR">
-                        <div className="flexR">
-                            <div> 用户名称： </div>
-                            {edit ? <Input size="large" 
-                                style={{width: '160px', height: '26px', borderRadius: '2px'}}
-                                maxLength={20} 
-                                value={inputV} 
-                                onChange={(v)=> setInputV(v.target.value)}/> 
-                            : loginState?.nickName }
-                        </div>
-                        <div className="edit" onClick={handleEdit}>{edit ? "保存" : "修改"}</div>
+                <div className="text-item flexRB">
+                    <div className="flexR">
+                        <div> 用户名称： </div>
+                        {edit ? <Input size="large" 
+                            style={{width: '160px', height: '26px', borderRadius: '2px'}}
+                            maxLength={20} 
+                            value={inputV} 
+                            onChange={(v)=> setInputV(v.target.value)}/> 
+                        : loginState?.nickName }
                     </div>
-                    <div className="section-item-right left-text  flexR" onClick={handleCopy}>邀请码：{loginState.inviteCode} <div className="edit cppy">复制邀请码</div></div>
+                    <div className="edit" onClick={handleEdit}>{edit ? "保存" : "修改"}</div>
                 </div>
-                <div className="section-item flexR">
-                    <div className="section-item-left left-text flexR">账号类型：付费账号 </div>
-                    <div className="section-item-right left-text flexR">到期时间：{loginState?.endTime}<Button className="btn-primary-auto info-btn" onClick={()=>openRecharge('member')}type="primary">充值会员</Button></div>
-                </div>
-                <div className="left-text section-item">手机号码：{loginState?.phone?.slice(0,3)}****{loginState?.phone?.slice(7)}</div>
-                {/* {renderEnergy()} */}
+                <div className="text-item flexRB" onClick={handleCopy}>邀请码：{loginState.inviteCode} <div className="edit cppy">复制邀请码</div></div>
+                <div className="text-item flexRB">账号类型：付费账号 </div>
+                <div className="text-item flexRB">到期时间：{loginState?.endTime}<Button className="btn-primary-auto info-btn" onClick={()=>openRecharge('member')}type="primary">充值会员</Button></div>
+                <div className="text-item">手机号码：{loginState?.phone?.slice(0,3)}****{loginState?.phone?.slice(7)}</div>
                 <div className="user-info-qrCode-wrap flexR">
                     <div className="flexC">
                         <img className="qrcode-img" src="" alt="" />
