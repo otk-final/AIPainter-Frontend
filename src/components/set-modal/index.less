@@ -1,0 +1,198 @@
+.set-modal-wrap {
+   
+    &.ant-modal .ant-modal-content {
+        height: 412px;
+        padding: 0 20px 0;
+
+    }
+
+    & .header {
+        background-color: #29292D;
+        height: 32px;
+        font-size: 12px;
+        color: @l-font-color;
+        line-height: 16px;
+        text-align: left;
+        margin: 0 -20px;
+        padding: 0 16px;
+    }
+
+    & .tabs {
+        background-color: #29292D;
+        height: 40px;
+        margin: 0 -20px;
+        padding-left: 16px;
+        padding-top: 12px;
+        justify-content: flex-end;
+        &.ant-tabs .ant-tabs-tab-btn {
+            &:focus {
+                color: @l-font-color;
+            }
+
+        }
+        &.ant-tabs-top >.ant-tabs-nav, &.ant-tabs-bottom >.ant-tabs-nav, &.ant-tabs-top >div>.ant-tabs-nav, &.ant-tabs-bottom >div>.ant-tabs-nav {
+            margin-bottom: 0;
+        }
+    }
+
+    & .title {
+        font-size: 12px;
+        color: @m-font-color;
+        margin-top: 20px;
+    }
+
+    & .draft {
+        & .subText {
+            margin-top: 16px;
+            margin-bottom: 12px;
+            font-size: 10px;
+            color: @m-font-color;
+            line-height: 16px;
+            text-align: left;
+            & span {
+                color: @primary-color;
+            }
+        }
+
+        & .input-s {
+            width: 250px;
+            height: 24px;
+            border: 1px solid @border-line-color;
+            border-radius: 4px;
+        }
+
+        & .btn-default-88 {
+            padding: 0;
+        }
+    }
+
+    & .keyframe {
+
+        & .title, & .label {
+            font-size: 12px;
+            color: @m-font-color;
+            margin-top: 20px;
+        }
+
+        & .label {
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        & .select-auto {
+            width: 220px;
+            height: 24px;
+            margin-top: 16px;
+        }
+
+        & .select-auto.ant-select .ant-select-selector .ant-select-selection-item {
+            line-height: 24px;
+            font-size: 11px;
+        }
+           
+ 
+        & .ant-input-number-group {
+            width: 220px;
+            height: 24px;
+            border: 1px solid @border-line-color;
+            border-radius: 4px;
+           
+        }
+
+        & .form-item {
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+
+        & .ant-input-number-group .ant-input-number-group-addon {
+            padding: 0;
+            border: none;
+           
+        }
+
+        & .ant-btn {
+            height: 24px;
+            padding: 0 6px;
+            color: @l-font-color;
+            &:hover {
+                color: @l-font-color;
+            }
+        }
+        & .ant-input-number {
+            background-color: transparent;
+            border: none;
+        }
+        & .ant-input-number-lg input.ant-input-number-input {
+            height: 24px;
+            color: @l-font-color;
+            font-size: 11px;
+            text-align: center;
+        }
+        
+    }
+
+    & .line {
+        position: absolute;
+        bottom: 54px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 1px;
+        background: #2D2D2E;
+    }
+
+    & .foot {
+        position: absolute;
+        bottom: 16px;
+        right: 20px;
+        justify-content: flex-end;
+    }
+
+    & .fontset-wrap {
+        margin-top: 16px;
+    }
+
+    & .fontsize {
+        width: 40px;
+        height: 40px;
+        background: #29292D;
+        border: 1px solid #29292D;
+        border-radius: 4px;
+        line-height: 40px;
+        text-align: center;
+        color: @l-font-color;
+        margin-right: 8px;
+        position: relative;
+        
+        &.cur {
+            border: 1px solid @primary-color;
+        }
+    }
+
+    & .fontcf {
+        width: 28px;
+        height: 28px;
+        margin-right: 8px;
+        border-radius: 4px;
+        position: relative;
+        &.cur {
+            &::after {
+                content: '';
+                display: block;
+                position: absolute;
+                top: -2px;
+                left: -2px;
+                width: 30px;
+                height: 30px;
+                border-radius: 4px;
+                border: 1px solid @primary-color;
+            }
+        }
+    }
+}
+
+.ant-select-dropdown .ant-select-item.ant-select-item-option {
+    height: 24px;
+    line-height: 24px;
+    font-size: 11px;
+}

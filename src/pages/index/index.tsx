@@ -8,6 +8,7 @@ import { Project, useProjectRepository } from '@/repository/workspace';
 import { DeleteOutlined, RightOutlined } from '@ant-design/icons';
 import { LoginModule, UserInfoModule, MemberRechargeModule } from '@/components'
 import { useLogin } from '@/uses';
+import SetModal from '@/components/set-modal';
 
 
 export type ProjectType = "story" | "imitate" | ""
@@ -72,6 +73,7 @@ const HomePage = () => {
   const [isLoginOpen, setLoginOpen] = useState(false);
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
   const [isMemberRechargeOpen, setIsMemberRechargeOpen] = useState(false);
+  const [isSet, setSetOpen] = useState(false)
   const { logout, loginState } = useLogin();
 
   
@@ -206,7 +208,7 @@ const HomePage = () => {
       </div>
       <div className="section-title-wrap flexRB">
         <div>我的草稿<span>（生成素材特为您保留30天）</span></div>
-        <div className='jy-set flexR' onClick={() => {history.push("/draft")}}>
+        <div className='jy-set flexR' onClick={() => setSetOpen(true)}>
           <img src={assets.setIcon} className="set-icon" />
           剪映设置
         </div>
@@ -216,6 +218,7 @@ const HomePage = () => {
       <LoginModule isOpen={isLoginOpen} onClose={() => setLoginOpen(false)} />
       <UserInfoModule isOpen={isUserInfoOpen} onClose={() => setIsUserInfoOpen(false)} openRecharge={openRecharge} />
       <MemberRechargeModule isOpen={isMemberRechargeOpen} onClose={() => setIsMemberRechargeOpen(false)} />
+      <SetModal isOpen={isSet} onClose={() => setSetOpen(false)} />
     </div>
   );
 }
