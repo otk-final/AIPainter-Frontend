@@ -20,7 +20,7 @@ const AddonNumberInput: React.FC<{ label: string, max?: number, min?: number, st
     return (
         <div className="form-item flexC">
             <div className="label">{label}</div>
-            <InputNumber className={"inputnumber-auto has-addon"} size="large"
+            <InputNumber className={"has-addon"} size="large"
                 controls={false}
                 defaultValue={value}
                 value={value}

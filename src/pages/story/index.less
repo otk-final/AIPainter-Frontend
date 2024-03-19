@@ -1,6 +1,6 @@
 .create-wrap {
     background-color: #121212;
-    height: calc(100% - 90px);
+    height: calc(100%);
     overflow: hidden;
 
     & .inputnumber-auto {
@@ -8,7 +8,7 @@
         background-color: @bg-input;
         border: 1px solid @border-line-color;
         width: 100%;
-        height: 40px;
+        height: 28px;
         color: @m-font-color;
         border-radius: 6px;
 
@@ -20,64 +20,27 @@
 
         & .ant-input-number-input {
             color: @m-font-color;
-            height: 40px;
+            height: 28px;
             box-sizing: border-box;
 
         }
 
         &.has-addon .ant-input-number-input {
-            height: 38px;
+            height: 28px;
         }
 
         & .ant-input-number-group .ant-input-number-group-addon {
             border: none;
             color: @m-font-color;
-            line-height: 38px;
+            line-height: 28px;
             padding: 0;
         }
     }
 }
 
-
-.inputnumber-auto {
-    box-sizing: border-box;
-    background-color: @bg-input;
-    border: 1px solid @border-line-color;
-    width: 100%;
-    height: 40px;
-    color: @m-font-color;
-    border-radius: 6px;
-
-    & .ant-input-number {
-        background-color: inherit;
-        border: none;
-
-    }
-
-    & .ant-input-number-input {
-        color: @m-font-color;
-        height: 40px;
-        box-sizing: border-box;
-
-    }
-
-    &.has-addon .ant-input-number-input {
-        height: 38px;
-    }
-
-    & .ant-input-number-group .ant-input-number-group-addon {
-        border: none;
-        color: @m-font-color;
-        line-height: 38px;
-        padding: 0;
-    }
-}
-
-
 .storyboard-wrap {
     padding: 0 20px;
-    height: calc(100% - 98px);
-    // overflow: scroll;
+    height: calc(100% - 20px);
     overflow: hidden;
 
     & .text-area-auto {
