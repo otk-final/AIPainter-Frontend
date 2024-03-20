@@ -2,9 +2,9 @@ import { subscribeWithSelector } from "zustand/middleware"
 import { BaseCRUDRepository, ItemIdentifiable } from "./tauri_repository"
 import { create } from "zustand"
 
-import { path } from "@tauri-apps/api";
-import tauri from "@tauri-apps/api/core";
-import fs from "@tauri-apps/plugin-fs";
+import * as path from "@tauri-apps/api/path";
+import * as tauri from "@tauri-apps/api/core";
+import * as fs from "@tauri-apps/plugin-fs";
 
 import { ComfyUIRepository, KeyImage } from "./comfyui"
 import { v4 as uuid } from "uuid"

@@ -1,4 +1,4 @@
-import fs from "@tauri-apps/plugin-fs";
+import * as fs from "@tauri-apps/plugin-fs";
 import { KeyFragment } from "./draft_utils";
 
 

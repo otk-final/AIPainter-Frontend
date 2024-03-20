@@ -1,8 +1,8 @@
 import { writeTextFile } from "@tauri-apps/plugin-fs"
 import { KeyFragment } from "./draft_utils"
 import { delay } from "./tauri_repository"
-import tauri from "@tauri-apps/api/core"
-import shell from "@tauri-apps/plugin-shell"
+import * as tauri from "@tauri-apps/api/core"
+import * as shell from "@tauri-apps/plugin-shell"
 
 
 

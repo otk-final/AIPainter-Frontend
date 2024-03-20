@@ -15,9 +15,10 @@ export default function Layout(props: any) {
   let { pathname } = useLocation();
   console.info("layout", pathname)
 
-  // const { logout, isLogin } = useLogin();
-  
-  // const comfyuiRepo = useComfyUIRepository(state => state)
+  const { logout } = useLogin();
+
+  const comfyuiRepo = useComfyUIRepository(state => state)
+
 
   useEffect(() => {
     //初始化
@@ -69,7 +70,7 @@ export default function Layout(props: any) {
   return (
     <Fragment>
       {/* <EnergyRechargeModule isOpen={isEnergyRechargeOpen} onClose={() => setIsEnergyRechargeOpen(false)} /> */}
-      <UpDateVersion isOpen={updateOpen} onClose={() => setUpdateOpen(false)} onUpdate={withUpdateHandler}/>
+      <UpDateVersion isOpen={updateOpen} onClose={() => setUpdateOpen(false)} onUpdate={withUpdateHandler} />
       <Outlet />
     </Fragment>
   );
