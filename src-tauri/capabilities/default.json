@@ -12,6 +12,8 @@
     "window:default",
     "app:default",
     "image:default",
+    "clipboard-manager:allow-write",
+    "clipboard-manager:allow-read",
     "resources:default",
     "menu:default",
     "tray:default",

@@ -29,8 +29,6 @@ export interface UserPrincipal {
     id: string
     name: string
     profile: {
-        vip: string,
-        vipExpriedTime: string
         inviteCode: string,
         phone: string
     }
@@ -87,7 +85,7 @@ export const ClientAuthenticationStore = createStore<ClientAuthorization>((set, 
     init: async () => {
         let header = await initHeader()
         //追加认证信息
-        let exist = await exists(process.env.APP_ID + "/author1.json", { baseDir: BaseDirectory.Home })
+        let exist = await exists(process.env.APP_ID + "/author.json", { baseDir: BaseDirectory.Home })
         if (exist) {
             let jwtText = await readTextFile(process.env.APP_ID + "/author.json", { baseDir: BaseDirectory.Home })
             let userAuthor = JSON.parse(jwtText) as UserAuthorization
