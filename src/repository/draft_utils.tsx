@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid"
 import { JYDraftConfiguration } from "./draft";
-import path from "@tauri-apps/api/path";
+import * as path from "@tauri-apps/api/path";
 import { copyFile, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 
 /**

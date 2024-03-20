@@ -3,7 +3,7 @@ import { useLocation, Outlet } from 'umi';
 import { useLogin } from '@/uses'
 import './index.less';
 import { Button } from 'antd';
-import updater from '@tauri-apps/plugin-updater';
+import *  as updater from '@tauri-apps/plugin-updater';
 import { RightOutlined } from '@ant-design/icons';
 import { ClientAuthenticationStore } from '@/api';
 import { ComfyUIApi } from '@/api/comfyui_api';
@@ -19,7 +19,7 @@ export default function Layout(props: any) {
   console.info("layout", pathname)
 
   const { logout, loginState } = useLogin();
-  
+
   const comfyuiRepo = useComfyUIRepository(state => state)
 
 
@@ -34,9 +34,9 @@ export default function Layout(props: any) {
     return (
       <div className="popver-wrap flexC ">
         {/* <Button type="text" onClick={() => {history.push("/setting")}} >通用设置</Button> */}
-        <Button type="text" onClick={() => {history.push("/draft")}} >剪映设置</Button>
+        <Button type="text" onClick={() => { history.push("/draft") }} >剪映设置</Button>
         <div className='line'></div>
-        <div className='flexRB version'>{`版本号(1.0)`} <div className='version-btn' onClick={()=>{}}>点击更新</div></div>
+        <div className='flexRB version'>{`版本号(1.0)`} <div className='version-btn' onClick={() => { }}>点击更新</div></div>
         {loginState.isLogin ? <Button type="text" onClick={logout} >退出登陆 <RightOutlined /></Button> : null}
       </div>
     )
@@ -100,7 +100,7 @@ export default function Layout(props: any) {
       </div> */}
       {/* <div className='navs-placeholder'></div> */}
       {/* <EnergyRechargeModule isOpen={isEnergyRechargeOpen} onClose={() => setIsEnergyRechargeOpen(false)} /> */}
-      <UpDateVersion isOpen={updateOpen} onClose={() => setUpdateOpen(false)} onUpdate={withUpdateHandler}/>
+      <UpDateVersion isOpen={updateOpen} onClose={() => setUpdateOpen(false)} onUpdate={withUpdateHandler} />
       <Outlet />
     </Fragment>
   );
