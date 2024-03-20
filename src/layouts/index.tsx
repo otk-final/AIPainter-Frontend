@@ -10,10 +10,11 @@ import { ComfyUIApi } from '@/api/comfyui_api';
 import { v4 as uuid } from 'uuid';
 import { useComfyUIRepository } from '@/repository/comfyui';
 import { history } from "umi"
+import UpDateVersion from '@/components/update-version';
 
 
 export default function Layout(props: any) {
-
+  const [updateOpen, setUpdateOpen] = useState(false);
   let { pathname } = useLocation();
   console.info("layout", pathname)
 
@@ -25,6 +26,7 @@ export default function Layout(props: any) {
 
   useEffect(() => {
     //初始化
+    setUpdateOpen(true);
     ClientAuthenticationStore.getState().init()
   }, [])
 
@@ -71,12 +73,13 @@ export default function Layout(props: any) {
 
     // await writeTextFile("sdw.txt", "abcd", { baseDir: BaseDirectory.Desktop, append: true })
 
-    // const update = await updater.check()
-    // if (update?.available) {
-    //   await update.downloadAndInstall(onUpdateEvent)
-    // } else {
-    //   console.info('not updated')
-    // }
+    const update = await updater.check();
+    console.log("update", update)
+    if (update?.available) {
+      await update.downloadAndInstall(onUpdateEvent)
+    } else {
+      console.info('not updated')
+    }
   }
 
   return (
@@ -97,6 +100,7 @@ export default function Layout(props: any) {
       </div> */}
       {/* <div className='navs-placeholder'></div> */}
       {/* <EnergyRechargeModule isOpen={isEnergyRechargeOpen} onClose={() => setIsEnergyRechargeOpen(false)} /> */}
+      <UpDateVersion isOpen={updateOpen} onClose={() => setUpdateOpen(false)} onUpdate={withUpdateHandler}/>
       <Outlet />
     </Fragment>
   );
