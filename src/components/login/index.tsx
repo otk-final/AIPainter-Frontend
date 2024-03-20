@@ -26,6 +26,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
     const [isQrCode, setIsQrCode] = useState(false)
     const [agreement, setAgreement] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const startCountdown = () => {
         const intervalId = setInterval(() => {
@@ -73,7 +74,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
         if (!verify) {
             return message.error('请填写验证码');
         }
-        await login(phone, verify).then(onClose).catch(() => { })
+        setLoading(true)
+        await login(phone, verify).then(onClose).catch(() => { }).finally(()=>setLoading(false))
     }
 
 
@@ -100,7 +102,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                     onChange={(v) => setPhone(`${v}`)} />
                 <InputNumber className="inputnumber-auto" size="large" controls={false} maxLength={6} placeholder="请输入手机验证码"
                     onChange={(v) => setVerify(`${v}`)} addonAfter={renderAddon()} />
-                <Button type="primary" className="btn-primary-auto" block onClick={handleSumbit} style={{ marginTop: '40px' }}> 登录 </Button>
+                <Button type="primary" className="btn-primary-auto" block onClick={handleSumbit} style={{ marginTop: '40px' }} loading={loading}> 登录 </Button>
                 <Button type="default" className="btn-default-auto flexR" block onClick={() => setIsQrCode(true)} style={{ marginTop: '16px', justifyContent: 'center' }} >
                     <img src={assets.wechat} className="wechat" /> 微信登录 </Button>
                 <div className="agreement flexR" onClick={() => setAgreement(!agreement)} ><div className={`check ${agreement ? 'cur' : ''}`}></div> 已阅读并同意<span onClick={() => history.push("/agreement")}>鹦鹉智绘用户协议</span>和<span onClick={() => history.push("/privatepage")}>鹦鹉智绘隐私政策</span> </div>
