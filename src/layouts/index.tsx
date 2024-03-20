@@ -5,7 +5,7 @@ import './index.less';
 import * as updater from '@tauri-apps/plugin-updater';
 import { ClientAuthenticationStore } from '@/api';
 import { UpDateVersion } from '@/components';
-
+import DevicePixelRatio from '@/utils/devicePixelRatio'
 
 export default function Layout(props: any) {
   const [update, setUpdate] = useState<updater.Update | undefined>();
@@ -15,6 +15,7 @@ export default function Layout(props: any) {
 
 
   useEffect(() => {
+    new DevicePixelRatio().init()
     //初始化
     updater.check().then(e => {
       debugger
