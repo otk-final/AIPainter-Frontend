@@ -13,7 +13,7 @@
       "@/*": ["src/*"],
       "@@/*": ["src/.umi/*"],
       "@/components": ["src/components/index"],
-      "@/utils": ["./src/utils/index"],
+      "@/utils": ["src/utils/index"],
       "@/api/*": ["src/api/*"],
       "@/constants/*": ["src/constants/*"],
       "@/assets/*": ["src/assets/*"],

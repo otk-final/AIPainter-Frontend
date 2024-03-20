@@ -2,7 +2,6 @@ import { Button, Input, message, Modal, } from "antd"
 import "./index.less"
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useState } from "react";
-import { CloseOutlined } from "@ant-design/icons";
 import { UserPrincipal } from "@/api";
 import { VipCredential } from "@/uses/useLogin";
 
