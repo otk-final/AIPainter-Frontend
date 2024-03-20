@@ -1,7 +1,7 @@
 {
-  "productName": "aipainter-frontend",
+  "productName": "pollyai",
   "version": "0.0.0",
-  "identifier": "com.tauri.pollyai",
+  "identifier": "com.turinno.pollyai",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:8000",
@@ -11,7 +11,7 @@
   "app": {
     "windows": [
       {
-        "title": "aipainter-frontend",
+        "title": "鹦鹉智绘-0.0.0",
         "width": 1000,
         "height": 860,
         "decorations": true,
@@ -19,7 +19,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' asset: http://asset.localhost",
+      "csp": "default-src 'self' data: http: https: ipc: http://ipc.localhost gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content: asset: http://asset.localhost;",
       "assetProtocol": {
         "enable": true,
         "scope": [
@@ -31,7 +31,7 @@
   "plugins": {
     "updater": {
       "endpoints": [
-        "https://wx.yryz3.com/tauri-updater/check/{{target}}/{{arch}}/{{current_version}}"
+        "https://wx.yryz3.com/updater/check/{{target}}/{{arch}}/{{current_version}}"
       ],
       "windows": {
         "installMode": "passive"
