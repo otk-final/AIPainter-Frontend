@@ -93,10 +93,10 @@ export const LoginProvider = (props: any) => {
                     return up !== undefined
                 },
                 isVip: () => {
-                    return up !== undefined && up.profile["vip"]
+                    return up !== undefined && up.profile.vip !== "std"
                 },
                 getVipExpridTime: () => {
-                    return up !== undefined && up.profile["vipExpiredTime"]
+                    if (up !== undefined) return up.profile.vipExpriedTime
                 },
                 login: login,
                 logout: logout,

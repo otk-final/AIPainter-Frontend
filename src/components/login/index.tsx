@@ -10,13 +10,14 @@ interface LoginModalProps {
     isOpen: boolean,
     onClose: () => void
 }
-
+const COUNTDOWN_NUM = 60
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     const { login } = useLogin();
 
 
     //验证码
-    const [countdown, setCountdown] = useState(0);
+    const [countdown, setCountdown] = useState<number>(COUNTDOWN_NUM);
+    const [isRetry, setRetry] = useState<boolean>(false);
 
 
     const [phone, setPhone] = useState<string>("");
@@ -26,30 +27,43 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     const [isQrCode, setIsQrCode] = useState(false)
     const [agreement, setAgreement] = useState(false);
 
-    useEffect(() => {
-        let timer = undefined
-        // 当倒计时为0时 清除定时器
-        if (countdown === 60) {
-            timer = setInterval(() => setCountdown(t => --t), 1000)
-        }
-        return () => clearInterval(timer)
-    }, [countdown])
+    const startCountdown = () => {
+        const intervalId = setInterval(() => {
+            setCountdown((prevCount) => prevCount - 1);
+        }, 1000);
+        return intervalId;
+    };
 
+    useEffect(() => {
+        if (!isRetry) {
+            return
+        }
+        const intervalId = startCountdown();
+        return () => {
+            console.info("移除：", intervalId)
+            clearInterval(intervalId);
+        };
+    }, [isRetry]);
+
+    useEffect(() => {
+        if (countdown === 0) setRetry(false)
+    }, [countdown])
 
     const handleGetVerifyCode = async () => {
 
-        if (countdown) return;
+        if (isRetry) return;
         if (!/^[0-9]{11}$/.test(phone)) {
             message.error('请填写正确手机号');
             return;
         }
 
-        //发生验证码
+        // 发生验证码
         let resp = await DefaultClient.post('/pb/user/login/sendCode', { key: "+86", value: phone }).then(resp => resp.data)
         console.info(resp)
 
         //开始倒计时
-        setCountdown(60)
+        setCountdown(COUNTDOWN_NUM - 1)
+        setRetry(!isRetry)
     }
 
     const handleSumbit = async () => {
@@ -59,13 +73,13 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
         if (!verify) {
             return message.error('请填写验证码');
         }
-        await login(phone, verify).then(onClose)
+        await login(phone, verify).then(onClose).catch(() => { })
     }
 
 
     const renderAddon = () => {
         return (
-            <div className="btn-getCode" onClick={handleGetVerifyCode}>{!countdown ? "荻取验证码" : `${countdown}秒后获取`}</div>
+            <div className="btn-getCode" onClick={handleGetVerifyCode}>{isRetry ? `${countdown}秒后获取` : "荻取验证码"}</div>
         )
     }
 
@@ -84,7 +98,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             <Fragment>
                 <InputNumber value={phone} className="inputnumber-auto" size="large" controls={false} maxLength={11} placeholder="请输入手机号"
                     onChange={(v) => setPhone(`${v}`)} />
-                <InputNumber className="inputnumber-auto" size="large" controls={false} maxLength={4} placeholder="请输入手机验证码"
+                <InputNumber className="inputnumber-auto" size="large" controls={false} maxLength={6} placeholder="请输入手机验证码"
                     onChange={(v) => setVerify(`${v}`)} addonAfter={renderAddon()} />
                 <Button type="primary" className="btn-primary-auto" block onClick={handleSumbit} style={{ marginTop: '40px' }}> 登录 </Button>
                 <Button type="default" className="btn-default-auto flexR" block onClick={() => setIsQrCode(true)} style={{ marginTop: '16px', justifyContent: 'center' }} >
