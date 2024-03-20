@@ -63,7 +63,7 @@ export const ProjectModal: React.FC<ProjectProps> = ({ isOpen, onClose, type }) 
             open={isOpen}
             onCancel={onClose}
             footer={null}
-            width={700}
+            width={400}
             className="create-project">
             <div className="title">项目名称（必填）</div>
             <Input placeholder="请输入项目名" size="large" onChange={(v) => setName(v.target.value)} />

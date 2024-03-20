@@ -54,15 +54,11 @@ const RechargeModal: React.FC<MemberRechargeModuleProps> = ({ isOpen, user, vip,
     return (
         <Modal
             open={isOpen}
+            title="我的"
             onCancel={onClose}
             footer={null}
             width={712}
-            closeIcon={false}
             className="member-recharge">
-            <div className="header flexRB">
-                <div className="text">我的</div>
-                <CloseOutlined onClick={onClose} />
-            </div>
             <div className="name-wrap flexR">
                 <div className="flexR">
                     <img src={assets.avatar1} className="user-img" />

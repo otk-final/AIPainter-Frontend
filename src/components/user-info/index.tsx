@@ -39,12 +39,8 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, user, vip, onClos
             onCancel={onClose}
             footer={null}
             width={320}
-            closeIcon={false}
+            title="我的"
             className="home-user-info">
-            <div className="header flexRB">
-                <div className="text">我的</div>
-                <CloseOutlined onClick={onClose} />
-            </div>
             <div className="user-info-title">个人信息</div>
             <div className="text-item flexRB">
                 <div className="flexR">

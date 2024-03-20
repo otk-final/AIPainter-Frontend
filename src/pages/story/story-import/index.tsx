@@ -120,7 +120,7 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
             onCancel={onClose}
             footer={null}
             maskClosable={false}
-            width={600}>
+            width={400}>
 
             <div className="script-import">
                 <div className="title">分镜标识符</div>
@@ -133,8 +133,7 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
                         { value: 'line', label: '通过“换行”区分' },
                     ]}
                 />
-                <Divider />
-                <Tabs defaultActiveKey="file" items={importTabItems} onChange={(key) => setType(key as ImportType)} />
+                <Tabs  className="story-import-tabs" defaultActiveKey="file" items={importTabItems} onChange={(key) => setType(key as ImportType)} />
                 {importType === 'file' ? renderFileImport() : renderInputImport()}
                 <Button type="primary" block className="btn-primary-auto" loading={loading} onClick={handleCatchBoading}>开始分镜</Button>
             </div>

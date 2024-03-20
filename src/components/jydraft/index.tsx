@@ -202,12 +202,8 @@ const JYConfigModal:React.FC<JYConfigProps> = ({isOpen, onClose})=>{
             onCancel={onClose} 
             footer={null}
             width={400}
-            closeIcon={false}
+            title="设置"
             className="set-modal-wrap">
-               <div className="header flexRB">
-                    <div className="text">设置</div>
-                    <CloseOutlined onClick={onClose}/>
-               </div>
                <Tabs className="tabs" defaultActiveKey={cur} items={setTabItems} onChange={onChange} />
                {cur === 'jydraft' ? renderJyDraft() : null}
                {cur === 'keyframe' ? renderKeyframe() : null}
