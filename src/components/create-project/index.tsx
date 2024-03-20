@@ -28,7 +28,7 @@ const canvas_options = [{
     label: "9:16", value: "720x1280",
 }]
 
-export const ProjectModal: React.FC<ProjectProps> = ({ isOpen, onClose, type }) => {
+const ProjectModal: React.FC<ProjectProps> = ({ isOpen, onClose, type }) => {
     const [name, setName] = useState("")
     const [canvasMode, setCanvasMode] = useState<string>("default")
     const repo = useProjectRepository(state => state)
@@ -84,3 +84,4 @@ export const ProjectModal: React.FC<ProjectProps> = ({ isOpen, onClose, type }) 
         </Modal>
     )
 }
+export default ProjectModal;

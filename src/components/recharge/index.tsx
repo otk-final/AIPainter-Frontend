@@ -1,6 +1,5 @@
 import assets from "@/assets";
 import { getPriceInt } from "@/utils";
-import { CloseOutlined } from "@ant-design/icons";
 import { Button, Modal, } from "antd"
 import { useState } from "react";
 import "./index.less"

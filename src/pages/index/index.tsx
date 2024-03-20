@@ -3,13 +3,10 @@ import { Carousel, Image, Modal } from 'antd';
 import './index.less'
 import assets from '@/assets'
 import { history } from "umi"
-import { ProjectModal } from '@/components/create-project';
 import { Project, useProjectRepository } from '@/repository/workspace';
 import { DeleteOutlined, RightOutlined } from '@ant-design/icons';
-import { LoginModal, UserInfoModal } from '@/components'
+import { LoginModal, UserInfoModal, JYConfigModal, RechargeModal, ProjectModal } from '@/components'
 import { useLogin } from '@/uses';
-import JYConfigModal from '@/components/jydraft';
-import RechargeModal from '@/components/recharge';
 
 
 export type ProjectType = "story" | "imitate"
@@ -147,23 +144,6 @@ const HomePage = () => {
             <div className='text'>三步完成AI视频翻拍</div>
           </div>
         </div>
-      </div>
-      <div className="home-section flexR">
-        {/* {data.map((i, index) => {
-          return (
-            <div className="home-item-wrap flexR" key={index} >
-              <div className="left flexC">
-                <div className="title flexR">{i.title}
-                  {i.key === 'paint-module' ? <img src={assets.vip} className="vip-img" /> : null}
-                </div>
-                <div className="describe one-line">{i.describe}</div>
-              </div>
-              <Button type="default" className="btn-default-auto btn-default-88"
-                style={{ margin: 0 }}
-                onClick={() => handleBtn(i)}>{i.btnText}</Button>
-            </div>
-          )
-        })} */}
       </div>
       <div className="section-title-wrap flexRB">
         <div>我的草稿<span>（生成素材特为您保留30天）</span></div>
