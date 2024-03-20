@@ -36,7 +36,7 @@ const HomePage = () => {
 
   const [isProjectOpen, setIsProjectOpen] = useState<ProjectType | undefined>();
   const [isLoginOpen, setLoginOpen] = useState(false);
-  const [isUserProfileOpen, setUserProfileOpen] = useState(false);
+  const [isUserProfileOpen, setUserProfileOpen] = useState(true);
   const [isRechargeOpen, setRechargeOpen] = useState(false);
   const [isJYDraft, setJYDraftOpen] = useState(false)
 

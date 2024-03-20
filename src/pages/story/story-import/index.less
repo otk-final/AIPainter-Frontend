@@ -1,13 +1,14 @@
 .script-import {
     & .title {
-        font-size: 18px;
+        font-size: 12px;
         color: @m-font-color;
-        margin-bottom: 16px;
+        margin-bottom: 10px;
+        margin-top: 20px;
     }
 
     & .sub-text {
-        margin: 32px 0;
-        font-size: 14px;
+        margin: 10px 0;
+        font-size: 11px;
         color: @xs-font-color;
 
         & span {
@@ -19,7 +20,7 @@
         background-color: inherit;
         border: 1px solid @border-line-color;
         color: @m-font-color;
-        font-size: 14px;
+        font-size: 11px;
         height: 100%;
 
         &::placeholder {
@@ -27,22 +28,14 @@
         }
     }
 
-}
-
-.select-auto.ant-select.select-h56 {
-    height: 56px;
-    line-height: 56px;
-
-
-    & .ant-select-selector {
-
-        & .ant-select-selection-search-input {
-            height: 56px;
+    & .story-import-tabs.ant-tabs {
+        margin-top: 20px;
+        & .ant-tabs-tab {
+            font-size: 12px;
         }
 
-        & .ant-select-selection-item {
-            line-height: 56px;
+        & .ant-tabs-tab {
+            padding-bottom: 8px;
         }
     }
-
 }

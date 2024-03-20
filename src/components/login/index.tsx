@@ -85,7 +85,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
     const renderQrCode = () => {
         return (
-            <div className="flexC">
+            <div className="flexC" style={{marginTop: '20px'}}>
                 <img src={assets.avatar1} className="qrcode-img" />
                 <div className="assist-text">请使用手机微信扫码登录</div>
                 <Button type="default" className="btn-default-auto" block onClick={() => setIsQrCode(false)} style={{ width: '148px' }} >返回</Button>
@@ -96,7 +96,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     const renderMessage = () => {
         return (
             <Fragment>
-                <InputNumber value={phone} className="inputnumber-auto" size="large" controls={false} maxLength={11} placeholder="请输入手机号"
+                <InputNumber style={{marginTop: '20px'}} value={phone} className="inputnumber-auto" size="large" controls={false} maxLength={11} placeholder="请输入手机号"
                     onChange={(v) => setPhone(`${v}`)} />
                 <InputNumber className="inputnumber-auto" size="large" controls={false} maxLength={6} placeholder="请输入手机验证码"
                     onChange={(v) => setVerify(`${v}`)} addonAfter={renderAddon()} />
@@ -114,16 +114,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             onCancel={onClose}
             footer={null}
             keyboard={false}
-            closeIcon={false}
+            title="登陆"
             className="home-login-modal"
             width={400}>
-            <div className="header flexRB">
-                <div>登陆</div>
-                <div>
-                    <img src={assets.foldIcon} className="header-icon" />
-                    <img src={assets.closeIcon} className="header-icon" onClick={onClose} />
-                </div>
-            </div>
             {
                 isQrCode ? renderQrCode() : renderMessage()
             }
