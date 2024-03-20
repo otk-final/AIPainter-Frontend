@@ -3,7 +3,8 @@ import "./index.less"
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useState } from "react";
 import { UserPrincipal } from "@/api";
-import { VipCredential } from "@/uses/useLogin";
+import { useLogin, VipCredential } from "@/uses/useLogin";
+import assets from "@/assets";
 
 
 interface UserInfoModalProps {
@@ -18,6 +19,7 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, user, vip, onClos
     const [stateUserPrincipal, setUserPrincipal] = useState<UserPrincipal>(user)
     const [edit, setEdit] = useState(false);
     const [editInput, setEditInput] = useState<string>('');
+    const { logout } = useLogin();
 
     const handleCopy = async () => {
         await writeText(stateUserPrincipal.profile.inviteCode).then(()=>{message.success("已复制")})
@@ -57,15 +59,13 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, user, vip, onClos
             <div className="text-item flexRB">账号类型：{vip?.vip ? "付费会员" : "普通用户"} </div>
             <div className="text-item flexRB">到期时间：{vip?.expireTime} <Button className="btn-primary-auto info-btn" onClick={() => openRecharge('member')} type="primary">充值会员</Button></div>
             <div className="text-item">手机号码：{stateUserPrincipal.profile.phone.slice(0, 3)}****{stateUserPrincipal.profile.phone.slice(7)}</div>
-            <div className="user-info-qrCode-wrap flexR">
-                <div className="flexC">
-                    <img className="qrcode-img" src="" alt="" />
-                    <div className="qrcode-text">关注官方公众号</div>
-                </div>
-                <div className="flexC">
-                    <img className="qrcode-img" src="" alt="" />
-                    <div className="qrcode-text">专业服务社群</div>
-                </div>
+            <div className="logout flexR" onClick={logout}>
+                退出登录
+                <img src={assets.logout} className="out" />
+            </div>
+            <div className="user-info-qrCode-wrap flexC">
+                    <img className="qrcode-img" src={assets.serviceCode} />
+                    <div className="qrcode-text">关注客服微信</div>
             </div>
         </Modal>
     )

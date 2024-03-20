@@ -30,8 +30,10 @@ const assets = {
     foldIcon: require("@/assets/fold-icon.png"),
     closeIcon: require("@/assets/close-icon.png"),
     logo: require("@/assets/logo.png"),
+    logout: require("@/assets/logout.png"),
     logoVersion: require("@/assets/logo-version.png"),
-    wechat: require("@/assets/wechat.png")
+    wechat: require("@/assets/wechat.png"),
+    serviceCode: require("@/assets/service-code.png")
 }
 
 export default assets
