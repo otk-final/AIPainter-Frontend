@@ -167,25 +167,41 @@ export class ComfyUIRepository extends BaseRepository<ComfyUIRepository> impleme
         let traceId = uuid()
         if (cfg.negative) {
             let np = await this.absulotePath("comfyui_negative.txt")
-            await this.invoke_download(traceId, cfg.negative.url, np)
-            this.negative = { ...cfg.negative, path: np, content: await readTextFile(np) }
+            try {
+                await this.invoke_download(traceId, cfg.negative.url, np)
+                this.negative = { ...cfg.negative, path: np, content: await readTextFile(np) }
+            } catch (e) {
+                console.error(e)
+            }
         }
         if (cfg.positive) {
             let pp = await this.absulotePath("comfyui_positive.txt")
-            await this.invoke_download(traceId, cfg.positive.url, pp)
-            this.positive = { ...cfg.positive, path: pp, content: await readTextFile(pp) }
+            try {
+                await this.invoke_download(traceId, cfg.positive.url, pp)
+                this.positive = { ...cfg.positive, path: pp, content: await readTextFile(pp) }
+            } catch (e) {
+                console.error(e)
+            }
         }
         if (cfg.sensitive) {
             let sp = await this.absulotePath("comfyui_sensitive.txt")
-            await this.invoke_download(traceId, cfg.sensitive.url, sp)
-            this.sensitive = { ...cfg.sensitive, path: sp, content: await readTextFile(sp) }
+            try{
+                await this.invoke_download(traceId, cfg.sensitive.url, sp)
+                this.sensitive = { ...cfg.sensitive, path: sp, content: await readTextFile(sp) }
+            }catch(e){
+                console.error(e)
+            }
         }
 
         if (cfg.reverse) {
             //下载文件，替换本地路径
             let reversePath = await this.absulotePath("comfyui_reverse.json")
-            await this.invoke_download(traceId, cfg.reverse.url, reversePath)
-            this.reverse = { ...cfg.reverse, path: reversePath, content: "" }
+            try{
+                await this.invoke_download(traceId, cfg.reverse.url, reversePath)
+                this.reverse = { ...cfg.reverse, path: reversePath, content: "" }
+            }catch(e){
+                console.error(e)
+            }
         }
 
         let prompts = [] as ComfyUIFile[]
@@ -193,8 +209,12 @@ export class ComfyUIRepository extends BaseRepository<ComfyUIRepository> impleme
             let prompt = cfg.prompts[i]
             //下载文件，替换本地路径
             let promptPath = await this.absulotePath("comfyui_prompt_" + i + ".json")
-            await this.invoke_download(traceId, prompt.url, promptPath)
-            prompts.push({ ...prompt, path: promptPath, content: "" })
+            try{
+                await this.invoke_download(traceId, prompt.url, promptPath)
+                prompts.push({ ...prompt, path: promptPath, content: "" })
+            }catch(e){
+                console.error(e)
+            }
         }
         this.prompts = [...prompts]
 

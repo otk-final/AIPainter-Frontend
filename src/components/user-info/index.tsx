@@ -1,25 +1,27 @@
-import { Button, Input, Modal, } from "antd"
+import { Button, Input, message, Modal, } from "antd"
 import "./index.less"
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useState } from "react";
 import { CloseOutlined } from "@ant-design/icons";
 import { UserPrincipal } from "@/api";
+import { VipCredential } from "@/uses/useLogin";
 
 
 interface UserInfoModalProps {
     isOpen: boolean,
     user: UserPrincipal,
+    vip: VipCredential | undefined,
     onClose: () => void,
     openRecharge: (type: "member" | "energy") => void
 }
 
-const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, user, onClose, openRecharge }) => {
+const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, user, vip, onClose, openRecharge }) => {
     const [stateUserPrincipal, setUserPrincipal] = useState<UserPrincipal>(user)
     const [edit, setEdit] = useState(false);
     const [editInput, setEditInput] = useState<string>('');
 
     const handleCopy = async () => {
-        await writeText(stateUserPrincipal.profile.inviteCode);
+        await writeText(stateUserPrincipal.profile.inviteCode).then(()=>{message.success("已复制")})
     }
 
     const handleEdit = () => {
@@ -56,9 +58,9 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, user, onClose, op
                 </div>
                 <div className="edit" onClick={handleEdit}>{edit ? "保存" : "修改"}</div>
             </div>
-            <div className="text-item flexRB" onClick={handleCopy}>邀请码：{stateUserPrincipal.profile.inviteCode} <div className="edit cppy">复制邀请码</div></div>
-            <div className="text-item flexRB">账号类型：付费账号 </div>
-            <div className="text-item flexRB">到期时间：{stateUserPrincipal.profile.vipExpriedTime}<Button className="btn-primary-auto info-btn" onClick={() => openRecharge('member')} type="primary">充值会员</Button></div>
+            <div className="text-item flexRB">邀请码：{stateUserPrincipal.profile.inviteCode} <div className="edit cppy" onClick={handleCopy}>复制邀请码</div></div>
+            <div className="text-item flexRB">账号类型：{vip?.vip ? "付费会员" : "普通用户"} </div>
+            <div className="text-item flexRB">到期时间：{vip?.expireTime} <Button className="btn-primary-auto info-btn" onClick={() => openRecharge('member')} type="primary">充值会员</Button></div>
             <div className="text-item">手机号码：{stateUserPrincipal.profile.phone.slice(0, 3)}****{stateUserPrincipal.profile.phone.slice(7)}</div>
             <div className="user-info-qrCode-wrap flexR">
                 <div className="flexC">

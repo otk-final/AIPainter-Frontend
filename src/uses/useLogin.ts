@@ -1,21 +1,31 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { history } from 'umi'
-import { AuthClient, ClientAuthenticationStore, UserAuthorization, UserPrincipal } from '@/api';
+import { AuthClient, ClientAuthenticationStore, DefaultClient, UserAuthorization, UserPrincipal } from '@/api';
 import { useComfyUIRepository } from '@/repository/comfyui';
 
 // info 用户信息
 interface LoginAttribute {
     user: UserPrincipal | undefined;
+    vip: VipCredential | undefined
     isLogin: () => boolean
     isVip: () => boolean,
     getVipExpridTime: () => string | undefined,
+    refreshVip: () => void,
     login: (phone: string, code: string) => Promise<void>;
     logout: () => Promise<void>;
 }
 // authorization: UserAuthorization
 
+export interface VipCredential {
+    vip: boolean,
+    expired: boolean,
+    expireTime: string
+    rechargeTime: string
+}
+
 let context: LoginAttribute = {
     user: undefined,
+    vip: undefined,
     isLogin: () => {
         return false
     },
@@ -25,6 +35,7 @@ let context: LoginAttribute = {
     getVipExpridTime: () => {
         return undefined;
     },
+    refreshVip: () => { },
     login: (phone: string, code: string) => {
         return Promise.reject("not suport")
     },
@@ -44,6 +55,8 @@ export const LoginProvider = (props: any) => {
     let { user, init, refresh, reset } = ClientAuthenticationStore.getState()
     //存储状态
     const [up, setUserPrincipal] = useState<UserPrincipal | undefined>(user);
+    const [vipReload, setVipReload] = useState<boolean>(false);
+    const [vip, setVipCredential] = useState<VipCredential | undefined>(undefined);
 
     const initLogin = async () => {
         let author = await init()
@@ -52,10 +65,22 @@ export const LoginProvider = (props: any) => {
         }
     }
 
-    //加载
+    const initVip = async () => {
+        let apiResult = await DefaultClient.get("/pt/user/vip/credential")
+        setVipCredential(apiResult.data)
+    }
+
+    //加载登陆信息
     useEffect(() => {
         initLogin()
     }, [])
+
+
+    //加载vip信息
+    useEffect(() => {
+        if (user) initVip()
+    }, [user, vipReload])
+
 
     const comfyuiRepo = useComfyUIRepository(state => state)
 
@@ -68,6 +93,7 @@ export const LoginProvider = (props: any) => {
         })
         let author = resp.data as UserAuthorization
         setUserPrincipal(author.principal)
+
 
         //下载配置信息
         await comfyuiRepo.download()
@@ -89,15 +115,18 @@ export const LoginProvider = (props: any) => {
         {
             value: {
                 user: up,
+                vip: vip,
                 isLogin: () => {
                     return up !== undefined
                 },
                 isVip: () => {
-                    return up !== undefined && up.profile.vip !== "std"
+                    //登陆 + 存在 + 未过期
+                    return up !== undefined && vip !== undefined && !vip.expired
                 },
                 getVipExpridTime: () => {
-                    if (up !== undefined) return up.profile.vipExpriedTime
+                    if (vip !== undefined) return vip.expireTime
                 },
+                refreshVip: () => setVipReload(!vipReload),
                 login: login,
                 logout: logout,
             }

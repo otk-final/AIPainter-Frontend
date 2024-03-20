@@ -5,10 +5,12 @@ import { Button, Modal, } from "antd"
 import { useState } from "react";
 import "./index.less"
 import { UserPrincipal } from "@/api";
+import { VipCredential } from "@/uses/useLogin";
 
 interface MemberRechargeModuleProps {
     isOpen: boolean,
     user: UserPrincipal,
+    vip: VipCredential | undefined,
     onClose: () => void
 }
 const memberDatas = [
@@ -43,7 +45,7 @@ const contentDatas = [
     },
 ]
 
-const RechargeModal: React.FC<MemberRechargeModuleProps> = ({ isOpen, user, onClose }) => {
+const RechargeModal: React.FC<MemberRechargeModuleProps> = ({ isOpen, user, vip, onClose }) => {
     const [cur, setCur] = useState(memberDatas[0]);
     const handlePay = () => {
         // updateLoginState({ ...loginState, endTime: "2025-01-26" })
@@ -66,7 +68,7 @@ const RechargeModal: React.FC<MemberRechargeModuleProps> = ({ isOpen, user, onCl
                     <img src={assets.avatar1} className="user-img" />
                     <div>{user.name}</div>
                 </div>
-                <div>VIP 到期时间：{user.profile.vipExpriedTime}</div>
+                <div>VIP 到期时间：{vip?.expireTime}</div>
             </div>
             <div className="user-content-wrap flexR">
                 {contentDatas.map((i, index) => {
