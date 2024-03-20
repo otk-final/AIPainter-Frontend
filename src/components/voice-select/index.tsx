@@ -347,7 +347,7 @@ export const TTSVoiceModal: React.FC<TTSConfiguration> = ({ isOpen, setOpen, aud
         open={isOpen}
         onCancel={() => setOpen(false)}
         footer={null}
-        width={700} 
+        width={500} 
         className="voice-select-wrap">
         <div className="title">配音设置</div>
         <Cascader
@@ -364,8 +364,8 @@ export const TTSVoiceModal: React.FC<TTSConfiguration> = ({ isOpen, setOpen, aud
             <AddonNumberInput label='语速调节' value={stateConfiguration.speed_ratio} onChange={(v) => { setConfiguration({ ...stateConfiguration, speed_ratio: v }) }} />
         </div>
         <div className="flexRB">
-            <Button type="default" block className="btn btn-default-auto" style={{width: '280px'}} onClick={() => setOpen(false)}>取消</Button>
-            <Button type="primary" block className="btn btn-primary-auto" style={{width: '280px'}} onClick={handleChange}>确认</Button>
+            <Button type="default" block className="btn btn-default-auto" style={{width: '220px'}} onClick={() => setOpen(false)}>取消</Button>
+            <Button type="primary" block className="btn btn-primary-auto" style={{width: '220px'}} onClick={handleChange}>确认</Button>
         </div>
     </Modal>
 }

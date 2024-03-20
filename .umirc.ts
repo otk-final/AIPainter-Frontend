@@ -10,7 +10,6 @@ export default defineConfig({
     { path: "/story/:pid", component: "@/pages/story/index" },
     { path: "/imitate/:pid", component: "@/pages/imitate/index" },
     { path: "/roleset/:pid", component: "@/pages/roleset/index" },
-    {path: '/draft', component: "@/pages/draft/index"},
     { path: "/agreement", component: "@/pages/agreement/index" },
     { path: "/privatepage", component: "@/pages/privatepage/index" },
   ],

@@ -125,7 +125,7 @@ const FileImportModal: React.FC<FileImportProps> = ({ isOpen, onClose }) => {
             <div className="script-import">
                 <div className="title">分镜标识符</div>
                 <Select
-                    className={`select-auto select-h56`}
+                    className={`select-auto`}
                     value={boardType}
                     onChange={setBoardType}
                     options={[

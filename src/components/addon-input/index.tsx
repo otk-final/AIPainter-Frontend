@@ -1,5 +1,6 @@
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, InputNumber } from "antd";
+import './index.less'
 
 
 const AddonNumberInput: React.FC<{ label: string, max?: number, min?: number, step?: number, value: number, onChange: (value: number) => void }> = ({ label, max = 3, min = 0.1, step = 0.1, value, onChange }) => {
@@ -18,17 +19,17 @@ const AddonNumberInput: React.FC<{ label: string, max?: number, min?: number, st
     }
 
     return (
-        <div className="form-item flexC">
+        <div className="addon-input-wrap">
             <div className="label">{label}</div>
-            <InputNumber className={"has-addon"} size="large"
+            <InputNumber size="large"
                 controls={false}
                 defaultValue={value}
                 value={value}
                 max={max}
                 min={min}
                 readOnly
-                addonBefore={<Button type="text" className="addon-btn" onClick={(handleAdd)}><PlusOutlined /></Button>}
-                addonAfter={<Button type="text" className="addon-btn" onClick={handleMinus}><MinusOutlined /></Button>}
+                addonBefore={<Button type="text" onClick={(handleAdd)}><PlusOutlined /></Button>}
+                addonAfter={<Button type="text"onClick={handleMinus}><MinusOutlined /></Button>}
             />
         </div>
     )
