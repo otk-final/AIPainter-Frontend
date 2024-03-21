@@ -65,7 +65,7 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
             <div className='flexR'>
                 <div>请导入视频：</div>
                 <Button type="default" className="btn-default-auto btn-default-88" onClick={handleImported} >导入</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-88" style={{ width: '130px' }} disabled={!simulateRepo.videoPath} onClick={handleCollectFrames}>抽帧关键帧</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-88" disabled={!simulateRepo.videoPath} onClick={handleCollectFrames}>抽帧关键帧</Button>
                 {/* <Button type="primary" className="btn-primary-auto btn-primary-88" style={{ width: '100px' }} disabled={!simulateRepo.videoPath} onClick={handleCollectAudio}>导出音频</Button> */}
             </div>
 
@@ -74,8 +74,8 @@ const VideoImportTab: React.FC<VideoImportProps> = ({ pid, handleChangeTab }) =>
                     <ReactPlayer url={convertFileSrc(simulateRepo.videoPath!)}
                         width="200px"
                         height="200px"
-                        style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '6px' }}
                     />
+
                     {/* {payload && <div className='time'>{getTime(payload.streams[0].duration_ts)}</div>}
                 <div className='video-name'>{videoPath?.split('/').pop()}</div> */}
                 </div>}

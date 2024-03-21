@@ -70,27 +70,49 @@ body {
   }
 }
 
+
 // 全局弹出框 样式覆盖
 .ant-modal {
+  & .ant-modal-body {
+    padding: 0 20px;
+  }
+
   & .ant-modal-header {
-    background-color: #1B1B1C;
-    margin-bottom: 20px;
+      height: 32px;
+      background-color: #29292D;
+      padding-left: 16px;
+      margin-bottom: 0;
   }
 
   & .ant-modal-content {
     background-color: #1B1B1C;
-    padding: 40px;
+    padding: 0;
+    padding-bottom: 24px;
   }
 
   & .ant-modal-title {
-    font-size: 20px;
-    text-align: center;
+    font-size: 12px;
     color: @l-font-color;
+    text-align: left;
+    line-height: 32px;
+    font-weight: normal;
   }
 
   & .ant-modal-close {
-    color: #666;
-  }
+    width: 32px;
+    height: 32px;
+    top: 0;
+    right: 0;
+    color: @m-font-color;
+    &:hover {
+      color: @m-font-color;
+    }
+
+    & .ant-modal-close-x {
+        font-size: 12px;
+        
+    }
+}
 }
 
 // 全局tabs 样式覆盖
@@ -268,7 +290,9 @@ body {
 .ant-message.ant-message-top .ant-message-notice-wrapper .ant-message-notice-content {
   background-color: @bg-btn;
 }
-
+.ant-modal-confirm .ant-modal-confirm-paragraph {
+  max-width: none;
+}
 .ant-modal-confirm-body-wrapper {
   & .ant-modal-confirm-body.ant-modal-confirm-body-has-title {
     color: @l-font-color;
@@ -278,9 +302,13 @@ body {
     }
 
     & .ant-modal-confirm-title {
-      text-align: center;
+      text-align: left;
+      padding-left: 16px;
       color: @l-font-color;
-      justify-content: center;
+      height: 32px;
+      line-height: 32px;
+      font-size: 12px;
+      background-color: #29292D;
     }
   }
 
@@ -427,43 +455,9 @@ body {
 }
 
 
-// modal header
-.ant-modal {
-  & .ant-modal-content {
-      padding: 0;
-      padding-bottom: 40px;
-  }
-  & .ant-modal-body {
-    padding: 0 20px;
-  }
 
-  & .ant-modal-close {
-      width: 32px;
-      height: 32px;
-      top: 0;
-      right: 0;
-      color: @m-font-color;
-      &:hover {
-        color: @m-font-color;
-      }
 
-      & .ant-modal-close-x {
-          font-size: 12px;
-          
-      }
-  }
-
-  & .ant-modal-header {
-      height: 32px;
-      background-color: #29292D;
-      padding-left: 16px;
-      margin-bottom: 0;
-      & .ant-modal-title {
-          font-size: 12px;
-          color: @l-font-color;
-          text-align: left;
-          line-height: 32px;
-          font-weight: normal;
-      }
-  }
+.ant-btn {
+  padding: 4px;
+  border-radius: 4px;
 }
