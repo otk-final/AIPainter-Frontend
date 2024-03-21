@@ -170,9 +170,7 @@ const DrawbatchTab: React.FC<DrawbatchTabProps> = ({ pid, project }) => {
     return (
         <div className="storyboard-wrap">
             <div className='script-header flexR'>
-                <div className='flexR'>
-                    <ComyUIModeSelect mode={mode} onChange={setOption}></ComyUIModeSelect>
-                </div>
+                <ComyUIModeSelect mode={mode} onChange={setOption}></ComyUIModeSelect>
                 <div className='flexR'>
                     <div className='flexR'>批量开始起点
                         <InputNumber controls={false}

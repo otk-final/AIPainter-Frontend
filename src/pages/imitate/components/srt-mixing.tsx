@@ -204,7 +204,7 @@ const SRTMixingTab: React.FC<SRTMixingProps> = ({ pid }) => {
     return (
         <div className="generate-image-wrap">
             <div className='generate-header flexR'>
-                <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={() => setTTS({ ...stateTTS, open: true })}>音频设置</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-88" style={{marginLeft: '0'}} onClick={() => setTTS({ ...stateTTS, open: true })}>音频设置</Button>
                 <div className='flexR'></div>
                 <div className='flexR'>
                     <div className='flexR'>批量开始起点 <InputNumber controls={false} style={{ width: "54px", marginLeft: '10px', marginRight: '10px' }} className="inputnumber-auto" placeholder='1'

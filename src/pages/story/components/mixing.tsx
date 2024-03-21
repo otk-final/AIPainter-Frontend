@@ -153,9 +153,7 @@ const MixingTab: React.FC<MixingTabProps> = ({ pid}) => {
     return (
         <div className="storyboard-wrap">
             <div className='script-header flexR'>
-                <div className='flexR'>
-                    <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleExportSRTFile}>导出新字幕文件</Button>
-                </div>
+                <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleExportSRTFile}>导出新字幕文件</Button>
                 <div className='flexR'>
                     <div className='flexR'>批量开始起点 <InputNumber controls={false} style={{ width: "54px", marginLeft: '10px', marginRight: '10px' }} className="inputnumber-auto" placeholder='1'
                         defaultValue={1}

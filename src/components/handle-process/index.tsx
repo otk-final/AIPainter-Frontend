@@ -62,19 +62,22 @@ const HandleProcessModal: React.FC<HandleProcessModalProps> = ({ pid, open, titl
 
 
     const renderCancelContent = () => {
-        return <div className='content'>
+        return <div>
             <div className='title'>确认要终止任务吗？</div>
-            <div className='btn-wrap flexR'>
-                <Button type="default" className="btn-default-auto btn-default-88" style={{ width: '130px' }} onClick={onClose} >确认</Button>
-                <Button type="primary" className="btn-primary-auto btn-primary-88" style={{ width: '130px' }} onClick={() => setCancelReady(false)}>取消</Button>
+            <div className='flexR' style={{marginTop: '10px'}}>
+                <Button type="default" className="btn-default-auto btn-default-88" onClick={onClose} >确认</Button>
+                <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={() => setCancelReady(false)}>取消</Button>
             </div>
         </div>
     }
 
     const renderRuningContent = () => {
-        return <div className='content'>
+        return <div>
             {
-                stateProccess && <div className='title'>{stateProccess.title}<Progress percent={Math.floor((stateProccess.completed / stateProccess.except) * 100)} status="active" showInfo /></div>
+                stateProccess && <div>
+                    <div className='title'>{stateProccess.title}</div>
+                    <Progress percent={Math.floor((stateProccess.completed / stateProccess.except) * 100)} status="active" showInfo />
+                </div> 
             }
             {
                 !stateProccess && <div className='title'>{title}</div>
@@ -87,8 +90,8 @@ const HandleProcessModal: React.FC<HandleProcessModalProps> = ({ pid, open, titl
         onCancel={() => setCancelReady(true)}
         footer={null}
         keyboard={false}
-        width={'50%'}
-        className="energy-recharge">
+        width={320}
+        className="process-wrap">
         {isCancelReady ? renderCancelContent() : renderRuningContent()}
     </Modal>
 }

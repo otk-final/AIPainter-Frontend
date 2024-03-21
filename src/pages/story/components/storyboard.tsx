@@ -49,11 +49,11 @@ const StoryboardTab: React.FC<StoryboardTabProps> = ({ pid }) => {
             <div style={{ height: '100%' }}>
                 <div className='script-header flexR'>
                     <div className='flexR'>
-                        <Button type='default' className='btn-default-auto btn-default-92 l-p' onClick={() => setOpen(true)}>导入脚本文件</Button>
+                        <Button type='default' className='btn-default-auto btn-default-88' onClick={() => setOpen(true)}>导入脚本文件</Button>
                         <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={() => { history.push('/roleset/' + pid) }} >设置角色</Button>
                     </div>
                     <div className='flexR'>
-                        <div className='text'>已完成分镜: {hasCompletedCount}/{chapterRepo.items.length}</div>
+                        <div>已完成分镜: {hasCompletedCount}/{chapterRepo.items.length}</div>
                         <Button type='primary' className='btn-primary-auto btn-primary-88'>批量推理关键词</Button>
                     </div>
                 </div>
