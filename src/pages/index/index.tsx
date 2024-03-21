@@ -155,7 +155,7 @@ const HomePage = () => {
       {projectRepo.items.length ? renderMyCreation() : renderMyCreationEmpty()}
       {isProjectOpen && <ProjectModal isOpen={true} onClose={() => setIsProjectOpen(undefined)} type={isProjectOpen} />}
       <LoginModal isOpen={isLoginOpen} onClose={() => setLoginOpen(false)} />
-      {login.isLogin() && <UserInfoModal user={login.user!} vip={login.vip!} isOpen={isUserProfileOpen} onClose={() => setUserProfileOpen(false)} openRecharge={openRecharge} />}
+      {login.isLogin() && <UserInfoModal isOpen={isUserProfileOpen} onClose={() => setUserProfileOpen(false)} openRecharge={openRecharge} />}
       {login.isLogin() && <RechargeModal user={login.user!} vip={login.vip!}  isOpen={isRechargeOpen} onClose={() => setRechargeOpen(false)} />}
       <JYConfigModal isOpen={isJYDraft} onClose={() => setJYDraftOpen(false)} />
     </div>

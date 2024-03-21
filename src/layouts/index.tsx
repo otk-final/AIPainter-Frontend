@@ -11,9 +11,6 @@ export default function Layout(props: any) {
   const [update, setUpdate] = useState<updater.Update | undefined>();
   const [updateOpen, setUpdateOpen] = useState<boolean>(false);
 
-  const { logout } = useLogin();
-
-
   useEffect(() => {
     new DevicePixelRatio().init()
     //初始化

@@ -13,6 +13,7 @@ interface LoginAttribute {
     refreshVip: () => void,
     login: (phone: string, code: string) => Promise<void>;
     logout: () => Promise<void>;
+    onUpdate: (props: UserPrincipal) => void
 }
 // authorization: UserAuthorization
 
@@ -41,6 +42,9 @@ let context: LoginAttribute = {
     },
     logout: () => {
         return Promise.reject("not suport")
+    },
+    onUpdate: (props: UserPrincipal) => {
+        return true
     }
 }
 const LoginContext = React.createContext<LoginAttribute>(context);
@@ -109,6 +113,12 @@ export const LoginProvider = (props: any) => {
         history.replace('/')
     }, [])
 
+    const onUpdate = (props: UserPrincipal) =>{
+        setUserPrincipal((res)=>{
+            return {...res, ...props}
+        });
+        return true;
+    }
 
     return React.createElement(
         LoginContext.Provider,
@@ -129,6 +139,7 @@ export const LoginProvider = (props: any) => {
                 refreshVip: () => setVipReload(!vipReload),
                 login: login,
                 logout: logout,
+                onUpdate: onUpdate,
             }
         },
         props.children

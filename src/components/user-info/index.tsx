@@ -9,27 +9,24 @@ import assets from "@/assets";
 
 interface UserInfoModalProps {
     isOpen: boolean,
-    user: UserPrincipal,
-    vip: VipCredential | undefined,
     onClose: () => void,
     openRecharge: (type: "member" | "energy") => void
 }
 
-const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, user, vip, onClose, openRecharge }) => {
-    const [stateUserPrincipal, setUserPrincipal] = useState<UserPrincipal>(user)
+const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, openRecharge }) => {
     const [edit, setEdit] = useState(false);
     const [editInput, setEditInput] = useState<string>('');
-    const { logout } = useLogin();
+    const { logout, onUpdate, user, vip } = useLogin();
 
     const handleCopy = async () => {
-        await writeText(stateUserPrincipal.profile.inviteCode).then(()=>{message.success("已复制")})
+        await writeText(user?.profile?.inviteCode).then(()=>{message.success("已复制")})
     }
 
     const handleEdit = () => {
         if (!edit) {
             setEdit(true);
         } else {
-            setUserPrincipal({ ...stateUserPrincipal, name: editInput })
+            onUpdate({...user,  name: editInput || user?.name })
             setEdit(false);
         }
     }
@@ -51,14 +48,14 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, user, vip, onClos
                         maxLength={20}
                         value={editInput}
                         onChange={(v) => setEditInput(v.target.value)} />
-                        : stateUserPrincipal.name}
+                        : user?.name}
                 </div>
                 <div className="edit" onClick={handleEdit}>{edit ? "保存" : "修改"}</div>
             </div>
-            <div className="text-item flexRB">邀请码：{stateUserPrincipal.profile.inviteCode} <div className="edit cppy" onClick={handleCopy}>复制邀请码</div></div>
+            <div className="text-item flexRB">邀请码：{user?.profile?.inviteCode} <div className="edit cppy" onClick={handleCopy}>复制邀请码</div></div>
             <div className="text-item flexRB">账号类型：{vip?.vip ? "付费会员" : "普通用户"} </div>
             <div className="text-item flexRB">到期时间：{vip?.expireTime} <Button className="btn-primary-auto info-btn" onClick={() => openRecharge('member')} type="primary">充值会员</Button></div>
-            <div className="text-item">手机号码：{stateUserPrincipal.profile.phone.slice(0, 3)}****{stateUserPrincipal.profile.phone.slice(7)}</div>
+            <div className="text-item">手机号码：{user?.profile.phone.slice(0, 3)}****{user?.profile.phone.slice(7)}</div>
             <div className="logout flexR" onClick={logout}>
                 退出登录
                 <img src={assets.logout} className="out" />
