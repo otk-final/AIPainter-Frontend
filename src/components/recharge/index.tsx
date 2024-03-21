@@ -14,35 +14,22 @@ interface MemberRechargeModuleProps {
 }
 const memberDatas = [
     {
-        price: 6800,
-        time: 30,
-        label: '月度'
+        price: 3000,
+        time: 1,
+        label: '天卡'
     },
     {
-        price: 19800,
-        time: 180,
-        label: '半年'
+        price: 18000,
+        time: 7,
+        label: '周卡'
+    },
+    {
+        price: 54000,
+        time: 30,
+        label: '月卡'
     }
 ]
 
-
-const contentDatas = [
-    {
-        url: assets.recharge1,
-        title: '会员功能丨模型分层使用',
-        text: '通过“区城指定"功能、可指定LORA模型仅修改角色的局部特定（脸部，画面风格），而不影响其他画面区域'
-    },
-    {
-        url: assets.recharge2,
-        title: '会员功能丨图像化提示词选择',
-        text: '可通过提示词的“国例”，更方便查询和使用所需的提示词内容'
-    },
-    {
-        url: assets.recharge3,
-        title: '会员功能|绘画模版',
-        text: '可基于小说风格（都市、仙快、末日）自定义多个插画模版、 方便你使用'
-    },
-]
 
 const RechargeModal: React.FC<MemberRechargeModuleProps> = ({ isOpen, user, vip, onClose }) => {
     const [cur, setCur] = useState(memberDatas[0]);
@@ -65,24 +52,55 @@ const RechargeModal: React.FC<MemberRechargeModuleProps> = ({ isOpen, user, vip,
                 </div>
                 <div>VIP 到期时间：{vip?.expireTime}</div>
             </div>
-            <div className="user-content-wrap flexR">
-                {contentDatas.map((i, index) => {
-                    return (
-                        <div className="content-wrap flexC" key={index}>
-                            <img src={i.url} className="icon-img" />
-                            <div className="title">{i.title}</div>
-                            <div className="text">{i.text}</div>
-                        </div>
-                    )
-                })}
+
+            <div className="user-content-wrap flexC">
+                <div className="tr th flexR">
+                    <div className="td"></div>
+                    <div className="td">鹦鹉智绘</div>
+                    <div className="td">我们的优势</div>
+                    <div className="td">其他软件</div>
+                </div>
+                <div className="tr odd flexR">
+                    <div className="td">AI翻拍<br/>{`(一键追爆款，剪同款)`}</div>
+                    <div className="td"><img src={assets.select} className="select"/></div>
+                    <div className="td">免购买</div>
+                    <div className="td">某软件500元/套，还得自己部署SD环境</div>
+                </div>
+                <div className="tr flexR">
+                    <div className="td">Stable Diffusion</div>
+                    <div className="td"><img src={assets.select} className="select"/></div>
+                    <div className="td">最新的SDXL模型，直出1080分辨率图片，放大后直接4K分辨率 <br/>类4090算力，免去webui环境配置、下载模型的麻烦</div>
+                    <div className="td">Nvidia GPU 4090 约57元/天</div>
+                </div>
+                <div className="tr odd flexR">
+                    <div className="td">GPT-3.5 Turbo</div>
+                    <div className="td"><img src={assets.select} className="select"/></div>
+                    <div className="td">免购买、免科学上网</div>
+                    <div className="td">某GPT官方价格为3.5元/1000 tokens</div>
+                </div>
+                <div className="tr flexR">
+                    <div className="td">翻译</div>
+                    <div className="td"><img src={assets.select} className="select"/></div>
+                    <div className="td">免购买、免配置</div>
+                    <div className="td">49元/百万字</div>
+                </div>
+                <div className="tr odd flexR">
+                    <div className="td">AI配音</div>
+                    <div className="td"><img src={assets.select} className="select"/></div>
+                    <div className="td end">免购买、剪映同款AI引擎</div>
+                    <div className="td">某软件会员39元/月</div>
+                </div>
             </div>
             <div className="flexR">
                 {memberDatas.map((i, idx) => {
+                    let price = getPriceInt(i.price / i.time)
+                    let numArr = price.split('.');
+                    let num1 = numArr.length> 1 ? `${numArr[0]}.${numArr[1].slice(0,1)}` : price
                     return (
                         <div className={`recharge-item flexC ${cur.price === i.price ? "cur" : ""}`} onClick={() => setCur(i)} key={idx}>
                             <div className="unit">{i.label}</div>
-                            <div className="price-wrap flexR"><span className="unit">¥</span><span className="price">{getPriceInt(i.price)}</span></div>
-                            <div className="per">{(i.price / i.time / 100).toFixed(1)}元/天</div>
+                            <div className="price-wrap flexR"><span className="unit">¥</span><span className="price">{num1}</span><span className="unit">{`/天`}</span></div>
+                            <div className="per">{getPriceInt(i.price)}元 | {i.time}天</div>
                         </div>
                     )
                 })}

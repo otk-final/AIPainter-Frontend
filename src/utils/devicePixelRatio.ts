@@ -23,10 +23,10 @@ class DevicePixelRatio {
       //页面devicePixelRatio（设备像素比例）变化后，计算页面body标签zoom修改其大小，来抵消devicePixelRatio带来的变化。
       const size = 1 / window.devicePixelRatio;
       const size2 = 100 / size + '%';
-      (document.getElementById('wlg') as any).style.transform = 'scale(' + size + ')';
-      (document.getElementById('wlg') as any).style.transformOrigin = '0 0';
-      (document.getElementById('wlg') as any).style.width = size2;
-      (document.getElementById('wlg') as any).style.height = size2;
+      (document.getElementById('root') as any).style.transform = 'scale(' + size + ')';
+      (document.getElementById('root') as any).style.transformOrigin = '0 0';
+      (document.getElementById('root') as any).style.width = size2;
+      (document.getElementById('root') as any).style.height = size2;
     }
     //监听页面缩放
     _watch() {

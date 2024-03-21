@@ -14,9 +14,6 @@ const assets = {
     fontfamily8: require("@/assets/fontfamily8.png"),
     fontfamily9: require("@/assets/fontfamily9.png"),
     fontfamily10: require("@/assets/fontfamily10.png"),
-    recharge1: require("@/assets/recharge1.png"),
-    recharge2: require("@/assets/recharge2.png"),
-    recharge3: require("@/assets/recharge3.png"),
     energy: require("@/assets/energy.png"),
     emptyH: require("@/assets/empty-h.png"),
     emptyC: require("@/assets/empty-c.png"),
@@ -33,7 +30,8 @@ const assets = {
     logout: require("@/assets/logout.png"),
     logoVersion: require("@/assets/logo-version.png"),
     wechat: require("@/assets/wechat.png"),
-    serviceCode: require("@/assets/service-code.png")
+    serviceCode: require("@/assets/service-code.png"),
+    select: require("@/assets/select.png")
 }
 
 export default assets
