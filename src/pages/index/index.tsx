@@ -156,7 +156,7 @@ const HomePage = () => {
       {isProjectOpen && <ProjectModal isOpen={true} onClose={() => setIsProjectOpen(undefined)} type={isProjectOpen} />}
       <LoginModal isOpen={isLoginOpen} onClose={() => setLoginOpen(false)} />
       {login.isLogin() && <UserInfoModal isOpen={isUserProfileOpen} onClose={() => setUserProfileOpen(false)} openRecharge={openRecharge} />}
-      {login.isLogin() && <RechargeModal user={login.user!} vip={login.vip!}  isOpen={isRechargeOpen} onClose={() => setRechargeOpen(false)} />}
+      {login.isLogin() && <RechargeModal isOpen={isRechargeOpen} onClose={() => setRechargeOpen(false)} />}
       <JYConfigModal isOpen={isJYDraft} onClose={() => setJYDraftOpen(false)} />
     </div>
   );

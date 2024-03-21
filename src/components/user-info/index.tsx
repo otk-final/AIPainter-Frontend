@@ -26,7 +26,7 @@ const UserInfoModal: React.FC<UserInfoModalProps> = ({ isOpen, onClose, openRech
         if (!edit) {
             setEdit(true);
         } else {
-            onUpdate({...user,  name: editInput || user?.name })
+            onUpdate({...user, name: editInput || user?.name })
             setEdit(false);
         }
     }
