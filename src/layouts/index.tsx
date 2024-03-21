@@ -12,7 +12,6 @@ export default function Layout(props: any) {
   useEffect(() => {
     //初始化
     updater.check().then(e => {
-      debugger
       if (e?.available) {
         setUpdateOpen(true)
         setUpdate(e)

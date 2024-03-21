@@ -31,7 +31,7 @@ const UpDateVersion: React.FC<UpDateVersionProps> = ({ isOpen, hold, onClose }) 
         await hold.downloadAndInstall(onUpdateEvent)
     }
 
-    hold.version
+    // hold.version
     return (
         <Modal title="版本更新"
             open={isOpen}

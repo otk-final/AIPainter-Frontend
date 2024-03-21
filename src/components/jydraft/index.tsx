@@ -134,7 +134,7 @@ const JYConfigModal:React.FC<JYConfigProps> = ({isOpen, onClose})=>{
             <div className='subText'>剪映草稿存放目录文件夹存储位置 <span>更改项目素材文件夹的存储位置， 将影响己创建的小说项目的图片、视频等素材的使用，请详慎操作</span> </div>
             <div className="flexRB" >
                 <Input size="large" disabled placeholder="剪映草稿目录" value={stateConfiguration.draft_dir} className='input-s'  />
-                <Button type="default" className="btn-default-auto btn-default-88" onClick={handleChangePosition}>更改存储位蛋</Button>
+                <Button type="default" className="btn-default-auto btn-default-88" onClick={handleChangePosition}>选择草稿目录</Button>
             </div>
         </div>
     )
