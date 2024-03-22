@@ -104,8 +104,8 @@ export const CustomTags: React.FC<RoleTagsProps> = ({ tags, hasTags, handleCheck
         </div>
 
         <div className="flexR">
-            <Input size="large" value={input} onChange={(v) => setInput(v.target.value)} style={{ height: "40px" }} />
-            <Button type="primary" className="bottom-item btn-primary-auto" style={{ height: "40px", marginLeft: '20px' }} onClick={handleAdd}>添加</Button>
+            <Input size="large"  style={{ width: '160px', height: '28px', borderRadius: '2px', marginRight: '8px' }} value={input} onChange={(v) => setInput(v.target.value)}  />
+            <Button type="primary" className="btn-primary-auto btn-primary-88" onClick={handleAdd}>添加</Button>
         </div>
     </div>)
 }
@@ -232,8 +232,8 @@ export const CheckedTags: React.FC<CheckedTagsProps> = ({ tags, image, handleChe
                     <div className="clean" onClick={() => setPreview(!isPreview)}>预览</div>
                 </div>
                 <div className="flexR" style={{ justifyContent: 'space-between' }}>
-                    <Button type="primary" block className="btn-primary-auto" style={{ width: '180px' }} onClick={handleGeneratePreview} >生成</Button>
-                    <Button type="primary" block className="btn-primary-auto" style={{ width: '180px' }} onClick={handleConfirm}>保存</Button>
+                    <Button type="primary" block className="btn-primary-auto btn-primary-88" onClick={handleGeneratePreview} >生成</Button>
+                    <Button type="primary" block className="btn-primary-auto btn-primary-88" onClick={handleConfirm}>保存</Button>
                 </div>
             </div>
         </div>

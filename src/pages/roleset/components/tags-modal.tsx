@@ -129,17 +129,17 @@ export const TagModal: React.FC<TagModalProps> = ({ actor, isOpen, setOpen, onCh
             open={isOpen}
             onCancel={() => setOpen(false)}
             footer={null}
-            width={1160}
+            width={800}
             className="role-tags-modal"
         >
             <div className={`role-tags-wrap flexC`}>
-                <div className="choose-wrap flexR" style={{ marginBottom: '20px' }}>
+                <div className="choose-wrap flexR">
                     <div className={`choose-item ${renderType === 'text' ? "cur" : ''}`} onClick={() => setRenderType('text')}>文字</div>
                     <div className={`choose-item flexR ${renderType === 'image' ? "cur" : ''}`} onClick={() => setRenderType('image')}>
                         图片
                         <img src={assets.vip} className="vip-img" /> </div>
                 </div>
-                <div className="flexR" style={{ alignItems: "stretch" }}>
+                <div className="flexRB" style={{ alignItems: "stretch", marginTop: '20px' }}>
                     <div className="left">
                         <Tabs items={tabs} onChange={setCur} activeKey={cur} />
                     </div>

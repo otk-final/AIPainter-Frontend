@@ -38,7 +38,7 @@ export class JYDraftRepository extends BaseRepository<JYDraftRepository> impleme
     }
 
     video = {
-        effect: "up",
+        effect: "random",
         fps: 25,
     }
     srt = {

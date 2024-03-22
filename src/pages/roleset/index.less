@@ -2,7 +2,7 @@
     color: aliceblue;
 
     & .sub-text {
-        font-size: 14px;
+        font-size: 12px;
         color: @s-font-color;
         margin-bottom: 20px;
         padding-left: 30px;
@@ -28,12 +28,12 @@
 
         & .top {
             justify-content: space-between;
-            font-size: 16px;
+            font-size: 12px;
             color: @m-font-color;
         }
 
         & .content-title {
-            font-size: 14px;
+            font-size: 12px;
             color: @m-font-color;
             margin-bottom: 16px;
         }
@@ -61,7 +61,7 @@
             flex: 1;
             border: 1px solid @border-line-color;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 12px;
             color: @m-font-color;
             & .add-icon {
                 font-size: 50px;
@@ -79,44 +79,56 @@
     }
 
     & .title-tags {
-        font-size: 16px;
+        font-size: 12px;
         color: @m-font-color;
         margin-bottom: 10px;
         
     }
 
     & .left {
-        flex: 0 0 59%;
+        flex: 0 0 50%;
     }
    
     & .role-tags-wrap {
         width: 100%;
-        margin-bottom: 10px;
-       
+
+        & .ant-tabs .ant-tabs-tab {
+            padding-bottom: 6px;
+        }
+        & .ant-tabs-content-holder {
+            padding-top: 10px;
+        }
+        
         & .role-tags-title {
-            font-size: 16px;
+            font-size: 12px;
             color: @l-font-color;
             margin-bottom: 14px;
             & span {
-                font-size: 14px;
+                font-size: 12px;
                 color: @s-font-color;
             }
             & .icon {
                 margin-right: 10px;
             }
         }
-
+        
+        & .ant-tabs-top >.ant-tabs-nav, & .ant-tabs-bottom >.ant-tabs-nav, & .ant-tabs-top >div>.ant-tabs-nav, & .ant-tabs-bottom >div>.ant-tabs-nav {
+            margin-bottom: 0;
+        }
+        & .ant-tabs .ant-tabs-tab+.ant-tabs-tab {
+            margin-left: 20px;
+        }
         & .role-tags-box {
             flex-wrap: wrap;
         }
         & .role-tag-wrap {
             border-radius: 4px;
-            padding: 0 6px;
-            height: 32px;
-            font-size: 14px;
+            padding: 0 3px;
+            height: 28px;
+            font-size: 12px;
             color: @m-font-color;
             background-color: @bg-btn;
-            line-height: 32px;
+            line-height: 28px;
             border: 1px solid @bg-btn;
             margin-right: 10px;
             margin-bottom: 10px;
@@ -131,7 +143,7 @@
             background-color: @bg-btn;
             border-radius: 6px;
             padding: 2px;
-            font-size: 14px;
+            font-size: 12px;
             color: @l-font-color;
             margin-right: 14px;
             margin-bottom: 16px;
@@ -158,7 +170,7 @@
         height: inherit;
         flex: 0 0 36%;
         border: 1px solid @bg-btn;
-        padding: 20px;
+        padding: 10px;
         justify-content: space-between;
         align-items: flex-start;
         
@@ -170,12 +182,13 @@
 
         & .clean {
             width: 72px;
-            height: 32px;
-            line-height: 32px;
+            height: 28px;
+            line-height: 28px;
             text-align: center;
             border: 1px solid #666;
-            font-size: 14px;
+            font-size: 12px;
             color: @m-font-color;
+            margin-top: 10px;
         }
     }
 
@@ -197,7 +210,7 @@
         border-radius: 4px;
         padding: 0 6px;
         height: 32px;
-        font-size: 14px;
+        font-size: 12px;
         color: @m-font-color;
         background-color: @bg-btn;
         line-height: 32px;
@@ -211,13 +224,14 @@
     }
 
     & .choose-wrap {
+        margin: 10px 0 0;
         & .choose-item {
             width: 54px;
-            height: 32px;
+            height: 28px;
             border: 1px solid #666;
             text-align: center;
-            line-height: 32px;
-            font-size: 14px;
+            line-height: 28px;
+            font-size: 12px;
             color: @s-font-color;
             background-color: @bg-btn;
             justify-content: center;
@@ -239,5 +253,10 @@
 
     &.ant-modal {
         top: 100px;
+    }
+
+    & .btn-primary-auto.ant-btn.btn-primary-88 {
+        width: 108px;
+        margin-left: 0;
     }
 }
